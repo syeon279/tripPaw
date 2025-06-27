@@ -1,4 +1,4 @@
-package com.ssdam.tripPaw.member.domain;
+package com.ssdam.tripPaw.domain;
 import java.time.LocalDateTime;
 
 import com.ssdam.tripPaw.member.config.MemberRole;
