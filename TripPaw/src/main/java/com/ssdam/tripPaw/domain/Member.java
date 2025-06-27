@@ -1,11 +1,20 @@
 package com.ssdam.tripPaw.domain;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.ssdam.tripPaw.member.config.MemberRole;
@@ -53,5 +62,24 @@ public class Member {
 		this.provider = provider;
 		this.password = password;
 	}
+	
+	@ManyToMany
+	@JoinTable(
+	    name = "member_likes_review",
+	    joinColumns = @JoinColumn(name = "member_id"),
+	    inverseJoinColumns = @JoinColumn(name = "review_id")
+	)
+	private Set<Review> likedReviews = new HashSet<>();
+	
+	@ManyToMany
+	@JoinTable(
+	    name = "member_badge",
+	    joinColumns = @JoinColumn(name = "member_id"),
+	    inverseJoinColumns = @JoinColumn(name = "badge_id")
+	)
+	private Set<Badge> badges = new HashSet<>();
+	
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Review> reviews = new ArrayList<>();
 	
 }
