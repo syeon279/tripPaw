@@ -1,7 +1,9 @@
-package com.ssdam.tripPaw.passport.domain;
+package com.ssdam.tripPaw.domain;
+//반려동물 여권
+
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -12,19 +14,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity @Getter @Setter
-public class PassportSeal {
+public class PetPassport {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	//여권 연결
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "passport_id")
-	private PetPassport  passport;
+	private String petName;
+	private String species;
+	private Integer petAge;
+	private String petGender;
+	private String imageUrl;
 	
-	//도장 연결
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "seal_id")
-	private Seal seal;
+	private LocalDateTime createdAt = LocalDateTime.now();
 	
-	//리뷰 연결 필요
+	@ManyToOne @JoinColumn(name = "member_id")
+	private Member member;
+	
 }
