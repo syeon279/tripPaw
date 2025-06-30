@@ -8,7 +8,7 @@ import com.ssdam.tripPaw.domain.NftMetadata;
 @RestController
 @RequestMapping("/admin/metadata")
 @RequiredArgsConstructor
-public class MetadataController {
+public class NftMetadataController {
 
     private final NftMetadataService nftMetadataService;
 
