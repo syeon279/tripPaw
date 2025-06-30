@@ -1,4 +1,4 @@
-package com.ssdam.tripPaw.checklist.domain;
+package com.ssdam.tripPaw.domain;
 //관리자 체크리스트 템플릿(묶음) 관리 테이블
 
 import java.time.LocalDateTime;
@@ -13,7 +13,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import com.ssdam.tripPaw.member.domain.Member;
 
 import lombok.Getter;
 import lombok.Setter;

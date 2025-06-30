@@ -1,4 +1,5 @@
-package com.ssdam.tripPaw.checklist.domain;
+package com.ssdam.tripPaw.domain;
+//유저 루틴
 
 import java.time.LocalDateTime;
 
@@ -9,24 +10,21 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity @Getter @Setter
-public class UserCheck {
+public class CheckRoutine {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String customContent;
-	private boolean isChecked;
+	private String title;
+	private boolean isSaved;
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
-	//CheckRoutine
-	@ManyToOne
-    @JoinColumn(name = "checkroutine_id")
-	private Long checkRoutineId;
-	//CheckTemplateItem
-	@ManyToOne
-    @JoinColumn(name = "checktemplateitem_id")
-	private Long checkTemplateItemId;
+	//유저아이디 연결
+	@ManyToOne @JoinColumn(name="member_id")
+	private Member member;
 	
+	//여행경로 아이디 연결
 }
