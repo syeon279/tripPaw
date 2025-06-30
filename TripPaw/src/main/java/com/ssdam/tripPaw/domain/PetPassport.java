@@ -36,7 +36,7 @@ public class PetPassport {
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
 	@ManyToOne @JoinColumn(name = "member_id")
-	private Member memberId;
+	private Member member;
 	
 	//도장연결 
 	@OneToMany(mappedBy = "pet_passport", cascade = CascadeType.ALL)
