@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+	"-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssdam.tripPaw.review.ReviewMapper">
+	<resultMap id="reviewResultMap" type="Review">
+		<id property="id" column="id"/>
+		<result property="content" column="content"/>
+		<result property="rating" column="rating"/>
+		<result property="targetId" column="targetId"/>
+		<result property="weatherCondition" column="weatherCondition" />
+		<result property="" column="member_id"/>
+		<result property="" column="review_type_id"/>
+		<result property="" column="createdAt"/>
+		<result property="" column="updatedAt"/>
+	</resultMap>
+	<insert id="insertReview" useGeneratedKeys="true" keyProperty="id"> 
+		INSERT INTO review (member_id, content, rating, created_at, updated_at, review_type_id, target_id, weather_condition)
+    	VALUES (#{member.id}, #{content}, #{rating}, #{createdAt}, NOW(), #{reviewType.id}, #{targetId}, #{weatherCondition})	
+	</insert>
+	
+	<update id="updateReview">
+		UPDATE review
+		SET content=#{content}, rating=#{rating}, updated_at = NOW(),
+		WHERE id = #{id} AND member_id = #{member.id}
+	</update>
+	
+	<delete id="deleteReview">
+		DELETE FROM review WHERE id=#{id} AND member_id = #{member.id}
+	</delete>
+	
+	<!-- 단일 리뷰 조회 -->
+	<select id="findById" resultType="com.ssdam.tripPaw.domain.Review">
+    	SELECT * FROM review WHERE id = #{id}
+  	</select>
+
+  	<select id="findByMemberId" resultType="com.ssdam.tripPaw.domain.Review">
+    	SELECT * FROM review WHERE member_id = #{memberId}
+  	</select>
+  	
+  	<!-- 전체 리뷰 목록 -->
+    <select id="findAll" resultType="com.ssdam.tripPaw.domain.Review">
+        SELECT * FROM review ORDER BY created_at DESC
+    </select>
+</mapper>
