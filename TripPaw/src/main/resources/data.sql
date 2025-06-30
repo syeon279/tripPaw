@@ -7,7 +7,7 @@ create table IF NOT EXISTS member(
     roadAddress varchar(255) not null,
     jibunAddress varchar(255) not null,
     namujiAddress varchar(255) not null,
-    userRole varchar(20) not null,
+    role varchar(20) not null,
     provider varchar(20) not null,
     createdAt datetime default now()
 );

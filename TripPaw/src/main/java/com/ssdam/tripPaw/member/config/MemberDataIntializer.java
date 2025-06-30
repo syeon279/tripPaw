@@ -1,0 +1,61 @@
+package com.ssdam.tripPaw.member.config;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.ssdam.tripPaw.domain.Member;
+
+@Configuration
+public class MemberDataIntializer{
+	
+	 @Bean
+	    CommandLineRunner initDatabase(MemberRepository memberRepository) {
+	        return args -> {
+	            memberRepository.save(Member.builder()
+	                    .username("admin")
+	                    .password("$2a$12$IzrS4K6sNGAsReeCH6YQ9.jQ9Nlz/G4wO3/rMJ/6O5NPfPngzGZEK")
+	                    .nickname("admin")
+	                    .email("admin@example.com")
+	                    .roadAddress("경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)")
+	                    .jibunAddress("경기 성남시 분당구 백현동 532")
+	                    .namujiAddress("102동")
+	                    .role(MemberRole.ADMIN)
+	                    .provider("")
+	                    .build());
+	            memberRepository.save(Member.builder()
+	            		.username("test1")
+	            		.password("$2a$12$IzrS4K6sNGAsReeCH6YQ9.jQ9Nlz/G4wO3/rMJ/6O5NPfPngzGZEK")
+	            		.nickname("test1")
+	            		.email("test1@naver.com")
+	            		.roadAddress("경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)")
+	            		.jibunAddress("경기 성남시 분당구 백현동 532")
+	            		.namujiAddress("102동")
+	            		.role(MemberRole.ADMIN)
+	            		.provider("")
+	            		.build());
+	            memberRepository.save(Member.builder()
+	            		.username("test2")
+	            		.password("$2a$12$IzrS4K6sNGAsReeCH6YQ9.jQ9Nlz/G4wO3/rMJ/6O5NPfPngzGZEK")
+	            		.nickname("test2")
+	            		.email("test2@google.com")
+	            		.roadAddress("경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)")
+	            		.jibunAddress("경기 성남시 분당구 백현동 532")
+	            		.namujiAddress("102동")
+	            		.role(MemberRole.ADMIN)
+	            		.provider("")
+	            		.build());
+	            memberRepository.save(Member.builder()
+	            		.username("test3")
+	            		.password("$2a$12$IzrS4K6sNGAsReeCH6YQ9.jQ9Nlz/G4wO3/rMJ/6O5NPfPngzGZEK")
+	            		.nickname("test3")
+	            		.email("test3@kakao.com")
+	            		.roadAddress("경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)")
+	            		.jibunAddress("경기 성남시 분당구 백현동 532")
+	            		.namujiAddress("102동")
+	            		.role(MemberRole.ADMIN)
+	            		.provider("")
+	            		.build());
+	        };
+	 }
+}

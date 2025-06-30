@@ -174,7 +174,13 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
-
+		
+		<!-- OpenAI Java SDK 사용시 -->
+		<dependency>
+		  <groupId>com.theokanning.openai-gpt3-java</groupId>
+		  <artifactId>client</artifactId>
+		  <version>0.18.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -14,7 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.ssdam.tripPaw.reserv.ReservState;
-import com.ssdam.tripPaw.reserv.ReservType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,14 +32,12 @@ public class Reserv {
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private LocalDate expireAt;
+	private LocalDate deleteAt;
 	
     @Enumerated(EnumType.STRING)
     private ReservState state;
     
 	private LocalDateTime createdAt = LocalDateTime.now();
-	
-    @Enumerated(EnumType.STRING)
-    private ReservType reservType;
     
 	private int countPeople;
 	private int countPet;
@@ -52,4 +49,8 @@ public class Reserv {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tripPlan_id", nullable = false)
+    private TripPlan tripPlan;
 }
