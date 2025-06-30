@@ -18,7 +18,7 @@ public class ReservService {
 
     /** 예약 생성 */
     @Transactional
-    public int createReservation(Reserv reserv) {
+    public int createReserv(Reserv reserv) {
         reserv.setCreatedAt(LocalDateTime.now());
         return reservMapper.insert(reserv);
     }
@@ -35,7 +35,7 @@ public class ReservService {
 
     /** 예약 상태 업데이트 */
     @Transactional
-    public int updateReservationState(Long reservId, ReservState newState) {
+    public int updateReservState(Long reservId, ReservState newState) {
         Reserv reserv = reservMapper.findById(reservId);
         if (reserv == null) {
             throw new IllegalArgumentException("예약을 찾을 수 없습니다: " + reservId);
@@ -47,7 +47,7 @@ public class ReservService {
 
     /** 예약 삭제 */
     @Transactional
-    public int deleteReservation(Long id) {
+    public int deleteReserv(Long id) {
         return reservMapper.delete(id);
     }
 }
