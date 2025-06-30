@@ -63,6 +63,12 @@ public class Member {
 //		this.password = password;
 //	}
 	
+	//////chat///////////////////////////////////////
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Chat> chats = new ArrayList<>();
+	 @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	    private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+	//////chat///////////////////////////////////////
 	@ManyToMany
 	@JoinTable(
 	    name = "member_likes_review",
