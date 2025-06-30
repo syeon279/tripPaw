@@ -1,9 +1,7 @@
-package com.ssdam.tripPaw.checklist.domain;
-//체크리스트 항목(단일) 저장용
-
-import java.time.LocalDateTime;
+package com.ssdam.tripPaw.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,15 +12,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity @Getter @Setter
-public class CheckTemplateItem {
+public class PassportSeal {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String content;
-	private LocalDateTime createdAt = LocalDateTime.now();
-
-	//CheckTemplate 연결
-	@ManyToOne @JoinColumn(name = "checktemplate_id")
-	private CheckTemplate checkTemplate;
 	
+	//여권 연결
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "passport_id")
+	private PetPassport  passport;
 	
+	//도장 연결
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "seal_id")
+	private Seal seal;
+	
+	//리뷰 연결 필요
 }

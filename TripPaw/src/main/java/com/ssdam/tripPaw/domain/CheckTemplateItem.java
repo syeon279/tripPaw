@@ -1,4 +1,5 @@
-package com.ssdam.tripPaw.checklist.domain;
+package com.ssdam.tripPaw.domain;
+//체크리스트 항목(단일) 저장용
 
 import java.time.LocalDateTime;
 
@@ -13,20 +14,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity @Getter @Setter
-public class UserCheck {
+public class CheckTemplateItem {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String customContent;
-	private boolean isChecked;
+	private String content;
 	private LocalDateTime createdAt = LocalDateTime.now();
+
+	//CheckTemplate 연결
+	@ManyToOne @JoinColumn(name = "checktemplate_id")
+	private CheckTemplate checkTemplate;
 	
-	//CheckRoutine
-	@ManyToOne
-    @JoinColumn(name = "checkroutine_id")
-	private Long checkRoutineId;
-	//CheckTemplateItem
-	@ManyToOne
-    @JoinColumn(name = "checktemplateitem_id")
-	private Long checkTemplateItemId;
 	
 }

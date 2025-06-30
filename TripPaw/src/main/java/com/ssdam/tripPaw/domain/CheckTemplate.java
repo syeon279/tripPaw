@@ -1,31 +1,33 @@
-package com.ssdam.tripPaw.checklist.domain;
-//유저 루틴
+package com.ssdam.tripPaw.domain;
+//관리자 체크리스트 템플릿(묶음) 관리 테이블
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
-import com.ssdam.tripPaw.member.domain.Member;
+import javax.persistence.OneToMany;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity @Getter @Setter
-public class CheckRoutine {
+public class CheckTemplate {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String title;
-	private boolean isSaved;
+	private int type;
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
-	//유저아이디 연결
+	//유저 식별용 유저 아이디 필요
 	@ManyToOne @JoinColumn(name="member_id")
 	private Member member;
 	
-	//여행경로 아이디 연결
+	@OneToMany(mappedBy = "checkTemplate", cascade = CascadeType.ALL)
+    private List<CheckTemplateItem> items;
 }
