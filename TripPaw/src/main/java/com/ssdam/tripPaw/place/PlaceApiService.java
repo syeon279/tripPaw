@@ -22,14 +22,13 @@ public class PlaceApiService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     String encodedKey = "BwTmKuAlk0mdCJda6gICnjx3Q%2BVUWBVzQqCoMGzz4xxB2ejK27Kpiws8Og1v1Yh0R7Rw7LFzFB6rR7Xv4jLxGA%3D%3D";
-
+    String key="BwTmKuAlk0mdCJda6gICnjx3Q%2BVUWBVzQqCoMGzz4xxB2ejK27Kpiws8Og1v1Yh0R7Rw7LFzFB6rR7Xv4jLxGA%3D%3D";
     public PlaceApiService(PlaceMapper placeMapper, PlaceTypeMapper placeTypeMapper, PlaceImageMapper placeImageMapper) {
         this.placeMapper = placeMapper;
         this.placeTypeMapper = placeTypeMapper;
         this.placeImageMapper = placeImageMapper;
     }
 
-    // 대분류 매핑
     private static final Map<String, String> contentTypeIdMap = Map.of(
         "12", "관광지",
         "14", "문화시설",
@@ -40,6 +39,10 @@ public class PlaceApiService {
         "38", "쇼핑",
         "39", "음식점"
     );
+
+    private boolean isValidJson(String body) {
+        return body != null && body.trim().startsWith("{");
+    }
 
     public void fetchAndSavePetFriendlyPlaces() throws URISyntaxException {
         int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32};
@@ -62,8 +65,20 @@ public class PlaceApiService {
                 HttpEntity<String> entity = new HttpEntity<>(headers);
 
                 ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+                String responseBody = response.getBody();
 
-                JSONObject root = new JSONObject(response.getBody());
+                if (!isValidJson(responseBody)) {
+                    System.out.println("❌ 지역 " + areaCode + " 응답이 JSON이 아님: " + responseBody);
+                    continue;
+                }
+
+                JSONObject root = new JSONObject(responseBody);
+                JSONObject header = root.getJSONObject("response").getJSONObject("header");
+                if (!"0000".equals(header.optString("resultCode"))) {
+                    System.out.println("❌ 지역 " + areaCode + " 응답 오류: " + header.optString("resultMsg"));
+                    continue;
+                }
+
                 JSONArray items = root.getJSONObject("response")
                         .getJSONObject("body")
                         .getJSONObject("items")
@@ -72,36 +87,31 @@ public class PlaceApiService {
                 for (int i = 0; i < items.length(); i++) {
                     JSONObject item = items.getJSONObject(i);
                     long contentId = item.optLong("contentid");
-
-                    // ✅ detailPetIntro 호출
-                    String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailPetIntro"
-                            + "?serviceKey=" + encodedKey
-                            + "&contentId=" + contentId
-                            + "&_type=json";
-
                     boolean petFriendly = false;
 
                     try {
+                        String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailPetIntro"
+                                + "?serviceKey=" + encodedKey
+                                + "&contentId=" + contentId
+                                + "&_type=json";
+
                         URI detailUri = new URI(detailUrl);
                         ResponseEntity<String> detailResponse = restTemplate.exchange(detailUri, HttpMethod.GET, entity, String.class);
 
-                        JSONObject detailRoot = new JSONObject(detailResponse.getBody());
-                        JSONObject detailBody = detailRoot.getJSONObject("response").getJSONObject("body");
-                        JSONArray detailItems = detailBody.getJSONObject("items").getJSONArray("item");
-
-                        if (detailItems.length() > 0) {
-                            String chkpet = detailItems.getJSONObject(0).optString("chkpet", "").toLowerCase();
-                            if (chkpet.contains("가능")) {
-                                petFriendly = true;
+                        String detailBody = detailResponse.getBody();
+                        if (isValidJson(detailBody)) {
+                            JSONObject detailRoot = new JSONObject(detailBody);
+                            JSONArray detailItems = detailRoot.getJSONObject("response").getJSONObject("body").getJSONObject("items").getJSONArray("item");
+                            if (detailItems.length() > 0) {
+                                String chkpet = detailItems.getJSONObject(0).optString("chkpet", "").toLowerCase();
+                                if (chkpet.contains("가능")) petFriendly = true;
                             }
                         }
                     } catch (Exception e) {
                         System.out.println("⚠️ 상세 정보 조회 실패: contentId=" + contentId + ", 이유: " + e.getMessage());
                     }
 
-                    String contentTypeId = item.optString("contenttypeid");
-                    String typeName = contentTypeIdMap.getOrDefault(contentTypeId, "기타");
-
+                    String typeName = contentTypeIdMap.getOrDefault(item.optString("contenttypeid"), "기타");
                     PlaceType placeType = placeTypeMapper.findByName(typeName);
                     if (placeType == null) {
                         placeType = new PlaceType();
@@ -119,45 +129,43 @@ public class PlaceApiService {
                     place.setImageUrl(item.optString("firstimage"));
                     place.setExtermalContentId(contentId);
                     place.setSource("KTO");
-                    place.setDescription(item.optString("overview", null));
-                    place.setHomePage(item.optString("homepage", null));
                     place.setPetFriendly(petFriendly);
                     place.setPlaceType(placeType);
 
                     placeMapper.insert(place);
 
-                    // ✅ 추가 이미지 조회
-                    String imageUrl = "https://apis.data.go.kr/B551011/KorService/detailImage"
-                            + "?ServiceKey=" + encodedKey
-                            + "&contentId=" + contentId
-                            + "&imageYN=Y"
-                            + "&subImageYN=Y"
-                            + "&MobileOS=ETC"
-                            + "&MobileApp=TripPaw"
-                            + "&_type=json";
-
                     try {
+                        String imageUrl = "https://apis.data.go.kr/B551011/KorService/detailImage"
+                                + "?ServiceKey=" + key
+                                + "&contentId=" + contentId
+                                + "&imageYN=Y"
+                                + "&subImageYN=Y"
+                                + "&MobileOS=ETC"
+                                + "&MobileApp=TripPaw"
+                                + "&_type=json";
+
                         URI imageUri = new URI(imageUrl);
                         ResponseEntity<String> imageResponse = restTemplate.exchange(imageUri, HttpMethod.GET, entity, String.class);
+                        String imageBody = imageResponse.getBody();
 
-                        JSONObject imageRoot = new JSONObject(imageResponse.getBody());
-                        JSONArray imageItems = imageRoot
-                                .getJSONObject("response")
-                                .getJSONObject("body")
-                                .getJSONObject("items")
-                                .getJSONArray("item");
+                        if (isValidJson(imageBody)) {
+                            JSONArray imageItems = new JSONObject(imageBody)
+                                    .getJSONObject("response")
+                                    .getJSONObject("body")
+                                    .getJSONObject("items")
+                                    .getJSONArray("item");
 
-                        for (int j = 0; j < imageItems.length(); j++) {
-                            JSONObject img = imageItems.getJSONObject(j);
-                            String originUrl = img.optString("originimgurl");
-                            if (!originUrl.isBlank()) {
-                                PlaceImage placeImage = new PlaceImage();
-                                placeImage.setImageUrl(originUrl);
-                                placeImage.setPlace(place);
-                                placeImageMapper.insert(placeImage);
+                            for (int j = 0; j < imageItems.length(); j++) {
+                                JSONObject img = imageItems.getJSONObject(j);
+                                String originUrl = img.optString("originimgurl");
+                                if (!originUrl.isBlank()) {
+                                    PlaceImage placeImage = new PlaceImage();
+                                    placeImage.setImageUrl(originUrl);
+                                    placeImage.setPlace(place);
+                                    placeImageMapper.insert(placeImage);
+                                }
                             }
                         }
-
                     } catch (Exception e) {
                         System.out.println("⚠️ 추가 이미지 로딩 실패: contentId=" + contentId + ", 이유: " + e.getMessage());
                     }
@@ -166,7 +174,7 @@ public class PlaceApiService {
                 System.out.println("✅ " + areaCode + "번 지역: 장소 " + items.length() + "개 저장 완료!");
 
             } catch (Exception e) {
-                System.out.println("❌ " + areaCode + "번 지역 오류: " + e.getMessage());
+                System.out.println("❌ 지역 " + areaCode + " 오류: " + e.getMessage());
             }
         }
     }

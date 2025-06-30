@@ -43,8 +43,8 @@ public class Place {
 	@JoinColumn(name = "placeType_id")
 	private PlaceType placeType;
 	
-	@OneToMany
-	private List<PlaceImage> placeImage = new ArrayList<>();
+	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PlaceImage> placeImages = new ArrayList<>();
 	
     @ManyToMany
     @JoinTable(
