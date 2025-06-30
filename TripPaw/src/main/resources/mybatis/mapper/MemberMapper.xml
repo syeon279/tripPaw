@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssdam.tripPaw.member.MemberMapper">
+	<resultMap id="categoryResultMap" type="com.ssdam.tripPaw.domain.Member">
+		<id property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="nickname" column="nickname" />
+		<result property="email" column="email" />
+		<result property="roadAddress" column="roadAddress" />
+		<result property="jibunAddress" column="jibunAddress" />
+		<result property="namujiAddress" column="namujiAddress" />
+		<result property="role" column="role" />
+		<result property="provider" column="provider" />
+		<result property="createdAt" column="createdAt" />
+	</resultMap>
+	
+	
+	 <!-- insert -->
+ 	<insert id="insert" parameterType="Category">
+		INSERT INTO category 
+			( username
+			 ,password
+			 ,nickname
+			 ,email
+			 ,roadAddress
+			 ,jibunAddress
+			 ,namujiAddress
+			 ,role
+			 ,provider
+			 )
+		VALUES 
+			( #{username}
+			,#{password}
+			,#{nickname}
+			,#{email}
+			,#{roadAddress}
+			,#{jibunAddress}
+			,#{namujiAddress}
+			,#{role}
+			,#{provider}
+			 )
+				
+	</insert>
+</mapper>
