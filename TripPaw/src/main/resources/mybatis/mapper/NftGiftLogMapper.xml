@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssdam.tripPaw.nft.NftGiftLogMapper">
+
+  <!-- 특정 멤버가 보낸 선물 내역 조회 -->
+  <select id="findSentLogsBySenderId" resultType="com.ssdam.tripPaw.domain.NftGiftLog">
+    SELECT * FROM nft_gift_log
+    WHERE sender_id = #{senderId}
+    ORDER BY sent_at DESC
+  </select>
+
+  <!-- 특정 멤버가 받은 선물 내역 조회 -->
+  <select id="findReceivedLogsByReceiverId" resultType="com.ssdam.tripPaw.domain.NftGiftLog">
+    SELECT * FROM nft_gift_log
+    WHERE receiver_id = #{receiverId}
+    ORDER BY sent_at DESC
+  </select>
+
+  <!-- 선물 로그 저장 -->
+  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.NftGiftLog" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO nft_gift_log (
+      member_nft_id,
+      sender_id,
+      receiver_id,
+      message,
+      sent_at
+    ) VALUES (
+      #{memberNft.id},
+      #{sender.id},
+      #{receiver.id},
+      #{message},
+      NOW()
+    )
+  </insert>
+
+  <!-- 로그 삭제 (예: 관리자 기능) -->
+  <delete id="deleteById" parameterType="long">
+    DELETE FROM nft_gift_log WHERE id = #{id}
+  </delete>
+
+</mapper>
