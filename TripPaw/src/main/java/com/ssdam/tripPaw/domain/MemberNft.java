@@ -14,9 +14,9 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "user_nft")
+@Table(name = "member_nft")
 @Data
-public class UserNft {
+public class MemberNft {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
