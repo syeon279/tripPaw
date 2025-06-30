@@ -1,19 +1,17 @@
 package com.ssdam.tripPaw.domain;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import com.ssdam.tripPaw.member.config.MemberRole;
 
 import lombok.Data;
 
@@ -32,7 +30,7 @@ public class ChatRoom {
 	private LocalDateTime createdAt = LocalDateTime.now();
 	private LocalDateTime updatedAt;
 	
-	@ManyToMany(mappedBy="chatRoomMember")
-	private Set<Member> members = new HashSet<>();
-	
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
 }

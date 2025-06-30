@@ -66,13 +66,8 @@ public class Member {
 	//////chat///////////////////////////////////////
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Chat> chats = new ArrayList<>();
-	@ManyToMany
-	@JoinTable(
-		    name = "chat_room_member",
-		    joinColumns = @JoinColumn(name = "member_id"),
-		    inverseJoinColumns = @JoinColumn(name = "chatRooms_id")
-		)
-	private List<ChatRoom> chatRooms = new ArrayList<>();
+	 @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	    private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 	//////chat///////////////////////////////////////
 	@ManyToMany
 	@JoinTable(
