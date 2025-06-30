@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+	"-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssdam.tripPaw.review.ReviewTypeMapper">
+	<resultMap id="reviewTypeResultMap" type="com.ssdam.tripPaw.domain.ReviewType">
+		<id property="id" column="id"/>
+		<result property="targetType" column="targetType" />
+	</resultMap>
+	<select id="findByTargetType" resultType="com.ssdam.tripPaw.domain.ReviewType">
+	    SELECT * FROM review_type WHERE target_type = #{targetType}
+	</select>
+</mapper>
