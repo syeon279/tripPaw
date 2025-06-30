@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import lombok.Data;
@@ -38,6 +39,8 @@ public class Place {
 	private Long extermalContentId;
 	private String source;
 	
+	@ManyToOne
+	@JoinColumn(name = "placeType_id")
 	private PlaceType placeType;
 	
 	@OneToMany
