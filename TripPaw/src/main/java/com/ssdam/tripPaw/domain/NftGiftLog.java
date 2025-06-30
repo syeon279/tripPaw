@@ -22,8 +22,9 @@ public class NftGiftLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_nft_id", nullable = false)
-    private Long userNftId; // 참조 ID만 저장, 연관관계 매핑은 선택
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_nft_id", nullable = false)
+    private MemberNft memberNft;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
