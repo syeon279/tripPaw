@@ -35,6 +35,10 @@ public class PayGroup {
     private Boolean haspayShare;
     
     private LocalDateTime paidAt;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
     
 }

@@ -21,10 +21,10 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	private String desciption;
+	private String description;
 	private String latitude;
 	private String longitude;
-	private String regoin;
+	private String region;
 	private String openHours;
 	private boolean petFriendly;
 	private boolean petVerified;

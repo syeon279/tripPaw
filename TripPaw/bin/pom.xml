@@ -139,7 +139,10 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+>>>>>>> b67918c56c7881b80a7de0a43268f2eee242229a
 	</dependencies>
 
 	<build>
