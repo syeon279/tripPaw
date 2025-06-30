@@ -1,4 +1,4 @@
-package com.ssdam.tripPaw.passport.domain;
+package com.ssdam.tripPaw.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

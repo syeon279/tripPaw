@@ -1,4 +1,4 @@
-package com.ssdam.tripPaw.passport.domain;
+package com.ssdam.tripPaw.domain;
 //반려동물 여권
 
 import java.time.LocalDateTime;
@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
-import com.ssdam.tripPaw.member.domain.Member;
 
 import lombok.Getter;
 import lombok.Setter;
