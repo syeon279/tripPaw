@@ -39,7 +39,7 @@ public class PetPassport {
 	private Member member;
 	
 	//도장연결 
-	@OneToMany(mappedBy = "pet_passport", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "passport", cascade = CascadeType.ALL)
 	private List<PassportSeal> passportSeals;
 	
 }
