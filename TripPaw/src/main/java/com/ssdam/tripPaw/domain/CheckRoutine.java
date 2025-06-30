@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,10 +30,11 @@ public class CheckRoutine {
 	private Member memberId;
 	
 	//여행경로 아이디 연결
-	//@Column(name = "route_id")
-	//private Long route
+	@ManyToOne
+	@JoinColumn(name = "route_id")
+	private Route routeId;
 	
-	//userCheck
+	//membercheck
 	@OneToMany(mappedBy = "checkRoutine", cascade = CascadeType.ALL)
 	private List<MemberCheck> memberchecks = new ArrayList<>();
 }
