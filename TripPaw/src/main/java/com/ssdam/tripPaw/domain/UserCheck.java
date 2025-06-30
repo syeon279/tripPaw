@@ -1,5 +1,4 @@
-package com.ssdam.tripPaw.passport.domain;
-//반려동물 여권
+package com.ssdam.tripPaw.domain;
 
 import java.time.LocalDateTime;
 
@@ -10,25 +9,24 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.ssdam.tripPaw.member.domain.Member;
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity @Getter @Setter
-public class PetPassport {
+public class UserCheck {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	private String petName;
-	private String species;
-	private Integer petAge;
-	private String petGender;
-	private String imageUrl;
-	
+	private String customContent;
+	private boolean isChecked;
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
-	@ManyToOne @JoinColumn(name = "member_id")
-	private Member member;
+	//CheckRoutine
+	@ManyToOne
+    @JoinColumn(name = "checkroutine_id")
+	private Long checkRoutineId;
+	//CheckTemplateItem
+	@ManyToOne
+    @JoinColumn(name = "checktemplateitem_id")
+	private Long checkTemplateItemId;
 	
 }
