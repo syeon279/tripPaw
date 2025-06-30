@@ -2,6 +2,7 @@ package com.ssdam.tripPaw.domain;
 //관리자 체크리스트 템플릿(묶음) 관리 테이블
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -26,8 +27,8 @@ public class CheckTemplate {
 	
 	//유저 식별용 유저 아이디 필요
 	@ManyToOne @JoinColumn(name="member_id")
-	private Member member;
+	private Member memberId;
 	
 	@OneToMany(mappedBy = "checkTemplate", cascade = CascadeType.ALL)
-    private List<CheckTemplateItem> items;
+    private List<CheckTemplateItem> items = new ArrayList<>();
 }
