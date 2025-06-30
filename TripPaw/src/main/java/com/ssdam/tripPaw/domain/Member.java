@@ -52,16 +52,16 @@ public class Member {
 	
 	//private List<Board> board; //연관된 게시물 목록 (Mybatis에서 직접매핑)
 	
-	@Builder
-	public Member(String username, String email, String nickname, String image, MemberRole role, String provider, String password) {
-		super();
-		this.username = username;
-		this.email = email;
-		this.nickname = nickname;
-		this.role = role;
-		this.provider = provider;
-		this.password = password;
-	}
+//	@Builder
+//	public Member(String username, String email, String nickname, String image, MemberRole role, String provider, String password) {
+//		super();
+//		this.username = username;
+//		this.email = email;
+//		this.nickname = nickname;
+//		this.role = role;
+//		this.provider = provider;
+//		this.password = password;
+//	}
 	
 	@ManyToMany
 	@JoinTable(
