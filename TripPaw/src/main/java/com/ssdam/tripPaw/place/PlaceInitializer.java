@@ -15,7 +15,7 @@ public class PlaceInitializer implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws URISyntaxException {
+    public void run(ApplicationArguments args) throws URISyntaxException, InterruptedException {
         placeApiService.fetchAndSavePetFriendlyPlaces();
     }
 }

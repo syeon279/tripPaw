@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,7 +33,9 @@ public class Place {
 	private boolean petFriendly;
 	private boolean petVerified;
 	private String restDays;
+	@Column(length=2000)
 	private String price;
+	private String parking;
 	private String phone;
 	private String imageUrl;
 	private String homePage;

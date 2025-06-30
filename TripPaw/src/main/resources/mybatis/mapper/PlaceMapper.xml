@@ -10,7 +10,7 @@
 		type="com.ssdam.tripPaw.domain.Place">
 		<id property="id" column="id" />
 		<result property="name" column="name" />
-		<result property="desciption" column="desciption" />
+		<result property="description" column="description" />
 		<result property="latitude" column="latitude" />
 		<result property="longitude" column="longitude" />
 		<result property="region" column="region" />
@@ -20,6 +20,7 @@
 		<result property="restDays" column="rest_days" />
 		<result property="price" column="price" />
 		<result property="phone" column="phone" />
+		<result property="parking" column="parking" />
 		<result property="imageUrl" column="image_url" />
 		<result property="homePage" column="home_page" />
 		<result property="extermalContentId"
@@ -33,25 +34,26 @@
 
 	<!-- insert -->
 	<insert id="insert"
-		parameterType="com.ssdam.tripPaw.domain.Place">
-		INSERT INTO place (
-		name, description, latitude,
-		longitude, region, open_hours,
-		pet_friendly, pet_verified, rest_days,
-		price, phone, image_url,
-		home_page, extermal_content_id, source,
-		place_type_id
-		)
-		VALUES (
-		#{name}, #{description}, #{latitude},
-		#{longitude}, #{region}, #{openHours},
-		#{petFriendly}, #{petVerified},
-		#{restDays}, #{price}, #{phone},
-		#{imageUrl},
-		#{homePage},
-		#{extermalContentId}, #{source}, #{placeType.id}
-		)
-	</insert>
+        parameterType="com.ssdam.tripPaw.domain.Place"
+        useGeneratedKeys="true"
+        keyProperty="id">
+    INSERT INTO place (
+        name, description, latitude,
+        longitude, region, open_hours,
+        pet_friendly, pet_verified, rest_days,
+        price, phone, image_url, parking,
+        home_page, extermal_content_id, source,
+        place_type_id
+    )
+    VALUES (
+        #{name}, #{description}, #{latitude},
+        #{longitude}, #{region}, #{openHours},
+        #{petFriendly}, #{petVerified},
+        #{restDays}, #{price}, #{phone},
+        #{imageUrl}, #{parking}, #{homePage},
+        #{extermalContentId}, #{source}, #{placeType.id}
+    )
+</insert>
 
 	<!-- select all -->
 	<select id="findAll" resultMap="placeResultMap">
@@ -70,12 +72,12 @@
 		UPDATE place
 		SET
 		name = #{name},
-		desciption =
-		#{desciption},
+		description =
+		#{description},
 		latitude = #{latitude},
 		longitude = #{longitude},
-		regoin =
-		#{regoin},
+		region =
+		#{region},
 		open_hours = #{openHours},
 		pet_friendly = #{petFriendly},
 		pet_verified = #{petVerified},
