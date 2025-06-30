@@ -1,7 +1,6 @@
 package com.ssdam.tripPaw.domain;
 
 import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-
 import lombok.Data;
 
 @Entity
@@ -28,14 +26,12 @@ public class UserNft {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nft_metadata_id", nullable = false)
     private NftMetadata nftMetadata;
-
-    
+ 
     //  외래키 - Member (다대일)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     
-
     @Column(name = "token_id", nullable = false, unique = true)
     private String tokenId;
 
@@ -44,9 +40,6 @@ public class UserNft {
 
     @Column(name = "used_at")
     private LocalDateTime usedAt;
-
-    @Column(name = "is_used", nullable = false)
-    private boolean isUsed = false;
 
     @Column(name = "wallet_address")
     private String walletAddress;
