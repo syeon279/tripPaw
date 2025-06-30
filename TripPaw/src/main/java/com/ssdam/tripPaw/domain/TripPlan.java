@@ -24,7 +24,6 @@ public class TripPlan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // memberId가 실제 Member 객체와 연관된다면 아래처럼 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;

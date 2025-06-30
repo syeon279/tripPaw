@@ -25,8 +25,8 @@ public class ReservController {
 
     /** 예약 생성 */
     @PostMapping
-    public ResponseEntity<String> createReservation(@RequestBody Reserv reserv) {
-        int result = reservService.createReservation(reserv);
+    public ResponseEntity<String> createReserv(@RequestBody Reserv reserv) {
+        int result = reservService.createReserv(reserv);
         if (result > 0) {
             return ResponseEntity.ok("예약이 생성되었습니다.");
         } else {
@@ -36,7 +36,7 @@ public class ReservController {
 
     /** 단일 예약 조회 */
     @GetMapping("/{id}")
-    public ResponseEntity<Reserv> getReservation(@PathVariable Long id) {
+    public ResponseEntity<Reserv> getReserv(@PathVariable Long id) {
         Reserv reserv = reservService.findById(id);
         if (reserv != null) {
             return ResponseEntity.ok(reserv);
@@ -47,18 +47,18 @@ public class ReservController {
 
     /** 전체 예약 조회 */
     @GetMapping
-    public ResponseEntity<List<Reserv>> getAllReservations() {
+    public ResponseEntity<List<Reserv>> getAllReserv() {
         List<Reserv> reservList = reservService.findAll();
         return ResponseEntity.ok(reservList);
     }
 
     /** 예약 상태 변경 */
     @PatchMapping("/{id}/state")
-    public ResponseEntity<String> updateReservationState(
+    public ResponseEntity<String> updateReservState(
             @PathVariable Long id,
             @RequestParam ReservState state) {
         try {
-            int result = reservService.updateReservationState(id, state);
+            int result = reservService.updateReservState(id, state);
             return ResponseEntity.ok("예약 상태가 변경되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -67,8 +67,8 @@ public class ReservController {
 
     /** 예약 삭제 */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteReservation(@PathVariable Long id) {
-        int result = reservService.deleteReservation(id);
+    public ResponseEntity<String> deleteReserv(@PathVariable Long id) {
+        int result = reservService.deleteReserv(id);
         if (result > 0) {
             return ResponseEntity.ok("예약이 삭제되었습니다.");
         } else {
