@@ -1,6 +1,8 @@
 package com.ssdam.tripPaw.place;
 
 import com.ssdam.tripPaw.domain.Place;
+import com.ssdam.tripPaw.domain.PlaceType;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.*;
@@ -11,17 +13,32 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Service
 public class PlaceApiService {
 
     private final PlaceMapper placeMapper;
+    private final PlaceTypeMapper placeTypeMapper;
     private final RestTemplate restTemplate = new RestTemplate();
     String encodedKey = "BwTmKuAlk0mdCJda6gICnjx3Q%2BVUWBVzQqCoMGzz4xxB2ejK27Kpiws8Og1v1Yh0R7Rw7LFzFB6rR7Xv4jLxGA%3D%3D";
 
-    public PlaceApiService(PlaceMapper placeMapper) {
+    public PlaceApiService(PlaceMapper placeMapper, PlaceTypeMapper placeTypeMapper) {
         this.placeMapper = placeMapper;
+        this.placeTypeMapper = placeTypeMapper;
     }
+    
+    // 대분류
+    private static final Map<String, String> contentTypeIdMap = Map.of(
+    	    "12", "관광지",
+    	    "14", "문화시설",
+    	    "15", "축제/공연/행사",
+    	    "25", "여행코스",
+    	    "28", "레포츠",
+    	    "32", "숙박",
+    	    "38", "쇼핑",
+    	    "39", "음식점"
+    	);
 
     public void fetchAndSavePetFriendlyPlaces() throws URISyntaxException {
         int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32};
@@ -80,6 +97,21 @@ public class PlaceApiService {
                     } catch (Exception e) {
                         System.out.println("⚠️ 상세 정보 조회 실패: contentId=" + contentId + ", 이유: " + e.getMessage());
                     }
+                    
+                    String contentTypeId = item.optString("contenttypeid");
+                    String typeName = contentTypeIdMap.getOrDefault(contentTypeId, "기타");
+
+                    // 1. DB에서 해당 PlaceType 이름 조회
+                    PlaceType placeType = placeTypeMapper.findByName(typeName);
+
+                    // 2. 없으면 새로 insert
+                    if (placeType == null) {
+                        placeType = new PlaceType();
+                        placeType.setName(typeName);
+                        placeTypeMapper.insert(placeType);
+                        placeType = placeTypeMapper.findByName(typeName); // ID 다시 조회
+                    }
+           
 
                     // ✅ Place 객체 생성
                     Place place = new Place();
@@ -94,7 +126,8 @@ public class PlaceApiService {
                     place.setDescription(item.optString("overview", null));
                     place.setHomePage(item.optString("homepage", null));
                     place.setPetFriendly(petFriendly);
-
+                    place.setPlaceType(placeType);
+                    
                     placeMapper.insert(place);
                 }
 
