@@ -27,4 +27,5 @@ public class PassportSeal {
 	private Seal seal;
 	
 	//리뷰 연결 필요
+	
 }
