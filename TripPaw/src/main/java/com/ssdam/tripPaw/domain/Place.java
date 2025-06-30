@@ -40,7 +40,7 @@ public class Place {
 	private String source;
 	
 	@ManyToOne
-	@JoinColumn(name = "placeType_id")
+	@JoinColumn(name = "place_type_id")
 	private PlaceType placeType;
 	
 	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)

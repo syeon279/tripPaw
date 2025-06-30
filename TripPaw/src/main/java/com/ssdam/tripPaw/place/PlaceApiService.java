@@ -23,6 +23,7 @@ public class PlaceApiService {
 
     String encodedKey = "BwTmKuAlk0mdCJda6gICnjx3Q%2BVUWBVzQqCoMGzz4xxB2ejK27Kpiws8Og1v1Yh0R7Rw7LFzFB6rR7Xv4jLxGA%3D%3D";
     String key="BwTmKuAlk0mdCJda6gICnjx3Q%2BVUWBVzQqCoMGzz4xxB2ejK27Kpiws8Og1v1Yh0R7Rw7LFzFB6rR7Xv4jLxGA%3D%3D";
+    
     public PlaceApiService(PlaceMapper placeMapper, PlaceTypeMapper placeTypeMapper, PlaceImageMapper placeImageMapper) {
         this.placeMapper = placeMapper;
         this.placeTypeMapper = placeTypeMapper;
@@ -45,7 +46,9 @@ public class PlaceApiService {
     }
 
     public void fetchAndSavePetFriendlyPlaces() throws URISyntaxException {
-        int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32};
+        int[] areaCodes = {1 };
+        //int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32};
+        
 
         for (int areaCode : areaCodes) {
             String apiUrl = "https://apis.data.go.kr/B551011/KorPetTourService/areaBasedList"
@@ -90,10 +93,13 @@ public class PlaceApiService {
                     boolean petFriendly = false;
 
                     try {
-                        String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailPetIntro"
-                                + "?serviceKey=" + encodedKey
-                                + "&contentId=" + contentId
-                                + "&_type=json";
+                    	String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailPetIntro"
+                    	        + "?serviceKey=" + encodedKey
+                    	        + "&contentId=" + contentId
+                    	        + "&MobileOS=ETC"
+                    	        + "&MobileApp=TripPaw"
+                    	        + "&_type=json";
+
 
                         URI detailUri = new URI(detailUrl);
                         ResponseEntity<String> detailResponse = restTemplate.exchange(detailUri, HttpMethod.GET, entity, String.class);
@@ -131,18 +137,20 @@ public class PlaceApiService {
                     place.setSource("KTO");
                     place.setPetFriendly(petFriendly);
                     place.setPlaceType(placeType);
+                    System.out.println("📌 저장할 타입: " + typeName);
+                    System.out.println("📌 placeType ID: " + (placeType != null ? placeType.getId() : "null"));
 
                     placeMapper.insert(place);
 
                     try {
-                        String imageUrl = "https://apis.data.go.kr/B551011/KorService/detailImage"
-                                + "?ServiceKey=" + key
-                                + "&contentId=" + contentId
-                                + "&imageYN=Y"
-                                + "&subImageYN=Y"
-                                + "&MobileOS=ETC"
-                                + "&MobileApp=TripPaw"
-                                + "&_type=json";
+                    	String imageUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailImage"
+                    	        + "?ServiceKey=" + key
+                    	        + "&contentId=" + contentId
+                    	        + "&imageYN=Y"
+                    	        + "&MobileOS=ETC"
+                    	        + "&MobileApp=TripPaw"
+                    	        + "&_type=json";
+
 
                         URI imageUri = new URI(imageUrl);
                         ResponseEntity<String> imageResponse = restTemplate.exchange(imageUri, HttpMethod.GET, entity, String.class);
