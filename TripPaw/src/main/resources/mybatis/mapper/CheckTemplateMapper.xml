@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper	namespace="com.ssdam.tripPaw.checklist.CheckTemplateMapper">
+
+	<insert id="insertTemplate">
+		INSERT INTO check_template (id, title, type, member_id, created_at)
+		VALUES (#{id}, #{title}, #{type}, #{memberId}, #{createdAt})
+	</insert>
+
+	<select id="countTemplates" resultType="int">
+		SELECT COUNT(*) FROM check_template
+	</select>
+
+</mapper>

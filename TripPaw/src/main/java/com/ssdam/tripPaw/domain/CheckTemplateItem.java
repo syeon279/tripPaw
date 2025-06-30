@@ -10,10 +10,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity @Getter @Setter
+@NoArgsConstructor
 public class CheckTemplateItem {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -23,6 +26,28 @@ public class CheckTemplateItem {
 	//CheckTemplate 연결
 	@ManyToOne @JoinColumn(name = "checktemplate_id")
 	private CheckTemplate checkTemplate;
+
+	private CheckTemplateItem(Long id, String content, LocalDateTime createdAt, CheckTemplate checkTemplate) {
+		super();
+		this.id = id;
+		this.content = content;
+		this.createdAt = createdAt;
+		this.checkTemplate = checkTemplate;
+	}
 	
+	
+	// 더미데이터용
+	public CheckTemplateItem(Long id, Long checktemplateId, String content, String code) {
+	    this.id = id;
+	    this.content = content;
+	    this.createdAt = LocalDateTime.now();
+	    
+	    this.checkTemplate = new CheckTemplate();
+	    this.checkTemplate.setId(checktemplateId);
+	}
+	
+	public Long getChecktemplateId() {
+	    return checkTemplate != null ? checkTemplate.getId() : null;
+	}
 	
 }

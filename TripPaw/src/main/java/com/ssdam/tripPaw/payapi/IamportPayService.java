@@ -65,7 +65,7 @@ public class IamportPayService {
         Reserv reserv = reservMapper.findById(reservId);
         pay.setReserv(reserv);
 
-        Member member = new Member();
+        Member member = Member.builder().id(memberId).build();
         member.setId(memberId); // 최소한 ID만 설정
         pay.setMember(member);
 

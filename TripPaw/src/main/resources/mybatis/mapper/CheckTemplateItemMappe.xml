@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper	namespace="com.ssdam.tripPaw.checklist.CheckTemplateItemMapper">
+
+	<insert id="insertTemplateItem">
+		INSERT INTO check_template_item (id, checktemplate_id, content, created_at)
+		VALUES (#{id}, #{checktemplateId}, #{content}, #{createdAt})
+	</insert>
+
+</mapper>

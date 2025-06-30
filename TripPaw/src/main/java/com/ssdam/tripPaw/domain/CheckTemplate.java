@@ -14,11 +14,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity @Getter @Setter
+@NoArgsConstructor
 public class CheckTemplate {
+	
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String title;
@@ -31,4 +35,30 @@ public class CheckTemplate {
 	
 	@OneToMany(mappedBy = "checkTemplate", cascade = CascadeType.ALL)
     private List<CheckTemplateItem> items = new ArrayList<>();
+
+	private CheckTemplate(Long id, String title, int type, LocalDateTime createdAt, Member member, List<CheckTemplateItem> items) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.type = type;
+		this.createdAt = createdAt;
+		this.member = member;
+		this.items = items;
+	}
+	
+	//더미데이터용
+	public CheckTemplate(Long id, String title, int type, Long memberId, String code) {
+        this.id = id;
+        this.title = title;
+        this.type = type;
+        this.createdAt = LocalDateTime.now();
+        this.member = new Member();
+        this.member.setId(memberId);
+        this.items = new ArrayList<>();
+    }
+	
+	public Long getMemberId() {
+	    return member != null ? member.getId() : null;
+	}
+	
 }

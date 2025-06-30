@@ -19,13 +19,16 @@ import javax.persistence.Table;
 
 import com.ssdam.tripPaw.member.config.MemberRole;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "member") // DB 테이블명과 맞추기
 @Data
 @Builder
+@NoArgsConstructor @AllArgsConstructor //체크리스트에서 ID 끌어쓰는데 오류나서 추가했습니다.
 public class Member {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
