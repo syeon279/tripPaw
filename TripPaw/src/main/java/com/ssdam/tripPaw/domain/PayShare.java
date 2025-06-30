@@ -27,7 +27,7 @@ public class PayShare {
     private int amount;
     private Boolean hasPaid;
     private LocalDateTime paidAt;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reserv_id", nullable = false)
@@ -40,4 +40,8 @@ public class PayShare {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payGroup_id", nullable = false)
     private PayGroup payGroup;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 }
