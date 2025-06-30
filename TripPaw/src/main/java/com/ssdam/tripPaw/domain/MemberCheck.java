@@ -24,6 +24,7 @@ public class MemberCheck {
 	@ManyToOne
     @JoinColumn(name = "checkroutine_id")
 	private CheckRoutine checkRoutine;
+
 	//CheckTemplateItem
 	@ManyToOne
     @JoinColumn(name = "checktemplateitem_id")
