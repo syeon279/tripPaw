@@ -27,7 +27,7 @@ public class CheckTemplate {
 	
 	//유저 식별용 유저 아이디 필요
 	@ManyToOne @JoinColumn(name="member_id")
-	private Member memberId;
+	private Member member;
 	
 	@OneToMany(mappedBy = "checkTemplate", cascade = CascadeType.ALL)
     private List<CheckTemplateItem> items = new ArrayList<>();

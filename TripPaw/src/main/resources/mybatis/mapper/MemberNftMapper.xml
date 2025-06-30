@@ -2,16 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ssdam.tripPaw.nft.UserNftMapper">
+<mapper namespace="com.ssdam.tripPaw.nft.MemberNftMapper">
 
-  <!-- 사용자 ID로 NFT 리스트 조회 -->
-  <select id="findByUserId" resultType="com.ssdam.tripPaw.domain.UserNft" parameterType="string">
-    SELECT * FROM user_nft WHERE member_id = #{userId}
+  <!-- 멤버 ID로 NFT 리스트 조회 -->
+  <select id="findByMemberId" resultType="com.ssdam.tripPaw.domain.MemberNft" parameterType="string">
+    SELECT * FROM member_nft WHERE member_id = #{memberId}
   </select>
 
   <!-- NFT 삽입 -->
-  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.UserNft">
-    INSERT INTO user_nft (
+  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.MemberNft">
+    INSERT INTO member_nft (
       nft_metadata_id, member_id, token_id, wallet_address, barcode,
       due_at, issued_reason, tx_hash, issued_at
     ) VALUES (
@@ -21,8 +21,8 @@
   </insert>
 
   <!-- NFT 수정 -->
-  <update id="update" parameterType="com.ssdam.tripPaw.domain.UserNft">
-    UPDATE user_nft
+  <update id="update" parameterType="com.ssdam.tripPaw.domain.MemberNft">
+    UPDATE member_nft
     SET
       nft_metadata_id = #{nftMetadata.id},
       member_id = #{member.id},
@@ -34,9 +34,9 @@
     WHERE id = #{id}
   </update>
 
-  <!-- 사용 처리 (used_at 업데이트) -->
+  <!-- 사용 처리 -->
   <update id="markAsUsed">
-    UPDATE user_nft
+    UPDATE member_nft
     SET used_at = #{usedAt}
     WHERE id = #{id}
   </update>

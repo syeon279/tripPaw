@@ -23,10 +23,11 @@ public class MemberCheck {
 	//CheckRoutine
 	@ManyToOne
     @JoinColumn(name = "checkroutine_id")
-	private Long checkRoutineId;
+	private CheckRoutine checkRoutine;
+
 	//CheckTemplateItem
 	@ManyToOne
     @JoinColumn(name = "checktemplateitem_id")
-	private Long checkTemplateItemId;
+	private CheckTemplateItem checkTemplateItem;
 	
 }
