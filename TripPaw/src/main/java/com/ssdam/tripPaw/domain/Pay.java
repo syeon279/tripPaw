@@ -4,13 +4,15 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
+import com.ssdam.tripPaw.pay.PayState;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,15 +38,20 @@ public class Pay {
     @Column(name = "pg_provider")
     private String pgProvider;
     
-    private String state;
+    @Enumerated(EnumType.STRING)
+    private PayState state;
     private LocalDateTime paidAt;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reserv_id", nullable = false)
     private Reserv reserv;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payGroup_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payGroup_id")
     private PayGroup payGroup;
 }
