@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssdam.tripPaw.place.PlaceMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="placeResultMap" type="com.ssdam.tripPaw.domain.Place">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="desciption" column="desciption" />
+        <result property="latitude" column="latitude" />
+        <result property="longitude" column="longitude" />
+        <result property="region" column="region" />
+        <result property="openHours" column="open_hours" />
+        <result property="petFriendly" column="pet_friendly" />
+        <result property="petVerified" column="pet_verified" />
+        <result property="restDays" column="rest_days" />
+        <result property="price" column="price" />
+        <result property="phone" column="phone" />
+        <result property="imageUrl" column="image_url" />
+        <result property="homePage" column="home_page" />
+        <result property="extermalContentId" column="extermal_content_id" />
+        <result property="source" column="source" />
+    </resultMap>
+
+    <!-- insert -->
+    <insert id="insert" parameterType="com.ssdam.tripPaw.domain.Place">
+        INSERT INTO place (
+            name, description, latitude, longitude, region, open_hours,
+            pet_friendly, pet_verified, rest_days, price, phone, image_url,
+            home_page, extermal_content_id, source
+        )
+        VALUES (
+            #{name}, #{description}, #{latitude}, #{longitude}, #{region}, #{openHours},
+            #{petFriendly}, #{petVerified}, #{restDays}, #{price}, #{phone}, #{imageUrl},
+            #{homePage}, #{extermalContentId}, #{source}
+        )
+    </insert>
+
+    <!-- select all -->
+    <select id="findAll" resultMap="placeResultMap">
+        SELECT * FROM place
+    </select>
+
+    <!-- select by id -->
+    <select id="findById" resultMap="placeResultMap">
+        SELECT * FROM place WHERE id = #{id}
+    </select>
+
+    <!-- update -->
+    <update id="update" parameterType="com.ssdam.tripPaw.domain.Place">
+        UPDATE place
+        SET
+            name = #{name},
+            desciption = #{desciption},
+            latitude = #{latitude},
+            longitude = #{longitude},
+            regoin = #{regoin},
+            open_hours = #{openHours},
+            pet_friendly = #{petFriendly},
+            pet_verified = #{petVerified},
+            rest_days = #{restDays},
+            price = #{price},
+            phone = #{phone},
+            image_url = #{imageUrl},
+            home_page = #{homePage},
+            extermal_content_id = #{extermalContentId},
+            source = #{source}
+        WHERE id = #{id}
+    </update>
+
+</mapper>
