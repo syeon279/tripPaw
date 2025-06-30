@@ -5,26 +5,36 @@
 <mapper namespace="com.ssdam.tripPaw.reserv.ReservMapper">
 
   <select id="findAll" resultType="com.ssdam.tripPaw.domain.Reserv">
-    SELECT * FROM reserv
+    SELECT * FROM reserv WHERE delete_at IS NULL
   </select>
 
   <select id="findById" parameterType="long" resultType="com.ssdam.tripPaw.domain.Reserv">
-    SELECT * FROM reserv WHERE id = #{id}
+    SELECT * FROM reserv WHERE id = #{id} AND delete_at IS NULL
   </select>
 
-  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.Reserv">
-    INSERT INTO reserv (start_date, end_date, expire_at, state, created_at, reserv_type,
-                        count_people, count_pet, member_id, place_id)
-    VALUES (#{startDate}, #{endDate}, #{expireAt}, #{state}, #{createdAt}, #{reservType},
-            #{countPeople}, #{countPet}, #{member.id}, #{place.id})
-  </insert>
+<insert id="insert" parameterType="com.ssdam.tripPaw.domain.Reserv">
+  INSERT INTO reserv (
+    start_date, end_date, expire_at, delete_at, state,
+    created_at, count_people, count_pet,
+    original_price, final_price,
+    member_id, place_id
+    <if test="tripPlan != null">, trip_plan_id</if>
+  )
+  VALUES (
+    #{startDate}, #{endDate}, #{expireAt}, #{deleteAt}, #{state},
+    #{createdAt}, #{countPeople}, #{countPet},
+    #{originalPrice}, #{finalPrice},
+    #{member.id}, #{place.id}
+    <if test="tripPlan != null">, #{tripPlan.id}</if>
+  )
+</insert>
 
   <update id="updateByState" parameterType="com.ssdam.tripPaw.domain.Reserv">
     UPDATE reserv SET state = #{state} WHERE id = #{id}
   </update>
 
-  <delete id="delete" parameterType="long">
-    DELETE FROM reserv WHERE id = #{id}
-  </delete>
+  <update id="softDelete" parameterType="long">
+    UPDATE reserv SET delete_at = CURRENT_DATE WHERE id = #{id}
+  </update>
 
 </mapper>

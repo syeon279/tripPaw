@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>아임포트 결제 테스트</title>
+  <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+</head>
+<body>
+  <h1>아임포트 결제 테스트</h1>
+
+  <label>예약ID: <input type="number" id="reservId" /></label><br/>
+  <label>회원ID: <input type="number" id="memberId" /></label><br/>
+  <label>결제 금액: <input type="number" id="amount" /></label><br/>
+  <button onclick="requestPay()">결제 요청</button>
+
+  <pre id="result"></pre>
+
+  <script>
+    const IMP = window.IMP;
+    IMP.init('imp83864415');  // 아임포트 가맹점 식별코드로 변경하세요
+
+    function requestPay() {
+      const reservId = document.getElementById('reservId').value;
+      const memberId = document.getElementById('memberId').value;
+      const amount = document.getElementById('amount').value;
+
+      if (!reservId || !memberId || !amount) {
+        alert('모든 값을 입력하세요');
+        return;
+      }
+
+      IMP.request_pay({
+        pg: 'html5_inicis',               // PG사 예: html5_inicis, kakao, uplus 등
+        pay_method: 'card',               // 결제수단: card, vbank, trans 등
+        merchant_uid: 'mid_' + new Date().getTime(), // 주문번호(유니크하게)
+        name: '예약 결제 테스트',
+        amount: amount,
+        buyer_email: 'test@example.com',
+        buyer_name: '홍길동',
+        buyer_tel: '010-1234-5678',
+      }, function(rsp) {
+        if (rsp.success) {
+          document.getElementById('result').textContent = '결제 성공! impUid: ' + rsp.imp_uid;
+          // 서버에 impUid 등 결제 정보 넘겨서 검증 API 호출 (fetch 등 사용)
+          fetch('/pay/verify?impUid=' + rsp.imp_uid + '&reservId=' + reservId + '&memberId=' + memberId, {
+            method: 'POST'
+          }).then(res => res.text())
+            .then(text => {
+              document.getElementById('result').textContent += '\n서버 검증 결과: ' + text;
+            }).catch(err => {
+              document.getElementById('result').textContent += '\n서버 검증 오류: ' + err.message;
+            });
+        } else {
+          document.getElementById('result').textContent = '결제 실패: ' + rsp.error_msg;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
