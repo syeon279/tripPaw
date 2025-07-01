@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
+import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 
 const tripPlanMain = () => {
     const containerStyle = {
@@ -115,109 +116,142 @@ const tripPlanMain = () => {
         WebkitAppearance: 'none',   // 사파리용
         MozAppearance: 'none',      // 파이어폭스용
     }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    };
+
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
     return (
-        <div style={containerStyle}>
-            <img src="/image/background/main.png" alt="background" style={backgroundStyle} />
-            <div style={overlayStyle} />
+        <form onSubmit={handleSubmit} style={{ flex: 1 }}>
+            <div style={containerStyle}>
+                <img src="/image/background/main.png" alt="background" style={backgroundStyle} />
+                <div style={overlayStyle} />
 
-            <div style={contentStyle}>
-                <div style={{ width: '80%' }}>
-                    <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={450}
-                        height={120}
-                        priority />
-                    <div style={boxStyle}>
-                        <div style={rowStyle}>
-                            {/* 여행지 */}
-                            <div style={fieldStyle}>
-                                <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행지</label>
-                                <select style={selectStyle}>
-                                    <option>서울</option>
-                                    <option>부산</option>
-                                    <option>제주</option>
-                                    <option>인천</option>
-                                    <option>광주</option>
-                                    <option>대전</option>
-                                    <option>울산</option>
-                                    <option>경기</option>
-                                    <option>강원</option>
-                                    <option>충청</option>
-                                    <option>전라</option>
-                                    <option>경북</option>
-                                    <option>경상</option>
-                                </select>
-                            </div>
-
-                            <div style={dividerStyle} />
-
-                            {/* 여행 일자 */}
-                            <div style={fieldStyle}>
-                                <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행 일자</label>
-                                <select style={selectStyle}>
-                                    <option>힐링</option>
-                                    <option>액티비티</option>
-                                    <option>문화탐방</option>
-                                </select>
-                            </div>
-
-                            <div style={dividerStyle} />
-
-                            {/* 동행 */}
-                            <div style={fieldStyle}>
-                                <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>동행</label>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '3%' }}>
-                                    <input style={inputStyle} type="number" /> 명
-                                    <div style={{
-                                        width: '1px',
-                                        border: '1px solid rgba(221, 220, 220, 0.9)',
-                                        height: '30px',
-                                        margin: '10px',
-                                    }}></div>
-                                    <input style={inputStyle} type="number" /> 견
+                <div style={contentStyle}>
+                    <div style={{ width: '80%' }}>
+                        <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={450}
+                            height={120}
+                            priority />
+                        <div style={boxStyle}>
+                            <div style={rowStyle}>
+                                {/* 여행지 */}
+                                <div style={fieldStyle}>
+                                    <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행지</label>
+                                    <select style={selectStyle}>
+                                        <option>서울</option>
+                                        <option>부산</option>
+                                        <option>제주</option>
+                                        <option>인천</option>
+                                        <option>광주</option>
+                                        <option>대전</option>
+                                        <option>울산</option>
+                                        <option>경기</option>
+                                        <option>강원</option>
+                                        <option>충청</option>
+                                        <option>전라</option>
+                                        <option>경북</option>
+                                        <option>경상</option>
+                                    </select>
                                 </div>
-                                <div>
+
+                                <div style={dividerStyle} />
+
+                                {/* 여행 일자 */}
+                                <div style={fieldStyle}>
+                                    <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행 일자</label>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <input
+                                            type="date"
+                                            value={startDate}
+                                            onChange={(e) => setStartDate(e.target.value)}
+                                            placeholder="시작일"
+                                            style={{
+                                                ...inputStyle,
+                                                width: '100%',
+                                                borderBottom: '1px solid #ccc',
+                                                paddingBottom: '4px',
+                                                fontSize: '14px',
+                                                color: startDate ? 'black' : '#aaa',
+                                            }}
+                                        />
+                                        <input
+                                            type="date"
+                                            value={endDate}
+                                            onChange={(e) => setEndDate(e.target.value)}
+                                            placeholder="종료일"
+                                            style={{
+                                                ...inputStyle,
+                                                width: '100%',
+                                                borderBottom: '1px solid #ccc',
+                                                paddingBottom: '4px',
+                                                fontSize: '14px',
+                                                color: endDate ? 'black' : '#aaa',
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={dividerStyle} />
+
+                                {/* 동행 */}
+                                <div style={fieldStyle}>
+                                    <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>동행</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', }}>
+                                        <input style={inputStyle} type="number" /> 명
+                                        <div style={{
+                                            width: '1px',
+                                            border: '1px solid rgba(221, 220, 220, 0.9)',
+                                            height: '30px',
+                                            margin: '10px',
+                                        }}></div>
+                                        <input style={inputStyle} type="number" /> 견
+                                    </div>
+                                    <div>
+                                    </div>
+                                </div>
+
+                                <div style={dividerStyle} />
+
+                                {/* 여행 목적 */}
+                                <div style={fieldStyle}>
+                                    <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행 테마</label>
+                                    <select style={selectStyle}>
+
+                                    </select>
+                                </div>
+
+                                <div style={{ marginRight: '100px' }}>
+
+                                </div>
+
+
+                                {/* 버튼 */}
+                                <div style={fieldStyle}>
+                                    <button
+                                        style={{
+                                            backgroundColor: 'rgba(12, 147, 151, 0.9)',
+                                            color: 'white',
+                                            padding: '8px 24px',
+                                            borderRadius: '8px',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            fontSize: '16px',
+                                            marginTop: '20px',
+                                            width: '80%',
+                                        }}
+                                    >
+                                        여행 추천받기
+                                    </button>
                                 </div>
                             </div>
 
-                            <div style={dividerStyle} />
-
-                            {/* 여행 목적 */}
-                            <div style={fieldStyle}>
-                                <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행 테마</label>
-                                <select style={selectStyle}>
-
-                                </select>
-                            </div>
-
-                            <div style={{ marginRight: '100px' }}>
-
-                            </div>
-
-
-                            {/* 버튼 */}
-                            <div style={fieldStyle}>
-                                <button
-                                    style={{
-                                        backgroundColor: 'rgba(12, 147, 151, 0.9)',
-                                        color: 'white',
-                                        padding: '8px 24px',
-                                        borderRadius: '8px',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        fontSize: '16px',
-                                        marginTop: '20px',
-                                        width: '80%',
-                                    }}
-                                >
-                                    여행 추천받기
-                                </button>
-                            </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     );
 };
 
