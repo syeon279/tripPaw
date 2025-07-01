@@ -4,8 +4,10 @@ import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
+import { useRouter } from 'next/router';
 
 function ReservCreatePage() {
+  const router = useRouter();
   const [dateRange, setDateRange] = useState([
     {
       startDate: new Date(),
@@ -69,8 +71,21 @@ function ReservCreatePage() {
     try {
       const res = await axios.post('http://localhost:8080/reserv', payload);
       alert('예약 성공! 🎉'); // ✅ 성공 시 알림
-      setMessage(res.data);
-      window.location.reload(); 
+
+      const reservId = res.data.id;
+
+      router.push({
+        pathname: '/pay',
+        query: {
+          reservId,
+          memberId,
+          countPeople,
+          countPet,
+          startDate: payload.startDate,
+          endDate: payload.endDate,
+          amount: 10000
+        }
+      });      
     } catch (err) {
       const errorMsg = err.response?.data || '예약 생성 실패';
       alert(errorMsg); // ✅ 실패 시 알림

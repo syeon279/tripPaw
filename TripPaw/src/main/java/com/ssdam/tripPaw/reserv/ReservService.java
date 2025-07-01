@@ -24,7 +24,7 @@ public class ReservService {
 
     /** 예약 생성 */
     @Transactional
-    public int createReserv(Reserv reserv) {
+    public Reserv saveReserv(Reserv reserv) {
         reserv.setCreatedAt(LocalDateTime.now());
 
         if (reserv.getExpireAt() == null) {
@@ -42,7 +42,13 @@ public class ReservService {
             throw new IllegalStateException("해당 기간에 이미 예약이 존재합니다.");
         }
 
-        return reservMapper.insert(reserv);
+        int result = reservMapper.insert(reserv);
+        if (result > 0) {
+            // insert 후 예약 객체에 생성된 id가 들어있어야 함 (MyBatis에 따라 다름)
+            return reserv;
+        } else {
+            return null;
+        }
     }
 
     /** 예약 조회 */
