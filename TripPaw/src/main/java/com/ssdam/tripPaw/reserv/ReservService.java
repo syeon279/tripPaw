@@ -1,11 +1,13 @@
 package com.ssdam.tripPaw.reserv;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
@@ -14,6 +16,7 @@ import com.ssdam.tripPaw.place.PlaceMapper;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@RequestMapping("/reserv")
 @RequiredArgsConstructor
 public class ReservService {
     private final ReservMapper reservMapper;
@@ -21,25 +24,31 @@ public class ReservService {
 
     /** 예약 생성 */
     @Transactional
-    public int createReserv(Reserv reserv) {
+    public Reserv saveReserv(Reserv reserv) {
         reserv.setCreatedAt(LocalDateTime.now());
 
-        // placeId가 Reserv에 있다고 가정
-//        Long placeId = reserv.getPlace().getId();
-//        Place place = placeMapper.findById(placeId);
-//        
-//        int pricePerPerson = 0;
-//        try {
-//            pricePerPerson = Integer.parseInt(place.getPrice());
-//        } catch (NumberFormatException e) {
-//            // 변환 실패 시 처리 (기본값 설정하거나 예외 던지기)
-//            throw new IllegalArgumentException("가격 데이터가 올바른 숫자가 아닙니다: " + place.getPrice());
-//        }
-//        
-//        int originalPrice = pricePerPerson * reserv.getCountPeople();
-//        reserv.setOriginalPrice(originalPrice); 
+        if (reserv.getExpireAt() == null) {
+            reserv.setExpireAt(LocalDate.now().plusDays(5));
+        }
 
-        return reservMapper.insert(reserv);
+        // 중복 예약 체크
+        boolean exists = reservMapper.existsOverlappingReservation(
+            reserv.getMember().getId(),
+            reserv.getPlace().getId(),
+            reserv.getStartDate(),
+            reserv.getEndDate()
+        );
+        if (exists) {
+            throw new IllegalStateException("해당 기간에 이미 예약이 존재합니다.");
+        }
+
+        int result = reservMapper.insert(reserv);
+        if (result > 0) {
+            // insert 후 예약 객체에 생성된 id가 들어있어야 함 (MyBatis에 따라 다름)
+            return reserv;
+        } else {
+            return null;
+        }
     }
 
     /** 예약 조회 */
@@ -67,7 +76,7 @@ public class ReservService {
         reserv.setState(newState);
         return reservMapper.updateByState(reserv);
     }
-
+    
     /** 예약 삭제 */
     @Transactional
     public int softDeleteReservation(Long id) {

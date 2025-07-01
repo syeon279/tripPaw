@@ -2,22 +2,34 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>아임포트 결제 테스트</title>
+  <title>결제 테스트</title>
   <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
 </head>
 <body>
-  <h1>아임포트 결제 테스트</h1>
+  <h1>결제 테스트</h1>
 
   <label>예약ID: <input type="number" id="reservId" /></label><br/>
   <label>회원ID: <input type="number" id="memberId" /></label><br/>
   <label>결제 금액: <input type="number" id="amount" /></label><br/>
+
+  <p>PG사 선택:</p>
+  <label><input type="radio" name="pg" value="html5_inicis" checked> KG이니시스</label><br/>
+  <label><input type="radio" name="pg" value="kakaopay.TC0ONETIME"> 카카오페이</label><br/>
+  <label><input type="radio" name="pg" value="tosspay.tosstest"> 토스페이</label><br/>
+
   <button onclick="requestPay()">결제 요청</button>
+
+  <hr/>
+  <h3>결제 취소</h3>
+  <label>취소할 결제 ID (pay.id): <input type="number" id="cancelPayId" /></label><br/>
+
+  <button id="cancelButton" onclick="cancelPayment()">결제 취소</button>
 
   <pre id="result"></pre>
 
   <script>
     const IMP = window.IMP;
-    IMP.init('imp83864415');  // 아임포트 가맹점 식별코드로 변경하세요
+    IMP.init('imp83864415');
 
     function requestPay() {
       const reservId = document.getElementById('reservId').value;
@@ -29,10 +41,21 @@
         return;
       }
 
+      const pgElements = document.getElementsByName('pg');
+      let selectedPg = 'html5_inicis';
+      for (const el of pgElements) {
+        if (el.checked) {
+          selectedPg = el.value;
+          break;
+        }
+      }
+
+      const merchantUid = 'mid_' + new Date().getTime();
+
       IMP.request_pay({
-        pg: 'html5_inicis',               // PG사 예: html5_inicis, kakao, uplus 등
-        pay_method: 'card',               // 결제수단: card, vbank, trans 등
-        merchant_uid: 'mid_' + new Date().getTime(), // 주문번호(유니크하게)
+        pg: selectedPg,
+        pay_method: 'card',
+        merchant_uid: merchantUid,
         name: '예약 결제 테스트',
         amount: amount,
         buyer_email: 'test@example.com',
@@ -40,19 +63,34 @@
         buyer_tel: '010-1234-5678',
       }, function(rsp) {
         if (rsp.success) {
-          document.getElementById('result').textContent = '결제 성공! impUid: ' + rsp.imp_uid;
-          // 서버에 impUid 등 결제 정보 넘겨서 검증 API 호출 (fetch 등 사용)
-          fetch('/pay/verify?impUid=' + rsp.imp_uid + '&reservId=' + reservId + '&memberId=' + memberId, {
-            method: 'POST'
-          }).then(res => res.text())
-            .then(text => {
-              document.getElementById('result').textContent += '\n서버 검증 결과: ' + text;
-            }).catch(err => {
-              document.getElementById('result').textContent += '\n서버 검증 오류: ' + err.message;
-            });
+          document.getElementById('result').textContent = 
+            '결제 성공! impUid: ' + rsp.imp_uid + ', merchantUid: ' + merchantUid + 
+            '\n서버에 결제 정보를 저장하세요.';
         } else {
           document.getElementById('result').textContent = '결제 실패: ' + rsp.error_msg;
         }
+      });
+    }
+
+    function cancelPayment() {
+      const payId = document.getElementById('cancelPayId').value;
+      if (!payId) {
+        alert("취소할 결제 ID를 입력하세요.");
+        return;
+      }
+
+      fetch(`/pay/${payId}/cancel`, {
+        method: 'POST'
+      })
+      .then(res => res.text())
+      .then(text => {
+        document.getElementById('result').textContent = '결제 취소 결과: ' + text;
+        if (text.includes("완료")) {
+          document.getElementById('cancelButton').disabled = true;
+        }
+      })
+      .catch(err => {
+        document.getElementById('result').textContent = '결제 취소 오류: ' + err.message;
       });
     }
   </script>
