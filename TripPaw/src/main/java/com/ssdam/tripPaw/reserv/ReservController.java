@@ -1,9 +1,12 @@
 package com.ssdam.tripPaw.reserv;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,6 +20,7 @@ import com.ssdam.tripPaw.domain.Reserv;
 
 import lombok.RequiredArgsConstructor;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @Controller
 @RequestMapping("/reserv")
 @RequiredArgsConstructor
@@ -26,11 +30,17 @@ public class ReservController {
     /** 예약 생성 */
     @PostMapping
     public ResponseEntity<String> createReserv(@RequestBody Reserv reserv) {
-        int result = reservService.createReserv(reserv);
-        if (result > 0) {
-            return ResponseEntity.ok("예약이 생성되었습니다.");
-        } else {
-            return ResponseEntity.badRequest().body("예약 생성에 실패했습니다.");
+        try {
+            int result = reservService.createReserv(reserv);
+            if (result > 0) {
+                return ResponseEntity.ok("예약이 생성되었습니다.");
+            } else {
+                return ResponseEntity.badRequest().body("예약 생성에 실패했습니다.");
+            }
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // 중복 예약 등
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("서버 오류: " + e.getMessage());
         }
     }
 
@@ -64,6 +74,24 @@ public class ReservController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+    @GetMapping("/disabled-dates")
+    public ResponseEntity<List<Map<String, String>>> getDisabledDates() {
+        List<Reserv> reservList = reservService.findAll();
+
+        List<Map<String, String>> disabledRanges = reservList.stream()
+            .filter(r -> r.getDeleteAt() == null &&
+                         r.getStartDate() != null &&
+                         r.getEndDate() != null)
+            .map(r -> Map.of(
+                "startDate", r.getStartDate().toString(),
+                "endDate", r.getEndDate().toString()
+            ))
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(disabledRanges);
+    }
+
 
     /** 예약 삭제 */
     @PostMapping("/{id}/delete")

@@ -21,7 +21,6 @@ public class SecurityConfig {
                 //.antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
                 .antMatchers("/**").permitAll() // "/**"는 모든 경로를 의미합니다.
                 .antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
-
                 .anyRequest().authenticated()
             );
 
