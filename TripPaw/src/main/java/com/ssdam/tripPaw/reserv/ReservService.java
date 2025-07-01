@@ -1,31 +1,63 @@
 package com.ssdam.tripPaw.reserv;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.place.PlaceMapper;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
+@RequestMapping("/reserv")
 @RequiredArgsConstructor
 public class ReservService {
     private final ReservMapper reservMapper;
+    private final PlaceMapper placeMapper;
 
     /** 예약 생성 */
     @Transactional
-    public int createReserv(Reserv reserv) {
+    public Reserv saveReserv(Reserv reserv) {
         reserv.setCreatedAt(LocalDateTime.now());
-        return reservMapper.insert(reserv);
+
+        if (reserv.getExpireAt() == null) {
+            reserv.setExpireAt(LocalDate.now().plusDays(5));
+        }
+
+        // 중복 예약 체크
+        boolean exists = reservMapper.existsOverlappingReservation(
+            reserv.getMember().getId(),
+            reserv.getPlace().getId(),
+            reserv.getStartDate(),
+            reserv.getEndDate()
+        );
+        if (exists) {
+            throw new IllegalStateException("해당 기간에 이미 예약이 존재합니다.");
+        }
+
+        int result = reservMapper.insert(reserv);
+        if (result > 0) {
+            // insert 후 예약 객체에 생성된 id가 들어있어야 함 (MyBatis에 따라 다름)
+            return reserv;
+        } else {
+            return null;
+        }
     }
 
     /** 예약 조회 */
     public Reserv findById(Long id) {
-        return reservMapper.findById(id);
+        Reserv reserv = reservMapper.findById(id);
+        if (reserv == null || reserv.getDeleteAt() != null) {
+            throw new IllegalArgumentException("존재하지 않거나 삭제된 예약입니다.");
+        }
+        return reserv;
     }
 
     /** 예약 전체 조회 */
@@ -44,10 +76,15 @@ public class ReservService {
         reserv.setState(newState);
         return reservMapper.updateByState(reserv);
     }
-
+    
     /** 예약 삭제 */
     @Transactional
-    public int deleteReserv(Long id) {
-        return reservMapper.delete(id);
+    public int softDeleteReservation(Long id) {
+        Reserv reserv = reservMapper.findById(id);
+        if (reserv == null || reserv.getDeleteAt() != null) {
+            throw new IllegalArgumentException("존재하지 않거나 이미 삭제된 예약입니다.");
+        }
+
+        return reservMapper.softDelete(id);
     }
 }

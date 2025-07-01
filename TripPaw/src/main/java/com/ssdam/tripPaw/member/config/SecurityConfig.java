@@ -18,6 +18,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (WebSocket과 함께 사용할 때 필요할 수 있음)
             .authorizeHttpRequests(authz -> authz
                 //.antMatchers("/**").permitAll() // "/**"는 모든 경로를 의미합니다.
+                //.antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
+                .antMatchers("/**").permitAll() // "/**"는 모든 경로를 의미합니다.
                 .antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
                 .anyRequest().authenticated()
             );

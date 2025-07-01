@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,6 +25,7 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
+	@Column(length=2000)
 	private String description;
 	private String latitude;
 	private String longitude;
@@ -32,7 +34,9 @@ public class Place {
 	private boolean petFriendly;
 	private boolean petVerified;
 	private String restDays;
+	@Column(length=2000)
 	private String price;
+	private String parking;
 	private String phone;
 	private String imageUrl;
 	private String homePage;
@@ -40,7 +44,7 @@ public class Place {
 	private String source;
 	
 	@ManyToOne
-	@JoinColumn(name = "placeType_id")
+	@JoinColumn(name = "place_type_id")
 	private PlaceType placeType;
 	
 	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)

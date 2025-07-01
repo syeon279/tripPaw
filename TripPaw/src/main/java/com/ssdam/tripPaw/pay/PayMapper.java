@@ -12,5 +12,5 @@ public interface PayMapper {
 	public List<Pay> findAll();
 	public int insert(Pay pay);
 	public int updateByState(Pay pay);
-	public int delete(Long id);
+	public int softDelete(Long id);
 }
