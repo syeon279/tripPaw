@@ -3,10 +3,25 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.ssdam.tripPaw.reserv.ReservMapper">
+	
+	<resultMap id="ReservResultMap" type="com.ssdam.tripPaw.domain.Reserv">
+	  <id property="id" column="id"/>
+	  <result property="countPeople" column="count_people"/>
+	  <result property="countPet" column="count_pet"/>
+	  <result property="createdAt" column="created_at"/>
+	  <result property="deleteAt" column="delete_at"/>
+	  <result property="startDate" column="start_date"/>
+	  <result property="endDate" column="end_date"/>
+	  <result property="expireAt" column="expire_at"/>
+	  <result property="state" column="state"/>
+	  <result property="originalPrice" column="original_price"/>
+	  <result property="finalPrice" column="final_price"/>
+	  <!-- 필요 시 연관 객체 매핑 추가 -->
+	</resultMap>
 
-  <select id="findAll" resultType="com.ssdam.tripPaw.domain.Reserv">
-    SELECT * FROM reserv WHERE delete_at IS NULL
-  </select>
+	<select id="findAll" resultMap="ReservResultMap">
+	  SELECT * FROM reserv WHERE delete_at IS NULL
+	</select>
 
   <select id="findById" parameterType="long" resultType="com.ssdam.tripPaw.domain.Reserv">
     SELECT * FROM reserv WHERE id = #{id} AND delete_at IS NULL
@@ -28,6 +43,23 @@
     <if test="tripPlan != null">, #{tripPlan.id}</if>
   )
 </insert>
+
+	<select id="existsOverlappingReservation" resultType="boolean">
+	  SELECT COUNT(*) > 0
+	  FROM reserv
+	  WHERE delete_at IS NULL
+	    AND member_id = #{memberId}
+	    AND place_id = #{placeId}
+	    AND (
+	      (start_date BETWEEN #{startDate} AND #{endDate})
+	      OR
+	      (end_date BETWEEN #{startDate} AND #{endDate})
+	      OR
+	      (#{startDate} BETWEEN start_date AND end_date)
+	      OR
+	      (#{endDate} BETWEEN start_date AND end_date)
+	    )
+	</select>
 
   <update id="updateByState" parameterType="com.ssdam.tripPaw.domain.Reserv">
     UPDATE reserv SET state = #{state} WHERE id = #{id}
