@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper	namespace="com.ssdam.tripPaw.checklist.MemberCheckMapper">
+
+	<insert id="insertMemberCheck" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO member_check (custom_content, is_checked, created_at, checkroutine_id, checktemplateitem_id)
+        VALUES (#{customContent}, #{isChecked}, now(), #{checkRoutine.id}, #{checkTemplateItem.id})
+    </insert>
+
+    <select id="selectByRoutineId" resultMap="MemberCheckResultMap">
+        SELECT id, custom_content, is_checked, created_at, checkroutine_id, checktemplateitem_id
+        FROM member_check
+        WHERE checkroutine_id = #{routineId}
+        ORDER BY created_at
+    </select>
+
+    <select id="selectByMemberId" resultMap="MemberCheckResultMap">
+        SELECT mc.*
+        FROM member_check mc
+        JOIN check_routine cr ON mc.checkroutine_id = cr.id
+        WHERE cr.member_id = #{memberId}
+        ORDER BY mc.created_at
+    </select>
+
+    <update id="updateMemberCheck">
+        UPDATE member_check
+        SET custom_content = #{customContent}, is_checked = #{isChecked}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteMemberCheckById">
+        DELETE FROM member_check WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByRoutineId">
+        DELETE FROM member_check WHERE checkroutine_id = #{routineId}
+    </delete>
+
+    <resultMap id="MemberCheckResultMap" type="com.ssdam.tripPaw.domain.MemberCheck">
+        <id property="id" column="id"/>
+        <result property="customContent" column="custom_content"/>
+        <result property="isChecked" column="is_checked"/>
+        <result property="createdAt" column="created_at"/>
+        
+        <association property="checkRoutine" javaType="com.ssdam.tripPaw.domain.CheckRoutine">
+            <id property="id" column="checkroutine_id"/>
+        </association>
+
+        <association property="checkTemplateItem" javaType="com.ssdam.tripPaw.domain.CheckTemplateItem">
+            <id property="id" column="checktemplateitem_id"/>
+        </association>
+    </resultMap>
+
+</mapper>
