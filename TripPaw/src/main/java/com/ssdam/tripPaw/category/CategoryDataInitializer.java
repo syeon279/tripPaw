@@ -19,8 +19,6 @@ public class CategoryDataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
     	
-    	System.out.println("📢 CategoryDataInitializer 실행됨");
-    	
     	List<String> categoryNames = List.of(
     		    // 📍 여행 분위기/감성
     		    "한적한", "힐링", "감성 인스타", "로맨틱", "레트로", "빈티지 감성",
@@ -68,7 +66,7 @@ public class CategoryDataInitializer implements ApplicationRunner {
             if (categoryMapper.findByName(name) == null ) {
                 Category category = new Category();
                 category.setName(name);
-                categoryMapper.insert(category);
+                //categoryMapper.insert(category);
             }
         }
         

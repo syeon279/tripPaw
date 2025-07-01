@@ -424,7 +424,7 @@ public class PlaceApiService {
 		place.setPlaceType(placeType);
 
 		placeMapper.insert(place);
-		placeCategoryService.mapCategoriesToPlace(place);
+		placeCategoryService.insertPlaceAndMapCategories(place);
 
 		// 이미지 처리
 		try {
