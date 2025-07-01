@@ -34,6 +34,7 @@
     created_at, count_people, count_pet,
     original_price, final_price,
     member_id, place_id
+    
     <if test="tripPlan != null">, trip_plan_id</if>
   )
   VALUES (
