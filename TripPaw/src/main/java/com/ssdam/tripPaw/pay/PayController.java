@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.ssdam.tripPaw.payapi.IamportPayService;
 import com.ssdam.tripPaw.reserv.ReservService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(
+		  origins = "http://localhost:3000",
+		  allowCredentials = "true"
+		)
 @Controller
 @RequestMapping("/pay")
 public class PayController {

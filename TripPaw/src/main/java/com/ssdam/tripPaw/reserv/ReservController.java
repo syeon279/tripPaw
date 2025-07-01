@@ -20,7 +20,10 @@ import com.ssdam.tripPaw.domain.Reserv;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(
+		  origins = "http://localhost:3000",
+		  allowCredentials = "true"
+		)
 @Controller
 @RequestMapping("/reserv")
 @RequiredArgsConstructor
