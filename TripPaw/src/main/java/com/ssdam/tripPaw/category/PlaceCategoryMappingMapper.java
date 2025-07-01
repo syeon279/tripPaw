@@ -9,9 +9,12 @@ import com.ssdam.tripPaw.domain.Category;
 
 @Mapper
 public interface PlaceCategoryMappingMapper {
+	
     void insertMapping(@Param("placeId") Long placeId, @Param("categoryId") Long categoryId);
 
     boolean existsMapping(@Param("placeId") Long placeId, @Param("categoryId") Long categoryId);
 
     List<Category> findCategoriesByPlaceId(@Param("placeId") Long placeId);
+
+	List<Long> findCategoryIdsByPlaceTypeId(Long id);
 }
