@@ -96,7 +96,8 @@ function PaymentPage() {
                   merchantUid: rsp.merchant_uid,
                   reservId: reservData.reservId,
                   memberId: reservData.memberId,
-                }
+                },
+                withCredentials: true,
               });
               alert('결제가 완료되었습니다!');
               router.push('/some-success-page');
