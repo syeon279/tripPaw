@@ -6,5 +6,5 @@ import com.ssdam.tripPaw.domain.PlaceImage;
 
 @Mapper
 public interface PlaceImageMapper {
-    void insert(PlaceImage placeImage);
+    int insert(PlaceImage placeImage);
 }

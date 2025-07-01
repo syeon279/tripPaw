@@ -32,8 +32,8 @@
 	</properties>
 	<repositories>
 		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 	<dependencies>
@@ -153,13 +153,13 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-	
+
 		<!-- 결제 API -->
-		<!-- 결제 API -->		
+		<!-- 결제 API -->
 		<dependency>
-		    <groupId>com.github.iamport</groupId>
-		    <artifactId>iamport-rest-client-java</artifactId>
-		    <version>0.2.23</version>
+			<groupId>com.github.iamport</groupId>
+			<artifactId>iamport-rest-client-java</artifactId>
+			<version>0.2.23</version>
 		</dependency>
 
 		<!-- JSON 파싱용 -->
@@ -174,12 +174,19 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
-		
+
 		<!-- OpenAI Java SDK 사용시 -->
 		<dependency>
-		  <groupId>com.theokanning.openai-gpt3-java</groupId>
-		  <artifactId>client</artifactId>
-		  <version>0.18.2</version>
+			<groupId>com.theokanning.openai-gpt3-java</groupId>
+			<artifactId>client</artifactId>
+			<version>0.18.2</version>
+		</dependency>
+
+		<!-- Later -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>33.1.0-jre</version>
 		</dependency>
 	</dependencies>
 

@@ -21,12 +21,17 @@ import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.pay.PayMapper;
 import com.ssdam.tripPaw.pay.PayState;
 import com.ssdam.tripPaw.reserv.ReservMapper;
+import com.ssdam.tripPaw.reserv.ReservService;
+import com.ssdam.tripPaw.reserv.ReservState;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class IamportPayService {
+	
+	private final ReservService reservService;
+	
     @Value("${iamport.api.key}")
     private String apiKey;
 
@@ -65,10 +70,16 @@ public class IamportPayService {
         Reserv reserv = reservMapper.findById(reservId);
         pay.setReserv(reserv);
 
-        Member member = new Member();
-        member.setId(memberId); // 최소한 ID만 설정
+        Member member = Member.builder().id(memberId).build(); // 최소한 ID만 설정
         pay.setMember(member);
 
-        return payMapper.insert(pay);
+        int result = payMapper.insert(pay);
+        
+        if (result > 0) {
+            reservService.updateReservState(reservId, ReservState.CONFIRMED);
+        }
+        
+        return result;
     }
+    
 }
