@@ -25,6 +25,7 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
+	@Column(length=2000)
 	private String description;
 	private String latitude;
 	private String longitude;
