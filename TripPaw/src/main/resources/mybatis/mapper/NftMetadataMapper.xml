@@ -18,13 +18,13 @@
   </select>
 
   <!-- NFT 템플릿 삽입 -->
-  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.NftMetadata">
-    INSERT INTO nft_metadata (
-      title, image_url, point_value, issued_at
-    ) VALUES (
-      #{title}, #{imageUrl}, #{pointValue}, NOW()
-    )
-  </insert>
+  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.NftMetadata" useGeneratedKeys="true" keyProperty="id">
+   INSERT INTO nft_metadata (
+    title, image_url, point_value, issued_at
+   ) VALUES (
+    #{title}, #{imageUrl}, #{pointValue}, NOW()
+   )
+ </insert>
 
   <!-- NFT 템플릿 수정 -->
   <update id="update" parameterType="com.ssdam.tripPaw.domain.NftMetadata">
