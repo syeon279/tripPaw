@@ -12,6 +12,7 @@ public class MemberDataIntializer{
 	 @Bean
 	    CommandLineRunner initDatabase(MemberRepository memberRepository) {
 	        return args -> {
+	        	if (memberRepository.count() == 0) { 
 	            memberRepository.save(Member.builder()
 	                    .username("admin")
 	                    .password("$2a$12$IzrS4K6sNGAsReeCH6YQ9.jQ9Nlz/G4wO3/rMJ/6O5NPfPngzGZEK")
@@ -56,6 +57,10 @@ public class MemberDataIntializer{
 	            		.role(MemberRole.ADMIN)
 	            		.provider("")
 	            		.build());
+	            		System.out.println("더미 데이터 삽입 완료");	
+	        	  } else {
+	        		  System.out.println("데이터가 이미 존재하므로 삽입하지 않음");
+	        	  }
 	        };
 	 }
 }
