@@ -8,7 +8,7 @@ import com.ssdam.tripPaw.domain.Member;
 
 @Configuration
 public class MemberDataIntializer{
-	
+	/*
 	 @Bean
 	    CommandLineRunner initDatabase(MemberRepository memberRepository) {
 	        return args -> {
@@ -63,4 +63,5 @@ public class MemberDataIntializer{
 	        	  }
 	        };
 	 }
+	 */
 }
