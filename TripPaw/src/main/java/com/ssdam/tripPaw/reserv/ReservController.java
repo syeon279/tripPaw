@@ -18,7 +18,7 @@ import com.ssdam.tripPaw.domain.Reserv;
 import lombok.RequiredArgsConstructor;
 
 @Controller
-@RequestMapping("/api/reservations")
+@RequestMapping("/reserv")
 @RequiredArgsConstructor
 public class ReservController {
     private final ReservService reservService;
@@ -66,13 +66,15 @@ public class ReservController {
     }
 
     /** 예약 삭제 */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteReserv(@PathVariable Long id) {
-        int result = reservService.deleteReserv(id);
-        if (result > 0) {
-            return ResponseEntity.ok("예약이 삭제되었습니다.");
-        } else {
-            return ResponseEntity.notFound().build();
+    @PostMapping("/{id}/delete")
+    public ResponseEntity<String> softDelete(@PathVariable Long id) {
+        try {
+            reservService.softDeleteReservation(id);
+            return ResponseEntity.ok("예약이 삭제 처리되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("삭제 실패: " + e.getMessage());
         }
     }
 }

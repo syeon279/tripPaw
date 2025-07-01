@@ -29,6 +29,7 @@ public class PlaceApiService {
 	private final PlaceCategoryService placeCategoryService;
 	private final RestTemplate restTemplate = new RestTemplate();
 
+
 	private static final String key = "kqofCEpJVKxi9%2FD6M7kUNpRDUq4FhSKXk%2FzZxPL8mP1VNAP6TzJnYMNkHQB81OMT0zcwh6VQRyP4cPbSl1HNAg%3D%3D";
 
 	public PlaceApiService(PlaceMapper placeMapper, PlaceTypeMapper placeTypeMapper,
@@ -38,6 +39,7 @@ public class PlaceApiService {
 		this.placeImageMapper = placeImageMapper;
 		this.placeCategoryService = placeCategoryService;
 	}
+
 
 	private static final Map<String, String> contentTypeIdMap = Map.of(
 			"12", "관광지", 
@@ -50,9 +52,11 @@ public class PlaceApiService {
 			"39", "음식점"
 			);
 
+
 	private boolean isValidJson(String body) {
 		return body != null && body.trim().startsWith("{");
 	}
+
 
 	private ResponseEntity<String> fetchWithRetry(URI uri, HttpEntity<String> entity, int maxAttempts)
 			throws InterruptedException {
