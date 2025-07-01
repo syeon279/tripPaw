@@ -27,7 +27,8 @@
     SELECT * FROM reserv WHERE id = #{id} AND delete_at IS NULL
   </select>
 
-<insert id="insert" parameterType="com.ssdam.tripPaw.domain.Reserv">
+<insert id="insert" parameterType="com.ssdam.tripPaw.domain.Reserv"
+        useGeneratedKeys="true" keyProperty="id" keyColumn="id">
   INSERT INTO reserv (
     start_date, end_date, expire_at, delete_at, state,
     created_at, count_people, count_pet,
@@ -43,6 +44,7 @@
     <if test="tripPlan != null">, #{tripPlan.id}</if>
   )
 </insert>
+
 
 	<select id="existsOverlappingReservation" resultType="boolean">
 	  SELECT COUNT(*) > 0

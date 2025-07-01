@@ -16,7 +16,8 @@
     "package.json": "^2.0.1",
     "react": "^19.1.0",
     "react-date-range": "^2.0.1",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.3"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
