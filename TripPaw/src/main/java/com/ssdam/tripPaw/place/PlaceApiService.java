@@ -21,8 +21,8 @@ public class PlaceApiService {
     private final PlaceImageMapper placeImageMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    String encodedKey = "BwTmKuAlk0mdCJda6gICnjx3Q%2BVUWBVzQqCoMGzz4xxB2ejK27Kpiws8Og1v1Yh0R7Rw7LFzFB6rR7Xv4jLxGA%3D%3D";
-    String key="BwTmKuAlk0mdCJda6gICnjx3Q%2BVUWBVzQqCoMGzz4xxB2ejK27Kpiws8Og1v1Yh0R7Rw7LFzFB6rR7Xv4jLxGA%3D%3D";
+    String encodedKey = "Lo38ICo6xt3eMSv%2FK2WlWeqaqRUzTq3REzTTfiCcfMyyiwwV9UzngNFzXFLx3aSwKoqMeZ%2F%2FcmIjq1Z8G8nAdg%3D%3D";
+    String key="Lo38ICo6xt3eMSv%2FK2WlWeqaqRUzTq3REzTTfiCcfMyyiwwV9UzngNFzXFLx3aSwKoqMeZ%2F%2FcmIjq1Z8G8nAdg%3D%3D";
     public PlaceApiService(PlaceMapper placeMapper, PlaceTypeMapper placeTypeMapper, PlaceImageMapper placeImageMapper) {
         this.placeMapper = placeMapper;
         this.placeTypeMapper = placeTypeMapper;
@@ -30,14 +30,14 @@ public class PlaceApiService {
     }
 
     private static final Map<String, String> contentTypeIdMap = Map.of(
-        "12", "관광지",
-        "14", "문화시설",
-        "15", "축제/공연/행사",
-        "25", "여행코스",
-        "28", "레포츠",
-        "32", "숙박",
-        "38", "쇼핑",
-        "39", "음식점"
+        "12", "관광지"
+//        "14", "문화시설",
+//        "15", "축제/공연/행사",
+//        "25", "여행코스",
+//        "28", "레포츠",
+//        "32", "숙박",
+//        "38", "쇼핑",
+//        "39", "음식점"
     );
 
     private boolean isValidJson(String body) {
@@ -45,7 +45,9 @@ public class PlaceApiService {
     }
 
     public void fetchAndSavePetFriendlyPlaces() throws URISyntaxException {
-        int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32};
+        int[] areaCodes = {1};
+//    public void fetchAndSavePetFriendlyPlaces() throws URISyntaxException {
+//        int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32};
 
         for (int areaCode : areaCodes) {
             String apiUrl = "https://apis.data.go.kr/B551011/KorPetTourService/areaBasedList"

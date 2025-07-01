@@ -12,5 +12,5 @@ public interface ReservMapper {
 	public List<Reserv> findAll();
 	public int insert(Reserv reserv);
 	public int updateByState(Reserv reserv);
-	public int delete(Long id);
+	public int softDelete(Long id);
 }

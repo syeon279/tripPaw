@@ -49,7 +49,12 @@ public class PayService {
 
     /** 결제 삭제 */
     @Transactional
-    public int deletePay(Long id) {
-        return payMapper.delete(id);
+    public int softDelete(Long id) {
+        Pay pay = payMapper.findById(id);
+        if (pay == null || pay.getDeleteAt() != null) {
+            throw new IllegalArgumentException("이미 삭제되었거나 존재하지 않는 결제입니다.");
+        }
+
+        return payMapper.softDelete(id);
     }
 }
