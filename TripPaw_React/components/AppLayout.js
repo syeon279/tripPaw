@@ -9,19 +9,7 @@ const AppLayoutWrapper = styled.div`
   box-sizing: border-box;
 `;
 
-const ColWithOrder = styled(Col)`
-  &.nav-col { order: 10; } /* 모바일에서 하단 */ 
-  &.main-col { order: 1; }
-  &.right-col { order: 2; }
-
-  @media (min-width: 768px) {
-    &.nav-col { order: 1; }
-    &.main-col { order: 2; }
-    &.right-col {  order: 3; }
-  }
-`;
-
-const AppLayout = ({ children, group, members }) => {
+const AppLayout = ({ children, }) => {
 
   return (
 

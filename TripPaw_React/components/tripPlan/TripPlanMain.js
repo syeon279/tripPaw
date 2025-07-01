@@ -49,10 +49,10 @@ const tripPlanMain = () => {
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         padding: '24px',
         borderRadius: '16px',
-        maxWidth: '960px',
         width: '100%',
         color: 'black',
         marginTop: '50px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     };
 
     const gridStyle = {
@@ -70,20 +70,43 @@ const tripPlanMain = () => {
         display: 'inline-block',
     };
 
+
+    const rowStyle = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '16px',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        //border: '1px solid #ccc',
+    };
+
+    const fieldStyle = {
+        flex: 1,
+        padding: '12px',
+        boxSizing: 'border-box',
+    };
+
+    const dividerStyle = {
+        width: '1px',
+        backgroundColor: '#ccc',
+        height: '100%',
+    };
+
     return (
         <div style={containerStyle}>
             <img src="/image/background/main.png" alt="background" style={backgroundStyle} />
             <div style={overlayStyle} />
 
             <div style={contentStyle}>
-                <div style={{ width: '100%', maxWidth: '960px' }}>
+                <div style={{ width: '90%' }}>
                     <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={450}
                         height={120}
                         priority />
                     <div style={boxStyle}>
-                        <div style={gridStyle}>
-                            <div>
-                                <label style={{ fontSize: '14px', marginBottom: '4px', display: 'block' }}>지역 선택</label>
+                        <div style={rowStyle}>
+                            <div style={fieldStyle}>
+                                <label style={{ fontSize: '14px', marginBottom: '4px', display: 'block' }}>여행지</label>
                                 <select style={{ width: '100%', padding: '4px', borderRadius: '4px' }}>
                                     <option>서울</option>
                                     <option>부산</option>
@@ -98,6 +121,14 @@ const tripPlanMain = () => {
                                     <option>전라</option>
                                     <option>경북</option>
                                     <option>경상</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '14px', marginBottom: '4px', display: 'block' }}>여행 일자</label>
+                                <select style={{ width: '100%', padding: '4px', borderRadius: '4px' }}>
+                                    <option>힐링</option>
+                                    <option>액티비티</option>
+                                    <option>문화탐방</option>
                                 </select>
                             </div>
                             <div>
