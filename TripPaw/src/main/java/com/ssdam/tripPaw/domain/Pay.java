@@ -41,7 +41,10 @@ public class Pay {
     @Enumerated(EnumType.STRING)
     private PayState state;
     private LocalDateTime paidAt;
+    private LocalDateTime deleteAt;
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+    private boolean haspayShare;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reserv_id", nullable = false)
@@ -51,7 +54,4 @@ public class Pay {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payGroup_id")
-    private PayGroup payGroup;
 }

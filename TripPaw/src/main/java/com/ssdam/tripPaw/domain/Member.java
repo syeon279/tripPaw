@@ -25,6 +25,7 @@ import lombok.Data;
 @Entity
 @Table(name = "member") // DB 테이블명과 맞추기
 @Data
+@Builder
 public class Member {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +39,11 @@ public class Member {
 	@Column(nullable = false, length = 255)
 	private String email;
 	@Column(nullable = false, length = 255)
-	private String road_address;
+	private String roadAddress;
 	@Column(nullable = false, length = 255)
-	private String jibun_address;
+	private String jibunAddress;
 	@Column(nullable = false, length = 255)
-	private String namuji_address;
+	private String namujiAddress;
 	@Column(nullable = false, length = 20)
 	private MemberRole role; //ROLE_ADMIN = 0, ROLE_SYSTEM 1~1000, ROLE_MEMBER = 1001~
 	@Column(nullable = false, length = 20)
