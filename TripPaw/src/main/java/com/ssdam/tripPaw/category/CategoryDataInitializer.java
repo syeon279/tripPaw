@@ -18,6 +18,7 @@ public class CategoryDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+    	
     	System.out.println("📢 CategoryDataInitializer 실행됨");
     	
     	List<String> categoryNames = List.of(
@@ -70,5 +71,6 @@ public class CategoryDataInitializer implements ApplicationRunner {
                 categoryMapper.insert(category);
             }
         }
+        
     }
 }
