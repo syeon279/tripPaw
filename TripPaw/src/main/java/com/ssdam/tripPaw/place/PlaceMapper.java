@@ -2,6 +2,7 @@ package com.ssdam.tripPaw.place;
 
 import com.ssdam.tripPaw.domain.Place;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -16,7 +17,9 @@ public interface PlaceMapper {
 
     // ID로 조회
     Place findById(Long id);
-
+    
+    List<Place> findByRegionAndCategories(@Param("region") String region, @Param("categoryIds") List<Long> categoryIds);
+    
     // 업데이트
     int update(Place place);
 }

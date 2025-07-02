@@ -28,24 +28,37 @@ const IconMenu = styled.div`
   display: flex;
   align-items: center;
   gap: 25px; // 아이콘 사이 간격
-  color: #333;
-   color: white;
   font-size: 20px;
   cursor: pointer;
+   color: ${(props) => (props.isDark ? 'black' : 'white')};
 `;
 
-const ContentHeader = () => {
+const ContentHeader = ({ theme }) => {
+  const isDark = theme === 'dark';
   const router = useRouter();
 
 
   return (
     <HeaderWrapper>
-      <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={160} height={40} />
+      {isDark ?
+        <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={160} height={40} />
+        :
+        <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={160} height={40} />
+      }
 
-      <IconMenu>
-        <NotificationOutlined onClick={() => router.push('/notice')} />
-        <SearchOutlined onClick={() => router.push('/search')} />
-        <UserOutlined onClick={() => router.push('/mypage')} style={{ marginRight: '25px' }} />
+      <IconMenu isDark={isDark} >
+        <NotificationOutlined
+          onClick={() => router.push('/notice')}
+          style={{ color: isDark ? 'black' : 'white' }}
+        />
+        <SearchOutlined
+          onClick={() => router.push('/search')}
+          style={{ color: isDark ? 'black' : 'white' }}
+        />
+        <UserOutlined
+          onClick={() => router.push('/mypage')}
+          style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
+        />
       </IconMenu>
     </HeaderWrapper>
 
