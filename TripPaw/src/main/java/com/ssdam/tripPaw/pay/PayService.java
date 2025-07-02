@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.pay;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -7,7 +8,9 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.ssdam.tripPaw.domain.Pay;
+import com.ssdam.tripPaw.payapi.IamportPayService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PayService {
     private final PayMapper payMapper;
+    private final IamportPayService iamportPayService;
 
     /** 결제 조회 */
     public Pay findById(Long id) {
@@ -26,6 +30,14 @@ public class PayService {
         return payMapper.findAll();
     }
 
+    public Pay findByReservId(Long reservId) {
+        return payMapper.findByReservId(reservId);
+    }
+    
+    public Pay findByImpUid(String impUid) {
+        return payMapper.findByImpUid(impUid);
+    }
+    
     /** 결제 정보 저장 */
     @Transactional
     public int createPay(Pay pay) {
@@ -56,5 +68,23 @@ public class PayService {
         }
 
         return payMapper.softDelete(id);
+    }
+    
+    public boolean refundPayment(String impUid) throws IamportResponseException, IOException {
+        // 1. 환불 요청 전에 결제정보 조회
+        Pay pay = payMapper.findByImpUid(impUid);
+        if (pay == null) {
+            throw new RuntimeException("결제 정보가 없습니다.");
+        }
+
+        // 2. 아임포트 환불 API 호출
+        boolean success = iamportPayService.cancelPayment(impUid, true);
+
+        if (success) {
+            // 3. 환불 성공 시 상태를 REFUNDED로 업데이트
+            payMapper.updateStateByImpUid(impUid, PayState.REFUNDED.name());
+            return true;
+        }
+        return false;
     }
 }

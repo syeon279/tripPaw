@@ -30,4 +30,5 @@ public class MemberCheck {
     @JoinColumn(name = "checktemplateitem_id")
 	private CheckTemplateItem checkTemplateItem;
 	
+	public void setIsChecked(boolean isChecked) {this.isChecked = isChecked;}
 }
