@@ -52,7 +52,6 @@ public class PayController {
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancelPayment(@PathVariable Long id) {
         try {
-            // 결제 취소 (예: 상태 변경만)
             int updated = payService.updatePayState(id, PayState.CANCELLED);
             if (updated > 0) {
                 return ResponseEntity.ok("결제 취소 완료");
