@@ -19,13 +19,17 @@ import javax.persistence.Table;
 
 import com.ssdam.tripPaw.member.config.MemberRole;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "member") // DB 테이블명과 맞추기
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

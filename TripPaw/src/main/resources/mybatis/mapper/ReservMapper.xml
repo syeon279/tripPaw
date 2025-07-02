@@ -18,6 +18,17 @@
 	  <result property="finalPrice" column="final_price"/>
 	  <!-- 필요 시 연관 객체 매핑 추가 -->
 	</resultMap>
+	<!-- 예약 + 장소 포함 매핑 -->
+  	<resultMap id="ReservWithPlaceResultMap"
+             type="com.ssdam.tripPaw.domain.Reserv"
+             extends="ReservResultMap">
+    	<association property="place" javaType="com.ssdam.tripPaw.domain.Place">
+	      <id property="id" column="p_id"/>
+	      <result property="name" column="p_name"/>
+	      <result property="latitude" column="latitude"/>
+	      <result property="longitude" column="longitude"/>
+	    </association>
+	</resultMap>
 
 	<select id="findAll" resultMap="ReservResultMap">
 	  SELECT * FROM reserv WHERE delete_at IS NULL
@@ -71,5 +82,17 @@
   <update id="softDelete" parameterType="long">
     UPDATE reserv SET delete_at = CURRENT_DATE WHERE id = #{id}
   </update>
-
+  
+  <select id="findByIdWithPlace"
+          parameterType="long"
+          resultMap="ReservWithPlaceResultMap">
+    SELECT 
+      r.id, r.start_date, r.end_date, r.expire_at, r.delete_at, r.state,
+      r.count_people, r.count_pet, r.original_price, r.final_price,
+      p.id AS p_id, p.name AS p_name, p.latitude, p.longitude
+    FROM reserv r
+    JOIN place p ON r.place_id = p.id
+    WHERE r.id = #{id} AND r.delete_at IS NULL
+  </select>
+	
 </mapper>
