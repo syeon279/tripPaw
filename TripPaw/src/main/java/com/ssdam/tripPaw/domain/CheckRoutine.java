@@ -36,7 +36,7 @@ public class CheckRoutine {
 	
 	//membercheck
 	@OneToMany(mappedBy = "checkRoutine", cascade = CascadeType.ALL)
-	private List<MemberCheck> memberchecks = new ArrayList<>();
+	private List<MemberCheck> memberChecks = new ArrayList<>();
 	
 	//memberId
 	public void setMemberId(Long memberId) {

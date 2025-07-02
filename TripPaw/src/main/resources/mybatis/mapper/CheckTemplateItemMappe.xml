@@ -4,15 +4,29 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper	namespace="com.ssdam.tripPaw.checklist.CheckTemplateItemMapper">
 
+	<!-- 멤버 아이디로 조회 -->
+	<select id="selectItemsByMemberIds" resultMap="ItemResultMap">
+		SELECT i.id, i.checktemplate_id, i.content, i.created_at
+		FROM check_template_item i
+		JOIN check_template t ON i.checktemplate_id = t.id
+		WHERE t.member_id IN
+		<foreach item="id" collection="memberIds" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
 	<!-- 기존항목조회 -->
 	<select id="selectItemsByIds" resultMap="ItemResultMap">
 		SELECT id, checktemplate_id, content, created_at
-		FROM check_template_item
+		FROM
+		check_template_item
 		WHERE id IN
-        <foreach item="id" collection="ids" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </select>
+		<foreach item="id" collection="ids" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</select>
 
 	<!-- 전체조회 -->
 	<select id="selectAllItems" resultMap="ItemResultMap">
@@ -23,8 +37,7 @@
 
 	<!-- 다중삽입 bulk insert -->
 	<insert id="insertTemplateItems">
-		INSERT INTO check_template_item (checktemplate_id, content,
-		created_at)
+		INSERT INTO check_template_item (checktemplate_id, content,	created_at)
 		VALUES
 		<foreach collection="items" item="item" separator=",">
 			(#{item.checktemplateId}, #{item.content}, now())

@@ -16,8 +16,11 @@ public interface MemberCheckMapper {
     // 루틴 ID 기준 MemberCheck 리스트 조회
     List<MemberCheck> selectByRoutineId(@Param("routineId") Long routineId);
 
-    // 멤버 ID 기준 MemberCheck 리스트 조회 (필요 시)
+    // 멤버 ID 기준 MemberCheck 리스트 조회
     List<MemberCheck> selectByMemberId(@Param("memberId") Long memberId);
+    
+    // 루트 ID 기준 MemberCheck 리스트 조회
+    List<MemberCheck> selectByRouteId(@Param("routeId") Long routeId);
 
     // MemberCheck 상태 및 내용 수정
     int updateMemberCheck(MemberCheck memberCheck);

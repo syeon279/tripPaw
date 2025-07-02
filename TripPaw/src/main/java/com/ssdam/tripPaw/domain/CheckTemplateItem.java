@@ -10,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,21 +29,9 @@ public class CheckTemplateItem {
 	@javax.persistence.Transient  // JPA 저장 시 무시
 	private Long checktemplateId;
 	public Long getChecktemplateId() {   return checktemplateId;	}
-
-	private CheckTemplateItem(Long id, String content, LocalDateTime createdAt, CheckTemplate checkTemplate) {
-		super();
-		this.id = id;
-		this.content = content;
-		this.createdAt = createdAt;
-		this.checkTemplate = checkTemplate;
-		
-		this.checkTemplate = new CheckTemplate();
-	    this.checkTemplate.setId(checktemplateId);
-	}
 		
 	// 더미데이터용
-	public CheckTemplateItem(Long id, Long checktemplateId, String content, String code) {
-	    this.id = id;
+	public CheckTemplateItem(Long checktemplateId, String content, String code) {
 	    this.content = content;
 	    this.createdAt = LocalDateTime.now();
 	    this.checktemplateId = checktemplateId;

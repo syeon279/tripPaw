@@ -27,5 +27,7 @@ public interface CheckRoutineMapper {
 	
     //루틴삭제
 	int deleteCheckRoutineById(@Param("id") Long id);
+	
+	CheckRoutine selectRoutineWithItemsById(@Param("id") Long id);
     
 }

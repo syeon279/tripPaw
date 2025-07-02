@@ -46,8 +46,8 @@ public class CheckTemplateMapperTest {
 	@Disabled //@Test
 	public void testInsertAndSelectMemberCheck() {
 	    // 루틴과 항목 조회 더미데이터 없으면 오류남
-	    CheckRoutine routine = routineMapper.selectCheckRoutineById(3L);
-	    CheckTemplateItem item = itemMapper.selectItemsByIds(Collections.singletonList(1L)).get(0);
+	    CheckRoutine routine = routineMapper.selectCheckRoutineById(2L);
+	    CheckTemplateItem item = itemMapper.selectItemsByIds(Collections.singletonList(2L)).get(0);
 
 	    // MemberCheck 생성
 	    MemberCheck memberCheck = new MemberCheck();
@@ -65,11 +65,11 @@ public class CheckTemplateMapperTest {
 	    System.out.println("............................"+checks);
 	}
 
-	//테스트 중... 오류...
-	@Test //@Test
+	//2. 유저 체크리스트 수정
+	@Disabled//@Test
 	public void testUpdateMemberCheck() {
 	    List<MemberCheck> checks = memberCheckMapper.selectByRoutineId(1L);
-	    MemberCheck check = checks.get(3);
+	    MemberCheck check = checks.get(0);
 
 	    check.setCustomContent("커스텀 내용 수정");
 	    check.setIsChecked(true);
@@ -82,6 +82,7 @@ public class CheckTemplateMapperTest {
 	    assertTrue(updatedCheck.isChecked());
 	}
 
+	//3. 유저체크리스트 삭제
 	@Disabled //@Test
 	public void testDeleteMemberCheck() {
 	    // 임의 데이터 준비
@@ -100,15 +101,58 @@ public class CheckTemplateMapperTest {
 	    assertEquals(1, deleted);
 	}
 	
-//--- CheckRoutine	
-	//1. 루틴 생성
+	//4.루틴별 조회
+	@Disabled //@Test
+	public void testSelectByRoutineId() {
+	    Long routineId = 1L; // 임의로 루틴 ID 지정
+	    List<MemberCheck> list = memberCheckMapper.selectByRoutineId(routineId);
+
+	    System.out.println("✔ 루틴 ID = " + routineId + " 의 MemberCheck 목록:");
+	    list.forEach(mc -> System.out.println("ID: " + mc.getId() + ", 내용: " + mc.getCustomContent()));
+
+	    assertFalse(list.isEmpty());
+	}
+
+	//5. 멤버별 조회
+	@Disabled //@Test
+	public void testSelectByMemberId() {
+	    Long memberId = 1L; // 실제 존재하는 멤버 ID 사용할 것
+	    List<MemberCheck> list = memberCheckMapper.selectByMemberId(memberId);
+
+	    System.out.println("✔ 멤버 ID = " + memberId + " 의 MemberCheck 목록:");
+	    list.forEach(mc -> {
+	        System.out.println("체크 ID: " + mc.getId() +
+	                           ", 루틴 ID: " + mc.getCheckRoutine().getId() +
+	                           ", 내용: " + mc.getCustomContent());
+	    });
+
+	    assertFalse(list.isEmpty());
+	}	
+	
+	//6. 루트별 조회
+	@Disabled //@Test
+	public void testSelectMemberChecksByRouteId() {
+	    Long routeId = 1L; // 존재하는 route_id 사용
+
+	    List<MemberCheck> checks = memberCheckMapper.selectByRouteId(routeId);
+	    
+	    System.out.println("루트 ID = " + routeId + " 로 조회된 MemberCheck 리스트:");
+	    for (MemberCheck check : checks) {
+	        System.out.printf("체크 ID: %d, 루틴 ID: %d, 내용: %s, 체크됨?: %b%n",
+	                check.getId(),
+	                check.getCheckRoutine().getId(),
+	                check.getCustomContent(),
+	                check.isChecked());
+	    }
+	}
+	
 //--- CheckRoutine	
 
 	// 1. 루틴 생성
     @Disabled //@Test
     public void testInsertRoutine() {
         CheckRoutine routine = new CheckRoutine();
-        routine.setTitle("루틴 테스트3");
+        routine.setTitle("루틴 테스트4");
         routine.setIsSaved(true);
 
         Member member = new Member();
@@ -116,7 +160,7 @@ public class CheckTemplateMapperTest {
         routine.setMember(member);
 
         Route route = new Route();
-        route.setId(1L);
+        route.setId(2L);
         routine.setRoute(route);
 
         routineMapper.insertCheckRoutine(routine);
@@ -186,9 +230,6 @@ public class CheckTemplateMapperTest {
 	
 //-- 템플릿
     //1. 템플릿 목록조회
-//--- Template
-	
-	//목록조회
 	@Disabled //@Test
 	public void TempselectAll() {
 		List<CheckTemplate> list = mapper.selectAllTemplates();
@@ -197,7 +238,6 @@ public class CheckTemplateMapperTest {
 	}
 	
 	//2. 단일 템플릿 조회-아이템 포함
-	//항목조회
 	@Disabled //@Test 
 	public void TempselectItem() {
 		CheckTemplate template = mapper.selectTemplateWithItems(1L);
@@ -206,7 +246,6 @@ public class CheckTemplateMapperTest {
 	}
 	
 	//3. 템플릿 생성
-	//템플릿 생성
 	@Disabled //@Test 
 	public void TempCreate() {
 	    CheckTemplate template = new CheckTemplate();
@@ -231,7 +270,6 @@ public class CheckTemplateMapperTest {
 	}
 	
 	//4. 템플릿수정
-	//템플릿 수정
 	@Disabled //@Test
 	public void TempUpdate() {
 		Long templateId = 12L; // 수정할 템플릿 ID
@@ -259,7 +297,6 @@ public class CheckTemplateMapperTest {
 	}
 
 	//5. 템플릿 삭제
-	//템플릿 삭제
 	@Disabled //@Test
 	public void TemplateAllDelete() {
 	    Long templateIdToDelete = 12L;
@@ -274,9 +311,6 @@ public class CheckTemplateMapperTest {
 //--- 템플릿 항목	
 	
 	//1. 단일항목생성
-//--- TemplateItem
-	
-	//단일항목삽입
 	@Disabled //@Test 
     public void insertSingleItemTest() {
         CheckTemplateItem item = new CheckTemplateItem();
@@ -289,7 +323,6 @@ public class CheckTemplateMapperTest {
     }
 	
 	//2. 전체항목조회
-	//전체항목조회
 	@Disabled //@Test
 	public void selectAllItemsTest() {
 	    List<CheckTemplateItem> items = itemMapper.selectAllItems();
@@ -301,7 +334,6 @@ public class CheckTemplateMapperTest {
 	}
 	
 	//3. 단일항목삭제
-	//단일항목 삭제
 	@Disabled //@Test
     public void deleteSingleItemTest() {
         int deleted = itemMapper.deleteItemById(49L);
@@ -309,9 +341,7 @@ public class CheckTemplateMapperTest {
     }
 	
 	
-// -- 더미데이터용
-	
-//----- Rote 더미 삽입용
+// -- Route 더미데이터용
 	@Autowired private RouteRepository routeRepository;
 
     @Disabled //@Test
@@ -323,4 +353,25 @@ public class CheckTemplateMapperTest {
         List<Route> allRoutes = routeRepository.findAll();
         allRoutes.forEach(route -> System.out.println("Inserted: " + route.getName()));
     }
+
+// -- memberCheck 더미데이터용
+    //루틴이랑 템플릿 비어있으면 오류남
+    @Disabled //@Test
+    public void testInsertMemberCheckDummyData() {
+        // 루틴 10개, 템플릿아이템 10개 가정
+        List<CheckRoutine> routines = routineMapper.selectAllCheckRoutines();
+        List<CheckTemplateItem> items = itemMapper.selectAllItems();
+
+        for (int i = 0; i < 15; i++) {
+            MemberCheck memberCheck = new MemberCheck();
+            memberCheck.setCheckRoutine(routines.get(i % routines.size()));
+            memberCheck.setCheckTemplateItem(items.get(i % items.size()));
+            memberCheck.setCustomContent("더미 체크 " + (i + 1));
+            memberCheck.setIsChecked(i % 2 == 0); // true/false 번갈아가며 설정
+
+            memberCheckMapper.insertMemberCheck(memberCheck);
+            System.out.println("삽입 완료 - ID: " + memberCheck.getId());
+        }
+    }
+
 }

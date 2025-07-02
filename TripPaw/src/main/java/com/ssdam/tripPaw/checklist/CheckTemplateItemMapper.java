@@ -18,6 +18,9 @@ public interface CheckTemplateItemMapper {
     
     //전체항목조회
     List<CheckTemplateItem> selectAllItems();
+    
+    //멤버 아이디로 조회 - 관리자용
+    List<CheckTemplateItem> selectItemsByMemberIds(@Param("memberIds") List<Long> memberIds);
         
     //다중삽입 bulk insert
     int insertTemplateItems(@Param("items") List<CheckTemplateItem> items);
