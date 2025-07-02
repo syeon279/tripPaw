@@ -12,11 +12,19 @@
 		<result property="roadAddress" column="roadAddress" />
 		<result property="jibunAddress" column="jibunAddress" />
 		<result property="namujiAddress" column="namujiAddress" />
-		<result property="role" column="role" />
 		<result property="provider" column="provider" />
 		<result property="createdAt" column="createdAt" />
+		<collection property="role" ofType="com.ssdam.tripPaw.member.config.MemberRole">
+        		       <result column="role_name"/>     
+        </collection>
 	</resultMap>
-	
+	<insert id="insertMemberRole">
+		insert into member_roles (member_id
+								, role_name
+						) values ( 
+								#{memberId}
+								 ,#{memberRoleType}	)
+	</insert>
 	
 	 <!-- insert -->
  	<insert id="insert" parameterType="Member">
@@ -28,7 +36,6 @@
 			 ,roadAddress
 			 ,jibunAddress
 			 ,namujiAddress
-			 ,role
 			 ,provider
 			 )
 		VALUES 
@@ -39,9 +46,7 @@
 			,#{roadAddress}
 			,#{jibunAddress}
 			,#{namujiAddress}
-			,#{role}
 			,#{provider}
 			 )
-				
 	</insert>
 </mapper>
