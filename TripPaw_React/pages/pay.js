@@ -1,6 +1,127 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgb(0 0 0 / 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+`;
+
+const Title = styled.h2`
+  margin-bottom: 24px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  text-align: center;
+`;
+
+const InfoRow = styled.p`
+  font-size: 16px;
+  margin: 8px 0;
+  & > span {
+    font-weight: 600;
+    color: #555;
+  }
+`;
+
+const PgSelectContainer = styled.div`
+  margin: 32px 0 24px 0;
+`;
+
+const PgTitle = styled.h3`
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #444;
+`;
+
+const RadioLabel = styled.label`
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+  
+  input[type='radio'] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  input[type='radio']:checked {
+    border-color: #0070f3;
+    background-color: #0070f3;
+  }
+  input[type='radio']:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+  }
+`;
+
+const PayButton = styled.button`
+  width: 100%;
+  padding: 14px 0;
+  background-color: #0070f3;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  
+  &:hover {
+    background-color: #005bb5;
+  }
+  &:active {
+    background-color: #004494;
+  }
+`;
+
+const HomeButton = styled(PayButton)`
+  background-color: #666;
+  margin-top: 16px;
+  
+  &:hover {
+    background-color: #444;
+  }
+  &:active {
+    background-color: #222;
+  }
+`;
+
+const LoadingText = styled.p`
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+  margin-top: 40px;
+`;
+
+const ErrorText = styled.p`
+  text-align: center;
+  font-size: 16px;
+  color: #e63946;
+  margin-top: 40px;
+`;
 
 function PaymentPage() {
   const router = useRouter();
@@ -100,7 +221,7 @@ function PaymentPage() {
                 withCredentials: true,
               });
               alert('결제가 완료되었습니다!');
-              router.push('/some-success-page');
+              router.push('/pay-success');
             } catch {
               alert('결제 검증 중 오류가 발생했습니다.');
             }
@@ -115,22 +236,22 @@ function PaymentPage() {
     }
   };
 
-  if (loading) return <p>예약 정보를 불러오는 중입니다...</p>;
-  if (error) return <p>{error}</p>;
-  if (!reservData.reservId) return <p>예약 정보가 없습니다. 예약 페이지로 이동해 주세요.</p>;
+  if (loading) return <LoadingText>예약 정보를 불러오는 중입니다...</LoadingText>;
+  if (error) return <ErrorText>{error}</ErrorText>;
+  if (!reservData.reservId) return <ErrorText>예약 정보가 없습니다. 예약 페이지로 이동해 주세요.</ErrorText>;
 
   return (
-    <div>
-      <h2>결제하기</h2>
-      <p>예약 번호: {reservData.reservId}</p>
-      <p>인원 수: {reservData.countPeople}명</p>
-      <p>반려동물 수: {reservData.countPet}마리</p>
-      <p>예약 기간: {reservData.startDate} ~ {reservData.endDate}</p>
-      <p>결제 금액: {reservData.amount}원</p>
+    <Container>
+      <Title>결제하기</Title>
+      <InfoRow><span>예약 번호:</span> {reservData.reservId}</InfoRow>
+      <InfoRow><span>인원 수:</span> {reservData.countPeople}명</InfoRow>
+      <InfoRow><span>반려동물 수:</span> {reservData.countPet}마리</InfoRow>
+      <InfoRow><span>예약 기간:</span> {reservData.startDate} ~ {reservData.endDate}</InfoRow>
+      <InfoRow><span>결제 금액:</span> {reservData.amount.toLocaleString()}원</InfoRow>
 
-      <div>
-        <h3>PG사 선택</h3>
-        <label>
+      <PgSelectContainer>
+        <PgTitle>PG사 선택</PgTitle>
+        <RadioLabel>
           <input
             type="radio"
             name="pg"
@@ -139,9 +260,8 @@ function PaymentPage() {
             onChange={(e) => setSelectedPg(e.target.value)}
           />
           KG이니시스
-        </label>
-        <br />
-        <label>
+        </RadioLabel>
+        <RadioLabel>
           <input
             type="radio"
             name="pg"
@@ -150,9 +270,8 @@ function PaymentPage() {
             onChange={(e) => setSelectedPg(e.target.value)}
           />
           카카오페이
-        </label>
-        <br />
-        <label>
+        </RadioLabel>
+        <RadioLabel>
           <input
             type="radio"
             name="pg"
@@ -161,11 +280,12 @@ function PaymentPage() {
             onChange={(e) => setSelectedPg(e.target.value)}
           />
           토스페이
-        </label>
-      </div>
+        </RadioLabel>
+      </PgSelectContainer>
 
-      <button onClick={onClickPay}>결제하기</button>
-    </div>
+      <PayButton onClick={onClickPay}>결제하기</PayButton>
+      <HomeButton onClick={() => router.push('/')}>홈으로 가기</HomeButton>
+    </Container>
   );
 }
 

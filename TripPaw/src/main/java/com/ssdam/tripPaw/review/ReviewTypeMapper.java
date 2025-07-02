@@ -7,5 +7,5 @@ import com.ssdam.tripPaw.domain.ReviewType;
 
 @Mapper
 public interface ReviewTypeMapper {
-	ReviewType findByTargetType(@Param("targetType") String targetType);
+	ReviewType findById(Long id);
 }
