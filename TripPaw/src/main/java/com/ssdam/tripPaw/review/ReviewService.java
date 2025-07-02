@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.review;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -7,12 +8,18 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -20,14 +27,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Place;
+import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.ReviewType;
+import com.ssdam.tripPaw.domain.Route;
+import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.place.PlaceMapper;
+import com.ssdam.tripPaw.reserv.ReservMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,10 +49,9 @@ import lombok.RequiredArgsConstructor;
 public class ReviewService {
 	private final ReviewMapper reviewMapper;
 	private final ReviewTypeMapper reviewTypeMapper;
-    private final PlaceMapper placeMapper;
-	
-//	@Value("${openai.api.key}")
-//	private String apiKey;
+	private final TripPlanMapper tripPlanMapper;
+    private final ReservMapper reservMapper;
+    private final WeatherService weatherService;
     
     private static final String KMA_API = "https://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList";
 	
@@ -61,87 +73,84 @@ public class ReviewService {
 	    }
 	}
 	
-	// ✅ 리뷰 저장
-	@Transactional
-	public void saveReview(Map<String, Object> request, String weather) {
+	public void saveReviewWithWeather(ReviewDto dto) {
+	    // 1. 회원 객체 준비
+	    Member member = new Member();
+	    member.setId(dto.getMemberId());
+
+	    // 2. 리뷰타입 조회
+	    ReviewType reviewType = reviewTypeMapper.findById(dto.getReviewTypeId());
+	    if (reviewType == null) throw new RuntimeException("리뷰 타입 없음");
+
+	    Long targetId = dto.getTargetId();
+	    LocalDate date;
+	    double lat, lon;
+
+	    if ("PLAN".equalsIgnoreCase(reviewType.getTargetType())) {
+	        TripPlan tripPlan = tripPlanMapper.findByIdWithCourses(targetId);
+	        if (tripPlan == null || tripPlan.getTripPlanCourses() == null || tripPlan.getTripPlanCourses().isEmpty()) {
+	            throw new RuntimeException("트립플랜 정보 없음");
+	        }
+
+	        TripPlanCourse course = tripPlan.getTripPlanCourses().get(0);
+	        if (course.getRoute() == null || course.getRoute().getRoutePlaces() == null ||
+	            course.getRoute().getRoutePlaces().isEmpty()) {
+	            throw new RuntimeException("경로 정보 없음");
+	        }
+
+	        Place place = course.getRoute().getRoutePlaces().get(0).getPlace();
+	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
+	            throw new RuntimeException("경로에 연결된 장소 정보 부족 (위도/경도)");
+	        }
+
+	        lat = parseCoordinate(place.getLatitude(), "위도");
+	        lon = parseCoordinate(place.getLongitude(), "경도");
+	        date = LocalDate.now();
+
+	    } else if ("PLACE".equalsIgnoreCase(reviewType.getTargetType())) {
+	        Reserv reserv = reservMapper.findByIdWithPlace(targetId);
+	        if (reserv == null) throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
+
+	        Place place = reserv.getPlace();
+	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
+	            throw new RuntimeException("예약에 연결된 장소 정보 부족");
+	        }
+
+	        lat = parseCoordinate(place.getLatitude(), "위도");
+	        lon = parseCoordinate(place.getLongitude(), "경도");
+	        date = reserv.getStartDate();
+
+	    } else {
+	        throw new RuntimeException("알 수 없는 리뷰 타입입니다.");
+	    }
+
+	    String weather = weatherService.getWeather(date, lat, lon);
+
 	    Review review = new Review();
-	    review.setContent((String) request.get("content"));
-	    review.setWeatherCondition(weather);
+	    review.setMember(member);
+	    review.setReviewType(reviewType);
+	    review.setTargetId(targetId);
+	    review.setContent(dto.getContent());
+	    review.setRating(dto.getRating());
 	    review.setCreatedAt(LocalDateTime.now());
+	    review.setWeatherCondition(weather);
 
-	    // ReviewType 설정
-	    String typeString = (String) request.get("type");	// place / plan
-	    Long targetId = Long.parseLong(request.get("targetId").toString());
-
-        ReviewType reviewType = reviewTypeMapper.findByTargetType(typeString);
-        if (reviewType == null) throw new RuntimeException("리뷰 타입 없음");
-        
-        review.setReviewType(reviewType);
-        review.setTargetId(targetId);
-
-        reviewMapper.insertReview(review);
+	    reviewMapper.insertReview(review);
 	}
-	
-	// ✅ GPT 리뷰 자동 생성
-	public String generateAIReview(List<String> keywords) {
-		try {
-            String prompt = "다음 키워드를 포함하여 여행 리뷰를 2~3문장으로 자연스럽게 작성해줘: " + String.join(", ", keywords);
-            Map<String, Object> message = Map.of( "role", "user", "content", prompt );
-            Map<String, Object> requestBody = Map.of(
-                "model", "gpt-3.5-turbo",
-                "messages", List.of(message),
-                "temperature", 0.7
-            );
-            String bodyJson = mapper.writeValueAsString(requestBody);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(GPT_URL))
-                    .header("Authorization", "Bearer " + apiKey)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
-                    .build();
 
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+	// 문자열이 null이거나 빈 문자열인지 확인
+	private boolean isNullOrEmpty(String str) {
+	    return str == null || str.trim().isEmpty();
+	}
 
-            Map<String, Object> result = mapper.readValue(response.body(), Map.class);
-            List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
-            Map<String, Object> messageResult = (Map<String, Object>) choices.get(0).get("message");
-            return (String) messageResult.get("content");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "AI 리뷰 생성에 실패했어요.";
-        }
-    }
-	
-	// ✅ 날씨 조회 - 장소 기반
-    public String getWeatherByPlaceId(Long placeId, String date) {
-        Place place = placeMapper.findById(placeId);
-        if (place == null) throw new RuntimeException("장소 정보 없음");
-        String stnId = findNearestStnId( 
-        	Double.parseDouble(place.getLatitude()), 
-        	Double.parseDouble(place.getLongitude())
-        );
-        LocalDateTime dateTime = LocalDateTime.parse(date + "T00:00:00"); // 예: "2025-06-01"
-        
-        return fetchWeatherFromKmaApi(stnId, dateTime);
-    }
-
-    // ✅ 날씨 조회 - 여행경로 기반
-    public String getWeatherByPlanId(Long planId, String date, String hour) {
-        String dateTimeStr = date + "T" + hour + ":00"; // 예: 2025-06-01T13:00
-        LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr);
-
-        String region = getFirstRegionOfPlan(planId); 
-        String stnId = regionToStnId(region);
-        return fetchWeatherFromKmaApi(stnId, dateTime);
-    }
-
-    public String regionToStnId(String regionName) {
-        // 예: "서울" → "108"
-        return "108";
-    }
-
+	// 위도/경도 문자열을 double로 변환
+	private double parseCoordinate(String coordinate, String label) {
+	    try {
+	        return Double.parseDouble(coordinate.trim());
+	    } catch (NumberFormatException e) {
+	        throw new RuntimeException(label + " 값이 숫자가 아닙니다: " + coordinate, e);
+	    }
+	}
     public String findNearestStnId(Double lat, Double lng) {
         List<WeatherStation> stations = getStations(); // 고정된 관측소 목록 불러오기
 
@@ -169,66 +178,6 @@ public class ReviewService {
 	    );
 	}
     
-    public String fetchWeatherFromKmaApi(String stnId, LocalDateTime dateTime) {
-    	try {
-            String serviceKey = URLEncoder.encode("발급받은 인증키", StandardCharsets.UTF_8); // 실제 인증키 사용
-            String date = dateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String hour = String.format("%02d", dateTime.getHour());
+    
 
-            String url = String.format("%s?serviceKey=%s&pageNo=1&numOfRows=1&dataType=JSON&dataCd=ASOS&dateCd=HR&startDt=%s&startHh=%s&endDt=%s&endHh=%s&stnIds=%s",
-                    KMA_API, serviceKey, date, hour, date, hour, stnId);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            JsonNode root = mapper.readTree(response.body());
-            JsonNode items = root.path("response").path("body").path("items").path("item");
-
-            if (items.isArray() && items.size() > 0) {
-                String code = items.get(0).path("dmstMtphNo").asText();
-                return mapWeatherCode(code); // 현상 코드 → 텍스트 변환
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "날씨 정보 없음";
-    }
-
-    public String getFirstRegionOfPlan(Long planId) {
-        // Plan + PlanDetail에서 첫 날 지역명 가져오기
-        return "서울";
-    }
-	
-    // ✅ 특정 대상의 리뷰 목록 조회
-    public List<Review> getReviews(String type, Long targetId) {
-        ReviewType reviewType = reviewTypeMapper.findByTargetType(type);
-        return reviewMapper.findByTarget(targetId, reviewType.getId());
-    }
-	@Transactional
-	public void updateReview(Review review) {
-		reviewMapper.updateReview(review);
-	}
-	
-	@Transactional
-	public void deleteReview(Review review) {
-		reviewMapper.deleteReview(review);
-	}
-	
-	public Review getReview(Long id) {
-		return reviewMapper.findById(id);
-	}
-	
-	public List<Review> getMemberReviews(Long memberId) {
-        return reviewMapper.findByMemberId(memberId);
-    }
-
-    private void grantBadgeIfNeeded(Member member) {
-        int totalContentLength = member.getReviews().stream()
-            .mapToInt(r -> r.getContent().length())
-            .sum();
-    }
-	
 }
