@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import axios from 'axios';
@@ -145,6 +146,8 @@ const tripPlanMain = () => {
     }, [isDropdownOpen]);
 
     //폼 서브밋
+    const router = useRouter();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -162,7 +165,16 @@ const tripPlanMain = () => {
                 withCredentials: true,
             });
 
-            console.log('추천 경로:', response.data); // 여기서 추천된 경로 처리
+            console.log('추천 경로:', response.data);
+
+            // 📌 추천 결과를 router로 전달하면서 이동
+            router.push({
+                pathname: '/tripPlan/routeRecommendPage',
+                query: {
+                    data: encodeURIComponent(JSON.stringify(response.data)), // 👉 쿼리로 JSON 문자열 넘김
+                },
+            });
+
         } catch (error) {
             console.error('추천 실패:', error);
         }
@@ -432,6 +444,7 @@ const tripPlanMain = () => {
                                 {/* 버튼 */}
                                 <div style={fieldStyle}>
                                     <button
+                                        type='submit'
                                         style={{
                                             backgroundColor: 'rgba(18, 137, 173, 0.9)',
                                             color: 'white',

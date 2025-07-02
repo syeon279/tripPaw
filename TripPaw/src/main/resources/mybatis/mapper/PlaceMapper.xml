@@ -34,26 +34,27 @@
 
 	<!-- insert -->
 	<insert id="insert"
-        parameterType="com.ssdam.tripPaw.domain.Place"
-        useGeneratedKeys="true"
-        keyProperty="id">
-    INSERT INTO place (
-        name, description, latitude,
-        longitude, region, open_hours,
-        pet_friendly, pet_verified, rest_days,
-        price, phone, image_url, parking,
-        home_page, extermal_content_id, source,
-        place_type_id
-    )
-    VALUES (
-        #{name}, #{description}, #{latitude},
-        #{longitude}, #{region}, #{openHours},
-        #{petFriendly}, #{petVerified},
-        #{restDays}, #{price}, #{phone},
-        #{imageUrl}, #{parking}, #{homePage},
-        #{extermalContentId}, #{source}, #{placeType.id}
-    )
-</insert>
+		parameterType="com.ssdam.tripPaw.domain.Place" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO place (
+		name, description, latitude,
+		longitude,
+		region, open_hours,
+		pet_friendly, pet_verified, rest_days,
+		price, phone,
+		image_url, parking,
+		home_page, extermal_content_id, source,
+		place_type_id
+		)
+		VALUES (
+		#{name}, #{description}, #{latitude},
+		#{longitude}, #{region}, #{openHours},
+		#{petFriendly}, #{petVerified},
+		#{restDays}, #{price}, #{phone},
+		#{imageUrl}, #{parking}, #{homePage},
+		#{extermalContentId}, #{source}, #{placeType.id}
+		)
+	</insert>
 
 	<!-- select all -->
 	<select id="findAll" resultMap="placeResultMap">
@@ -65,6 +66,19 @@
 		SELECT * FROM place WHERE id =
 		#{id}
 	</select>
+	<select id="findByRegionAndCategories"
+		resultMap="placeResultMap">
+		SELECT DISTINCT p.*
+		FROM place p
+		JOIN place_category pc ON p.id = pc.place_id
+		WHERE p.region LIKE CONCAT('%', #{region}, '%')
+		AND pc.category_id IN
+		<foreach collection="categoryIds" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
 
 	<!-- update -->
 	<update id="update"
@@ -76,7 +90,8 @@
 		#{description},
 		latitude = #{latitude},
 		longitude = #{longitude},
-		region =
+		region
+		=
 		#{region},
 		open_hours = #{openHours},
 		pet_friendly = #{petFriendly},
