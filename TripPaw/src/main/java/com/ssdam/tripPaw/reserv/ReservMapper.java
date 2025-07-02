@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.reserv;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -13,4 +14,5 @@ public interface ReservMapper {
 	public int insert(Reserv reserv);
 	public int updateByState(Reserv reserv);
 	public int softDelete(Long id);
+	public boolean existsOverlappingReservation(Long memberId, Long placeId, LocalDate startDate, LocalDate endDate);
 }
