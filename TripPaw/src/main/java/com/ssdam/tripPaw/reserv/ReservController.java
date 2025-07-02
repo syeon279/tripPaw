@@ -20,7 +20,10 @@ import com.ssdam.tripPaw.domain.Reserv;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(
+		  origins = "http://localhost:3000",
+		  allowCredentials = "true"
+		)
 @Controller
 @RequestMapping("/reserv")
 @RequiredArgsConstructor
@@ -29,18 +32,18 @@ public class ReservController {
 
     /** 예약 생성 */
     @PostMapping
-    public ResponseEntity<String> createReserv(@RequestBody Reserv reserv) {
+    public ResponseEntity<Reserv> createReserv(@RequestBody Reserv reserv) {
         try {
-            int result = reservService.createReserv(reserv);
-            if (result > 0) {
-                return ResponseEntity.ok("예약이 생성되었습니다.");
+            Reserv savedReserv = reservService.saveReserv(reserv); // saveReserv은 Reserv 객체 반환하는 메서드라고 가정
+            if (savedReserv != null) {
+                return ResponseEntity.ok(savedReserv);
             } else {
-                return ResponseEntity.badRequest().body("예약 생성에 실패했습니다.");
+                return ResponseEntity.badRequest().build();
             }
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // 중복 예약 등
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("서버 오류: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
