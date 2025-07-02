@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import lombok.*;
 
 @Entity
+@Getter
 @NoArgsConstructor
 public class RoutePlace {
 
