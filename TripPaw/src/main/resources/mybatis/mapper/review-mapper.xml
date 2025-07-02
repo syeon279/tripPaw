@@ -7,13 +7,18 @@
 		<id property="id" column="id"/>
 		<result property="content" column="content"/>
 		<result property="rating" column="rating"/>
-		<result property="targetId" column="targetId"/>
-		<result property="weatherCondition" column="weatherCondition" />
-		<result property="" column="member_id"/>
-		<result property="" column="review_type_id"/>
-		<result property="" column="createdAt"/>
-		<result property="" column="updatedAt"/>
+		<result property="targetId" column="target_id"/>
+		<result property="weatherCondition" column="weather_condition" />
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<association property="member" javaType="com.ssdam.tripPaw.domain.Member">
+			<id  property="id" column="member_id"/>
+		</association>
+		<association property="reviewType" javaType="com.ssdam.tripPaw.domain.ReviewType">
+			<id  property="id" column="review_type_id"/>
+		</association>
 	</resultMap>
+	
 	<insert id="insertReview" useGeneratedKeys="true" keyProperty="id"> 
 		INSERT INTO review (member_id, content, rating, created_at, updated_at, review_type_id, target_id, weather_condition)
     	VALUES (#{member.id}, #{content}, #{rating}, #{createdAt}, NOW(), #{reviewType.id}, #{targetId}, #{weatherCondition})	
@@ -21,7 +26,7 @@
 	
 	<update id="updateReview">
 		UPDATE review
-		SET content=#{content}, rating=#{rating}, updated_at = NOW(),
+		SET content=#{content}, rating=#{rating}, updated_at = NOW()
 		WHERE id = #{id} AND member_id = #{member.id}
 	</update>
 	
@@ -30,16 +35,20 @@
 	</delete>
 	
 	<!-- 단일 리뷰 조회 -->
-	<select id="findById" resultType="com.ssdam.tripPaw.domain.Review">
+	<select id="findById" resultMap="reviewResultMap">
     	SELECT * FROM review WHERE id = #{id}
   	</select>
 
-  	<select id="findByMemberId" resultType="com.ssdam.tripPaw.domain.Review">
+  	<!-- <select id="findByMemberId" resultMap="reviewResultMap">
     	SELECT * FROM review WHERE member_id = #{memberId}
-  	</select>
+  	</select> -->
   	
   	<!-- 전체 리뷰 목록 -->
-    <select id="findAll" resultType="com.ssdam.tripPaw.domain.Review">
+    <select id="findAll" resultMap="reviewResultMap">
         SELECT * FROM review ORDER BY created_at DESC
     </select>
+    
+    <select id="findMemberById" parameterType="long" resultType="com.ssdam.tripPaw.domain.Member">
+	    SELECT * FROM member WHERE id = #{memberId}
+	</select>
 </mapper>
