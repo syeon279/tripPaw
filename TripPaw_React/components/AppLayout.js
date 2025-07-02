@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
 
 const AppLayoutWrapper = styled.div`
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   box-sizing: border-box;
 `;
 

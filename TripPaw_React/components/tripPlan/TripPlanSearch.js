@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { SearchOutlined } from '@ant-design/icons';
 
 const TripPlanSearch = () => {
     const containerStyle = {
@@ -9,23 +10,13 @@ const TripPlanSearch = () => {
         overflow: 'hidden',
     };
 
-    const backgroundStyle = {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-        zIndex: 0,
-    };
-
     const overlayStyle = {
         position: 'absolute',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
-        backgroundColor: 'rgba(182, 182, 182, 0.3)',
+        //backgroundColor: 'rgba(252, 252, 252, 0.42)',
         zIndex: 1,
     };
 
@@ -49,57 +40,44 @@ const TripPlanSearch = () => {
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         padding: '24px',
         borderRadius: '16px',
-        maxWidth: '960px',
         width: '100%',
         color: 'black',
         marginTop: '50px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.52)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '16px', // 요소 간 간격
     };
 
-    const gridStyle = {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '16px',
-        marginBottom: '16px',
-    };
-
-    const tagStyle = {
-        padding: '4px 8px',
-        borderRadius: '12px',
-        fontSize: '14px',
-        marginRight: '8px',
-        display: 'inline-block',
-    };
+    const inputStyle = {
+        border: 'none',
+        outline: 'none',
+        backgroundColor: 'transparent',
+        width: '480px',
+        marginRight: '20px',
+    }
 
     return (
         <div style={containerStyle}>
-            <img src="/image/background/main_search.png" alt="background" style={backgroundStyle} />
+            {/* <img src="/image/background/main_search.png" alt="background" style={backgroundStyle} /> */}
             <div style={overlayStyle} />
 
             <div style={contentStyle}>
                 <div style={{ width: '100%', maxWidth: '960px' }}>
-                    <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={450}
+                    <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={480}
                         height={120}
                         priority />
                     <div style={boxStyle}>
+                        <Image src="/image/other/search-normal.png" alt="logo" width={25} height={10}
+                            height={30}
+                            priority />
                         <div>
-                            <input style={{ width: '500px', height: '50px', marginLeft: '12px', marginRight: '4px' }} type="string" placeholder=' 검색어를 입력해주세요' />
+                            <input style={inputStyle} type="string" placeholder=' 검색어를 입력해주세요' />
                         </div>
-
-                        <div style={{ textAlign: 'center' }}>
-                            <button
-                                style={{
-                                    backgroundColor: '#2DD4BF',
-                                    color: 'white',
-                                    padding: '8px 24px',
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                }}
-                            >
-                                여행 추천받기
-                            </button>
-                        </div>
+                        <Image src="/image/other/send.png" alt="logo" width={45}
+                            height={30}
+                            priority />
                     </div>
                 </div>
             </div>
