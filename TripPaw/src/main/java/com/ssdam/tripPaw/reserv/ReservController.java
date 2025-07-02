@@ -1,9 +1,12 @@
 package com.ssdam.tripPaw.reserv;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,20 +20,30 @@ import com.ssdam.tripPaw.domain.Reserv;
 
 import lombok.RequiredArgsConstructor;
 
+@CrossOrigin(
+		  origins = "http://localhost:3000",
+		  allowCredentials = "true"
+		)
 @Controller
-@RequestMapping("/api/reservations")
+@RequestMapping("/reserv")
 @RequiredArgsConstructor
 public class ReservController {
     private final ReservService reservService;
 
     /** 예약 생성 */
     @PostMapping
-    public ResponseEntity<String> createReserv(@RequestBody Reserv reserv) {
-        int result = reservService.createReserv(reserv);
-        if (result > 0) {
-            return ResponseEntity.ok("예약이 생성되었습니다.");
-        } else {
-            return ResponseEntity.badRequest().body("예약 생성에 실패했습니다.");
+    public ResponseEntity<Reserv> createReserv(@RequestBody Reserv reserv) {
+        try {
+            Reserv savedReserv = reservService.saveReserv(reserv); // saveReserv은 Reserv 객체 반환하는 메서드라고 가정
+            if (savedReserv != null) {
+                return ResponseEntity.ok(savedReserv);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -64,15 +77,35 @@ public class ReservController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+    @GetMapping("/disabled-dates")
+    public ResponseEntity<List<Map<String, String>>> getDisabledDates() {
+        List<Reserv> reservList = reservService.findAll();
+
+        List<Map<String, String>> disabledRanges = reservList.stream()
+            .filter(r -> r.getDeleteAt() == null &&
+                         r.getStartDate() != null &&
+                         r.getEndDate() != null)
+            .map(r -> Map.of(
+                "startDate", r.getStartDate().toString(),
+                "endDate", r.getEndDate().toString()
+            ))
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(disabledRanges);
+    }
+
 
     /** 예약 삭제 */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteReserv(@PathVariable Long id) {
-        int result = reservService.deleteReserv(id);
-        if (result > 0) {
-            return ResponseEntity.ok("예약이 삭제되었습니다.");
-        } else {
-            return ResponseEntity.notFound().build();
+    @PostMapping("/{id}/delete")
+    public ResponseEntity<String> softDelete(@PathVariable Long id) {
+        try {
+            reservService.softDeleteReservation(id);
+            return ResponseEntity.ok("예약이 삭제 처리되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("삭제 실패: " + e.getMessage());
         }
     }
 }

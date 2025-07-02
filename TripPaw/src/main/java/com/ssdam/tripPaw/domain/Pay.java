@@ -27,9 +27,9 @@ public class Pay {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(unique=true)
+	@Column(name = "imp_uid", unique=true)
     private String impUid;         // 아임포트 결제 ID
-	@Column(unique=true)
+	@Column(name = "merchant_uid",unique=true)
     private String merchantUid;    // 가맹점 주문번호
 
     private int amount;

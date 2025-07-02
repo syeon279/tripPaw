@@ -19,10 +19,10 @@
   <insert id="insert" parameterType="com.ssdam.tripPaw.domain.Pay" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO pay (
       imp_uid, merchant_uid, amount, pay_method, pg_provider,
-      state, paid_at, created_at, reserv_id, member_id, pay_group_id
+      state, paid_at, created_at, reserv_id, member_id, haspay_share
     ) VALUES (
       #{impUid}, #{merchantUid}, #{amount}, #{payMethod}, #{pgProvider},
-      #{state}, #{paidAt}, #{createdAt}, #{reserv.id}, #{member.id}, #{payGroup.id}
+      #{state}, #{paidAt}, #{createdAt}, #{reserv.id}, #{member.id}, #{haspayShare}
     )
   </insert>
 
@@ -34,8 +34,10 @@
   </update>
 
   <!-- 삭제 -->
-  <delete id="delete" parameterType="long">
-    DELETE FROM pay WHERE id = #{id}
-  </delete>
-
+	<update id="softDelete" parameterType="long">
+	  UPDATE pay
+	  SET delete_at = NOW()
+	  WHERE id = #{id}
+	</update>
+	
 </mapper>

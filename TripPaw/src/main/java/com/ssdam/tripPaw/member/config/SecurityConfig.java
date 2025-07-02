@@ -19,7 +19,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 //.antMatchers("/**").permitAll() // "/**"는 모든 경로를 의미합니다.
                 //.antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
-                .antMatchers("/admin/**").permitAll() // ← 개발 중이므로 임시 허용
+                .antMatchers("/**").permitAll() // "/**"는 모든 경로를 의미합니다.
+                .antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
                 .anyRequest().authenticated()
             );
 
