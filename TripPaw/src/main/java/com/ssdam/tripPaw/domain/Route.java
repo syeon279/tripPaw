@@ -10,9 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity @Setter @Getter
+@Entity
+@Getter @Setter
+@NoArgsConstructor
 public class Route {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

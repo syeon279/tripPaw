@@ -20,7 +20,10 @@ import com.ssdam.tripPaw.domain.Reserv;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(
+		  origins = "http://localhost:3000",
+		  allowCredentials = "true"
+		)
 @Controller
 @RequestMapping("/reserv")
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class ReservController {
     @PostMapping
     public ResponseEntity<Reserv> createReserv(@RequestBody Reserv reserv) {
         try {
-            Reserv savedReserv = reservService.saveReserv(reserv); // saveReserv은 Reserv 객체 반환하는 메서드라고 가정
+            Reserv savedReserv = reservService.saveReserv(reserv);
             if (savedReserv != null) {
                 return ResponseEntity.ok(savedReserv);
             } else {

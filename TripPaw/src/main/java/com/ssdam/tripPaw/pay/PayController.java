@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.ssdam.tripPaw.payapi.IamportPayService;
 import com.ssdam.tripPaw.reserv.ReservService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(
+		  origins = "http://localhost:3000",
+		  allowCredentials = "true"
+		)
 @Controller
 @RequestMapping("/pay")
 public class PayController {
@@ -49,7 +52,6 @@ public class PayController {
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancelPayment(@PathVariable Long id) {
         try {
-            // 결제 취소 (예: 상태 변경만)
             int updated = payService.updatePayState(id, PayState.CANCELLED);
             if (updated > 0) {
                 return ResponseEntity.ok("결제 취소 완료");
