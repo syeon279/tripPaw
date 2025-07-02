@@ -10,13 +10,13 @@ const AppLayoutWrapper = styled.div`
   box-sizing: border-box;
 `;
 
-const AppLayout = ({ children, }) => {
+const AppLayout = ({ children, headerTheme }) => {
 
   return (
 
     <>
       <AppLayoutWrapper>
-        <ContentHeader />
+        <ContentHeader theme={headerTheme} />
         {children}
       </AppLayoutWrapper>
     </>

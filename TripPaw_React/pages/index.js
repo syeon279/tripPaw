@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
+import Router from 'next/router';
 import AppLayout from '../components/AppLayout';
 import TripPlanMain from '../components/tripPlan/TripPlanMain';
-import TripPlanSearch from '../components/tripPlan/TripPlanSearch';
+import TripPlanSearch from '../components/search/TripPlanSearch';
 
 const sectionStyle = (isActive) => ({
     height: '100vh',
