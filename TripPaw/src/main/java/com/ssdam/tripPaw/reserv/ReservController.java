@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.reserv;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -62,6 +63,17 @@ public class ReservController {
     @GetMapping
     public ResponseEntity<List<Reserv>> getAllReserv() {
         List<Reserv> reservList = reservService.findAll();
+
+        reservList.forEach(r -> {
+            if (r.getExpireAt() != null
+                && r.getExpireAt().isBefore(LocalDate.now()) 
+                && r.getState() == ReservState.WAITING) {    
+                
+                r.setState(ReservState.EXPIRED);
+                reservService.updateReservState(r.getId(), ReservState.EXPIRED);
+            }
+        });
+
         return ResponseEntity.ok(reservList);
     }
 
