@@ -33,6 +33,10 @@ const IconMenu = styled.div`
    color: ${(props) => (props.isDark ? 'black' : 'white')};
 `;
 
+const LogoWrapper = styled.div`
+  cursor: pointer;
+`;
+
 const ContentHeader = ({ theme }) => {
   const isDark = theme === 'dark';
   const router = useRouter();
@@ -40,11 +44,14 @@ const ContentHeader = ({ theme }) => {
 
   return (
     <HeaderWrapper>
-      {isDark ?
-        <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={160} height={40} />
-        :
-        <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={160} height={40} />
-      }
+      <LogoWrapper onClick={() => router.push('/')}>
+        <Image
+          src={isDark ? '/image/logo/TripPaw-logo.png' : '/image/logo/TripPaw-logo-white.png'}
+          alt="logo"
+          width={160}
+          height={40}
+        />
+      </LogoWrapper>
 
       <IconMenu isDark={isDark} >
         <NotificationOutlined

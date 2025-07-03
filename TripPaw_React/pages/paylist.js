@@ -4,17 +4,30 @@ import { useRouter } from 'next/router';
 import styles from './style/PayList.module.css';
 import ContentHeader from '../components/ContentHeader';
 import { CloseOutlined } from '@ant-design/icons';
+import { Modal } from 'antd';
 
 const PayList = () => {
   const router = useRouter(); 
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const stateMap = {
     PAID: '결제 완료',
     CANCELLED: '결제 취소',
     REFUNDED: '환불 완료',
     
+  };
+
+  const openDetailModal = (payment) => {
+    setSelectedPayment(payment);
+    setModalVisible(true);
+  };
+
+  const closeDetailModal = () => {
+    setSelectedPayment(null);
+    setModalVisible(false);
   };
 
   useEffect(() => {
@@ -79,7 +92,7 @@ const PayList = () => {
 
   return (
     <>
-    <ContentHeader />
+    <ContentHeader theme="dark" />
       <div className={styles.container}>
         <div className={styles.headerRow}>
           <h2 className={styles.title}>결제 내역</h2>
@@ -91,19 +104,25 @@ const PayList = () => {
         </div>
       {payments.map((pay) => (
         <div key={pay.id} className={styles.receipt}>
-          <div className={styles.receiptHeader}>
+        <div className={styles.receiptHeader}>
+          <div className={styles.headerLeft}>
             <h2>{pay.reserv?.place?.name}</h2>
-            <small>{new Date(pay.paidAt).toLocaleString()}</small>
           </div>
+
+          <div className={styles.headerRight}>
+            <small>{new Date(pay.paidAt).toLocaleString()}</small>
+            <button
+              className={styles.detailBtn}
+              onClick={() => openDetailModal(pay)}
+            >
+              상세 보기
+            </button>
+          </div>
+        </div>
           <div className={styles.receiptBody}>
-            <p><strong>결제 ID:</strong> {pay.id}</p>
-            <p><strong>예약 ID:</strong> {pay.reserv?.id || '-'}</p>
-            <p><strong>결제 번호:</strong> {pay.impUid}</p>
-            <p><strong>결제자:</strong> {pay.member?.username}</p>
             <p><strong>결제 상태:</strong> {stateMap[pay.state] || pay.state}</p>
             <p><strong>결제 금액:</strong> {pay.amount.toLocaleString()}원</p>
             <p><strong>결제 수단:</strong> {pay.payMethod}</p>
-            <p><strong>PG사:</strong> {pay.pgProvider}</p>
           </div>
           <div className={styles.receiptFooter}>
             {pay.reserv?.state === 'CANCELLED' ? (
@@ -132,6 +151,26 @@ const PayList = () => {
               <span className={styles.infoText}>예약 취소 후 이용 가능</span>
             )}
           </div>
+          <Modal
+            title="결제 상세 내역"
+            visible={modalVisible}
+            onCancel={closeDetailModal}
+            footer={null}
+          >
+            {selectedPayment && (
+              <div>
+                <p><strong>결제 ID:</strong> {selectedPayment.id}</p>
+                <p><strong>예약 ID:</strong> {selectedPayment.reserv?.id || '-'}</p>
+                <p><strong>결제 번호:</strong> {selectedPayment.impUid}</p>
+                <p><strong>결제자:</strong> {selectedPayment.member?.username}</p>
+                <p><strong>결제 상태:</strong> {stateMap[selectedPayment.state] || selectedPayment.state}</p>
+                <p><strong>결제 금액:</strong> {selectedPayment.amount.toLocaleString()}원</p>
+                <p><strong>결제 수단:</strong> {selectedPayment.payMethod}</p>
+                <p><strong>PG사:</strong> {selectedPayment.pgProvider}</p>
+                <p><strong>결제 시간:</strong> {new Date(selectedPayment.paidAt).toLocaleString()}</p>
+              </div>
+            )}
+          </Modal>
         </div>
       ))}
     </div>

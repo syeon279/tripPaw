@@ -25,6 +25,9 @@
 	  <association property="place" javaType="com.ssdam.tripPaw.domain.Place">
 	    <id property="id" column="place_id"/>
 	    <result property="name" column="place_name"/>
+	    <result property="latitude" column="latitude"/>
+	    <result property="longitude" column="longitude"/>
+	    <result property="region" column="region"/>	    
 	  </association>
 
 	</resultMap>
@@ -37,11 +40,12 @@
 	      <result property="name" column="p_name"/>
 	      <result property="latitude" column="latitude"/>
 	      <result property="longitude" column="longitude"/>
+	      <result property="region" column="region"/>	
 	    </association>
 	</resultMap>
 
 	<select id="findAll" resultMap="ReservResultMap">
-	  SELECT r.*, p.id AS place_id, p.name AS place_name,
+	  SELECT r.*, p.id AS place_id, p.name AS place_name, p.latitude, p.longitude, p.region,
 	           m.id AS member_id, m.username AS member_username
 	  FROM reserv r
 	  JOIN place p ON r.place_id = p.id
@@ -110,7 +114,7 @@
     SELECT 
       r.id, r.start_date, r.end_date, r.expire_at, r.delete_at, r.state,
       r.count_people, r.count_pet, r.original_price, r.final_price,
-      p.id AS p_id, p.name AS p_name, p.latitude, p.longitude
+      p.id AS p_id, p.name AS p_name, p.latitude, p.longitude, p.region
     FROM reserv r
     JOIN place p ON r.place_id = p.id
     WHERE r.id = #{id} AND r.delete_at IS NULL

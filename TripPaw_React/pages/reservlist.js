@@ -7,7 +7,7 @@ import ContentHeader from '../components/ContentHeader';
 const Wrapper = styled.div`
   max-width: 1000px;
   margin: 40px auto;
-  padding: 100px 20px 20px; 
+  padding: 100px 20px 20px;
 `;
 
 const Title = styled.h1`
@@ -18,57 +18,82 @@ const Title = styled.h1`
   padding-bottom: 0.5rem;
 `;
 
-const TableWrapper = styled.div`
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+const YearMonthTitle = styled.h2`
+  font-size: 1.6rem;
+  margin: 2rem 0 1rem;
+  border-bottom: 2px solid #444;
+  padding-bottom: 0.3rem;
+  color: #222;
 `;
 
-const StyledTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+const ReservCard = styled.div`
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
+  margin-bottom: 1rem;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
 
-  th, td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #eee;
-  }
+const ReservDate = styled.div`
+  font-weight: 600;
+  color: #555;
+`;
 
-  th {
-    background-color: #f9f9f9;
-    font-weight: 600;
-    color: #444;
-  }
+const ReservPlaceInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 1rem;
+  color: #333;
+`;
 
-  tr:hover {
-    background-color: #f5f7fa;
-  }
+const PlaceInfoLeft = styled.div`
+  flex-grow: 1;
+`;
+
+const PlaceInfoRight = styled.div`
+  display: flex;
+  flex-direction: column;  // 세로 정렬
+  align-items: flex-end;
+  gap: 8px;
+`;
+
+const StatusWrapper = styled.div`
+  margin-bottom: 6px;
 `;
 
 const StatusBadge = styled.span`
-  padding: 4px 8px;
+  padding: 2px 6px;
+  font-size: 0.8rem;
   border-radius: 6px;
   background-color: ${({ state }) =>
-    state === 'WAITING' ? '#facc15' :     
-    state === 'CANCELLED' ? '#f87171' :    
-    state === 'EXPIRED' ? '#9ca3af' :     
-    '#34d399'};                          
+    state === 'WAITING' ? '#facc15' :
+    state === 'CANCELLED' ? '#f87171' :
+    state === 'EXPIRED' ? '#9ca3af' :
+    '#34d399'};
   color: #fff;
-  font-weight: bold;
+  font-weight: 600;
+  line-height: 1;
+  margin-left: 8px;
+  vertical-align: middle;
 `;
 
 const Button = styled.button`
-  background-color: ${({ danger }) => (danger ? '#e11d48' : '#2563eb')};
+  background-color: ${({ danger }) => danger ? '#e11d48' : '#2563eb'};
   color: white;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  width: ${({ fullWidth }) => (fullWidth ? '100%' : 'auto')};
-
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  
   &:hover {
-    opacity: 0.9;
+    background-color: ${({ danger }) => danger ? '#b91c1c' : '#1e40af'};
   }
 `;
 
@@ -171,6 +196,23 @@ const ModalContent = styled.div`
   }
 `;
 
+const statusMap = {
+  WAITING: '결제 대기중',
+  CONFIRMED: '예약 완료',
+  CANCELLED: '예약 취소',
+  EXPIRED: '예약 만료',
+};
+
+function groupByYearMonth(reservations) {
+  return reservations.reduce((acc, reserv) => {
+    const date = new Date(reserv.startDate);
+    const yearMonth = `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+    if (!acc[yearMonth]) acc[yearMonth] = [];
+    acc[yearMonth].push(reserv);
+    return acc;
+  }, {});
+}
+
 const ReservList = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -178,12 +220,6 @@ const ReservList = () => {
   const [selectedReserv, setSelectedReserv] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const router = useRouter();
-  const statusMap = {
-    WAITING: '결제 대기중',
-    CONFIRMED: '예약 완료',
-    CANCELLED: '예약 취소',
-    EXPIRED: '예약 만료',
-  };
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -242,7 +278,7 @@ const ReservList = () => {
     setIsDetailModalOpen(false);
   };
 
-    const cancelReservInModal = async (reservId) => {
+  const cancelReservInModal = async (reservId) => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
@@ -253,96 +289,95 @@ const ReservList = () => {
       setReservations((prev) =>
         prev.map((r) => (r.id === reservId ? { ...r, state: 'CANCELLED' } : r))
       );
-      closeDetailModal(); // 모달 닫기
+      closeDetailModal();
     } catch (err) {
       alert('예약 취소에 실패했습니다.');
     }
   };
 
-
   if (loading) return <Message>불러오는 중...</Message>;
   if (error) return <Error>{error}</Error>;
   if (reservations.length === 0) return <Message>예약 내역이 없습니다.</Message>;
 
+  const groupedReservations = groupByYearMonth(reservations);
+
   return (
     <>
-    <ContentHeader />
-    <Wrapper>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-        <Title>예약 내역</Title>
-      </div>
-      <TableWrapper>
-        <StyledTable>
-          <thead>
-            <tr>
-              {['예약 ID', '사용자', '장소', '시작일', '종료일', '상태', '정보'].map((title) => (
-                <th key={title}>{title}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {reservations.map((reserv) => (
-              <tr key={reserv.id}>
-                <td>{reserv.id}</td>
-                <td>{reserv.member?.username}</td>
-                <td>{reserv.place?.name}</td>
-                <td>{reserv.startDate}</td>
-                <td>{reserv.endDate}</td>
+      <ContentHeader theme="dark" />
+      <Wrapper>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <Title>예약 내역</Title>
+        </div>
+
+        {Object.entries(groupedReservations).map(([yearMonth, reservs]) => (
+          <section key={yearMonth}>
+            <YearMonthTitle>{yearMonth}</YearMonthTitle>
+            {reservs.map((reserv) => (
+              <ReservCard key={reserv.id}>
                 <td>
-                  <StatusBadge state={reserv.state}>{statusMap[reserv.state] || reserv.state}</StatusBadge>
+                  {reserv.startDate} ~ {reserv.endDate}
+                  <StatusBadge state={reserv.state} style={{ marginLeft: '8px', verticalAlign: 'middle', padding: '2px 6px', fontSize: '0.8rem' }}>
+                    {statusMap[reserv.state] || reserv.state}
+                  </StatusBadge>
                 </td>
-                <td style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {reserv.state === 'WAITING' ? (
-                    <>
-                      <Button danger onClick={() => cancelReserv(reserv.id)}>예약 취소</Button>
-                      <Button onClick={() => goToPayPage(reserv)}>결제하기</Button>
-                    </>
-                  ) : reserv.state !== 'CANCELLED' ? (
-                    <>
-                      <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
-                    </>
-                  ) : (
-                    <MutedText>취소됨</MutedText>
-                  )}
-                </td>
-              </tr>
+                <ReservPlaceInfo>
+                  <PlaceInfoLeft>
+                    <div><strong>{reserv.place?.name}</strong></div>
+                    <div>{reserv.place?.region}</div>
+                  </PlaceInfoLeft>
+
+                  <PlaceInfoRight>
+                    {reserv.state === 'WAITING' && (
+                      <>
+                        <Button onClick={() => goToPayPage(reserv)}>결제하기</Button>
+                        <Button danger onClick={() => cancelReserv(reserv.id)}>예약 취소</Button>
+                      </>
+                    )}
+
+                    {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
+                        <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
+                    )}
+                  </PlaceInfoRight>
+                </ReservPlaceInfo>
+              </ReservCard>
             ))}
-          </tbody>
-        </StyledTable>
-      </TableWrapper>
+          </section>
+        ))}
 
-      {isDetailModalOpen && selectedReserv && (
-        <ModalOverlay onClick={closeDetailModal}>
-          <Modal onClick={(e) => e.stopPropagation()}>
-            <ModalTitle>예약 상세 정보</ModalTitle>
-            <ModalContent>
-              <p><strong>예약 ID:</strong> {selectedReserv.id}</p>
-              <p><strong>사용자:</strong> {selectedReserv.member?.username}</p>
-              <p><strong>장소:</strong> {selectedReserv.place?.name}</p>
-              <p><strong>시작일:</strong> {selectedReserv.startDate}</p>
-              <p><strong>종료일:</strong> {selectedReserv.endDate}</p>
-              <p><strong>사람 수:</strong> {selectedReserv.countPeople}</p>
-              <p><strong>반려동물 수:</strong> {selectedReserv.countPet}</p>
-              <p><strong>상태:</strong> {statusMap[selectedReserv.state] || selectedReserv.state}</p>
-            </ModalContent>
+        {isDetailModalOpen && selectedReserv && (
+          <ModalOverlay onClick={closeDetailModal}>
+            <Modal onClick={(e) => e.stopPropagation()}>
+              <ModalTitle>예약 상세 정보</ModalTitle>
+              <ModalContent>
+                <p><strong>예약 ID:</strong> {selectedReserv.id}</p>
+                <p><strong>사용자:</strong> {selectedReserv.member?.username}</p>
+                <p><strong>장소:</strong> {selectedReserv.place?.name}</p>
+                <p><strong>주소:</strong> {selectedReserv.place?.region}</p>
+                <p><strong>시작일:</strong> {selectedReserv.startDate}</p>
+                <p><strong>종료일:</strong> {selectedReserv.endDate}</p>
+                <p><strong>사람 수:</strong> {selectedReserv.countPeople}</p>
+                <p><strong>반려동물 수:</strong> {selectedReserv.countPet}</p>
+                <p><strong>상태:</strong> {statusMap[selectedReserv.state] || selectedReserv.state}</p>
+              </ModalContent>
 
-            {selectedReserv.state === 'CONFIRMED' && (
-              <Button danger fullWidth onClick={() => cancelReservInModal(selectedReserv.id)}>
-                예약 취소
+              {selectedReserv.state === 'CONFIRMED' && (
+                <Button danger fullWidth onClick={() => cancelReservInModal(selectedReserv.id)}>
+                  예약 취소
+                </Button>
+              )}
+
+              <Button fullWidth onClick={closeDetailModal} style={{ marginTop: '8px' }}>
+                닫기
               </Button>
-            )}
+            </Modal>
+          </ModalOverlay>
+        )}
 
-            <Button fullWidth onClick={closeDetailModal} style={{ marginTop: '8px' }}>
-              닫기
-            </Button>
-          </Modal>
-        </ModalOverlay>
-      )}
-      <Footer>
-        <BottomButton onClick={() => router.push('/')}>홈으로</BottomButton>
-        <BottomButton onClick={() => router.push('/paylist')}>결제 내역 보기</BottomButton>
-      </Footer>
-    </Wrapper>
+        <Footer>
+          <BottomButton onClick={() => router.push('/')}>홈으로</BottomButton>
+          <BottomButton onClick={() => router.push('/paylist')}>결제 내역 보기</BottomButton>
+        </Footer>
+      </Wrapper>
     </>
   );
 };

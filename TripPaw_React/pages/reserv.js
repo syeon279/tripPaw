@@ -5,6 +5,96 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
+import ContentHeader from '../components/ContentHeader';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 30px;
+  font-family: 'Segoe UI', sans-serif;
+  background: #fdfdfd;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+`;
+
+const Title = styled.h1`
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 40px;
+  color: #222;
+`;
+
+const Layout = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+`;
+
+const ImageSection = styled.div`
+  flex: 1;
+  min-width: 300px;
+
+  img {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+
+  p {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+`;
+
+const Form = styled.form`
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const Label = styled.label`
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+`;
+
+const Input = styled.input`
+  width: 100px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+`;
+
+const ExpireText = styled.p`
+  font-size: 0.95rem;
+  color: #666;
+`;
+
+const SubmitButton = styled.button`
+  background-color: #2c7be5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.3s;
+
+  &:hover {
+    background-color: #1a5edb;
+  }
+`;
+
+const ErrorMsg = styled.p`
+  color: red;
+  font-weight: bold;
+`;
 
 function ReservCreatePage() {
   const router = useRouter();
@@ -29,7 +119,6 @@ function ReservCreatePage() {
     imageUrl: "https://cdn.pixabay.com/photo/2015/10/12/15/45/mountains-984431_1280.jpg"
   };
 
-  // ❗ 예약 불가 날짜 불러오기
   useEffect(() => {
     axios.get('http://localhost:8080/reserv/disabled-dates')
       .then(res => {
@@ -42,8 +131,6 @@ function ReservCreatePage() {
           });
           allDisabled.push(...range);
         });
-
-        console.log("Disabled Dates:", allDisabled);  // 여기에 로그 추가
 
         setDisabledDates(allDisabled);
       })
@@ -70,7 +157,7 @@ function ReservCreatePage() {
 
     try {
       const res = await axios.post('http://localhost:8080/reserv', payload);
-      alert('예약 성공! 🎉'); // ✅ 성공 시 알림
+      alert('예약 성공! 🎉');
 
       const reservId = res.data.id;
 
@@ -85,85 +172,68 @@ function ReservCreatePage() {
           endDate: payload.endDate,
           amount: 10000
         }
-      });      
+      });
     } catch (err) {
       const errorMsg = err.response?.data || '예약 생성 실패';
-      alert(errorMsg); // ✅ 실패 시 알림
+      alert(errorMsg);
       setMessage(errorMsg);
     }
   };
 
   return (
-    <div style={{ maxWidth: 900, margin: '20px auto', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: 30 }}>{place.name}</h1>
+    <>
+    <ContentHeader theme="dark" />
+    <Container>
+      <Title>{place.name}</Title>
 
-      <div style={{ display: 'flex', gap: 40 }}>
-        <div style={{ flex: 1 }}>
-          <img
-            src={place.imageUrl}
-            alt={place.name}
-            style={{ width: '100%', borderRadius: 8, marginBottom: 15 }}
-          />
-          <p style={{ lineHeight: 1.6, color: '#555' }}>{place.description}</p>
-        </div>
+      <Layout>
+        <ImageSection>
+          <img src={place.imageUrl} alt={place.name} />
+          <p>{place.description}</p>
+        </ImageSection>
 
-        <form onSubmit={handleSubmit} style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: 10 }}>
-            예약 날짜 (시작일 - 종료일):
-          </label>
+        <Form onSubmit={handleSubmit}>
+          <div>
+            <Label>예약 날짜</Label>
+            <DateRange
+              editableDateInputs={true}
+              onChange={item => setDateRange([item.selection])}
+              moveRangeOnFirstSelection={false}
+              ranges={dateRange}
+              minDate={new Date()}
+              disabledDates={disabledDates}
+            />
+          </div>
 
-          <DateRange
-            editableDateInputs={true}
-            onChange={item => setDateRange([item.selection])}
-            moveRangeOnFirstSelection={false}
-            ranges={dateRange}
-            minDate={new Date()}
-            disabledDates={disabledDates}
-          />
+          <ExpireText>⏳ 만료일: <strong>{format(addDays(new Date(), 5), 'yyyy-MM-dd')}</strong> (자동 설정)</ExpireText>
 
-          <p style={{ marginTop: 20, marginBottom: 20, fontWeight: 'bold' }}>
-            만료일: {format(addDays(new Date(), 5), 'yyyy-MM-dd')} (자동 설정)
-          </p>
-
-          <label style={{ display: 'block', marginBottom: 10 }}>
-            인원 수:
-            <input
+          <div>
+            <Label>인원 수</Label>
+            <Input
               type="number"
               min="1"
               value={countPeople}
               onChange={(e) => setCountPeople(e.target.value)}
-              style={{ marginLeft: 10, padding: 6, width: 60 }}
             />
-          </label>
+          </div>
 
-          <label style={{ display: 'block', marginBottom: 20 }}>
-            반려동물 수:
-            <input
+          <div>
+            <Label>반려동물 수</Label>
+            <Input
               type="number"
               min="0"
               value={countPet}
               onChange={(e) => setCountPet(e.target.value)}
-              style={{ marginLeft: 10, padding: 6, width: 60 }}
             />
-          </label>
+          </div>
 
-          <button
-            type="submit"
-            style={{
-              backgroundColor: '#0070f3',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 5,
-              padding: '10px 20px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-            }}
-          >
-            예약 생성
-          </button>
-        </form>
-      </div>
-    </div>
+          <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
+
+          {message && <ErrorMsg>{message}</ErrorMsg>}
+        </Form>
+      </Layout>
+    </Container>
+    </>
   );
 }
 
