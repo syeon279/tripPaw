@@ -4,7 +4,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Review;
+import com.ssdam.tripPaw.domain.ReviewType;
 
 @Mapper
 public interface ReviewMapper {
@@ -21,4 +23,8 @@ public interface ReviewMapper {
 	List<Review> findByMemberId(Long memberId);
 	
 	List<Review> findAll();	//리뷰 전체 조회
+	
+	Member findMemberById(Long memberId);
+	
+	ReviewType findReviewTypeById(@Param("id") Long id);
 }

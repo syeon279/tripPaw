@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssdam.tripPaw.review.TripPlanMapper">
+    <resultMap id="tripPlanWithCoursesMap" type="com.ssdam.tripPaw.domain.TripPlan">
+        <id property="id" column="tp_id"/>
+        <result property="title" column="title"/>
+        <result property="days" column="days"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="imageUrl" column="image_url"/>
+
+        <collection property="tripPlanCourses" ofType="com.ssdam.tripPaw.domain.TripPlanCourse">
+            <id property="id" column="c_id"/>
+            <association property="route" javaType="com.ssdam.tripPaw.domain.Route">
+                <id property="id" column="route_id"/>
+                <collection property="routePlaces" ofType="com.ssdam.tripPaw.domain.RoutePlace">
+                    <id property="id" column="rp_id"/>
+                    <association property="place" javaType="com.ssdam.tripPaw.domain.Place">
+                        <id property="id" column="p_id"/>
+                        <result property="name" column="p_name"/>
+                        <result property="latitude" column="latitude"/>
+                        <result property="longitude" column="longitude"/>
+                    </association>
+                </collection>
+            </association>
+        </collection>
+    </resultMap>
+
+    <select id="findByIdWithCourses" parameterType="long" resultMap="tripPlanWithCoursesMap">
+        SELECT 
+            tp.id as tp_id, tp.title, tp.days, tp.is_public, tp.created_at, tp.image_url,
+            c.id as c_id, c.trip_plan_id,
+            r.id as route_id,
+            rp.id as rp_id,
+            p.id as p_id, p.name as p_name, p.latitude, p.longitude
+        FROM trip_plan tp
+        JOIN trip_plan_course c ON tp.id = c.trip_plan_id
+        JOIN route r ON c.route_id = r.id
+        JOIN route_place rp ON r.id = rp.route_id
+        JOIN place p ON rp.place_id = p.id
+        WHERE tp.id = #{id}
+        ORDER BY c.id ASC, rp.id ASC
+    </select>
+
+</mapper>

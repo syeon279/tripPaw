@@ -36,5 +36,23 @@ public class CheckRoutine {
 	
 	//membercheck
 	@OneToMany(mappedBy = "checkRoutine", cascade = CascadeType.ALL)
-	private List<MemberCheck> memberchecks = new ArrayList<>();
+	private List<MemberCheck> memberChecks = new ArrayList<>();
+	
+	//memberId
+	public void setMemberId(Long memberId) {
+        if (this.member == null) {
+            this.member = new Member();   }
+        this.member.setId(memberId);
+    }
+
+    // routeId
+    public void setRouteId(Long routeId) {
+        if (this.route == null) {
+            this.route = new Route();
+        }
+        this.route.setId(routeId);
+    }
+
+    // isSaved 
+    public void setIsSaved(boolean isSaved) { this.isSaved = isSaved; }
 }

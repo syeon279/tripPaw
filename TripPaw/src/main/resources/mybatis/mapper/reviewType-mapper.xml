@@ -5,9 +5,12 @@
 <mapper namespace="com.ssdam.tripPaw.review.ReviewTypeMapper">
 	<resultMap id="reviewTypeResultMap" type="com.ssdam.tripPaw.domain.ReviewType">
 		<id property="id" column="id"/>
-		<result property="targetType" column="targetType" />
+		<result property="targetType" column="target_type" />
 	</resultMap>
-	<select id="findByTargetType" resultType="com.ssdam.tripPaw.domain.ReviewType">
-	    SELECT * FROM review_type WHERE target_type = #{targetType}
+	<select id="findById" parameterType="long" resultMap="reviewTypeResultMap">
+        SELECT * FROM review_type WHERE id = #{id}
+    </select>
+	<select id="findAll" resultMap="reviewTypeResultMap">
+	    SELECT id, target_type FROM review_type
 	</select>
 </mapper>

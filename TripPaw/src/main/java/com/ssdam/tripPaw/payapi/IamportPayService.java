@@ -25,6 +25,7 @@ import com.ssdam.tripPaw.reserv.ReservService;
 import com.ssdam.tripPaw.reserv.ReservState;
 
 import lombok.RequiredArgsConstructor;
+import com.siot.IamportRestClient.request.CancelData;
 
 @Service
 @RequiredArgsConstructor
@@ -82,6 +83,30 @@ public class IamportPayService {
         return result;
     }
     
+    public boolean cancelPayment(String impUid, boolean isFullCancel) throws IamportResponseException, IOException {
+        // 전체 취소
+    	CancelData cancelData = new CancelData(impUid, true);
 
+        // 환불 실행
+        IamportResponse<Payment> cancelResponse = iamportClient.cancelPaymentByImpUid(cancelData);
+        Payment cancelledPayment = cancelResponse.getResponse();
+
+        System.out.println("환불 상태: " + cancelledPayment.getStatus());
+
+        if (cancelledPayment != null && "cancelled".equalsIgnoreCase(cancelledPayment.getStatus())) {
+            // DB 상태 변경
+            Pay pay = payMapper.findByImpUid(impUid);
+            pay.setState(PayState.REFUNDED);
+            payMapper.updateByState(pay);
+
+            Reserv reserv = reservMapper.findById(pay.getReserv().getId());
+            reserv.setState(ReservState.CANCELLED);
+            reservMapper.updateByState(reserv);
+
+            return true;
+        }
+
+        return false;
+    }
+    
 }
-
