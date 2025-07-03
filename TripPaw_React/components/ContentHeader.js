@@ -80,8 +80,7 @@ const ContentHeader = ({ theme }) => {
           onClick={() => router.push('/search')}
           style={{ color: isDark ? 'black' : 'white' }}
         />
-
-        {isLoggedIn ? <UserOutlined
+      {isLoggedIn ? <UserOutlined
           onClick={() => router.push('/main')}
           style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
         />
