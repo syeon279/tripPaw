@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper	namespace="com.ssdam.tripPaw.petpass.seal.SealMapper">
+	<!-- resultMap: PlaceType까지 포함 -->
+    <resultMap id="SealWithPlaceTypeMap" type="Seal">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="imageUrl" column="image_url"/>
+        <association property="placeType" javaType="PlaceType">
+            <id property="id" column="place_type_id"/>
+            <result property="name" column="place_type_name"/>
+        </association>
+    </resultMap>
+
+    <!-- 전체 도장 조회 -->
+    <select id="findAll" resultMap="SealWithPlaceTypeMap">
+        SELECT s.*, p.id AS place_type_id, p.name AS place_type_name
+        FROM seal s
+        JOIN place_type p ON s.placetype_id = p.id
+    </select>
+
+    <!-- 장소 타입별 도장 조회 -->
+    <select id="findByPlaceTypeId" parameterType="long" resultMap="SealWithPlaceTypeMap">
+        SELECT s.*, p.id AS place_type_id, p.name AS place_type_name
+        FROM seal s
+        JOIN place_type p ON s.placetype_id = p.id
+        WHERE s.placetype_id = #{placeTypeId}
+    </select>
+
+    <!-- 도장 단건 조회 -->
+    <select id="findById" parameterType="long" resultMap="SealWithPlaceTypeMap">
+        SELECT s.*, p.id AS place_type_id, p.name AS place_type_name
+        FROM seal s
+        JOIN place_type p ON s.placetype_id = p.id
+        WHERE s.id = #{id}
+    </select>
+
+    <!-- 도장 등록 -->
+    <insert id="insert" parameterType="Seal" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO seal (name, image_url, placetype_id)
+        VALUES (#{name}, #{imageUrl}, #{placeType.id})
+    </insert>
+
+    <!-- 도장 수정 -->
+    <update id="update" parameterType="Seal">
+        UPDATE seal
+        SET name = #{name},
+            image_url = #{imageUrl},
+            placetype_id = #{placeType.id}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 도장 삭제 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM seal WHERE id = #{id}
+    </delete>
+</mapper>
