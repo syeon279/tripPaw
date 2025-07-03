@@ -7,7 +7,7 @@
   	<id property="id" column="id"/>
   	<result property="content" column="content" />
   	<result property="contentType" column="contentType" />
-  	<result property="sender" column="sender" />
+  	<!-- <result property="sender" column="sender" /> -->
   	<result property="sentAt" column="sentAt"/>
 
    <association property="chatRoom" javaType="com.ssdam.tripPaw.domain.ChatRoom">
@@ -29,13 +29,13 @@
 						  content
 						  ,content_type
 						  ,chat_room_id
-						  ,sender
+						  ,sender_id
 						  ,sent_at
 						) values (
 							#{content}
 							,#{contentType}
 							,#{chatRoom.id}
-							,#{sender}
+							,#{sender.id}
 							,#{sentAt}
 						)						
 	</insert>

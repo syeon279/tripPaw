@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.ssdam.tripPaw.chatting.chatRoomMember.ChatRoomMemberStatus;
 import com.ssdam.tripPaw.member.config.ChatRole;
 
 import lombok.Data;
@@ -42,16 +43,19 @@ public class ChatRoomMember {
     // 추가 컬럼 1: 역할
     @Enumerated(EnumType.STRING) // Enum 타입을 DB에 저장할 때 문자열로 저장
     private ChatRole role;
-
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ChatRoomMemberStatus status; // 상태 컬럼 추가
     // 추가 컬럼 2: 참여 시각
     private LocalDateTime joinedAt;
     	
     //== 생성 메서드 ==//
-    public static ChatRoomMember create(Member member, ChatRoom chatRoom, ChatRole role) {
+    public static ChatRoomMember create(Member member, ChatRoom chatRoom, ChatRole role, ChatRoomMemberStatus status) {
         ChatRoomMember chatRoomMember = new ChatRoomMember();
         chatRoomMember.setMember(member);
         chatRoomMember.setChatRoom(chatRoom);
         chatRoomMember.setRole(role);
+        chatRoomMember.setStatus(status);
         chatRoomMember.setJoinedAt(LocalDateTime.now());
         return chatRoomMember;
     }
