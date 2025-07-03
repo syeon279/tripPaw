@@ -34,7 +34,7 @@
 	  
 	  <association property="member" javaType="com.ssdam.tripPaw.domain.Member">
 	    <id property="id" column="member_id"/>
-	    <result property="name" column="name"/>
+	    <result property="username" column="username"/>
 	  </association>
 	</resultMap>
 
@@ -71,11 +71,13 @@
 	    r.created_at AS created_at_reserv,
 	    r.original_price, r.final_price, r.count_people, r.count_pet,
 	
-	    pl.id AS place_id, pl.name AS place_name
+	    pl.id AS place_id, pl.name AS place_name,
+	    m.id AS member_id, m.username
 	
 	  FROM pay p
 	  LEFT JOIN reserv r ON p.reserv_id = r.id
 	  LEFT JOIN place pl ON r.place_id = pl.id
+	  LEFT JOIN member m ON p.member_id = m.id
 	</select>
 
 	<select id="findByReservId" parameterType="long" resultMap="PayResultMap">

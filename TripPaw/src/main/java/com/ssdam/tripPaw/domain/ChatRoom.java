@@ -26,7 +26,7 @@ public class ChatRoom {
 	private String title;
 	@Column(nullable = false, length = 255)
 	private String description;
-	private boolean isGroup;
+	private int isGroup;
 	private LocalDateTime createdAt = LocalDateTime.now();
 	private LocalDateTime updatedAt;
 	

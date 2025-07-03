@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styled, { keyframes } from 'styled-components';
 import { useRouter } from 'next/router';
+import ContentHeader from '../components/ContentHeader';
 
 const Wrapper = styled.div`
   max-width: 1000px;
   margin: 40px auto;
-  padding: 20px;
+  padding: 100px 20px 20px; 
 `;
 
 const Title = styled.h1`
@@ -48,9 +49,10 @@ const StatusBadge = styled.span`
   padding: 4px 8px;
   border-radius: 6px;
   background-color: ${({ state }) =>
-    state === 'WAITING' ? '#facc15' :
-    state === 'CANCELLED' ? '#f87171' :
-    '#34d399'};
+    state === 'WAITING' ? '#facc15' :     
+    state === 'CANCELLED' ? '#f87171' :    
+    state === 'EXPIRED' ? '#9ca3af' :     
+    '#34d399'};                          
   color: #fff;
   font-weight: bold;
 `;
@@ -110,13 +112,6 @@ const BottomButton = styled.button`
     padding: 10px 20px;
     font-size: 1rem;
   }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 30px;
 `;
 
 const MutedText = styled.span`
@@ -183,6 +178,12 @@ const ReservList = () => {
   const [selectedReserv, setSelectedReserv] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const router = useRouter();
+  const statusMap = {
+    WAITING: '결제 대기중',
+    CONFIRMED: '예약 완료',
+    CANCELLED: '예약 취소',
+    EXPIRED: '예약 만료',
+  };
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -264,6 +265,8 @@ const ReservList = () => {
   if (reservations.length === 0) return <Message>예약 내역이 없습니다.</Message>;
 
   return (
+    <>
+    <ContentHeader />
     <Wrapper>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <Title>예약 내역</Title>
@@ -272,7 +275,7 @@ const ReservList = () => {
         <StyledTable>
           <thead>
             <tr>
-              {['예약 ID', '사용자 ID', '장소 ID', '시작일', '종료일', '상태', '액션'].map((title) => (
+              {['예약 ID', '사용자', '장소', '시작일', '종료일', '상태', '정보'].map((title) => (
                 <th key={title}>{title}</th>
               ))}
             </tr>
@@ -281,12 +284,12 @@ const ReservList = () => {
             {reservations.map((reserv) => (
               <tr key={reserv.id}>
                 <td>{reserv.id}</td>
-                <td>{reserv.member?.id}</td>
-                <td>{reserv.place?.id}</td>
+                <td>{reserv.member?.username}</td>
+                <td>{reserv.place?.name}</td>
                 <td>{reserv.startDate}</td>
                 <td>{reserv.endDate}</td>
                 <td>
-                  <StatusBadge state={reserv.state}>{reserv.state}</StatusBadge>
+                  <StatusBadge state={reserv.state}>{statusMap[reserv.state] || reserv.state}</StatusBadge>
                 </td>
                 <td style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {reserv.state === 'WAITING' ? (
@@ -314,13 +317,13 @@ const ReservList = () => {
             <ModalTitle>예약 상세 정보</ModalTitle>
             <ModalContent>
               <p><strong>예약 ID:</strong> {selectedReserv.id}</p>
-              <p><strong>사용자 ID:</strong> {selectedReserv.member?.id}</p>
-              <p><strong>장소 ID:</strong> {selectedReserv.place?.id}</p>
+              <p><strong>사용자:</strong> {selectedReserv.member?.username}</p>
+              <p><strong>장소:</strong> {selectedReserv.place?.name}</p>
               <p><strong>시작일:</strong> {selectedReserv.startDate}</p>
               <p><strong>종료일:</strong> {selectedReserv.endDate}</p>
               <p><strong>사람 수:</strong> {selectedReserv.countPeople}</p>
               <p><strong>반려동물 수:</strong> {selectedReserv.countPet}</p>
-              <p><strong>상태:</strong> {selectedReserv.state}</p>
+              <p><strong>상태:</strong> {statusMap[selectedReserv.state] || selectedReserv.state}</p>
             </ModalContent>
 
             {selectedReserv.state === 'CONFIRMED' && (
@@ -340,6 +343,7 @@ const ReservList = () => {
         <BottomButton onClick={() => router.push('/paylist')}>결제 내역 보기</BottomButton>
       </Footer>
     </Wrapper>
+    </>
   );
 };
 
