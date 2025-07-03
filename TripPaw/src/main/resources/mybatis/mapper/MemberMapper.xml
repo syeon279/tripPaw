@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssdam.tripPaw.member.MemberMapper">
-	<resultMap id="memberResultMap" type="com.ssdam.tripPaw.domain.Member">
+<resultMap id="memberResultMap" type="com.ssdam.tripPaw.domain.Member">
 		<id property="id" column="id" />
 		<result property="username" column="username" />
 		<result property="password" column="password" />
@@ -14,10 +14,14 @@
 		<result property="namujiAddress" column="namujiAddress" />
 		<result property="provider" column="provider" />
 		<result property="createdAt" column="createdAt" />
-		<collection property="role" ofType="com.ssdam.tripPaw.member.config.MemberRole">
+		<!-- <result property="role" column="role" /> -->
+	 	<collection property="role" ofType="com.ssdam.tripPaw.member.config.MemberRole">
         		       <result column="role_name"/>     
         </collection>
 	</resultMap>
+	<!-- <select id="findMemberRoleTypeByMemberId">
+		select * from member_roles where member_id = #{memberId}
+	</select> -->
 	<insert id="insertMemberRole">
 		insert into member_roles (member_id
 								, role_name
@@ -25,28 +29,50 @@
 								#{memberId}
 								 ,#{memberRoleType}	)
 	</insert>
-	
-	 <!-- insert -->
- 	<insert id="insert" parameterType="Member">
-		INSERT INTO category 
-			( username
-			 ,password
-			 ,nickname
-			 ,email
-			 ,roadAddress
-			 ,jibunAddress
-			 ,namujiAddress
-			 ,provider
-			 )
-		VALUES 
-			( #{username}
-			,#{password}
-			,#{nickname}
-			,#{email}
-			,#{roadAddress}
-			,#{jibunAddress}
-			,#{namujiAddress}
-			,#{provider}
-			 )
-	</insert>
+  <select resultMap="memberResultMap"   id="findMemberById" >
+    select * from member where id = #{id}
+  </select>
+  <!-- SELECT -->
+  <select id="findByUsername" resultMap="memberResultMap">
+    SELECT *
+    FROM member m left join member_roles r 
+    on m.id = r.member_id 
+    where m.username = #{username}
+  </select>
+
+  <select id="findById" resultMap="memberResultMap">
+    SELECT * FROM member WHERE id = #{id}
+  </select>
+
+  <select id="findAll" resultMap="memberResultMap">
+    SELECT * FROM member
+  </select>
+ 
+  <!-- INSERT -->
+  <insert id="insert" parameterType="Member">
+    INSERT INTO member (
+      username, password, email, nickname, provider, road_address, jibun_address, namuji_address
+    ) VALUES (
+      #{username}, #{password}, #{email}, #{nickname}, #{provider}, #{roadAddress}, #{jibunAddress}, #{namujiAddress}
+    )
+  </insert>
+  <!-- UPDATE -->
+  <update id="update" parameterType="Member">
+    UPDATE member
+    SET password = #{password},
+        email = #{email},
+        nickname = #{nickname},
+        provider = #{provider}
+    WHERE id = #{id}
+  </update>
+
+  <update id="updateByIdAndPassword">
+    UPDATE member
+    SET password = #{newPassword}
+    WHERE id = #{id} AND password = #{oldPassword}
+  </update>
+   <!-- DELETE -->
+  <delete id="delete">
+    DELETE FROM member WHERE id = #{id}
+  </delete>
 </mapper>
