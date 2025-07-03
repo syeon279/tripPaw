@@ -5,6 +5,7 @@ import { Dropdown, Menu, Button, message, Modal } from 'antd';
 import { UserOutlined, NotificationOutlined, SearchOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import axios from 'axios';
+import { Router } from 'react-router-dom';
 
 const HeaderWrapper = styled.div`
   position: fixed;              
@@ -61,7 +62,13 @@ const ContentHeader = ({ theme }) => {
 
       checkLoginStatus();
     }, []); // []를 사용하여 앱 시작 시 한 번만 실행
-
+    const onLogout = async () => {
+      await axios.post('http://localhost:8080/api/auth/logout',{
+        withCredentials: true,
+      })
+      setIsLoggedIn(false);
+      router.push("/");
+    }
 
   return (
     <HeaderWrapper>
@@ -80,10 +87,15 @@ const ContentHeader = ({ theme }) => {
           onClick={() => router.push('/search')}
           style={{ color: isDark ? 'black' : 'white' }}
         />
-      {isLoggedIn ? <UserOutlined
-          onClick={() => router.push('/main')}
-          style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
-        />
+      {isLoggedIn ? <div style={{display:"flex"}}>
+            <UserOutlined
+              onClick={() => router.push('/')}
+              style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
+            />
+          <div>
+            <span onClick={onLogout}>로그아웃</span>  
+          </div>      
+        </div>
                     : <UserOutlined
           onClick={() => router.push('/member/login')}
           style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
