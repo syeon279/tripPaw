@@ -41,6 +41,7 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.reserv.ReservMapper;
+import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
 

@@ -26,7 +26,7 @@ public class PassportSeal {
 	@JoinColumn(name = "seal_id")
 	private Seal seal;
 	
-	//리뷰 연결 필요
+	//리뷰 연결
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "review_id", nullable = false)
 	private Review review;
