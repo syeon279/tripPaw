@@ -1,6 +1,7 @@
 package com.ssdam.tripPaw.pay;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -9,21 +10,34 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.ssdam.tripPaw.domain.Pay;
 import com.ssdam.tripPaw.payapi.IamportPayService;
 import com.ssdam.tripPaw.reserv.ReservService;
+import com.ssdam.tripPaw.reserv.ReservState;
 
 @CrossOrigin(
 		  origins = "http://localhost:3000",
 		  allowCredentials = "true"
 		)
-@Controller
+@RestController
 @RequestMapping("/pay")
 public class PayController {
     @Autowired private IamportPayService iamportPayService;
     @Autowired private ReservService reservService;
     @Autowired private PayService payService;
 
+    @GetMapping("")
+    public ResponseEntity<?> getAllPayments() {
+        try {
+            var payList = payService.findAll();
+            return ResponseEntity.ok(payList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("결제 내역 조회 실패: " + e.getMessage());
+        }
+    }
+    
     @PostMapping("/verify")
     public ResponseEntity<?> verifyPayment(
         @RequestParam String impUid,
@@ -52,6 +66,14 @@ public class PayController {
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancelPayment(@PathVariable Long id) {
         try {
+            Pay pay = payService.findById(id);
+            if (pay == null) {
+                return ResponseEntity.notFound().build();
+            }
+            if (pay.getReserv().getState() != ReservState.CANCELLED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("예약이 취소된 경우에만 결제 취소가 가능합니다.");
+            }
             int updated = payService.updatePayState(id, PayState.CANCELLED);
             if (updated > 0) {
                 return ResponseEntity.ok("결제 취소 완료");
@@ -60,6 +82,32 @@ public class PayController {
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("오류: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/reserv/{reservId}")
+    public ResponseEntity<?> getPayByReservId(@PathVariable Long reservId) {
+        Pay pay = payService.findByReservId(reservId);
+        if (pay == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(pay);
+    }
+    
+    @PostMapping("/{impUid}/refund")
+    public ResponseEntity<?> refundPayment(@PathVariable String impUid) {
+        try {
+            Pay pay = payService.findByImpUid(impUid);
+            if (pay == null) {
+                return ResponseEntity.notFound().build();
+            }
+        	
+            boolean result = payService.refundPayment(impUid);
+            if (result) {
+                return ResponseEntity.ok("환불이 성공적으로 처리되었습니다.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("환불 처리 실패");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류: " + e.getMessage());
         }
     }
 }
