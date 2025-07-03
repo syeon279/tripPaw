@@ -12,6 +12,7 @@ import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class RoutePlace {
 

@@ -14,23 +14,27 @@ const bottonWrapperStyle = {
 const bottonStyle = {
     //border: '2px solid red',
     margin: '6px',
-    width: '90%',
-    height: '80px',
+    width: '80%',
+    height: '50px',
     justifyContent: 'center',
     color: 'white',
-    fontSize: '2em',
+    fontSize: '1.5em',
     border: 'none',
     fontWeight: 'bold',
+    cursor: 'pointer',
+
 }
 
-const ActionButtons = () => {
+const ActionButtons = ({ onSave }) => {
     return (
         <div style={bottonWrapperStyle}>
             <button style={{ ...bottonStyle, background: 'blue' }}>
                 경로 수정하기
             </button>
-            <button style={{ ...bottonStyle, background: 'black' }}>
-                이대로 예약하기
+            <button
+                style={{ ...bottonStyle, background: 'black' }}
+                onClick={onSave} >
+                저장하기
             </button>
         </div>
     );

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -16,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor
 
@@ -33,8 +35,9 @@ public class TripPlan {
 
     private int days;
 
-    private boolean isPublic;
-
+    @Column(name = "is_public")
+    private boolean publicVisible;
+    
     private LocalDateTime createdAt;
 
     private String imageUrl;
