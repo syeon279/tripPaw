@@ -5,7 +5,8 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
-import ContentHeader from '../components/ContentHeader';
+import ContentHeader from '../../components/ContentHeader';
+import PetAssistant from '../../components/pet/petassistant';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -123,13 +124,16 @@ function ReservCreatePage() {
     axios.get('http://localhost:8080/reserv/disabled-dates')
       .then(res => {
         const allDisabled = [];
+        const today = new Date();
 
         res.data.forEach(({ startDate, endDate }) => {
-          const range = eachDayOfInterval({
-            start: parseISO(startDate),
-            end: parseISO(endDate)
-          });
-          allDisabled.push(...range);
+          if (parseISO(endDate) >= today) {
+            const range = eachDayOfInterval({
+              start: parseISO(startDate),
+              end: parseISO(endDate)
+            });
+            allDisabled.push(...range);
+          }
         });
 
         setDisabledDates(allDisabled);
@@ -162,7 +166,7 @@ function ReservCreatePage() {
       const reservId = res.data.id;
 
       router.push({
-        pathname: '/pay',
+        pathname: '/pay/pay',
         query: {
           reservId,
           memberId,
@@ -232,6 +236,7 @@ function ReservCreatePage() {
           {message && <ErrorMsg>{message}</ErrorMsg>}
         </Form>
       </Layout>
+      <PetAssistant />
     </Container>
     </>
   );

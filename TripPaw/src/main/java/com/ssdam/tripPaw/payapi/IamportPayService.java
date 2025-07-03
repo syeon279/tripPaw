@@ -83,30 +83,42 @@ public class IamportPayService {
         return result;
     }
     
-    public boolean cancelPayment(String impUid, boolean isFullCancel) throws IamportResponseException, IOException {
-        // 전체 취소
-    	CancelData cancelData = new CancelData(impUid, true);
+    public boolean cancelPayment(String impUid, boolean isFullCancel) {
+        try {
+            // 전체 취소
+            CancelData cancelData = new CancelData(impUid, true);
 
-        // 환불 실행
-        IamportResponse<Payment> cancelResponse = iamportClient.cancelPaymentByImpUid(cancelData);
-        Payment cancelledPayment = cancelResponse.getResponse();
+            // 환불 실행
+            IamportResponse<Payment> cancelResponse = iamportClient.cancelPaymentByImpUid(cancelData);
+            Payment cancelledPayment = cancelResponse.getResponse();
 
-        System.out.println("환불 상태: " + cancelledPayment.getStatus());
+            System.out.println("환불 상태: " + cancelledPayment.getStatus());
 
-        if (cancelledPayment != null && "cancelled".equalsIgnoreCase(cancelledPayment.getStatus())) {
-            // DB 상태 변경
-            Pay pay = payMapper.findByImpUid(impUid);
-            pay.setState(PayState.REFUNDED);
-            payMapper.updateByState(pay);
+            if (cancelledPayment != null && "cancelled".equalsIgnoreCase(cancelledPayment.getStatus())) {
+                Pay pay = payMapper.findByImpUid(impUid);
+                if (pay == null) {
+                    throw new RuntimeException("해당 결제 정보가 존재하지 않습니다.");
+                }
 
-            Reserv reserv = reservMapper.findById(pay.getReserv().getId());
-            reserv.setState(ReservState.CANCELLED);
-            reservMapper.updateByState(reserv);
+                pay.setState(PayState.REFUNDED);
+                payMapper.updateByState(pay);
 
-            return true;
+                Reserv reserv = reservMapper.findById(pay.getReserv().getId());
+                if (reserv == null) {
+                    throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
+                }
+
+                reserv.setState(ReservState.CANCELLED);
+                reservMapper.updateByState(reserv);
+
+                return true;
+            }
+
+            return false;
+        } catch (IamportResponseException | IOException e) {
+            e.printStackTrace();  // 로그 출력
+            throw new RuntimeException("아임포트 환불 처리 중 오류 발생: " + e.getMessage());
         }
-
-        return false;
     }
     
 }
