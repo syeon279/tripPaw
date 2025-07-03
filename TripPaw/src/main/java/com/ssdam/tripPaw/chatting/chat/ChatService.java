@@ -25,12 +25,13 @@ public class ChatService {
 		System.out.println("findChatRoom="+findChatRoom.getId());
 		System.out.println("chatMessage="+chatMessage.getSender());
 		
-		Member findMember = memberMapper.findMemberById(chatMessage.getSender());
+		Member findMember = memberMapper.findByUsername(chatMessage.getSender());
 		Chat chat = Chat.builder()	
 						.content(chatMessage.getContent())
 						.contentType("chat")
 						.chatRoom(findChatRoom)
-						.sender(chatMessage.getSender())
+//						.sender(chatMessage.getSender())
+						.sender(findMember)
 						.sentAt(LocalDateTime.now())
 						//.member(findMember)
 						.build();

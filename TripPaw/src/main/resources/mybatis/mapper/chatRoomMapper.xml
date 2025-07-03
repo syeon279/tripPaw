@@ -18,7 +18,8 @@
   	from chat_room
   	where id = #{id}
   </select>
-  <insert id="createChatRoom" parameterType="ChatRoom">
+  <insert id="createChatRoom" parameterType="ChatRoom"
+  	useGeneratedKeys="true" keyProperty="id">
 	insert into chat_room (title,description,is_group) values (#{title},#{description},#{isGroup} )
   </insert>
 </mapper>

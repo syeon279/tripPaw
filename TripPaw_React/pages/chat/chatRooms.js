@@ -129,7 +129,7 @@ function ChatRoomList() {
               {/* <a href={`http://localhost:8080/chat/room?id=${room.id}`} target="_blank" rel="noopener noreferrer">
                 {room.title}
               </a> */}
-              <Link href={`/chat/room?id=${room.id}`} passHref>
+              <Link href={`/chat/chatRoom/${room.id}`} passHref>
                   {room.title}
               </Link>
             </li>
