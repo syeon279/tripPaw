@@ -18,13 +18,26 @@ public interface ReviewMapper {
 	
 	Review findById(@Param("id") Long id);
 	
-	List<Review> findByTarget(@Param("targetId") Long targetId, @Param("reviewTypeId") Long reviewTypeId);
-	
 	List<Review> findByMemberId(Long memberId);
 	
-	List<Review> findAll();	//리뷰 전체 조회
+	List<Review> findByTarget(@Param("targetId") Long targetId, @Param("reviewTypeId") Long reviewTypeId);
 	
-	Member findMemberById(Long memberId);
+//	List<Review> findAll();	//리뷰 전체 조회
+	
+//	Member findMemberById(Long memberId);
 	
 	ReviewType findReviewTypeById(@Param("id") Long id);
+	
+	List<Review> findByPlaceId(Long placeId);
+	
+	List<Review> findByPlanId(Long planId);
+	
+	List<Review> findAllPlanReviews();
+
+	//도움이돼요
+	void likeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
+	void unlikeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
+	int countLikes(@Param("reviewId") Long reviewId);
+	boolean hasLikedReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
+
 }
