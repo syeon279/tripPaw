@@ -69,7 +69,7 @@ const TripPlanSearch = () => {
                         height={120}
                         priority />
                     <div style={boxStyle}>
-                        <Image src="/image/other/search-normal.png" alt="logo" width={25} height={10}
+                        <Image src="/image/other/search-normal.png" alt="logo" width={25}
                             height={30}
                             priority />
                         <div>

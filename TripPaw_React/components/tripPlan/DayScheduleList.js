@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import DayScheduleItem from './DayScheduleItem';
 import ActionButtons from './ActionButtons';
 
-const DayScheduleList = ({ routeData, currentDay, onSelectDay }) => {
+const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, setFocusDay }) => {
     const dayRefs = useRef([]);
 
     const handleDayClick = (dayIndex) => {
@@ -18,6 +18,7 @@ const DayScheduleList = ({ routeData, currentDay, onSelectDay }) => {
                         day={day}
                         isActive={day.day === currentDay}
                         onClick={() => handleDayClick(day.day)}
+                        onPlaceClick={(place) => { setFocusDay(day.day); onPlaceClick(place, day.day) }}
                     />
                 </div>
             ))}
