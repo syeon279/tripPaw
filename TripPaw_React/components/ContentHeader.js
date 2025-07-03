@@ -86,7 +86,7 @@ const ContentHeader = ({ theme }) => {
           style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
         />
                     : <UserOutlined
-          onClick={() => router.push('/login')}
+          onClick={() => router.push('/member/login')}
           style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
         /> }
       </IconMenu>
