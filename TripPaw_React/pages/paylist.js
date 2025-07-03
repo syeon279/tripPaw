@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import styles from './style/PayList.module.css';  // 경로는 환경에 맞게 조정
+import styles from './style/PayList.module.css';
+import ContentHeader from '../components/ContentHeader';
+import { CloseOutlined } from '@ant-design/icons';
 
 const PayList = () => {
   const router = useRouter(); 
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const stateMap = {
+    PAID: '결제 완료',
+    CANCELLED: '결제 취소',
+    REFUNDED: '환불 완료',
+    
+  };
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -70,18 +78,17 @@ const PayList = () => {
   if (payments.length === 0) return <p className={styles.empty}>결제 내역이 없습니다.</p>;
 
   return (
-    <div className={styles.container}>
-
-      <button
-        className={styles.closeButton}
-        onClick={() => router.push('/reservlist')}
-        aria-label="닫기"
-        type="button"
-      >
-        ×
-      </button>
-
-      <h1 className={styles.title}>결제 내역</h1>
+    <>
+    <ContentHeader />
+      <div className={styles.container}>
+        <div className={styles.headerRow}>
+          <h2 className={styles.title}>결제 내역</h2>
+          <CloseOutlined
+            className={styles.closeIcon}
+            onClick={() => router.push('/reservlist')}
+            aria-label="예약 내역으로 이동"
+          />
+        </div>
       {payments.map((pay) => (
         <div key={pay.id} className={styles.receipt}>
           <div className={styles.receiptHeader}>
@@ -91,35 +98,44 @@ const PayList = () => {
           <div className={styles.receiptBody}>
             <p><strong>결제 ID:</strong> {pay.id}</p>
             <p><strong>예약 ID:</strong> {pay.reserv?.id || '-'}</p>
-            <p><strong>결제 상태:</strong> {pay.state}</p>
+            <p><strong>결제 번호:</strong> {pay.impUid}</p>
+            <p><strong>결제자:</strong> {pay.member?.username}</p>
+            <p><strong>결제 상태:</strong> {stateMap[pay.state] || pay.state}</p>
             <p><strong>결제 금액:</strong> {pay.amount.toLocaleString()}원</p>
             <p><strong>결제 수단:</strong> {pay.payMethod}</p>
             <p><strong>PG사:</strong> {pay.pgProvider}</p>
-            <p><strong>아임포트 UID:</strong> {pay.impUid}</p>
           </div>
-<div className={styles.receiptFooter}>
-  {pay.reserv?.state === 'CANCELLED' ? (
-    <>
-      {pay.state === 'PAID' && (
-        <button onClick={() => cancelPayment(pay.id)}>결제 취소</button>
-      )}
-      {pay.state === 'CANCELLED' && (
-        <button
-          onClick={() => refundPayment(pay)}
-          className={styles.refund}
-        >
-          환불 처리
-        </button>
-      )}
-      {pay.state === 'REFUNDED' && <span>환불 완료</span>}
-    </>
-  ) : (
-    <span>예약 취소 후 이용 가능</span>
-  )}
-</div>
+          <div className={styles.receiptFooter}>
+            {pay.reserv?.state === 'CANCELLED' ? (
+              <>
+                {pay.state === 'PAID' && (
+                  <button
+                    onClick={() => cancelPayment(pay.id)}
+                    className={styles.cancelBtn}
+                  >
+                    결제 취소
+                  </button>
+                )}
+                {pay.state === 'CANCELLED' && (
+                  <button
+                    onClick={() => refundPayment(pay)}
+                    className={styles.refund}
+                  >
+                    환불 처리
+                  </button>
+                )}
+                {pay.state === 'REFUNDED' && (
+                  <span className={styles.refundedBadge}>환불 완료</span>
+                )}
+              </>
+            ) : (
+              <span className={styles.infoText}>예약 취소 후 이용 가능</span>
+            )}
+          </div>
         </div>
       ))}
     </div>
+    </>
   );
 };
 

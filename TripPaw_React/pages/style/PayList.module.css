@@ -71,19 +71,108 @@
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
-.closeButton {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: transparent;
-  border: none;
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-  color: #888;
-  transition: color 0.2s ease;
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  margin-bottom: 1.5rem;
+  padding-top: 80px; 
 }
 
-.closeButton:hover {
-  color: #444;
+.title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin: 0;
+  line-height: 1;
+}
+
+.closeIcon {
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; 
+}
+
+.closeIcon:hover {
+  color: #e11d48;
+}
+
+.receipt {
+  position: relative;
+  background: white;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.receiptFooter {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background-color: transparent;
+  box-shadow: none;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* 텍스트 스타일 공통 */
+.receiptFooter span {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  user-select: none;
+}
+
+/* 환불 완료 텍스트 */
+.refundedBadge {
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: white;
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
+}
+
+/* 예약 취소 후 이용 가능 텍스트 */
+.infoText {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* 환불 처리 버튼 */
+.refund {
+  background-color: #ef4444;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 24px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.refund:hover {
+  background-color: #dc2626;
+}
+
+/* 결제 취소 버튼 */
+.cancelBtn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 24px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.cancelBtn:hover {
+  background-color: #2563eb;
 }
