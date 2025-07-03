@@ -28,5 +28,5 @@ public interface PetPassportMapper {
     void updatePetPassport(PetPassport passport);
 
     // 6. 삭제
-    void deletePetPassport(@Param("passportId") Long passportId);
+    int deletePetPassport(@Param("passportId") Long passportId);
 }
