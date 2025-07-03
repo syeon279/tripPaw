@@ -11,9 +11,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity @Getter @Setter
+@NoArgsConstructor
 public class CheckTemplateItem {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -24,5 +26,17 @@ public class CheckTemplateItem {
 	@ManyToOne @JoinColumn(name = "checktemplate_id")
 	private CheckTemplate checkTemplate;
 	
-	
+	@javax.persistence.Transient  // JPA 저장 시 무시
+	private Long checktemplateId;
+	public Long getChecktemplateId() {   return checktemplateId;	}
+		
+	// 더미데이터용
+	public CheckTemplateItem(Long checktemplateId, String content, String code) {
+	    this.content = content;
+	    this.createdAt = LocalDateTime.now();
+	    this.checktemplateId = checktemplateId;
+	    
+	    this.checkTemplate = new CheckTemplate();
+	    this.checkTemplate.setId(checktemplateId);
+	}
 }
