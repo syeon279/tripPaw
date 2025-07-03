@@ -30,6 +30,12 @@
 	<properties>
 		<java.version>11</java.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -148,6 +154,14 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- 결제 API -->
+		<!-- 결제 API -->
+		<dependency>
+			<groupId>com.github.iamport</groupId>
+			<artifactId>iamport-rest-client-java</artifactId>
+			<version>0.2.23</version>
+		</dependency>
+
 		<!-- JSON 파싱용 -->
 		<dependency>
 			<groupId>org.json</groupId>
@@ -161,6 +175,28 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
+		<!-- OpenAI Java SDK 사용시 -->
+		<dependency>
+			<groupId>com.theokanning.openai-gpt3-java</groupId>
+			<artifactId>client</artifactId>
+			<version>0.18.2</version>
+		</dependency>
+
+		<!-- Later -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>33.1.0-jre</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

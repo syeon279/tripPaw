@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssdam.tripPaw.nft.MemberNftMapper">
+
+  <!-- resultMap 정의: id → result → association 순서 지킴 -->
+  <resultMap id="MemberNftResultMap" type="com.ssdam.tripPaw.domain.MemberNft">
+    <!-- id -->
+    <id property="id" column="id" />
+
+    <!-- result -->
+    <result property="tokenId" column="token_id" />
+    <result property="walletAddress" column="wallet_address" />
+    <result property="barcode" column="barcode" />
+    <result property="dueAt" column="due_at" />
+    <result property="issuedReason" column="issued_reason" />
+    <result property="txHash" column="tx_hash" />
+    <result property="issuedAt" column="issued_at" />
+    <result property="usedAt" column="used_at" />
+
+    <!-- association -->
+    <association property="nftMetadata" javaType="com.ssdam.tripPaw.domain.NftMetadata">
+      <id property="id" column="nft_metadata_id" />
+    </association>
+
+    <association property="member" javaType="com.ssdam.tripPaw.domain.Member">
+      <id property="id" column="member_id" />
+    </association>
+  </resultMap>
+
+  <!-- 멤버 ID로 NFT 리스트 조회 -->
+  <select id="findByMemberId" resultMap="MemberNftResultMap" parameterType="string">
+    SELECT * FROM member_nft WHERE member_id = #{memberId}
+  </select>
+
+  <!-- NFT 삽입 -->
+  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.MemberNft">
+    INSERT INTO member_nft (
+      nft_metadata_id, member_id, token_id, wallet_address, barcode,
+      due_at, issued_reason, tx_hash, issued_at
+    ) VALUES (
+      #{nftMetadata.id}, #{member.id}, #{tokenId}, #{walletAddress}, #{barcode},
+      #{dueAt}, #{issuedReason}, #{txHash}, NOW()
+    )
+  </insert>
+
+  <!-- NFT 수정 -->
+  <update id="update" parameterType="com.ssdam.tripPaw.domain.MemberNft">
+    UPDATE member_nft
+    SET
+      nft_metadata_id = #{nftMetadata.id},
+      member_id = #{member.id},
+      wallet_address = #{walletAddress},
+      barcode = #{barcode},
+      due_at = #{dueAt},
+      issued_reason = #{issuedReason},
+      tx_hash = #{txHash}
+    WHERE id = #{id}
+  </update>
+
+  <!-- 사용 처리 -->
+  <update id="markAsUsed" parameterType="com.ssdam.tripPaw.domain.MemberNft">
+    UPDATE member_nft
+    SET used_at = #{usedAt}
+    WHERE id = #{id}
+  </update>
+
+</mapper>

@@ -1,7 +1,6 @@
 package com.ssdam.tripPaw.domain;
 
 import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-
 import lombok.Data;
 
 @Entity
@@ -24,8 +22,9 @@ public class NftGiftLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_nft_id", nullable = false)
-    private Long userNftId; // 참조 ID만 저장, 연관관계 매핑은 선택
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_nft_id", nullable = false)
+    private MemberNft memberNft;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)

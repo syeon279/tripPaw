@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssdam.tripPaw.nft.NftMetadataMapper">
+
+  <!-- 모든 NFT 템플릿 조회 -->
+  <select id="findAll" resultType="com.ssdam.tripPaw.domain.NftMetadata">
+    SELECT id, title, image_url AS imageUrl, point_value AS pointValue, issued_at AS issuedAt
+    FROM nft_metadata
+  </select>
+
+  <!-- ID로 NFT 템플릿 조회 -->
+  <select id="findById" resultType="com.ssdam.tripPaw.domain.NftMetadata" parameterType="long">
+    SELECT id, title, image_url AS imageUrl, point_value AS pointValue, issued_at AS issuedAt
+    FROM nft_metadata
+    WHERE id = #{id}
+  </select>
+
+  <!-- NFT 템플릿 삽입 -->
+  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.NftMetadata" useGeneratedKeys="true" keyProperty="id">
+   INSERT INTO nft_metadata (
+    title, image_url, point_value, issued_at
+   ) VALUES (
+    #{title}, #{imageUrl}, #{pointValue}, NOW()
+   )
+ </insert>
+
+  <!-- NFT 템플릿 수정 -->
+  <update id="update" parameterType="com.ssdam.tripPaw.domain.NftMetadata">
+    UPDATE nft_metadata
+    SET
+      title = #{title},
+      image_url = #{imageUrl},
+      point_value = #{pointValue}
+    WHERE id = #{id}
+  </update>
+
+  <!-- NFT 템플릿 삭제 -->
+  <delete id="delete" parameterType="long">
+    DELETE FROM nft_metadata WHERE id = #{id}
+  </delete>
+
+</mapper>

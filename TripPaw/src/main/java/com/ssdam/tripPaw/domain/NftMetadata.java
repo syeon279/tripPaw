@@ -2,7 +2,6 @@ package com.ssdam.tripPaw.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,5 +42,5 @@ public class NftMetadata {
 
     // 양방향 매핑: 하나의 템플릿에 여러 user_nft
     @OneToMany(mappedBy = "nftMetadata", cascade = CascadeType.ALL)
-    private List<UserNft> userNfts;
+    private List<MemberNft> memberNfts;
 }
