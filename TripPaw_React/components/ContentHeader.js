@@ -7,33 +7,35 @@ import Image from 'next/image';
 import axios from 'axios';
 
 const HeaderWrapper = styled.div`
-  position: fixed;              // ✅ 고정
+  position: fixed;              
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;                // ✅ 겹치게
+  z-index: 1000;                
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0);  // ✅ 반투명
-  //backdrop-filter: blur(8px);           // ✅ 흐림 효과 (선택)
+  background: rgba(255, 255, 255, 0);  
+  //backdrop-filter: blur(8px);           
   //border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
+  padding: 20px;
+  marginRight:10px;
 `;
 
 
 const IconMenu = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px; // 아이콘 사이 간격
-  color: #333;
-   color: white;
+  gap: 25px; // 아이콘 사이 간격
   font-size: 20px;
   cursor: pointer;
+   color: ${(props) => (props.isDark ? 'black' : 'white')};
 `;
 
-const ContentHeader = () => {
+const ContentHeader = ({ theme }) => {
+  const isDark = theme === 'dark';
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
      useEffect(() => {
@@ -63,13 +65,30 @@ const ContentHeader = () => {
 
   return (
     <HeaderWrapper>
-      <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={140} height={40} />
+      {isDark ?
+        <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={160} height={40} />
+        :
+        <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={160} height={40} />
+      }
 
-      <IconMenu>
-        <NotificationOutlined onClick={() => router.push('/notice')} />
-        <SearchOutlined onClick={() => router.push('/search')} />
-        {isLoggedIn ? <UserOutlined onClick={() => router.push('/member/main')} />
-                    : <UserOutlined onClick={() => router.push('/member/login')} /> }
+      <IconMenu isDark={isDark} >
+        <NotificationOutlined
+          onClick={() => router.push('/notice')}
+          style={{ color: isDark ? 'black' : 'white' }}
+        />
+        <SearchOutlined
+          onClick={() => router.push('/search')}
+          style={{ color: isDark ? 'black' : 'white' }}
+        />
+
+        {isLoggedIn ? <UserOutlined
+          onClick={() => router.push('/main')}
+          style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
+        />
+                    : <UserOutlined
+          onClick={() => router.push('/login')}
+          style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
+        /> }
       </IconMenu>
     </HeaderWrapper>
 

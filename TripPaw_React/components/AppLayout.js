@@ -5,17 +5,18 @@ import styled from 'styled-components';
 import ContentHeader from './ContentHeader';
 
 const AppLayoutWrapper = styled.div`
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   box-sizing: border-box;
 `;
 
-const AppLayout = ({ children, }) => {
+const AppLayout = ({ children, headerTheme }) => {
 
   return (
 
     <>
       <AppLayoutWrapper>
-        <ContentHeader />
+        <ContentHeader theme={headerTheme} />
         {children}
       </AppLayoutWrapper>
     </>
