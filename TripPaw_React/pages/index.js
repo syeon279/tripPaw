@@ -71,7 +71,7 @@ const Home = () => {
     }, []);
 
     return (
-        <AppLayout>
+        <AppLayout headerTheme="white" >
             <div
                 ref={containerRef}
                 style={{
