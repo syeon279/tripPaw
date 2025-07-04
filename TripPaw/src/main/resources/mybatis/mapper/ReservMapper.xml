@@ -130,4 +130,13 @@
 	    AND state IN ('WAITING', 'CONFIRMED')
 	</select>
 	
+  <select id="findByTripPlanId" parameterType="long" resultType="com.ssdam.tripPaw.domain.Reserv">
+	  SELECT * FROM reserv 
+	  WHERE trip_plan_id = #{tripPlanId} 
+	    AND delete_at IS NULL
+	  ORDER BY start_date ASC
+	  LIMIT 1
+	</select>
+
+  
 </mapper>

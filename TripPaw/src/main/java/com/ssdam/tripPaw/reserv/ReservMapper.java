@@ -29,4 +29,7 @@ public interface ReservMapper {
 	public List<Map<String, Object>> findActiveReservedRanges();
 	
 	public  List<Reserv> findByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
+
+	public Reserv findByTripPlanId(@Param("tripPlanId") Long tripPlanId);
+
 }
