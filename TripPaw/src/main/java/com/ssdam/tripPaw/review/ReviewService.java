@@ -31,10 +31,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssdam.tripPaw.domain.Badge;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
+import com.ssdam.tripPaw.domain.ReviewImage;
 import com.ssdam.tripPaw.domain.ReviewType;
 import com.ssdam.tripPaw.domain.Route;
 import com.ssdam.tripPaw.domain.TripPlan;
@@ -53,28 +55,16 @@ public class ReviewService {
 	private final TripPlanMapper tripPlanMapper;
     private final ReservMapper reservMapper;
     private final WeatherService weatherService;
+    private final FileUploadService fileUploadService;
+    private final ReviewImageMapper reviewImageMapper;
+    private final MemberBadgeMapper badgeMapper;
     
-    private static final String KMA_API = "https://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList";
-	
     private static final ObjectMapper mapper = new ObjectMapper();
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
-	private final String apiKey = "sk-..."; // GPT API 키
+
+	private final String apiKey = "sk-...";
 	
-	private String mapWeatherCode(String code) {
-	    switch (code) {
-	        case "90": return "맑음 ☀️";
-	        case "91": return "구름 조금 🌤️";
-	        case "92": return "흐림 ☁️";
-	        case "01": case "02": case "04": return "비 🌧️";
-	        case "05": case "08": case "10": case "11": case "22": return "눈 ❄️";
-	        case "06": case "09": return "진눈깨비 🌨️";
-	        case "16": case "18": case "19": return "안개 🌫️";
-	        case "42": return "황사 🌪️";
-	        default: return "기타 현상 🌈";
-	    }
-	}
-	
-	public void saveReviewWithWeather(ReviewDto dto) {
+	public void saveReviewWithWeather(ReviewDto dto, List<MultipartFile> images) {
 	    // 1. 회원 객체 준비
 	    Member member = new Member();
 	    member.setId(dto.getMemberId());
@@ -121,6 +111,7 @@ public class ReviewService {
 	        lon = parseCoordinate(place.getLongitude(), "경도");
 	        date = reserv.getStartDate();
 
+	        targetId = place.getId();
 	    } else {
 	        throw new RuntimeException("알 수 없는 리뷰 타입입니다.");
 	    }
@@ -137,6 +128,21 @@ public class ReviewService {
 	    review.setWeatherCondition(weather);
 
 	    reviewMapper.insertReview(review);
+	    
+	    // ===== 이미지 업로드 추가 =====
+	    if (images != null && !images.isEmpty()) {
+	        for (MultipartFile file : images) {
+	            String imageUrl = fileUploadService.upload(file); // 파일 저장 (로컬 or S3)
+
+	            ReviewImage reviewImage = new ReviewImage();
+	            reviewImage.setReview(review);
+	            reviewImage.setImageUrl(imageUrl);
+	            reviewImage.setOriginalFileName(file.getOriginalFilename());
+	            reviewImage.setUploadedAt(LocalDateTime.now());
+
+	            reviewImageMapper.insertReviewImage(reviewImage);
+	        }
+	    }
 	}
 
 	// 문자열이 null이거나 빈 문자열인지 확인
@@ -179,6 +185,147 @@ public class ReviewService {
 	    );
 	}
     
-    
+    public Review getReview(Long id) {
+		return reviewMapper.findById(id);
+	}
+    public List<Review> getMemberReviews(Long memberId) {
+        return reviewMapper.findByMemberId(memberId);
+    }
+    public List<Review> getReviewsByPlaceId(Long placeId) {
+        return reviewMapper.findByPlaceId(placeId);
+    }
 
+    public List<Review> getReviewsByPlanId(Long planId) {
+        return reviewMapper.findByPlanId(planId);
+    }
+
+    public List<Review> getAllPlanReviews() {
+        return reviewMapper.findAllPlanReviews();
+    }
+//    public List<ReviewPlanDto> getLatestPlanReviews() {
+//        return reviewMapper.findAllPlanReviewsOrdered();
+//    }
+    public List<ReviewPlanDto> getPlanReviewsOrdered(String sort) {
+        switch (sort) {
+            case "high":
+                return reviewMapper.findAllPlanReviewsOrderByRatingDesc();
+            case "low":
+                return reviewMapper.findAllPlanReviewsOrderByRatingAsc();
+            case "recommended":
+                return reviewMapper.findAllPlanReviewsOrderByLikesDesc();
+            default:
+                return reviewMapper.findAllPlanReviewsOrderByCreatedAtDesc();
+        }
+    }
+
+    //리뷰수정
+    @Transactional
+    public void updateReview(Review review, List<MultipartFile> images) {
+        reviewMapper.updateReview(review);
+
+        if (images != null && !images.isEmpty()) {
+            // 기존 이미지 삭제
+            List<String> imageUrls = reviewImageMapper.findImageUrlsByReviewId(review.getId());
+            for (String url : imageUrls) {
+                fileUploadService.delete(url);
+            }
+            reviewImageMapper.deleteImagesByReviewId(review.getId());
+
+            // 새 이미지 업로드
+            for (MultipartFile file : images) {
+                String imageUrl = fileUploadService.upload(file);
+
+                ReviewImage reviewImage = new ReviewImage();
+                reviewImage.setReview(review);
+                reviewImage.setImageUrl(imageUrl);
+                reviewImage.setOriginalFileName(file.getOriginalFilename());
+                reviewImage.setUploadedAt(LocalDateTime.now());
+
+                reviewImageMapper.insertReviewImage(reviewImage);
+            }
+        }
+    }
+
+    
+    //리뷰삭제
+    @Transactional
+	public void deleteReview(Review review) {
+		List<String> imageUrls = reviewImageMapper.findImageUrlsByReviewId(review.getId());
+	    for (String url : imageUrls) {
+	        fileUploadService.delete(url); // S3�뿉�꽌 �궘�젣
+	    }
+		// 由щ럭 �궘�젣 �쟾 �씠誘몄� �궘�젣
+	    reviewImageMapper.deleteImagesByReviewId(review.getId());
+	    
+		reviewMapper.deleteReview(review);
+	}
+    
+    // openai
+ 	public String generateAIReview(List<String> keywords) {
+ 		try {
+             String prompt = "다음 키워드를 포함해 여행 후기를 2~3문장으로 자연스럽게 작성해줘: " + String.join(", ", keywords);
+             Map<String, Object> message = Map.of( "role", "user", "content", prompt );
+             Map<String, Object> requestBody = Map.of(
+                 "model", "gpt-3.5-turbo",
+                 "messages", List.of(message),
+                 "temperature", 0.7
+             );
+             String bodyJson = mapper.writeValueAsString(requestBody);
+             HttpRequest request = HttpRequest.newBuilder()
+                     .uri(URI.create(GPT_URL))
+                     .header("Authorization", "Bearer " + apiKey)
+                     .header("Content-Type", "application/json")
+                     .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
+                     .build();
+
+             HttpClient client = HttpClient.newHttpClient();
+             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+             
+             System.out.println("GPT 응답 코드: " + response.statusCode());
+             System.out.println("GPT 응답 본문: " + response.body());
+             
+             if (response.statusCode() != 200) {
+                 return "OpenAI 응답 오류: " + response.statusCode();
+             }
+             
+             Map<String, Object> result = mapper.readValue(response.body(), Map.class);
+             List<Map<String, Object>> choices = (List<Map<String, Object>>) result.get("choices");
+             Map<String, Object> messageResult = (Map<String, Object>) choices.get(0).get("message");
+             return (String) messageResult.get("content");
+
+         } catch (Exception e) {
+             e.printStackTrace();
+             return "AI 리뷰 생성에 실패했습니다.";
+         }
+     }
+
+ 	public void likeReview(Long memberId, Long reviewId) {
+ 	    if (!reviewMapper.hasLikedReview(memberId, reviewId)) {
+ 	        reviewMapper.likeReview(memberId, reviewId);
+ 	    }
+ 	}
+
+ 	public void unlikeReview(Long memberId, Long reviewId) {
+ 	    reviewMapper.unlikeReview(memberId, reviewId);
+ 	}
+
+ 	public int getLikeCount(Long reviewId) {
+ 	    return reviewMapper.countLikes(reviewId);
+ 	}
+
+ 	public boolean hasLikedReview(Long memberId, Long reviewId) {
+ 	    return reviewMapper.hasLikedReview(memberId, reviewId);
+ 	}
+ 	
+ 	public void evaluateAndGrantBadges(Long memberId) {
+        int totalWeight = badgeMapper.getTotalContentLengthByMemberId(memberId);
+
+        List<Badge> eligibleBadges = badgeMapper.findEligibleBadges(totalWeight);
+
+        for (Badge badge : eligibleBadges) {
+            if (!badgeMapper.hasBadge(memberId, badge.getId())) {
+                badgeMapper.insertBadge(memberId, badge.getId());
+            }
+        }
+    }
 }
