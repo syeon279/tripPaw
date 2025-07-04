@@ -1,9 +1,9 @@
 // pages/_app.js
 import { useEffect } from 'react';
-import 'antd/dist/antd.css';
 import Head from 'next/head';
 import { CookiesProvider } from 'react-cookie';
 import wrapper from '../store/configureStore';
+import 'antd/dist/antd.css';
 
 const Ssdam = ({ Component, pageProps }) => {
   useEffect(() => {
