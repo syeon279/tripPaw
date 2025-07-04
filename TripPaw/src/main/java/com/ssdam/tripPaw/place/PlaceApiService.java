@@ -10,6 +10,7 @@ import io.reactivex.functions.BiFunction;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -30,7 +31,8 @@ public class PlaceApiService {
 	private final RestTemplate restTemplate = new RestTemplate();
 
 
-	private static final String key = "kqofCEpJVKxi9%2FD6M7kUNpRDUq4FhSKXk%2FzZxPL8mP1VNAP6TzJnYMNkHQB81OMT0zcwh6VQRyP4cPbSl1HNAg%3D%3D";
+	private static final String key = "bEzli6nTnVAqDCGLttEaemrA%2BSSd4Eec2q6Pq1Zc%2B7XExraEhli6YSth32uv1ghTnI0VksM2YwF%2Bawnots8hpA%3D%3D";
+	//private static final String key = "kqofCEpJVKxi9%2FD6M7kUNpRDUq4FhSKXk%2FzZxPL8mP1VNAP6TzJnYMNkHQB81OMT0zcwh6VQRyP4cPbSl1HNAg%3D%3D";
 
 	public PlaceApiService(PlaceMapper placeMapper, PlaceTypeMapper placeTypeMapper,
 			PlaceImageMapper placeImageMapper, PlaceCategoryService placeCategoryService) {
@@ -81,8 +83,8 @@ public class PlaceApiService {
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 
 		for (int areaCode : areaCodes) {
-			Thread.sleep(3000);
 			for( String  contentTypeId : contentTypeIds) {
+				Thread.sleep(2000);
 				try {
 					String apiUrl = "https://apis.data.go.kr/B551011/KorPetTourService/areaBasedList" 
 				+ "?serviceKey="+ key 
@@ -102,7 +104,7 @@ public class PlaceApiService {
 					ResponseEntity<String> response = fetchWithRetry(uri, entity, 3);
 					String responseBody = response.getBody();
 
-					Thread.sleep(3000);
+					Thread.sleep(5000);
 
 					if (!isValidJson(responseBody)) {
 						System.out.println("⚠️ JSON 응답이 유효하지 않음");
@@ -172,6 +174,7 @@ public class PlaceApiService {
 		
 		
 		// detailCommon
+		Thread.sleep(2000);
 		try {
 			String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailCommon" 
 		+ "?serviceKey=" + key
@@ -212,6 +215,7 @@ public class PlaceApiService {
 		}
 
 		// detailIntro
+		Thread.sleep(3000);
 		try {
 			String introUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailIntro" 
 		+ "?serviceKey=" + key
@@ -289,6 +293,7 @@ public class PlaceApiService {
 		}
 
 		// detailInfo
+		Thread.sleep(5000);
 		try {
 			String infoUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailInfo" 
 		+ "?serviceKey=" + key
@@ -397,10 +402,15 @@ public class PlaceApiService {
 		String typeName = contentTypeIdMap.getOrDefault(contentTypeId, "기타");
 		PlaceType placeType = placeTypeMapper.findByName(typeName);
 		if (placeType == null) {
-			placeType = new PlaceType();
-			placeType.setName(typeName);
-			placeTypeMapper.insert(placeType);
-			placeType = placeTypeMapper.findByName(typeName);
+		    try {
+		        PlaceType newType = new PlaceType();
+		        newType.setName(typeName);
+		        placeTypeMapper.insert(newType);
+		        placeType = placeTypeMapper.findByName(typeName); // 다시 조회
+		    } catch (DuplicateKeyException e) {
+		        // 동시에 누군가 insert한 경우
+		        placeType = placeTypeMapper.findByName(typeName);
+		    }
 		}
 
 		Place place = new Place();
@@ -427,6 +437,7 @@ public class PlaceApiService {
 		placeCategoryService.insertPlaceAndMapCategories(place);
 
 		// 이미지 처리
+		Thread.sleep(2000);
 		try {
 			String imageUrl = "https://apis.data.go.kr/B551011/KorService2/detailImage2" 
 								+ "?serviceKey=" + key
