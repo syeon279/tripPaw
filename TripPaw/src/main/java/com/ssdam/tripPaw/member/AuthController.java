@@ -99,7 +99,7 @@ public class AuthController {
     
     @GetMapping("/check")
     public ResponseEntity<?> checkAuthStatus(@CookieValue(value = "jwt", required = false) String token) {
-    	System.out.println("token==="+token);
+    	System.out.println("token="+token);
         // 2. 브라우저가 보낸 쿠키를 받아서 토큰 검증
         if (token == null || jwtProvider.isExpired(token)) {
             // 토큰이 없거나 만료되었으면 401 Unauthorized 응답
@@ -109,7 +109,7 @@ public class AuthController {
         // 3. 토큰이 유효하면, 사용자 정보를 담아 200 OK 응답
         String username = jwtProvider.getUsername(token);
         Member member = memberService.findByUsername(username);
-        System.out.println("username" + username);
+
         // 비밀번호 등 민감 정보는 제외하고 DTO로 만들어 반환하는 것이 좋음
         Map<String, Object> userInfo = Map.of(
             "username", member.getUsername(),
