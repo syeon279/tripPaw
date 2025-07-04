@@ -1,5 +1,7 @@
 package com.ssdam.tripPaw.member;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,6 +13,7 @@ public interface MemberMapper {
 	public Member findMemberById(String memberId);
 	public Member findByUsername(String username);
 	public Member findById(Long id);
+	public List<Member> findAllByIds(@Param("ids") List<Long> ids);
 	public Member findAll();
 	public int insert(Member member);
 	public int update(Member member);

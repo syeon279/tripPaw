@@ -1,8 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
-import { SearchOutlined } from '@ant-design/icons';
 
-const TripPlanSearch = () => {
+const TripPlanSearch = ({ keyword, setKeyword, handleSearch, handleKeyPress }) => {
     const containerStyle = {
         position: 'relative',
         width: '100vw',
@@ -16,7 +15,6 @@ const TripPlanSearch = () => {
         left: 0,
         width: '100%',
         height: '100%',
-        //backgroundColor: 'rgba(252, 252, 252, 0.42)',
         zIndex: 1,
     };
 
@@ -47,7 +45,7 @@ const TripPlanSearch = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '16px', // 요소 간 간격
+        gap: '16px',
     };
 
     const inputStyle = {
@@ -56,28 +54,46 @@ const TripPlanSearch = () => {
         backgroundColor: 'transparent',
         width: '480px',
         marginRight: '20px',
-    }
+        fontSize: '1.1rem',
+    };
 
     return (
         <div style={containerStyle}>
-            {/* <img src="/image/background/main_search.png" alt="background" style={backgroundStyle} /> */}
             <div style={overlayStyle} />
-
             <div style={contentStyle}>
                 <div style={{ width: '100%', maxWidth: '960px' }}>
-                    <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={480}
+                    <Image
+                        src="/image/logo/TripPaw-logo.png"
+                        alt="logo"
+                        width={480}
                         height={120}
-                        priority />
+                        priority
+                    />
                     <div style={boxStyle}>
-                        <Image src="/image/other/search-normal.png" alt="logo" width={25}
+                        <Image
+                            src="/image/other/search-normal.png"
+                            alt="search icon"
+                            width={25}
                             height={30}
-                            priority />
-                        <div>
-                            <input style={inputStyle} type="string" placeholder=' 검색어를 입력해주세요' />
-                        </div>
-                        <Image src="/image/other/send.png" alt="logo" width={45}
+                            priority
+                        />
+                        <input
+                            style={inputStyle}
+                            type="text"
+                            placeholder=" 검색어를 입력해주세요"
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                        <Image
+                            src="/image/other/send.png"
+                            alt="search button"
+                            width={45}
                             height={30}
-                            priority />
+                            priority
+                            onClick={handleSearch}
+                            style={{ cursor: 'pointer' }}
+                        />
                     </div>
                 </div>
             </div>

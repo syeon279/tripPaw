@@ -10,6 +10,7 @@ import com.ssdam.tripPaw.checklist.CheckTemplateItemMapper;
 import com.ssdam.tripPaw.checklist.CheckTemplateMapper;
 import com.ssdam.tripPaw.domain.CheckTemplate;
 import com.ssdam.tripPaw.domain.CheckTemplateItem;
+import com.ssdam.tripPaw.review.ReviewTypeMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,9 +21,16 @@ public class TemplateDataInitializer implements CommandLineRunner {
 	
 	private final CheckTemplateMapper checkTemplateMapper;
     private final CheckTemplateItemMapper checkTemplateItemMapper;	
+    private final ReviewTypeMapper reviewTypeMapper;
 	
 	@Override
     public void run(String... args) throws Exception {
+		// 1. 리뷰타입 삽입
+	    reviewTypeMapper.insertReviewTypes();
+
+	    // 2. 체크템플릿은 중복 방지 후 삽입
+	    if (checkTemplateMapper.countTemplates() > 0) return;
+	    
         // 이미 존재하는지 확인
         if (checkTemplateMapper.countTemplates() > 0) return;
 
