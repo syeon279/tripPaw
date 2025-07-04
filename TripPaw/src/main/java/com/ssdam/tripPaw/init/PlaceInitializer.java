@@ -1,4 +1,4 @@
-package com.ssdam.tripPaw.place;
+package com.ssdam.tripPaw.init;
 
 import java.net.URISyntaxException;
 
@@ -7,6 +7,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import com.ssdam.tripPaw.category.CategoryMapper;
+import com.ssdam.tripPaw.place.PlaceApiService;
 
 @Component
 public class PlaceInitializer implements ApplicationRunner {
