@@ -3430,7 +3430,6 @@
       "integrity": "sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==",
       "license": "MIT"
     },
-<<<<<<< HEAD
     "node_modules/html2canvas": {
       "version": "1.4.1",
       "resolved": "https://registry.npmjs.org/html2canvas/-/html2canvas-1.4.1.tgz",
@@ -3443,13 +3442,6 @@
       "engines": {
         "node": ">=8.0.0"
       }
-=======
-    "node_modules/http-parser-js": {
-      "version": "0.5.10",
-      "resolved": "https://registry.npmjs.org/http-parser-js/-/http-parser-js-0.5.10.tgz",
-      "integrity": "sha512-Pysuw9XpUq5dVc/2SMHpuTY01RFl8fttgcyunjL7eEMhGM3cI4eOmiCycJDVCo/7O7ClfQD3SaI6ftDzqOXYMA==",
-      "license": "MIT"
->>>>>>> 325d960dde3d3d72b41ecd6001ec66d4e4a272c1
     },
     "node_modules/iconv-lite": {
       "version": "0.4.24",

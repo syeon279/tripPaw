@@ -1,5 +1,6 @@
-package com.ssdam.tripPaw.category;
+package com.ssdam.tripPaw.init;
 
+import com.ssdam.tripPaw.category.CategoryMapper;
 import com.ssdam.tripPaw.domain.Category;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
