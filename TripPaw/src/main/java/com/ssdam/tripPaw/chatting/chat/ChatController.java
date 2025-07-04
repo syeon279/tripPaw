@@ -40,6 +40,8 @@ public class ChatController {
 	@MessageMapping("/chat/{roomId}/sendMessage")
     public void sendMessage(@DestinationVariable Long roomId,@Payload ChatMessage chatMessage) {
     	System.out.println("chat="+chatMessage.getContent());
+    	System.out.println("sender="+chatMessage.getSender());
+    	System.out.println("roomid="+chatMessage.getRoomId());
     	chatService.chatSave(roomId, chatMessage);
     	messagingTemplate.convertAndSend("/topic/chat/" + roomId, chatMessage);
         //return chatMessage;

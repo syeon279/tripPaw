@@ -99,6 +99,7 @@ public class AuthController {
     
     @GetMapping("/check")
     public ResponseEntity<?> checkAuthStatus(@CookieValue(value = "jwt", required = false) String token) {
+    	System.out.println("token="+token);
         // 2. 브라우저가 보낸 쿠키를 받아서 토큰 검증
         if (token == null || jwtProvider.isExpired(token)) {
             // 토큰이 없거나 만료되었으면 401 Unauthorized 응답
