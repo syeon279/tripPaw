@@ -130,7 +130,7 @@
 	    AND state IN ('WAITING', 'CONFIRMED')
 	</select>
 	
-  <select id="findByTripPlanId" parameterType="long" resultType="com.ssdam.tripPaw.domain.Reserv">
+  <select id="findByTripPlanId" parameterType="long" resultMap="ReservResultMap">
 	  SELECT * FROM reserv 
 	  WHERE trip_plan_id = #{tripPlanId} 
 	    AND delete_at IS NULL
