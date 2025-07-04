@@ -47,6 +47,14 @@
   <select id="findAll" resultMap="memberResultMap">
     SELECT * FROM member
   </select>
+  
+  <select id="findAllByIds" parameterType="list" resultType="com.ssdam.tripPaw.domain.Member">
+	  SELECT * FROM member
+	  WHERE id IN
+	  <foreach item="id" collection="ids" open="(" separator="," close=")">
+	    #{id}
+	  </foreach>
+	</select>
  
   <!-- INSERT -->
   <insert id="insert" parameterType="Member">

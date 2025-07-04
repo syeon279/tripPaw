@@ -1,5 +1,7 @@
 package com.ssdam.tripPaw.member;
 
+import java.util.List;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,9 @@ public class MemberService {
 	public Member findById(Long id) {
 		return memberMapper.findById(id);
 	};
+	public List<Member> findAllByIds(List<Long> ids) {
+	    return memberMapper.findAllByIds(ids);
+	}
 	public Member findAll() {
 		return memberMapper.findAll();
 	};

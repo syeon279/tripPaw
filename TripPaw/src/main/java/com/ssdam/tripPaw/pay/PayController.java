@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +20,6 @@ import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Pay;
 import com.ssdam.tripPaw.member.MemberService;
 import com.ssdam.tripPaw.payapi.IamportPayService;
-import com.ssdam.tripPaw.reserv.ReservService;
 import com.ssdam.tripPaw.reserv.ReservState;
 
 @CrossOrigin(
@@ -32,7 +30,6 @@ import com.ssdam.tripPaw.reserv.ReservState;
 @RequestMapping("/pay")
 public class PayController {
     @Autowired private IamportPayService iamportPayService;
-    @Autowired private ReservService reservService;
     @Autowired private PayService payService;
     @Autowired private MemberService memberService;
 
@@ -143,4 +140,6 @@ public class PayController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류: " + e.getMessage());
         }
     }
+
+    
 }

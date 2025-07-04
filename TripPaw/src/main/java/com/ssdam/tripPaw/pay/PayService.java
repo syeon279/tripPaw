@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Pay;
+import com.ssdam.tripPaw.domain.PayShare;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.payapi.IamportPayService;
 import com.ssdam.tripPaw.reserv.ReservMapper;
+import com.ssdam.tripPaw.reserv.ReservState;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +26,7 @@ public class PayService {
     private final PayMapper payMapper;
     private final ReservMapper reservMapper;
     private final IamportPayService iamportPayService;
+    private final PayShareMapper payShareMapper;
 
     /** 결제 조회 */
     public Pay findById(Long id) {
@@ -118,5 +121,5 @@ public class PayService {
         }
         return false;
     }
-   
+    
 }

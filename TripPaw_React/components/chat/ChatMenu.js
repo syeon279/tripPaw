@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const MenuOverlay = styled.div`
   position: absolute;
@@ -69,7 +70,8 @@ const MenuItem = styled.li`
   }
 `;
 
-const ChatMenu = ({ isOpen, onClose, onExit }) => {
+const ChatMenu = ({ isOpen, onClose, onExit, onCreateDutchPay }) => {
+
   return (
     <>
       <MenuOverlay isOpen={isOpen} onClick={onClose} />
@@ -82,6 +84,7 @@ const ChatMenu = ({ isOpen, onClose, onExit }) => {
           <MenuItem>채팅방 정보</MenuItem>
           <MenuItem>참여 인원</MenuItem>
           <MenuItem>알림 설정</MenuItem>
+          <MenuItem onClick={onCreateDutchPay}>더치페이 예약</MenuItem>        
           <MenuItem onClick={onExit} style={{ color: 'red' }}>채팅방 나가기</MenuItem>
         </MenuList>
       </MenuContainer>
