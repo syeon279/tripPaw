@@ -5,10 +5,11 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.ssdam.tripPaw.domain.ReviewImage;
+
 @Mapper
 public interface ReviewImageMapper {
-	void insertReviewImage(@Param("reviewId") Long reviewId, 
-			@Param("imageUrl") String imageUrl);
+	void insertReviewImage(ReviewImage reviewImage);
 	
 	void deleteImagesByReviewId(@Param("reviewId") Long reviewId);
 	
