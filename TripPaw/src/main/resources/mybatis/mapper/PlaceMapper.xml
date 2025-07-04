@@ -66,18 +66,129 @@
 		SELECT * FROM place WHERE id =
 		#{id}
 	</select>
-	<select id="findByRegionAndCategories"
+	
+	<!-- 램덤 추천 -->
+	<select id="findRecommendedPlacesByRandom"
 		resultMap="placeResultMap">
-		SELECT DISTINCT p.*
+		SELECT * FROM (
+		-- ✅ [1] placeType 1 or 2
+		SELECT * FROM (
+		SELECT * FROM (
+		SELECT p.*, 1 AS priority
 		FROM place p
 		JOIN place_category pc ON p.id = pc.place_id
-		WHERE p.region LIKE CONCAT('%', #{region}, '%')
+		WHERE p.place_type_id IN (1, 2)
+		AND p.region LIKE CONCAT('%', #{region}, '%')
 		AND pc.category_id IN
 		<foreach collection="categoryIds" item="id" open="("
 			separator="," close=")">
 			#{id}
 		</foreach>
+		ORDER BY RAND()
+		LIMIT 1
+		) AS a1
+		UNION
+		SELECT * FROM (
+		SELECT p.*, 1 AS priority
+		FROM place p
+		WHERE p.place_type_id IN (1, 2)
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		ORDER BY RAND()
+		LIMIT 1
+		) AS a2
+		) AS t1
+
+		UNION ALL
+
+		-- ✅ [2] placeType = 6
+		SELECT * FROM (
+		SELECT * FROM (
+		SELECT p.*, 2 AS priority
+		FROM place p
+		JOIN place_category pc ON p.id = pc.place_id
+		WHERE p.place_type_id = 6
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND pc.category_id IN
+		<foreach collection="categoryIds" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+		ORDER BY RAND()
+		LIMIT 1
+		) AS b1
+		UNION
+		SELECT * FROM (
+		SELECT p.*, 2 AS priority
+		FROM place p
+		WHERE p.place_type_id = 6
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		ORDER BY RAND()
+		LIMIT 1
+		) AS b2
+		) AS t2
+
+		UNION ALL
+
+		-- ✅ [3] placeType = 5
+		SELECT * FROM (
+		SELECT * FROM (
+		SELECT p.*, 3 AS priority
+		FROM place p
+		JOIN place_category pc ON p.id = pc.place_id
+		WHERE p.place_type_id = 5
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND pc.category_id IN
+		<foreach collection="categoryIds" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+		ORDER BY RAND()
+		LIMIT 1
+		) AS c1
+		UNION
+		SELECT * FROM (
+		SELECT p.*, 3 AS priority
+		FROM place p
+		WHERE p.place_type_id = 5
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		ORDER BY RAND()
+		LIMIT 1
+		) AS c2
+		) AS t3
+
+		UNION ALL
+
+		-- ✅ [4] placeType = 4
+		SELECT * FROM (
+		SELECT * FROM (
+		SELECT p.*, 4 AS priority
+		FROM place p
+		JOIN place_category pc ON p.id = pc.place_id
+		WHERE p.place_type_id = 4
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND pc.category_id IN
+		<foreach collection="categoryIds" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+		ORDER BY RAND()
+		LIMIT 1
+		) AS d1
+		UNION
+		SELECT * FROM (
+		SELECT p.*, 4 AS priority
+		FROM place p
+		WHERE p.place_type_id = 4
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		ORDER BY RAND()
+		LIMIT 1
+		) AS d2
+		) AS t4
+		) AS combined
+		ORDER BY priority
 	</select>
+
+
 
 
 	<!-- update -->

@@ -1,82 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import DayScheduleList from '../../components/tripPlan/DayScheduleList';
 import AppLayout from '../../components/AppLayout';
 import ActionButtons from '../../components/tripPlan/ActionButtons';
+import TitleModal from '../../components/tripPlan/TitleModal';
+import axios from 'axios';
 
-// ✅ SSR 비활성화된 카카오맵 컴포넌트 미리 선언
+// SSR 비활성화된 카카오맵 컴포넌트
 const RouteMapNoSSR = dynamic(() => import('../../components/tripPlan/RouteMap'), {
     ssr: false,
 });
 
-
-const header = {
-    width: '100%',
-    height: '80px'
-}
-
-const dividerStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: '20px',
+const layoutStyle = {
+    header: { width: '100%', height: '80px' },
+    divider: {
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%',
+        marginBottom: '20px',
+    },
+    dividerLine: {
+        width: '100%',
+        border: '1px solid rgba(170, 169, 169, 0.9)',
+    },
+    contentWrapper: {
+        width: '70%',
+        height: '80%',
+        justifyContent: 'center',
+        margin: 'auto',
+    },
+    contentBox: {
+        display: 'flex',
+        width: '100%',
+        height: '80%',
+        justifyContent: 'center',
+        margin: 'auto',
+    },
+    mapContainer: {
+        flex: 5,
+        width: '100%',
+        height: '100%',
+    },
+    scheduleContainer: {
+        flex: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        overflowY: 'auto',
+        maxHeight: '600px',
+        paddingRight: '8px',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        overscrollBehavior: 'contain',
+    },
 };
-
-const dividerLine = {
-    width: '100%',
-    border: '1px solid rgba(170, 169, 169, 0.9)',
-};
-
-const contentWrapper = {
-    //border: '3px solid black',
-    width: '70%',
-    height: '80%',
-    justifyContent: 'center',
-    margin: 'auto',
-    //marginTop: '10px',
-}
-
-const contentBox = {
-    //border: '2px solid red',
-    display: 'flex',
-    width: '100%',
-    height: '80%',
-    justifyContent: 'center',
-    margin: 'auto',
-}
-
-const mapContainer = {
-    flex: 5,
-    width: '100%',
-    height: '100%',
-    //border: '2px solid blue'
-};
-
-const scheduleContainer = {
-    flex: 3,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    overflowY: 'auto',            // 👈 스크롤 추가
-    maxHeight: '600px',           // 👈 높이 제한 추가 (혹은 필요에 따라 height 설정)
-    paddingRight: '8px',          // 👈 스크롤이 내용 가리지 않게 여유 공간
-    /* 👇 스크롤 숨기기 */
-    scrollbarWidth: 'none',       // Firefox
-    msOverflowStyle: 'none',      // IE, Edge
-    overscrollBehavior: 'contain', // 스크롤 바운스 방지
-};
-
-
-
 
 const RouteRecommendPage = () => {
     const router = useRouter();
+    const mapRef = useRef(null); // 🌟 지도 캡처용 ref
+
     const [routeData, setRouteData] = useState(null);
     const [currentDay, setCurrentDay] = useState(1);
     const [kakaoReady, setKakaoReady] = useState(false);
+    const [mapInstance, setMapInstance] = useState(null);
+    const [focusDay, setFocusDay] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
-    // ✅ 쿼리 데이터 파싱
+    const requestData = useMemo(() => {
+        if (!router.query.req) return null;
+        try {
+            return JSON.parse(decodeURIComponent(router.query.req));
+        } catch (e) {
+            return null;
+        }
+    }, [router.query.req]);
+
     useEffect(() => {
         if (router.query.data) {
             try {
@@ -88,7 +87,6 @@ const RouteRecommendPage = () => {
         }
     }, [router.query]);
 
-    // ✅ Kakao API 로딩 여부 체크
     useEffect(() => {
         const interval = setInterval(() => {
             if (window.kakao && window.kakao.maps) {
@@ -96,7 +94,6 @@ const RouteRecommendPage = () => {
                 clearInterval(interval);
             }
         }, 200);
-
         return () => clearInterval(interval);
     }, []);
 
@@ -109,38 +106,92 @@ const RouteRecommendPage = () => {
         return <div>지도를 불러오는 중입니다...</div>;
     }
 
-    return (
-        <AppLayout headerTheme="dark" >
-            <div style={header} />
-            <div style={contentWrapper}>
-                {/* 카테고리 */}
-                <div>
+    const handlePlaceClick = (place, day) => {
+        setFocusDay(day);
+        if (mapInstance && window.kakao) {
+            const latlng = new window.kakao.maps.LatLng(
+                parseFloat(place.latitude),
+                parseFloat(place.longitude)
+            );
+            mapInstance.panTo(latlng);
+        }
+    };
 
-                </div>
+    // 🌟 지도 캡처 함수 전달
+    const handleCaptureMap = async () => {
+        try {
+            return await mapRef.current?.captureMap();
+        } catch (err) {
+            console.warn('지도 캡처 오류:', err);
+            return null;
+        }
+    };
+
+    // 🌟 여행 저장 핸들러
+    const handleTripSave = async ({ title, startDate, endDate, countPeople, countPet, mapImage }) => {
+        try {
+            const tripData = {
+                title,
+                startDate,
+                endDate,
+                countPeople,
+                countPet,
+                routeData,
+                mapImage, // 🖼️ 캡처된 이미지 포함
+            };
+
+            await axios.post('http://localhost:8080/tripPlan/save', tripData);
+            alert('여행 저장 완료!');
+        } catch (error) {
+            console.error('저장 실패:', error);
+            alert('저장 중 오류 발생');
+        }
+    };
+
+    return (
+        <AppLayout>
+            <div style={layoutStyle.header} />
+            <div style={layoutStyle.contentWrapper}>
                 <h1>강아지와 함께! 에너지 넘치는 파워 여행 루틴</h1>
 
-                <div style={dividerStyle}>
-                    <div style={dividerLine} />
+                <div style={layoutStyle.divider}>
+                    <div style={layoutStyle.dividerLine} />
                 </div>
 
-                <div style={contentBox}>
-                    <div style={mapContainer}>
-                        {/* 지도*/}
-                        <RouteMapNoSSR places={currentPlan.places} style={{ width: '100%', height: '100%' }} />
+                <div style={layoutStyle.contentBox}>
+                    <div id="map-capture-target" style={layoutStyle.mapContainer}>
+                        <RouteMapNoSSR
+                            ref={mapRef} // 📌 ref 연결
+                            routeData={routeData}
+                            focusDay={focusDay}
+                            setFocusDay={setFocusDay}
+                            setMapInstance={setMapInstance}
+                        />
                     </div>
-                    <div style={scheduleContainer}>
-                        {/* 일정 */}
-                        <div>
-                            <DayScheduleList
-                                routeData={routeData}
-                                currentDay={currentDay}
-                                onSelectDay={setCurrentDay}
-                            />
-                        </div>
-                        <div>
-                            <ActionButtons />
-                        </div>
+
+                    <div style={layoutStyle.scheduleContainer}>
+                        <DayScheduleList
+                            id="scheduleContainer"
+                            routeData={routeData}
+                            currentDay={currentDay}
+                            onSelectDay={setCurrentDay}
+                            onPlaceClick={handlePlaceClick}
+                            setFocusDay={setFocusDay}
+                        />
+                        <ActionButtons onSave={() => setShowModal(true)} />
                     </div>
+
+                    {showModal && (
+                        <TitleModal
+                            onClose={() => setShowModal(false)}
+                            onSave={handleTripSave}
+                            defaultStartDate={requestData?.startDate}
+                            defaultEndDate={requestData?.endDate}
+                            defaultCountPeople={requestData?.countPeople}
+                            defaultCountPet={requestData?.countPet}
+                            onCaptureMap={handleCaptureMap} // 📸 전달
+                        />
+                    )}
                 </div>
             </div>
         </AppLayout>

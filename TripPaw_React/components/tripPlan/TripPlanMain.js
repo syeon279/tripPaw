@@ -161,24 +161,28 @@ const tripPlanMain = () => {
         };
 
         try {
-            const response = await axios.post('http://localhost:8080/place/recommend', requestData, {
+            const response = await axios.post('http://localhost:8080/tripPlan/recommend', requestData, {
                 withCredentials: true,
             });
 
             console.log('추천 경로:', response.data);
 
-            // 📌 추천 결과를 router로 전달하면서 이동
+            // 데이터 보내기
             router.push({
                 pathname: '/tripPlan/routeRecommendPage',
                 query: {
-                    data: encodeURIComponent(JSON.stringify(response.data)), // 👉 쿼리로 JSON 문자열 넘김
+                    data: encodeURIComponent(JSON.stringify(response.data)), // 추천 경로
+                    req: encodeURIComponent(JSON.stringify(requestData)),    // 여행 기본정보
                 },
             });
+
+            console.log('😁 여행 일정 : ', requestData);
 
         } catch (error) {
             console.error('추천 실패:', error);
         }
     };
+
 
     // 카테고리 색상 바뀌기
     const tagColors = [
@@ -209,20 +213,21 @@ const tripPlanMain = () => {
                                 {/* 여행지 */}
                                 <div style={fieldStyle}>
                                     <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행지</label>
-                                    <select style={selectStyle} onChange={(e) => setRegion(e.target.value)}>
-                                        <option>서울</option>
-                                        <option>부산</option>
-                                        <option>제주</option>
-                                        <option>인천</option>
-                                        <option>광주</option>
-                                        <option>대전</option>
-                                        <option>울산</option>
-                                        <option>경기</option>
-                                        <option>강원</option>
-                                        <option>충청</option>
-                                        <option>전라</option>
-                                        <option>경북</option>
-                                        <option>경상</option>
+                                    <select style={selectStyle} value={region} onChange={(e) => setRegion(e.target.value)}>
+                                        <option value="">-- 지역 선택 --</option>
+                                        <option value="서울">서울</option>
+                                        <option value="부산">부산</option>
+                                        <option value="제주">제주</option>
+                                        <option value="인천">인천</option>
+                                        <option value="광주">광주</option>
+                                        <option value="대전">대전</option>
+                                        <option value="울산">울산</option>
+                                        <option value="경기">경기</option>
+                                        <option value="강원">강원</option>
+                                        <option value="충청">충청</option>
+                                        <option value="전라">전라</option>
+                                        <option value="경북">경북</option>
+                                        <option value="경상">경상</option>
                                     </select>
                                 </div>
 
