@@ -66,7 +66,7 @@ public class CategoryDataInitializer implements ApplicationRunner {
             if (categoryMapper.findByName(name) == null ) {
                 Category category = new Category();
                 category.setName(name);
-                //categoryMapper.insert(category);
+                categoryMapper.insert(category);
             }
         }
         
