@@ -78,6 +78,7 @@
 	  LEFT JOIN reserv r ON p.reserv_id = r.id
 	  LEFT JOIN place pl ON r.place_id = pl.id
 	  LEFT JOIN member m ON p.member_id = m.id
+	  ORDER BY p.created_at DESC
 	</select>
 
 	<select id="findByReservId" parameterType="long" resultMap="PayResultMap">
@@ -92,9 +93,26 @@
 	</select>
 
 	<select id="findByImpUid" parameterType="String" resultMap="PayResultMap">
-	    SELECT * FROM pay WHERE imp_uid = #{impUid}
+	  SELECT 
+	    p.id, p.imp_uid, p.merchant_uid, p.amount, p.pay_method, p.pg_provider, 
+	    p.state, p.paid_at, p.delete_at, p.created_at, p.haspay_share,
+	    
+	    r.id AS reserv_id, r.start_date, r.end_date, r.expire_at, 
+	    r.delete_at AS delete_at_reserv, r.state AS state_reserv, 
+	    r.created_at AS created_at_reserv,
+	    r.original_price, r.final_price, r.count_people, r.count_pet,
+	    
+	    pl.id AS place_id, pl.name AS place_name,
+	    
+	    m.id AS member_id, m.username
+	    
+	  FROM pay p
+	  LEFT JOIN reserv r ON p.reserv_id = r.id
+	  LEFT JOIN place pl ON r.place_id = pl.id
+	  LEFT JOIN member m ON p.member_id = m.id
+	  WHERE p.imp_uid = #{impUid}
 	</select>
-
+	
     <update id="updateStateByImpUid">
         UPDATE pay SET state = #{state} WHERE imp_uid = #{impUid}
     </update>

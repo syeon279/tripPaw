@@ -221,7 +221,10 @@ function PaymentPage() {
                 withCredentials: true,
               });
               alert('결제가 완료되었습니다!');
-              router.push('/pay-success');
+              router.push({
+                pathname: '/pay/pay-success',
+                query: { reservId: reservData.reservId }
+              });
             } catch {
               alert('결제 검증 중 오류가 발생했습니다.');
             }
@@ -259,7 +262,7 @@ function PaymentPage() {
             checked={selectedPg === 'html5_inicis'}
             onChange={(e) => setSelectedPg(e.target.value)}
           />
-          KG이니시스
+          카드결제
         </RadioLabel>
         <RadioLabel>
           <input
