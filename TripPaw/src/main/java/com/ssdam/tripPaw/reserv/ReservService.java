@@ -53,7 +53,7 @@ public class ReservService {
 
     /** 예약 조회 */
     public Reserv findById(Long id) {
-        Reserv reserv = reservMapper.findById(id);
+    	Reserv reserv = reservMapper.findByIdWithPlace(id);
         if (reserv == null || reserv.getDeleteAt() != null) {
             throw new IllegalArgumentException("존재하지 않거나 삭제된 예약입니다.");
         }

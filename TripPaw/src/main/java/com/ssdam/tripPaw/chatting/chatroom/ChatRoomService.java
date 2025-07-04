@@ -14,8 +14,9 @@ public class ChatRoomService {
 	@Autowired
 	private ChatRoomMapper chatRoomMapper;
 	
-	public int createChatRoom(ChatRoom chatRoom) {
-		return chatRoomMapper.createChatRoom(chatRoom);
+	public ChatRoom createChatRoom(ChatRoom chatRoom) {
+		chatRoomMapper.createChatRoom(chatRoom);
+		return chatRoom;
 	}
 	
 	public List<ChatRoom> chatRoomList(){
