@@ -411,7 +411,7 @@ public class PlaceApiService {
 		place.setHomePage(homepage);
 		place.setPhone(phone);
 		place.setImageUrl(item.optString("firstimage"));
-		place.setExtermalContentId(contentId);
+		place.setExternalContentId(contentId);
 		place.setSource("KTO");
 		place.setPetFriendly(petFriendly);
 		place.setOpenHours(openHours);

@@ -23,8 +23,8 @@
 		<result property="parking" column="parking" />
 		<result property="imageUrl" column="image_url" />
 		<result property="homePage" column="home_page" />
-		<result property="extermalContentId"
-			column="extermal_content_id" />
+		<result property="externalContentId"
+			column="external_content_id" />
 		<result property="source" column="source" />
 		<association property="placeType"
 			javaType="com.ssdam.tripPaw.domain.PlaceType">
@@ -43,7 +43,7 @@
 		pet_friendly, pet_verified, rest_days,
 		price, phone,
 		image_url, parking,
-		home_page, extermal_content_id, source,
+		home_page, external_content_id, source,
 		place_type_id
 		)
 		VALUES (
@@ -52,7 +52,7 @@
 		#{petFriendly}, #{petVerified},
 		#{restDays}, #{price}, #{phone},
 		#{imageUrl}, #{parking}, #{homePage},
-		#{extermalContentId}, #{source}, #{placeType.id}
+		#{externalContentId}, #{source}, #{placeType.id}
 		)
 	</insert>
 
@@ -214,7 +214,7 @@
 		image_url = #{imageUrl},
 		home_page =
 		#{homePage},
-		extermal_content_id = #{extermalContentId},
+		external_content_id = #{externalContentId},
 		source =
 		#{source}
 		WHERE id = #{id}
