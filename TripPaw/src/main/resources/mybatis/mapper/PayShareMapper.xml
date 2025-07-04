@@ -28,13 +28,31 @@
     SELECT * FROM pay_share
   </select>
 
-  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.PayShare">
-    INSERT INTO pay_share (
-      amount, has_paid, paid_at, created_at, pay_id, member_id
-    ) VALUES (
-      #{amount}, #{hasPaid}, #{paidAt}, #{createdAt}, #{pay.id}, #{member.id}
-    )
-  </insert>
+	<insert id="insert" parameterType="com.ssdam.tripPaw.domain.PayShare">
+	  INSERT INTO pay_share (
+	    amount, has_paid, paid_at, created_at, pay_id, member_id
+	  ) VALUES (
+	    #{amount}, #{hasPaid}, #{paidAt}, #{createdAt}, #{pay.id}, #{member.id}
+	  )
+	</insert>
+
+	<update id="update" parameterType="com.ssdam.tripPaw.domain.PayShare">
+	  UPDATE pay_share
+	  SET has_paid = #{hasPaid}, paid_at = #{paidAt}
+	  WHERE id = #{id}
+	</update>
+	
+	<!-- 해당 Pay에 대해 결제 안한 인원 수 조회 -->
+	<select id="countUnpaidByPayId" resultType="int">
+	  SELECT COUNT(*) FROM pay_share
+	  WHERE pay_id = #{payId} AND has_paid = false
+	</select>
+	
+	<!-- 해당 Pay에 연결된 PayShare 전체 조회 -->
+	<select id="findByPayId" resultMap="PayShareResultMap">
+	  SELECT * FROM pay_share
+	  WHERE pay_id = #{payId}
+	</select>
 
   <delete id="delete">
     DELETE FROM pay_share WHERE id = #{id}

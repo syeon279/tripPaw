@@ -140,6 +140,8 @@ function ChatRoom() {
   const [newMessage, setNewMessage] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+  const [selectedReservId, setSelectedReservId] = useState(null);
+  const [selectedMemberIds, setSelectedMemberIds] = useState([]);
   
   const stompClientRef = useRef(null);
   const messageAreaRef = useRef(null);
@@ -263,6 +265,14 @@ function ChatRoom() {
     return <PageContainer><div>로딩 중...</div></PageContainer>;
   }
 
+  // 더치페이
+  const handleCreateDutchPay = () => {
+    router.push({
+      pathname: '/reserv/reservdutch',
+      query: { roomId },
+    });
+  };
+
   return (
     <PageContainer>
       <ChatContainer>
@@ -301,7 +311,16 @@ function ChatRoom() {
           />
           <Button type="submit">전송</Button>
         </ChatForm>
-        <ChatMenu isOpen={isMenuOpen} onClose={toggleMenu} onExit={handleExitChat} />
+        <ChatMenu
+          isOpen={isMenuOpen}
+          onClose={toggleMenu}
+          onExit={handleExitChat}
+          onCreateDutchPay={handleCreateDutchPay}
+          selectedReservId={selectedReservId}
+          setSelectedReservId={setSelectedReservId}
+          selectedMemberIds={selectedMemberIds}
+          setSelectedMemberIds={setSelectedMemberIds}
+        />
       </ChatContainer>
     </PageContainer>
   );
