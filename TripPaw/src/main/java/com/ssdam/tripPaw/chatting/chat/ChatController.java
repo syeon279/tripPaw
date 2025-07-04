@@ -63,6 +63,7 @@ public class ChatController {
 			ChatRoom chatRoom = chatRoomService.findRoomById(Long.parseLong(roomId));
 			
 			if(type.equals("JOIN")) {
+				//chatRoomMemberService
 				//member, chatRoom
 				chatRoomMemberService.insertChatRoomMember(member, chatRoom, ChatRole.MEMBER,ChatRoomMemberStatus.ACTIVE);
 			}else if(type.equals("LEAVE")) {
