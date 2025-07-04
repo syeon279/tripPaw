@@ -23,8 +23,8 @@ public class Chat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column(nullable = false, length = 255)
-	private String sender;
+//	@Column(nullable = false, length = 255)
+//	private String sender;
 	@Column(nullable = false, length = 255)
 	private String content;
 	@Column(nullable = false, length = 255)
@@ -32,9 +32,9 @@ public class Chat {
 	private LocalDateTime sentAt = LocalDateTime.now();
 	
 	@ManyToOne(fetch = FetchType.LAZY) 
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
-	
+    @JoinColumn(name = "sender_id", nullable = false)
+    private Member sender;
+	 
 	@ManyToOne
 	@JoinColumn(name = "chatRoom_id")
 	private ChatRoom chatRoom;

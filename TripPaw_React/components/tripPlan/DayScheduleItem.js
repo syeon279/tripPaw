@@ -5,6 +5,7 @@ const itemWrapper = {
     display: 'flex',
     padding: '10px',
     margin: '20px',
+    cursor: 'pointer',
 }
 const dayWrapper = {
     //border: '2px solid red',
@@ -33,21 +34,28 @@ const dividerLine = {
     margin: 'auto',
 };
 
-const DayScheduleItem = ({ day, isActive, onClick }) => (
+const DayScheduleItem = ({ day, isActive, onPlaceClick }) => (
     <div>
-        <div
-            style={itemWrapper}
-            onClick={onClick}
-        >
-            <div style={dayWrapper}>{day.day}일차</div>
-            {day.places.map((place, idx) => (
-                <div key={place.placeId} style={items}>
-                    {place.name}
+        {day.places.map((place) => (
+            <div
+                key={place.placeId}
+                style={itemWrapper}
+                onClick={(e) => { onPlaceClick(place); e.stopPropagation(); }}
+            >
+                {/* 일자 표시를 매 카드마다 */}
+                <div style={dayWrapper}>{day.day}일차</div>
+
+                {/* 장소 */}
+                <div>
+                    <div>
+                        <div>{place.name}</div>
+                    </div>
                 </div>
-            ))}
-        </div>
+            </div>
+        ))}
         <div style={dividerLine} />
-    </div >
+    </div>
 );
+
 
 export default DayScheduleItem;

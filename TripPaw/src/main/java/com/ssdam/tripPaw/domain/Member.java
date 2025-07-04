@@ -81,7 +81,7 @@ public class Member {
 //	}
 	
 	//////chat///////////////////////////////////////
-	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Chat> chats = new ArrayList<>();
 	 @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	    private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
