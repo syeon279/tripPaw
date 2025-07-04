@@ -29,7 +29,7 @@
 	<select id="findByName" resultMap="categoryResultMap">
 		SELECT * FROM category WHERE name = #{name}
 	</select>
-	<select id="count" resultType="int">
+	<select id="countCategories" resultType="int">
 		SELECT COUNT(*) FROM category
 	</select>
 
