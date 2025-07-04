@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
 
-@Configuration
+@Configuration("appWebConfig")
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
