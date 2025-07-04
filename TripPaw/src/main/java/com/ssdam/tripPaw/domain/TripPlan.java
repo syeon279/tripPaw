@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 @Getter
 @Setter
@@ -44,4 +45,14 @@ public class TripPlan {
 
     @OneToMany(mappedBy = "tripPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TripPlanCourse> tripPlanCourses;
+    
+    // 테이블 영향 x
+    @Transient
+    private Double avgRating;
+
+    @Transient
+    private Long reviewCount;
+    
+    @Transient
+    private List<Review> reviews;
 }
