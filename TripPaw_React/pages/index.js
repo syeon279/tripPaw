@@ -1,29 +1,55 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Router from 'next/router';
 import AppLayout from '../components/AppLayout';
 import TripPlanMain from '../components/tripPlan/TripPlanMain';
 import TripPlanSearch from '../components/search/TripPlanSearch';
+import SearchResultSection from '../components/search/SearchResultSection';
+import axios from 'axios';
 
 const sectionStyle = (isActive) => ({
     height: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    //padding: '20px',
     opacity: isActive ? 1 : 0.2,
     transform: isActive ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(60px)',
-    transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 1s ease',
     zIndex: isActive ? 2 : 1,
     filter: isActive ? 'brightness(1)' : 'brightness(0.7)',
+    position: 'relative',
 });
 
 const Home = () => {
     const containerRef = useRef(null);
     const [sectionIndex, setSectionIndex] = useState(0);
     const isScrollingRef = useRef(false);
-    const sectionCount = 2;
 
-    // 스크롤 핸들링
+    const [hasSearched, setHasSearched] = useState(false);
+    const [searchResult, setSearchResult] = useState(null);
+    const [keyword, setKeyword] = useState('');
+
+    const sectionCount = hasSearched ? 3 : 2;
+
+    // 🔍 검색 요청 핸들러
+    const handleSearch = async () => {
+        if (!keyword.trim()) return;
+        try {
+            const res = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
+            setSearchResult(res.data);
+            setHasSearched(true);
+            setSectionIndex(2);
+        } catch (err) {
+            console.error('❌ 검색 실패:', err);
+        }
+    };
+
+    // ⌨️ 엔터 키 핸들러
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    // 🖱️ 마우스 휠로 스크롤 전환
     useEffect(() => {
         const handleWheel = (e) => {
             if (isScrollingRef.current) return;
@@ -38,29 +64,24 @@ const Home = () => {
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
+        return () => window.removeEventListener('wheel', handleWheel);
+    }, [sectionIndex, sectionCount]);
 
-        return () => {
-            window.removeEventListener('wheel', handleWheel);
-        };
-    }, [sectionIndex]);
-
-    // 스크롤 이동
+    // 🎯 섹션 스크롤 이동
     useEffect(() => {
-        const scrollToSection = () => {
-            const container = containerRef.current;
-            if (container) {
-                container.scrollTo({
-                    top: window.innerHeight * sectionIndex,
-                    behavior: 'smooth',
-                });
-                setTimeout(() => {
-                    isScrollingRef.current = false;
-                }, 1000); // 스크롤 애니메이션 시간
-            }
-        };
-        scrollToSection();
+        const container = containerRef.current;
+        if (container) {
+            container.scrollTo({
+                top: window.innerHeight * sectionIndex,
+                behavior: 'smooth',
+            });
+            setTimeout(() => {
+                isScrollingRef.current = false;
+            }, 1000);
+        }
     }, [sectionIndex]);
 
+    // ✋ 바디 스크롤 막기
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         document.documentElement.style.overflow = 'hidden';
@@ -71,7 +92,7 @@ const Home = () => {
     }, []);
 
     return (
-        <AppLayout headerTheme="white" >
+        <AppLayout headerTheme="white">
             <div
                 ref={containerRef}
                 style={{
@@ -81,18 +102,18 @@ const Home = () => {
                     scrollBehavior: 'smooth',
                 }}
             >
+                {/* ✅ 공통 배경: 1~3 세션 */}
                 <div
                     style={{
-                        height: '200vh',
-                        position: 'relative', // 추가!
+                        height: '300vh',
+                        position: 'relative',
                         backgroundImage: 'url("/image/background/index.png")',
-                        backgroundAttachment: 'scroll',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'top center',
                     }}
                 >
-                    {/* 배경 위 밝은 오버레이 */}
+                    {/* ✅ 전체 오버레이 */}
                     <div
                         style={{
                             position: 'absolute',
@@ -100,16 +121,38 @@ const Home = () => {
                             left: 0,
                             width: '100%',
                             height: '100%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.4)', // 밝은 흰색 오버레이
+                            backgroundColor: 'rgba(255, 255, 255, 0.4)',
                             zIndex: 0,
                         }}
                     />
+
+                    {/* ✅ 섹션 1 */}
                     <section style={sectionStyle(sectionIndex === 0)}>
                         <TripPlanMain />
                     </section>
+
+                    {/* ✅ 섹션 2 - 검색 */}
                     <section style={sectionStyle(sectionIndex === 1)}>
-                        <TripPlanSearch />
+                        <TripPlanSearch
+                            keyword={keyword}
+                            setKeyword={setKeyword}
+                            handleSearch={handleSearch}
+                            handleKeyPress={handleKeyPress}
+                        />
                     </section>
+
+                    {/* ✅ 섹션 3 - 결과 */}
+                    {hasSearched && (
+                        <section style={sectionStyle(sectionIndex === 2)}>
+                            <SearchResultSection
+                                results={searchResult}
+                                keyword={keyword}
+                                setKeyword={setKeyword}
+                                handleKeyPress={handleKeyPress}
+                                handleSearch={handleSearch}
+                            />
+                        </section>
+                    )}
                 </div>
             </div>
         </AppLayout>
