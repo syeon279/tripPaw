@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,24 +13,119 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Review;
 
 import lombok.RequiredArgsConstructor;
 
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")  // 여기요청오는것 ok
 @RestController
 @RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewController {
-	
 	private final ReviewService reviewService;
+	private final FileUploadService fileUploadService;
+	private final ReviewImageMapper reviewImageMapper;
 
-    @PostMapping("/write")
-    public ResponseEntity<Void> createReview(@RequestBody ReviewDto reviewDto) {
-        reviewService.saveReviewWithWeather(reviewDto);
+    @PostMapping(value = "/write", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> createReview(
+    		@RequestPart("review") ReviewDto reviewDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        reviewService.saveReviewWithWeather(reviewDto, images);
         return ResponseEntity.ok().build();
     }
+    
+    @PostMapping("/generate")
+    public ResponseEntity<Map<String, String>> generateReview(@RequestBody Map<String, List<String>> body) {
+        List<String> keywords = body.get("keywords");
+        String generated = reviewService.generateAIReview(keywords);
+        return ResponseEntity.ok(Map.of("content", generated));
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteReview(@PathVariable Long id) {
+        Review review = reviewService.getReview(id);
+        if (review == null) {
+            return ResponseEntity.notFound().build();
+        }
+        reviewService.deleteReview(review);
+        return ResponseEntity.ok("리뷰가 삭제되었습니다.");
+    }
+    
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> updateReview(
+        @PathVariable Long id,
+        @RequestPart("review") Review review,
+        @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        review.setId(id);
+        reviewService.updateReview(review, images);
+        return ResponseEntity.ok("리뷰가 수정되었습니다.");
+    }
+
+    
+    // 단일리뷰조회
+    @GetMapping("/{id}")
+    public ResponseEntity<Review> getReview(@PathVariable Long id) {
+        Review review = reviewService.getReview(id);
+        if (review == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(review);
+    }
+
+    // 특정회원 리뷰 목록
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<Review>> getMemberReviews(@PathVariable Long memberId) {
+        List<Review> reviews = reviewService.getMemberReviews(memberId);
+        return ResponseEntity.ok(reviews);
+    }
+    
+    @GetMapping("/place/{placeId}")
+    public ResponseEntity<List<Review>> getReviewsByPlace(@PathVariable Long placeId) {
+        return ResponseEntity.ok(reviewService.getReviewsByPlaceId(placeId));
+    }
+
+    @GetMapping("/plan/{planId}")
+    public ResponseEntity<List<Review>> getReviewsByPlan(@PathVariable Long planId) {
+        return ResponseEntity.ok(reviewService.getReviewsByPlanId(planId));
+    }
+
+//    @GetMapping("/plan")
+//    public ResponseEntity<List<Review>> getAllPlanReviews() {
+//        return ResponseEntity.ok(reviewService.getAllPlanReviews());
+//    }
+    
+    @GetMapping("/plan")
+    public ResponseEntity<List<ReviewPlanDto>> getPlanReviews(@RequestParam(defaultValue = "latest") String sort) {
+        return ResponseEntity.ok(reviewService.getPlanReviewsOrdered(sort));
+    }
+
+    @PostMapping("/{reviewId}/like")
+    public ResponseEntity<Void> likeReview(@PathVariable Long reviewId, @RequestParam Long memberId) {
+        reviewService.likeReview(memberId, reviewId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{reviewId}/like")
+    public ResponseEntity<Void> unlikeReview(@PathVariable Long reviewId, @RequestParam Long memberId) {
+        reviewService.unlikeReview(memberId, reviewId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{reviewId}/like/count")
+    public ResponseEntity<Integer> getLikeCount(@PathVariable Long reviewId) {
+        return ResponseEntity.ok(reviewService.getLikeCount(reviewId));
+    }
+
+    @GetMapping("/{reviewId}/like/marked")
+    public ResponseEntity<Boolean> hasLiked(@PathVariable Long reviewId, @RequestParam Long memberId) {
+        return ResponseEntity.ok(reviewService.hasLikedReview(memberId, reviewId));
+    }
+
 }
