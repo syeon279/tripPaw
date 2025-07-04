@@ -1,5 +1,6 @@
-package com.ssdam.tripPaw.category;
+package com.ssdam.tripPaw.init;
 
+import com.ssdam.tripPaw.category.CategoryMapper;
 import com.ssdam.tripPaw.domain.Category;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -66,7 +67,7 @@ public class CategoryDataInitializer implements ApplicationRunner {
             if (categoryMapper.findByName(name) == null ) {
                 Category category = new Category();
                 category.setName(name);
-                //categoryMapper.insert(category);
+                categoryMapper.insert(category);
             }
         }
         

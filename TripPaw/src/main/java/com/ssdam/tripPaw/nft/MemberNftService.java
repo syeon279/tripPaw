@@ -31,4 +31,9 @@ public class MemberNftService {
     public void markAsUsed(Long id) {
         memberNftMapper.markAsUsed(id, LocalDateTime.now());
     }
+    
+    // 유저 NFT 삭제
+    public void deleteMemberNft(Long id, String memberId) {
+        memberNftMapper.deleteByIdAndMemberId(id, memberId);
+    }
 }

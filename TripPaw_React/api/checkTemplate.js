@@ -9,6 +9,11 @@ export const getTemplates = async()=>{
   return res.data;
 };
 
+export const getTemplateWithItems = async (id) => {
+  const res = await axios.get(`${API_BASE}/${id}`);
+  return res.data;
+};
+
 export const getTemplateDetail = async(id)=>{
   await axios.post(`${API_BASE}/${id}`);
 };
