@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.member;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -40,6 +42,15 @@ public class AuthController {
     	System.out.println("request="+request.getUsername());
     	Member member = memberService.findByUsername(request.getUsername());
         String token = authService.login(request).get("accessToken");
+        
+        //String tokenInfo = jwtProvider.getAuthentication(token).toString();
+        
+//        Collection<? extends GrantedAuthority> authorities  = jwtProvider.getAuthentication(token).getAuthorities();
+//        boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().equals("ADMIN"));
+        String authorities = (String)jwtProvider.getAuthoritie(token);
+        System.out.println("authorities권한="+(String)authorities);
+        
+        //System.out.println("tokenInfo="+tokenInfo);
         //return ResponseEntity.ok(tokens);
         model.addAttribute("ChatRoomForm",new ChatRoomForm());
         //rttr.addFlashAttribute("token", token);
@@ -53,7 +64,9 @@ public class AuthController {
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
         
-        return ResponseEntity.ok(Map.of("message", "로그인 성공!", "nickname", member.getNickname())); 
+        return ResponseEntity.ok(Map.of("message", "로그인 성공!", 
+        		"nickname", member.getNickname(),
+        		"role",authorities)); 
         //return "redirect:/chat/rooms";
     }
     
@@ -109,11 +122,12 @@ public class AuthController {
         // 3. 토큰이 유효하면, 사용자 정보를 담아 200 OK 응답
         String username = jwtProvider.getUsername(token);
         Member member = memberService.findByUsername(username);
-
+        String authorities = (String)jwtProvider.getAuthoritie(token);
         // 비밀번호 등 민감 정보는 제외하고 DTO로 만들어 반환하는 것이 좋음
         Map<String, Object> userInfo = Map.of(
             "username", member.getUsername(),
-            "nickname", member.getNickname()
+            "nickname", member.getNickname(),
+            "auth", authorities
             // 필요한 다른 정보 추가
         );
 

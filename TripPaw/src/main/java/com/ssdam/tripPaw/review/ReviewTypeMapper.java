@@ -15,4 +15,6 @@ public interface ReviewTypeMapper {
 	@Insert("INSERT INTO review_type (target_type) VALUES (#{targetType})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insertReviewType(ReviewType reviewType);
+	
+	void insertReviewTypes();
 }
