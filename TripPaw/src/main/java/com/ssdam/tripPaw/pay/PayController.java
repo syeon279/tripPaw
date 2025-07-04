@@ -1,8 +1,13 @@
 package com.ssdam.tripPaw.pay;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Pay;
+import com.ssdam.tripPaw.member.MemberService;
 import com.ssdam.tripPaw.payapi.IamportPayService;
 import com.ssdam.tripPaw.reserv.ReservService;
 import com.ssdam.tripPaw.reserv.ReservState;
@@ -27,6 +34,7 @@ public class PayController {
     @Autowired private IamportPayService iamportPayService;
     @Autowired private ReservService reservService;
     @Autowired private PayService payService;
+    @Autowired private MemberService memberService;
 
     @GetMapping("")
     public ResponseEntity<?> getAllPayments() {
@@ -62,6 +70,31 @@ public class PayController {
         return ResponseEntity.ok(pay);
     }
 
+    @PostMapping("/batch/{tripPlanId}")
+    public ResponseEntity<?> createBatchPays(
+        @PathVariable Long tripPlanId,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
+        }
+
+        String username = userDetails.getUsername();
+        Member member = memberService.findByUsername(username);
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 사용자");
+        }
+
+        try {
+            List<Pay> pays = payService.createBatchPaysByTripPlan(tripPlanId, member);
+            int totalAmount = pays.stream().mapToInt(Pay::getAmount).sum();
+
+            return ResponseEntity.ok(Map.of("totalAmount", totalAmount, "payList", pays));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("일괄 결제 내역 생성 실패: " + e.getMessage());
+        }
+    }
+    
     /** 결제 취소(환불) 처리 */
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancelPayment(@PathVariable Long id) {

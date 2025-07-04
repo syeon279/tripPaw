@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+  
 <mapper namespace="com.ssdam.tripPaw.pay.PayShareMapper">
 
   <resultMap id="PayShareResultMap" type="com.ssdam.tripPaw.domain.PayShare">
-    <id property="id" column="id" />
-    <result property="reservId" column="reserv_id" />
-    <result property="userId" column="user_id" />
-    <result property="payId" column="pay_id" />
-    <result property="amount" column="amount" />
-    <result property="hasPaid" column="has_paid" />
-    <result property="paidAt" column="paid_at" />
-    <result property="createdAt" column="created_at" />
-    <result property="payGroupId" column="pay_group_id" />
+    <id property="id" column="id"/>
+    <result property="amount" column="amount"/>
+    <result property="hasPaid" column="has_paid"/>
+    <result property="paidAt" column="paid_at"/>
+    <result property="createdAt" column="created_at"/>
+
+    <association property="pay" column="pay_id" javaType="com.ssdam.tripPaw.domain.Pay">
+      <id property="id" column="pay_id"/>
+    </association>
+
+    <association property="member" column="member_id" javaType="com.ssdam.tripPaw.domain.Member">
+      <id property="id" column="member_id"/>
+    </association>
   </resultMap>
 
   <select id="findById" resultMap="PayShareResultMap">
@@ -27,9 +30,9 @@
 
   <insert id="insert" parameterType="com.ssdam.tripPaw.domain.PayShare">
     INSERT INTO pay_share (
-      reserv_id, user_id, pay_id, amount, has_paid, paid_at, created_at, pay_group_id
+      amount, has_paid, paid_at, created_at, pay_id, member_id
     ) VALUES (
-      #{reservId}, #{userId}, #{payId}, #{amount}, #{hasPaid}, #{paidAt}, #{createdAt}, #{payGroupId}
+      #{amount}, #{hasPaid}, #{paidAt}, #{createdAt}, #{pay.id}, #{member.id}
     )
   </insert>
 
