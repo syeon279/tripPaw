@@ -41,4 +41,11 @@ public class MemberNftController {
         memberNftService.markAsUsed(id);
         return ResponseEntity.ok("NFT marked as used");
     }
+    
+    // 유저가 자신의 NFT 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteNft(@PathVariable Long id, @RequestParam String memberId) {
+        memberNftService.deleteMemberNft(id, memberId);
+        return ResponseEntity.ok("NFT deleted");
+    }
 }
