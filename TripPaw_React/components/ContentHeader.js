@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { Dropdown, Menu, Button, message, Modal } from 'antd';
-import { UserOutlined, NotificationOutlined, SearchOutlined } from '@ant-design/icons';
+import { UserOutlined, NotificationOutlined, SearchOutlined, MenuOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import axios from 'axios';
 import { Router } from 'react-router-dom';
@@ -76,22 +76,13 @@ const ContentHeader = ({ theme }) => {
 
   return (
     <HeaderWrapper>
-<<<<<<< HEAD
       <LogoWrapper onClick={() => router.push('/')}>
-        <Image
-          src={isDark ? '/image/logo/TripPaw-logo.png' : '/image/logo/TripPaw-logo-white.png'}
-          alt="logo"
-          width={160}
-          height={40}
-        />
+        {isWhite ?
+          <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={160} height={40} />
+          :
+          <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={160} height={40} />
+        }
       </LogoWrapper>
-=======
-      {isWhite ?
-        <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={160} height={40} />
-        :
-        <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={160} height={40} />
-      }
->>>>>>> b72c7a1d19b03141d07d4d273a845c013fb275c2
 
       <IconMenu isWhite={isWhite} >
         <NotificationOutlined
@@ -105,7 +96,7 @@ const ContentHeader = ({ theme }) => {
         {isLoggedIn ? <div style={{ display: "flex" }}>
           <UserOutlined
             onClick={() => router.push('/')}
-            style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
+            style={{ marginRight: '25px', color: isWhite ? 'white' : 'black' }}
           />
           <div>
             <span onClick={onLogout}>로그아웃</span>
@@ -113,8 +104,13 @@ const ContentHeader = ({ theme }) => {
         </div>
           : <UserOutlined
             onClick={() => router.push('/member/login')}
-            style={{ marginRight: '25px', color: isDark ? 'black' : 'white' }}
+            style={{ marginRight: '25px', color: isWhite ? 'white' : 'black' }}
           />}
+        <div>
+          <MenuOutlined
+            onClick={() => router.push('/menu')}
+            style={{ color: isWhite ? 'white' : 'black' }} />
+        </div>
       </IconMenu>
     </HeaderWrapper>
 
