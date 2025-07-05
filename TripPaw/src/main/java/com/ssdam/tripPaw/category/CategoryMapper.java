@@ -21,5 +21,7 @@ public interface CategoryMapper {
     public int updateById(Long id);
 
 	public int count();
+
+	public int countCategories();
     
 }

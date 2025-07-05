@@ -1,0 +1,91 @@
+package com.ssdam.tripPaw.search;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+
+import com.ssdam.tripPaw.domain.Place;
+import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.dto.PlaceSearchDto;
+import com.ssdam.tripPaw.dto.SearchResultDto;
+import com.ssdam.tripPaw.dto.TripPlanSearchDto;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class SearchService {
+
+    private final SearchMapper searchMapper;
+
+    public SearchResultDto search(String keyword) {
+        List<Place> places = searchMapper.searchPlacesByKeyword(keyword);
+        List<TripPlan> tripPlans = searchMapper.searchTripPlansByKeyword(keyword);
+
+        List<PlaceSearchDto> placeDtos = mapPlaceList(places);
+        List<TripPlanSearchDto> tripPlanDtos = mapTripPlanList(tripPlans);
+
+        return new SearchResultDto(placeDtos, tripPlanDtos);
+    }
+    
+    //장소 검색    
+    private List<PlaceSearchDto> mapPlaceList(List<Place> places) {
+        return places.stream().map(p -> {
+            PlaceSearchDto dto = new PlaceSearchDto();
+            dto.setId(p.getId());
+            dto.setName(p.getName());
+            dto.setDescription(p.getDescription());
+            dto.setLatitude(p.getLatitude());
+            dto.setLongitude(p.getLongitude());
+            dto.setRegion(p.getRegion());
+            dto.setOpenHours(p.getOpenHours());
+            dto.setPetFriendly(p.isPetFriendly());
+            dto.setPetVerified(p.isPetVerified());
+            dto.setRestDays(p.getRestDays());
+            dto.setPrice(p.getPrice());
+            dto.setParking(p.getParking());
+            dto.setPhone(p.getPhone());
+            dto.setImageUrl(p.getImageUrl());
+            dto.setHomePage(p.getHomePage());
+            dto.setExtermalContentId(p.getExternalContentId());
+            dto.setSource(p.getSource());
+
+            dto.setPlaceType(p.getPlaceType());
+            dto.setReviews(p.getReviews());
+            
+            dto.setPlaceImages(p.getPlaceImages());
+
+            dto.setAvgRating(p.getAvgRating());        // MyBatis가 함께 조회한 값
+            dto.setReviewCount(p.getReviewCount());    // MyBatis가 함께 조회한 값
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+
+    private List<TripPlanSearchDto> mapTripPlanList(List<TripPlan> tripPlans) {
+        return tripPlans.stream().map(tp -> {
+            TripPlanSearchDto dto = new TripPlanSearchDto();
+            dto.setId(tp.getId());
+            dto.setTitle(tp.getTitle());
+            dto.setDays(tp.getDays());
+            dto.setPublicVisible(tp.isPublicVisible());
+            dto.setCreatedAt(tp.getCreatedAt());
+            dto.setImageUrl(tp.getImageUrl());
+
+            dto.setTripPlanCourses(tp.getTripPlanCourses());
+            dto.setReviews(tp.getReviews());
+
+            dto.setAvgRating(tp.getAvgRating());        // MyBatis가 함께 조회한 값
+            dto.setReviewCount(tp.getReviewCount());    // MyBatis가 함께 조회한 값
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+
+}

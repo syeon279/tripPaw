@@ -2,6 +2,7 @@ package com.ssdam.tripPaw.pay;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -9,8 +10,13 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Pay;
+import com.ssdam.tripPaw.domain.PayShare;
+import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.payapi.IamportPayService;
+import com.ssdam.tripPaw.reserv.ReservMapper;
+import com.ssdam.tripPaw.reserv.ReservState;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +24,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PayService {
     private final PayMapper payMapper;
+    private final ReservMapper reservMapper;
     private final IamportPayService iamportPayService;
+    private final PayShareMapper payShareMapper;
 
     /** 결제 조회 */
     public Pay findById(Long id) {
@@ -59,6 +67,32 @@ public class PayService {
         return payMapper.updateByState(pay);
     }
 
+
+    @Transactional
+    public List<Pay> createBatchPaysByTripPlan(Long tripPlanId, Member member) {
+        // 1. tripPlanId에 속한 예약 목록 조회
+        List<Reserv> reservList = reservMapper.findByTripPlanIdAndMember(tripPlanId, member.getId());
+        if (reservList.isEmpty()) {
+            throw new RuntimeException("예약이 없습니다.");
+        }
+
+        List<Pay> payList = new ArrayList<>();
+
+        for (Reserv reserv : reservList) {
+            Pay pay = new Pay();
+            pay.setReserv(reserv);
+            pay.setMember(member);
+            pay.setAmount(reserv.getFinalPrice());
+            pay.setState(PayState.READY);
+            payList.add(pay);
+        }
+
+        for (Pay pay : payList) {
+            payMapper.insert(pay);
+        }
+        return payList;
+    }
+    
     /** 결제 삭제 */
     @Transactional
     public int softDelete(Long id) {
@@ -87,4 +121,5 @@ public class PayService {
         }
         return false;
     }
+    
 }

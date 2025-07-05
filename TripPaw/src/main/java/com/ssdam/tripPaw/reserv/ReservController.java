@@ -1,6 +1,7 @@
 package com.ssdam.tripPaw.reserv;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReservController {
     private final ReservService reservService;
+    private final ReservMapper reservMapper;
 
     /** 예약 생성 */
     @PostMapping
@@ -92,19 +94,23 @@ public class ReservController {
     
     @GetMapping("/disabled-dates")
     public ResponseEntity<List<Map<String, String>>> getDisabledDates() {
-        List<Reserv> reservList = reservService.findAll();
+        List<Map<String, Object>> rawRanges = reservMapper.findActiveReservedRanges();
 
-        List<Map<String, String>> disabledRanges = reservList.stream()
-            .filter(r -> r.getDeleteAt() == null &&
-                         r.getStartDate() != null &&
-                         r.getEndDate() != null)
-            .map(r -> Map.of(
-                "startDate", r.getStartDate().toString(),
-                "endDate", r.getEndDate().toString()
-            ))
-            .collect(Collectors.toList());
+        List<Map<String, String>> result = rawRanges.stream().map(row -> {
+            Map<String, String> map = new HashMap<>();
 
-        return ResponseEntity.ok(disabledRanges);
+            Object start = row.get("start_date");
+            Object end = row.get("end_date");
+
+            if (start != null && end != null) {
+                map.put("startDate", start.toString());
+                map.put("endDate", end.toString());
+            }
+            return map;
+        }).filter(m -> m.containsKey("startDate") && m.containsKey("endDate"))
+          .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
     }
 
 

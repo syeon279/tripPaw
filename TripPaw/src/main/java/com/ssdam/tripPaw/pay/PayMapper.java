@@ -17,4 +17,6 @@ public interface PayMapper {
 	public Pay findByReservId(Long reservId);
 	public Pay findByImpUid(String impUid);
 	public int updateStateByImpUid(@Param("impUid") String impUid, @Param("state") String state);
+    public List<Pay> findByReservIds(List<Long> reservIds);
+    public List<Pay> findByTripPlanId(Long tripPlanId);
 }

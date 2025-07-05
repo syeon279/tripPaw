@@ -72,7 +72,7 @@ public class TripPlanService_my {
         tripPlan.setTitle(request.getTitle());
         tripPlan.setDays(request.getRouteData().size());
         tripPlan.setPublicVisible(true); // 공개 여부는 기본 true 처리
-        tripPlan.setImageUrl(request.getImageUrl());
+        tripPlan.setImageUrl(request.getMapImage());
         Member member = new Member();
         member.setId(1l);
         tripPlan.setMember(member); // 👈 임시로 memberId = 1 (로그인 기능 붙으면 수정)
