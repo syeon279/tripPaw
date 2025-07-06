@@ -20,7 +20,7 @@ const SearchResultCard = ({ place }) => {
     return (
         <div className="w-64 h-80 rounded-xl shadow-md overflow-hidden bg-white m-2">
             <img
-                src={imageUrl}
+                src={imageUrl.length ? imageUrl : 'public/image/other/tmepImage.jpg'}
                 alt={name}
                 className="w-full h-40 object-cover"
             />

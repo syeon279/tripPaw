@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import DayScheduleList from '../../components/TripPlanEdit/DayScheduleList';
-import AppLayout from '../../components/AppLayout';
-import ActionButtons from '../../components/TripPlanEdit/ActionButtons';
+import DayScheduleList from '../../../components/TripPlanEdit/DayScheduleList';
+import AppLayout from '../../../components/AppLayout';
+import ActionButtons from '../../../components/TripPlanEdit/ActionButtons';
 import TitleModal from '../../components/TripPlanEdit/TitleModal';
 import axios from 'axios';
 
 // SSR 비활성화된 카카오맵 컴포넌트
-const RouteMapNoSSR = dynamic(() => import('../../components/tripPlan/RouteMap'), {
+const RouteMapNoSSR = dynamic(() => import('../../../components/tripPlan/RouteMap'), {
     ssr: false,
 });
 
