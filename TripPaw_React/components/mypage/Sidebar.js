@@ -20,11 +20,6 @@ const Footer = styled.div`
 
 const Sidebar = () => {
   const router = useRouter();
-  const [currentPath, setCurrentPath] = useState(null);
-
-  useEffect(() => {
-    setCurrentPath(router.pathname);
-  }, [router.pathname]);
 
   return (
     <Wrapper>
@@ -41,7 +36,7 @@ const Sidebar = () => {
       <SidebarItem
         text="내 체크리스트"
         href="/mypage/checklist"
-        active={currentPath === '/mypage/checklist'}
+         active={router.pathname === '/mypage/checklist'}
       />
       <SidebarItem text="내 뱃지" href="/mypage/badges" />
 
