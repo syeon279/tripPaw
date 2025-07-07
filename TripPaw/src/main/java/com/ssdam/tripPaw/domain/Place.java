@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import lombok.Data;
 
@@ -40,7 +41,7 @@ public class Place {
 	private String phone;
 	private String imageUrl;
 	private String homePage;
-	private Long extermalContentId;
+	private Long externalContentId;
 	private String source;
 	
 	@ManyToOne
@@ -60,5 +61,15 @@ public class Place {
     
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoutePlace> routePlaces;
+    
+    /// 테이블 영향x
+    @Transient
+    private Double avgRating;
+
+    @Transient
+    private Long reviewCount;
+    
+    @Transient
+    private List<Review> reviews;
 }
 

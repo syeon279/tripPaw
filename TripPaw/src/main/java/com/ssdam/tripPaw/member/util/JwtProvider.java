@@ -84,7 +84,7 @@ public class JwtProvider {
 	    String authorities = authentication.getAuthorities().stream()
 	            .map(GrantedAuthority::getAuthority)
 	            .collect(Collectors.joining(",")); // 2. 권한들을 콤마(,)로 구분된 하나의 문자열로 만듭니다.
-	
+	    System.out.println("createToken권한"+ authorities);
 	    long now = (new Date()).getTime();
 	    Date validity = new Date(now + tokenValidityMs); // 3. 토큰의 만료 시간을 계산합니다.
 	
@@ -124,6 +124,13 @@ public class JwtProvider {
     public boolean isExpired(String token) {
         return extractClaims(token).getExpiration().before(new Date());
     }
+    //권한정보 가져오기
+    public Object getAuthoritie(String token) {
+    	Claims claims = extractClaims(token);
+    	Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
+    	return authoritiesClaim;
+    }
+    
     public boolean validateToken(String token) {
         try {
             return !isExpired(token); // 만료되지 않았으면 유효

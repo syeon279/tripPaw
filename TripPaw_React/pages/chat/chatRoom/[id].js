@@ -293,7 +293,7 @@ function ChatRoom() {
                   </Avatar>
                   <MessageContent className={msg.sender === username ? 'my-message' : ''}>
                     <span className="sender">{msg.sender}</span>
-                    <div className="text">{msg.content}</div>
+                    <div className="text" dangerouslySetInnerHTML={{ __html: msg.content }} />
                   </MessageContent>
                 </>
               ) : (

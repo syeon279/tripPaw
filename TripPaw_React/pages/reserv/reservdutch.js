@@ -8,6 +8,8 @@ import { useRouter } from 'next/router';
 import ContentHeader from '../../components/ContentHeader';
 import PetAssistant from '../../components/pet/petassistant';
 import styled from 'styled-components';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 const Container = styled.div`
   max-width: 1000px;
@@ -114,12 +116,58 @@ function reservdutch() {
   const [placeId, setPlaceId] = useState(1);
   const [tripPlanId, setTripPlanId] = useState(null);
   const [message, setMessage] = useState('');
+  const [client, setClient] = useState(null);
+  const [username, setUsername] = useState('');
+  const [showJoinPrompt, setShowJoinPrompt] = useState(false);
+  const [createdReservId, setCreatedReservId] = useState(null);
+
+  const handleJoinClick = () => {
+    if (createdReservId) {
+      router.push(`/pay/dutch?reservId=${createdReservId}`);
+    }
+  };
 
   const place = {
     name: "강원도 평창 오대산 국립공원",
     description: "아름다운 자연 경관과 등산로가 유명한 강원도 평창의 대표적인 산림 공원입니다.",
     imageUrl: "https://cdn.pixabay.com/photo/2015/10/12/15/45/mountains-984431_1280.jpg"
   };
+
+  useEffect(() => {
+    const stompClient = new Client({
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log('🟢 WebSocket 연결됨');
+      },
+      onStompError: (frame) => {
+        console.error('🔴 STOMP 오류 발생:', frame);
+      }
+    });
+
+    stompClient.activate();
+    setClient(stompClient);
+      const response = axios.get('http://localhost:8080/api/auth/check', { withCredentials: true })
+      .then(response => {
+        const username = response.data.username;
+        console.log('username:', username);
+
+        setUsername(username);
+      })
+      .catch(error => {
+        console.error('Error fetching username:', error);
+      });
+
+    // 로그인한 유저 이름 세팅
+    // const storedUsername = localStorage.getItem('username');
+    // if (storedUsername) {
+    //   setUsername(storedUsername);
+    // }
+
+    return () => {
+      stompClient.deactivate();
+    };
+  }, []);
 
   useEffect(() => {
     axios.get('http://localhost:8080/reserv/disabled-dates')
@@ -172,14 +220,30 @@ function reservdutch() {
       alert('예약 성공! 🎉');
 
       const reservId = res.data.id;
+      setCreatedReservId(reservId);
+      setShowJoinPrompt(true);
 
       // 채팅방에 더치페이 참가 메시지 발송
-      await axios.post(`http://localhost:8080/app/chat/${roomId}/sendMessage`, {
-        type: 'DUTCH_PAY_PARTICIPATION',
-        reservId,
-        message: '더치페이 예약에 참가했습니다.',
-      },{withCredentials:true});
+      if (client && client.connected) {
+        const message = {
+          type: 'CHAT',
+          sender: username || 'anonymous',
+          roomId: roomId,
+          content: `
+            더치페이 예약을 생성했습니다.<br/>
+            <a href="/pay/dutch?reservId=${reservId}" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#2c7be5;color:white;border-radius:6px;text-decoration:none;">
+              참가하기
+            </a>
+          `,
+        };
 
+        client.publish({
+          destination: `/app/chat/${roomId}/sendMessage`,
+          body: JSON.stringify(message),
+        });
+
+        console.log("📤 메시지 전송 완료");
+      }
       // 채팅방으로 돌아가기
       router.push(`/chat/chatRoom/${roomId}`);
 

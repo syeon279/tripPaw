@@ -17,8 +17,11 @@ public class CategoryDataInitializer implements ApplicationRunner {
         this.categoryMapper = categoryMapper;
     }
 
+    
     @Override
     public void run(ApplicationArguments args) {
+    	// 이미 존재하는지 확인
+    	if (categoryMapper.countCategories() > 0) return;
     	
     	List<String> categoryNames = List.of(
     		    // 📍 여행 분위기/감성

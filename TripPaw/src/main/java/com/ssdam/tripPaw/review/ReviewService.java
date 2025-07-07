@@ -46,7 +46,9 @@ import com.ssdam.tripPaw.reserv.ReservMapper;
 import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -63,7 +65,7 @@ public class ReviewService {
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
 
 	private final String apiKey = "sk-...";
-	
+
 	public void saveReviewWithWeather(ReviewDto dto, List<MultipartFile> images) {
 	    // 1. 회원 객체 준비
 	    Member member = new Member();
@@ -96,11 +98,15 @@ public class ReviewService {
 
 	        lat = parseCoordinate(place.getLatitude(), "위도");
 	        lon = parseCoordinate(place.getLongitude(), "경도");
-	        date = LocalDate.now();
+	        
+	        Reserv reserv = reservMapper.findByTripPlanId(targetId);
+	        if (reserv == null) throw new RuntimeException("트립플랜에 연결된 예약 없음");
+	        date = reserv.getStartDate(); 
 
 	    } else if ("PLACE".equalsIgnoreCase(reviewType.getTargetType())) {
 	        Reserv reserv = reservMapper.findByIdWithPlace(targetId);
 	        if (reserv == null) throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
+	        System.out.println("[DEBUG] 예약 start_date: " + reserv.getStartDate());
 
 	        Place place = reserv.getPlace();
 	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
@@ -144,6 +150,43 @@ public class ReviewService {
 	        }
 	    }
 	}
+	
+	public String getWeatherCondition(String type, Long targetId) {
+	    LocalDate date;
+	    double lat, lon;
+
+	    if ("PLAN".equalsIgnoreCase(type)) {
+	        TripPlan tripPlan = tripPlanMapper.findByIdWithCourses(targetId);
+	        if (tripPlan == null || tripPlan.getTripPlanCourses().isEmpty()) {
+	            throw new RuntimeException("트립플랜 정보 없음");
+	        }
+
+	        TripPlanCourse course = tripPlan.getTripPlanCourses().get(0);
+	        Place place = course.getRoute().getRoutePlaces().get(0).getPlace();
+
+	        Reserv reserv = reservMapper.findByTripPlanId(targetId);
+	        if (reserv == null) throw new RuntimeException("예약 정보 없음");
+
+	        date = reserv.getStartDate();
+	        lat = parseCoordinate(place.getLatitude(), "위도");
+	        lon = parseCoordinate(place.getLongitude(), "경도");
+
+	    } else if ("PLACE".equalsIgnoreCase(type)) {
+	        Reserv reserv = reservMapper.findByIdWithPlace(targetId);
+	        if (reserv == null) throw new RuntimeException("예약 정보 없음");
+
+	        Place place = reserv.getPlace();
+	        date = reserv.getStartDate();
+	        lat = parseCoordinate(place.getLatitude(), "위도");
+	        lon = parseCoordinate(place.getLongitude(), "경도");
+
+	    } else {
+	        throw new RuntimeException("알 수 없는 타입");
+	    }
+
+	    return weatherService.getWeather(date, lat, lon);
+	}
+
 
 	// 문자열이 null이거나 빈 문자열인지 확인
 	private boolean isNullOrEmpty(String str) {
@@ -158,32 +201,7 @@ public class ReviewService {
 	        throw new RuntimeException(label + " 값이 숫자가 아닙니다: " + coordinate, e);
 	    }
 	}
-    public String findNearestStnId(Double lat, Double lng) {
-        List<WeatherStation> stations = getStations(); // 고정된 관측소 목록 불러오기
-
-        WeatherStation nearest = null;
-        double minDistance = Double.MAX_VALUE;
-
-        for (WeatherStation station : stations) {
-            double distance = Math.pow(lat - station.getLat(), 2) + Math.pow(lng - station.getLng(), 2);
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearest = station;
-            }
-        }
-
-        return nearest != null ? nearest.getStnId() : null;
-    }
     
-    private List<WeatherStation> getStations() {
-	    return List.of(
-	        new WeatherStation("108", "서울", 37.5665, 126.9780),
-	        new WeatherStation("119", "부산", 35.1796, 129.0756),
-	        new WeatherStation("133", "대전", 36.3504, 127.3845),
-	        new WeatherStation("105", "강릉", 37.7519, 128.8761)
-	        // 필요한 만큼 추가
-	    );
-	}
     
     public Review getReview(Long id) {
 		return reviewMapper.findById(id);

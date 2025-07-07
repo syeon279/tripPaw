@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.review;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Review;
+import com.ssdam.tripPaw.domain.TripPlan;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +40,18 @@ public class ReviewController {
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         reviewService.saveReviewWithWeather(reviewDto, images);
         return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/weather")
+    public ResponseEntity<String> getWeather(
+            @RequestParam("type") String type,
+            @RequestParam("targetId") Long targetId) {
+        try {
+            String weather = reviewService.getWeatherCondition(type, targetId);
+            return ResponseEntity.ok(weather);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("날씨 조회 실패: " + e.getMessage());
+        }
     }
     
     @PostMapping("/generate")
