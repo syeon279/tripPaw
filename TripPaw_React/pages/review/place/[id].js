@@ -4,8 +4,9 @@ import { Tabs, Rate, Avatar, Button, Spin } from 'antd';
 import {
   EnvironmentOutlined,
   SunOutlined,
-  CloudOutlined,
-  ThunderboltOutlined,
+  // CloudOutlined,
+  // ThunderboltOutlined,
+  QuestionOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -93,6 +94,22 @@ const PlaceReviewPage = () => {
     }
   };
 
+  const getWeatherImageFileName = (condition) => {
+    switch (condition) {
+      case '흐림':
+        return 'cloudy.png';
+      case '비':
+        return 'rain.png';
+      case '눈':
+        return 'snow.png';
+      case '구름많음':
+        return 'mostly-cloudy.png';
+      // default:
+      //   return 'unknown.png'; // fallback (optional)
+    }
+  };
+
+
   return (
     <div style={{ maxWidth: 1200, margin: 'auto', padding: 24 }}>
       <h2 style={{ fontSize: 24, fontWeight: 700 }}>장소명</h2>
@@ -150,9 +167,36 @@ const PlaceReviewPage = () => {
                       </div>
 
                       <div style={{ fontSize: 24, color: '#1890ff' }}>
-                        {r.weatherCondition === '맑음' && <SunOutlined />}
-                        {r.weatherCondition === '흐림' && <CloudOutlined />}
-                        {r.weatherCondition === '비' && <ThunderboltOutlined />}
+                        {r.weatherCondition === '맑음' && <SunOutlined style={{color:'orange'}}/>}
+                        {r.weatherCondition === '흐림' && 
+                          (<img
+                            src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
+                            alt={r.weatherCondition}
+                            style={{ width: 50, height: 50 }}
+                          />
+                        )}
+                        {r.weatherCondition === '비' && 
+                          (<img
+                            src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
+                            alt={r.weatherCondition}
+                            style={{ width: 50, height: 50 }}
+                          />
+                        )}
+                        {r.weatherCondition === '눈' && 
+                          (<img
+                            src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
+                            alt={r.weatherCondition}
+                            style={{ width: 50, height: 50 }}
+                          />
+                        )}
+                        {r.weatherCondition === '구름많음' && 
+                          (<img
+                            src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
+                            alt={r.weatherCondition}
+                            style={{ width: 50, height: 50 }}
+                          />
+                        )}
+                        {r.weatherCondition === '알 수 없음' && <QuestionOutlined style={{color:'#aaa'}}/>}
                       </div>
                     </div>
                     <div style={{ marginTop: 12 }}>{r.content}</div>

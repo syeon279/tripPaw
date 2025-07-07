@@ -1,32 +1,26 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
+// components/mypage/MypageLayout.js
+import { Layout } from 'antd';
+import dynamic from 'next/dynamic';
 import ContentHeader from '../ContentHeader';
 
-const LayoutWrapper = styled.div`
-  height: 100vh;
-  overflow: hidden;
-  box-sizing: border-box;
-`;
+const Sidebar = dynamic(() => import('@/components/mypage/Sidebar'), { ssr: false });
 
-const InnerContainer = styled.div`
-  margin-top: 80px; /* Header 높이 고려 */
-  padding: 20px;
-`;
+const { Sider, Content } = Layout;
 
-const MyPageLayout = ({ children }) => {
+const MypageLayout = ({ children }) => {
   return (
-    <LayoutWrapper>
-      <ContentHeader theme="dark" />
-      <InnerContainer>
-        {children}
-      </InnerContainer>
-    </LayoutWrapper>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider width={240} style={{ background: '#fff', marginTop: '60px'  }}>
+        <Sidebar />
+      </Sider>
+      <Layout>
+        <ContentHeader/>
+        <Content style={{ padding: '24px', marginTop: '60px'  }}>
+          {children}
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 
-MyPageLayout.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export default MyPageLayout;
+export default MypageLayout;

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
 
@@ -34,6 +35,14 @@ public class ReviewController {
 	private final FileUploadService fileUploadService;
 	private final ReviewImageMapper reviewImageMapper;
 
+	/* 경로(tripPlan)에 포함된 예약(장소) 목록 조회 GET /review/trip/3/places?memberId=1 */
+    @GetMapping("/trip/{tripPlanId}/places")
+    public ResponseEntity<List<Reserv>> getReservsByTripPlan(@PathVariable Long tripPlanId,
+                                                              @RequestParam Long memberId) {
+        List<Reserv> reservList = reviewService.getReservListForTripPlanReview(tripPlanId, memberId);
+        return ResponseEntity.ok(reservList);
+    }
+    
     @PostMapping(value = "/write", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> createReview(
     		@RequestPart("review") ReviewDto reviewDto,
@@ -95,8 +104,8 @@ public class ReviewController {
 
     // 특정회원 리뷰 목록
     @GetMapping("/member/{memberId}")
-    public ResponseEntity<List<Review>> getMemberReviews(@PathVariable Long memberId) {
-        List<Review> reviews = reviewService.getMemberReviews(memberId);
+    public ResponseEntity<List<MyReviewDto>> getMemberReviews(@PathVariable Long memberId) {
+    	List<MyReviewDto> reviews = reviewService.getMyReviews(memberId);
         return ResponseEntity.ok(reviews);
     }
     
