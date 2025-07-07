@@ -47,9 +47,11 @@ public class Member {
 	@Column(nullable = false, length = 255)
 	private String email;
 	@Column(nullable = false, length = 255)
-	private String roadAddress;
+	private String zonecode;
 	@Column(nullable = false, length = 255)
-	private String jibunAddress;
+	private String roadAddress;
+//	@Column(nullable = false, length = 255)
+//	private String jibunAddress;
 	@Column(nullable = false, length = 255)
 	private String namujiAddress;
 	 // JPA에서 Set<Enum>을 매핑하는 올바른 방법
