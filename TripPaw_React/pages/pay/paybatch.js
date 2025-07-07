@@ -160,16 +160,10 @@ function PayBatchPage() {
       async (rsp) => {
         if (rsp.success) {
           try {
-            for (let pay of payList) {
-              await axios.post(`http://localhost:8080/pay/verify`, null, {
-                params: {
-                  impUid: rsp.imp_uid,
-                  reservId: pay.reserv.id,
-                  memberId: pay.member.id,
-                },
-                withCredentials: true,
-              });
-            }
+            await axios.post(`http://localhost:8080/pay/batch/${tripPlanId}/verify`, 
+            { impUid: rsp.imp_uid }, 
+            { withCredentials: true });
+
             alert('일괄 결제가 완료되었습니다!');
             router.push('/pay/pay-success');
           } catch (err) {
