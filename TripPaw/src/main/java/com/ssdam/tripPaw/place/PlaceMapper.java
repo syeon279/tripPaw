@@ -17,7 +17,8 @@ public interface PlaceMapper {
 
     // ID로 조회
     Place findById(Long id);
-    
+    Place findByIdWithAll(Long id);
+
     List<Place> findRecommendedPlacesByRandom(
     	    @Param("region") String region,
     	    @Param("categoryIds") List<Long> categoryIds

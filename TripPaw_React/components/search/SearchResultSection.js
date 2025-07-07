@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const SearchResultSection = ({
@@ -11,6 +12,7 @@ const SearchResultSection = ({
 }) => {
     const [filteredResults, setFilteredResults] = useState(results);
     const scrollContainerRef = useRef(null);
+    const router = useRouter();
 
     useEffect(() => {
         if (!keyword.trim()) {
@@ -55,7 +57,6 @@ const SearchResultSection = ({
 
     const { places = [], tripPlans = [] } = filteredResults;
 
-    // 장소별로 고정 랜덤 이미지 매핑
     const getFallbackImages = (places) => {
         const map = {};
         places.forEach(place => {
@@ -69,7 +70,6 @@ const SearchResultSection = ({
 
     return (
         <div style={{ width: '100%', maxWidth: '960px', display: 'flex', flexDirection: 'column' }}>
-            {/* 검색창 */}
             <div style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
                 padding: '24px',
@@ -100,7 +100,6 @@ const SearchResultSection = ({
                 />
             </div>
 
-            {/* 제목 */}
             <div style={{
                 color: 'white',
                 display: 'block',
@@ -111,7 +110,6 @@ const SearchResultSection = ({
                 <div> 검색하신 키워드에 맞는 장소를 찾아왔어요! </div>
             </div>
 
-            {/* 장소 결과 */}
             <div
                 ref={scrollContainerRef}
                 style={{
@@ -134,6 +132,7 @@ const SearchResultSection = ({
                         places.map((place) => (
                             <div
                                 key={place.id}
+                                onClick={() => router.push(`/place/${place.id}`)}
                                 style={{
                                     borderRadius: '16px',
                                     backgroundColor: 'white',
@@ -145,24 +144,21 @@ const SearchResultSection = ({
                                     border: '1px solid #e0e0e0',
                                     boxSizing: 'border-box',
                                     overflow: 'hidden',
+                                    cursor: 'pointer',
                                 }}
                             >
-                                {/* 이미지 */}
                                 <div style={{ width: '100%', height: '180px', borderRadius: '16px 16px 0 0', overflow: 'hidden' }}>
                                     <img
                                         alt="장소 이미지"
                                         src={place.imageUrl && place.imageUrl.length > 0 ? place.imageUrl : fallbackImages[place.id]}
                                         onError={(e) => {
                                             e.target.onerror = null;
-                                            e.target.src = "/image/other/tempImage.jpg"; // 이건 무조건 존재해야 함
+                                            e.target.src = "/image/other/tempImage.jpg";
                                         }}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                 </div>
-
-                                {/* 텍스트 정보 */}
                                 <div style={{ padding: '16px' }}>
-                                    {/* 이름 + 타입 */}
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                                         <p style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
                                             {place.name}
@@ -171,8 +167,6 @@ const SearchResultSection = ({
                                             {place.placeType.name}
                                         </p>
                                     </div>
-
-                                    {/* 별점 + 리뷰 수 */}
                                     <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', gap: '6px' }}>
                                         <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
                                             {place.rating?.toFixed(1) || '0.0'}
@@ -184,8 +178,6 @@ const SearchResultSection = ({
                                             | 리뷰 {place.reviewCount || 0}
                                         </p>
                                     </div>
-
-                                    {/* 상세 주소 */}
                                     <p style={{ fontSize: '12px', color: '#666', marginTop: '6px' }}>
                                         {place.region}
                                     </p>
@@ -196,8 +188,6 @@ const SearchResultSection = ({
                 </div>
             </div>
 
-            {/* 여행 코스 */}
-            {/* 제목 */}
             <div style={{
                 color: 'white',
                 display: 'block',

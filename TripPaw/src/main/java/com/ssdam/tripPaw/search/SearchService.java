@@ -53,7 +53,7 @@ public class SearchService {
             dto.setPhone(p.getPhone());
             dto.setImageUrl(p.getImageUrl());
             dto.setHomePage(p.getHomePage());
-            dto.setExtermalContentId(p.getExternalContentId());
+            dto.setExternalContentId(p.getExternalContentId());
             dto.setSource(p.getSource());
 
             dto.setPlaceType(p.getPlaceType());

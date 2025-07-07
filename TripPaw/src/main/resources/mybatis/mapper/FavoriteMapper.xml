@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssdam.tripPaw.favorite.FavoriteMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="favoriteResultMap" type="com.ssdam.tripPaw.domain.Favorite">
+        <id property="id" column="id" />
+        <result property="targetId" column="target_id" />
+        <result property="targetType" column="target_type" />
+        <result property="memberId" column="member_id" />
+    </resultMap>
+
+    <!-- 즐겨찾기 등록 -->
+    <insert id="insertFavorite" parameterType="com.ssdam.tripPaw.domain.Favorite">
+        INSERT INTO favorite (target_id, target_type, member_id)
+        VALUES (#{targetId}, #{targetType}, #{memberId})
+    </insert>
+
+    <!-- 즐겨찾기 삭제 -->
+    <delete id="deleteFavorite" parameterType="com.ssdam.tripPaw.domain.Favorite">
+        DELETE FROM favorite
+        WHERE target_id = #{targetId}
+          AND target_type = #{targetType}
+          AND member_id = #{memberId}
+    </delete>
+
+    <!-- 즐겨찾기 조회 (단건) -->
+    <select id="selectFavorite" parameterType="com.ssdam.tripPaw.domain.Favorite" resultMap="favoriteResultMap">
+        SELECT * FROM favorite
+        WHERE target_id = #{targetId}
+          AND target_type = #{targetType}
+          AND member_id = #{memberId}
+    </select>
+
+    <!-- 즐겨찾기 전체 조회 (특정 유저 기준) -->
+    <select id="selectFavoritesByMemberId" parameterType="long" resultMap="favoriteResultMap">
+        SELECT * FROM favorite
+        WHERE member_id = #{memberId}
+    </select>
+
+</mapper>

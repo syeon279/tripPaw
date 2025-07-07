@@ -280,7 +280,7 @@ const tripPlanMain = () => {
                                 <div style={fieldStyle}>
                                     <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>동행</label>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '0px', }}>
-                                        <input style={inputStyle} type="number" value={countPeople}
+                                        <input style={inputStyle} type="number" value={countPeople} min="1"
                                             onChange={(e) => setCountPeople(Number(e.target.value))} /> 명
                                         <div style={{
                                             width: '1px',
@@ -289,7 +289,7 @@ const tripPlanMain = () => {
                                             margin: '10px',
                                             //marginRight: '15px'
                                         }}></div>
-                                        <input style={inputStyle} type="number" value={countPet} onChange={(e) => setCountPet(Number(e.target.value))} /> 견
+                                        <input style={inputStyle} type="number" value={countPet} min="1" onChange={(e) => setCountPet(Number(e.target.value))} /> 견
                                     </div>
                                     <div>
                                     </div>
