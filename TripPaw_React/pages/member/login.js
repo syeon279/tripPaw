@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Router  from 'next/router';
 import styled from 'styled-components';
+import AuthContainer from '@/components/member/AuthContainer';
 // react-icons 라이브러리에서 아이콘을 가져옵니다.
 //import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
@@ -245,63 +246,7 @@ function login() {
         </ImageSection>
 
         <LoginSection>
-          <LoginBox>
-            <LoginForm onSubmit={handleSubmit}>
-              <div className="logo-login-section">
-                <img src={logoPath} alt="로고" className="logo-img" />
-              </div>
-              <p className="welcome-text">로그인하시고 사이트의 다양한 기능을 이용해보세요</p>
-
-              <InputGroup>
-                <label htmlFor="username">아이디를 입력해주세요</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </InputGroup>
-
-              <InputGroup>
-                <label htmlFor="password">비밀번호를 입력해주세요</label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword}
-                   {/* ? <FaEyeSlash /> : <FaEye />} */}
-                </PasswordToggle>
-              </InputGroup>
-
-              <OptionsGroup>
-                <div className="remember-me">
-                  <input type="checkbox" id="rememberMe" />
-                  <label htmlFor="rememberMe">아이디 기억하기</label>
-                </div>
-                <a href="#" className="forgot-password">비밀번호를 잊으셨나요?</a>
-              </OptionsGroup>
-
-              <LoginButton type="submit">로그인</LoginButton>
-            </LoginForm>
-            
-            <SocialLogin>
-              <p>소셜 아이디로 로그인하기</p>
-              <SocialIcons>
-                <SocialIcon href="#"><img src={googleIconPath} alt="구글" /></SocialIcon>
-                <SocialIcon href="#"><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
-                <SocialIcon href="#"><img src={naverIconPath} alt="네이버" /></SocialIcon>
-              </SocialIcons>
-            </SocialLogin>
-
-            <SignupLink>
-              <p>아직 회원이 아니신가요? <a href="#" className="signup-text">회원가입하기</a></p>
-            </SignupLink>
-          </LoginBox>
+          <AuthContainer/>
         </LoginSection>
       </Container>
     </PageWrapper>
