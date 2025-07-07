@@ -125,14 +125,14 @@ public class WeatherService {
     }
 
     private int getNearestStation(double lat, double lon) {
-        if (lat >= 37.4 && lat <= 37.7 && lon >= 126.8 && lon <= 127.1) return 108; // �꽌�슱
-        if (lat >= 35.1 && lat <= 35.3 && lon >= 129.0 && lon <= 129.2) return 159; // 遺��궛
-        if (lat >= 35.8 && lat <= 36.0 && lon >= 127.0 && lon <= 127.2) return 133; // ���쟾
-        if (lat >= 35.5 && lat <= 35.7 && lon >= 128.5 && lon <= 128.7) return 143; // ��援�
-        if (lat >= 35.1 && lat <= 35.3 && lon >= 126.8 && lon <= 127.0) return 156; // 愿묒＜
-        if (lat >= 37.4 && lat <= 37.6 && lon >= 126.6 && lon <= 126.8) return 112; // �씤泥�
-        if (lat >= 37.7 && lat <= 37.9 && lon >= 128.8 && lon <= 129.0) return 211; // 속초
-        if (lat >= 33.3 && lat <= 33.6 && lon >= 126.2 && lon <= 126.4) return 184; // 제주
-        return -1; // 吏��썝�릺吏� �븡�뒗 吏��뿭
+        if (lat >= 37.4 && lat <= 37.7 && lon >= 126.8 && lon <= 127.1) return 108; 
+        if (lat >= 35.1 && lat <= 35.3 && lon >= 129.0 && lon <= 129.2) return 159; 
+        if (lat >= 35.8 && lat <= 36.0 && lon >= 127.0 && lon <= 127.2) return 133; 
+        if (lat >= 35.5 && lat <= 35.7 && lon >= 128.5 && lon <= 128.7) return 143; 
+        if (lat >= 35.1 && lat <= 35.3 && lon >= 126.8 && lon <= 127.0) return 156; 
+        if (lat >= 37.4 && lat <= 37.6 && lon >= 126.6 && lon <= 126.8) return 112; 
+        if (lat >= 37.7 && lat <= 37.9 && lon >= 128.8 && lon <= 129.0) return 211; 
+        if (lat >= 33.3 && lat <= 33.6 && lon >= 126.2 && lon <= 126.4) return 184; 
+        return -1; 
     }
 }
