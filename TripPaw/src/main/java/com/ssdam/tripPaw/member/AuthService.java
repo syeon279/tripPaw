@@ -171,8 +171,9 @@ public class AuthService {
         					  .email(request.getEmail())
         					  .provider(request.getProvider())
         					  .nickname(request.getNickname())
+        					  .zonecode(request.getZonecode())
         					  .roadAddress(request.getRoadAddress())
-        					  .jibunAddress(request.getJibunAddress())
+        					  //.jibunAddress(request.getJibunAddress())
         					  .namujiAddress(request.getNamujiAddress())
         					  //.role(MemberRole.MEMBER)
         					  .build();

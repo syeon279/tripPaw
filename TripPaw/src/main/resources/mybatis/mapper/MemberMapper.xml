@@ -9,8 +9,9 @@
 		<result property="password" column="password" />
 		<result property="nickname" column="nickname" />
 		<result property="email" column="email" />
+		<result property="zonecode" column="zonecode"/>
 		<result property="roadAddress" column="roadAddress" />
-		<result property="jibunAddress" column="jibunAddress" />
+		<!-- <result property="jibunAddress" column="jibunAddress" /> -->
 		<result property="namujiAddress" column="namujiAddress" />
 		<result property="provider" column="provider" />
 		<result property="createdAt" column="createdAt" />
@@ -61,9 +62,9 @@
   <!-- INSERT -->
   <insert id="insert" parameterType="Member">
     INSERT INTO member (
-      username, password, email, nickname, provider, road_address, jibun_address, namuji_address
+      username, password, email, nickname, provider, zonecode, road_address, namuji_address
     ) VALUES (
-      #{username}, #{password}, #{email}, #{nickname}, #{provider}, #{roadAddress}, #{jibunAddress}, #{namujiAddress}
+      #{username}, #{password}, #{email}, #{nickname}, #{provider}, #{zonecode}, #{roadAddress}, #{namujiAddress}
     )
   </insert>
   <!-- UPDATE -->

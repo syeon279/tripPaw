@@ -149,7 +149,7 @@ public class CheckTemplateMapperTest {
 //--- CheckRoutine	
 
 	// 1. 루틴 생성
-    @Disabled //@Test
+    @Test //@Test
     public void testInsertRoutine() {
         CheckRoutine routine = new CheckRoutine();
         routine.setTitle("루틴 테스트4");

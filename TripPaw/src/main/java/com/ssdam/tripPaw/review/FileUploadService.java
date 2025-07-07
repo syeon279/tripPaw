@@ -34,21 +34,22 @@ public class FileUploadService {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            return destinationFile.toString().replace("\\", "/"); // 윈도우 경로 → URL 호환
+            return destinationFile.getFileName().toString(); // ✅ 파일명만 리턴됨
         } catch (Exception e) {
             throw new RuntimeException("파일 저장 실패", e);
         }
     }
 
-    public void delete(String imageUrl) {
-        String fileName = extractFileNameFromUrl(imageUrl);
+    public void delete(String imageFileName) {
         try {
-            Path filePath = this.rootLocation.resolve(fileName).normalize();
+            Path filePath = this.rootLocation.resolve(imageFileName).normalize();
             Files.deleteIfExists(filePath);
+            System.out.println("[INFO] 리뷰 이미지 삭제 성공: " + filePath);
         } catch (IOException e) {
-            throw new RuntimeException("파일 삭제 실패: " + fileName, e);
+            throw new RuntimeException("파일 삭제 실패: " + imageFileName, e);
         }
     }
+
 
     public String extractFileNameFromUrl(String imageUrl) {
         return Paths.get(imageUrl).getFileName().toString();
