@@ -26,16 +26,22 @@ public class WeatherService {
 
     public String getWeather(LocalDate date, double lat, double lon) {
         try {
-            int stationId = getNearestStation(lat, lon); // TODO: 너가 구현한 좌표 -> 지점코드 변환
+        	// ✅ 1. 파라미터 확인
+        	System.out.println("[DEBUG] 날씨 호출 - date: " + date + ", lat: " + lat + ", lon: " + lon);
+
+            int stationId = getNearestStation(lat, lon);
+            
+         // ✅ 2. 지점코드 확인
+            System.out.println("[DEBUG] stationId: " + stationId);
+            
             if (stationId == -1) {
-                System.out.println("지점 코드 찾기 실패");
                 return "알 수 없음";
             }
 
             String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
             String url = KMA_API + "?"
-                    + "serviceKey=" + URLEncoder.encode(serviceKey, StandardCharsets.UTF_8)
+                    + "serviceKey=" + serviceKey
                     + "&dataType=XML"
                     + "&dataCd=ASOS"
                     + "&dateCd=HR"
@@ -46,27 +52,33 @@ public class WeatherService {
                     + "&stnIds=" + stationId
                     + "&numOfRows=1&pageNo=1";
 
-            System.out.println("날씨 API URL: " + url);
+            // ✅ 3. 실제 호출 URL 확인
+            System.out.println("[DEBUG] 호출 URL: " + url);
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(new URI(url), String.class);
 
-            Document doc = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(new InputSource(new StringReader(response.getBody())));
+            // ✅ 4. API 응답 원문 확인
+            System.out.println("[DEBUG] XML 응답: " + response.getBody());
 
-            NodeList items = doc.getElementsByTagName("item");
-            if (items.getLength() > 0) {
-                Node item = items.item(0);
-                return parseWeatherCondition(item);
-            } else {
-                System.out.println("응답에 item 없음");
-                return "알 수 없음";
+            try (StringReader reader = new StringReader(response.getBody())) {
+                InputSource inputSource = new InputSource(reader);
+                Document doc = DocumentBuilderFactory.newInstance()
+                        .newDocumentBuilder()
+                        .parse(inputSource);
+
+                NodeList items = doc.getElementsByTagName("item");
+                if (items.getLength() > 0) {
+                    Node item = items.item(0);
+                    return parseWeatherCondition(item);
+                } else {
+                    return "알 수 없음";
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "알 수 없음";
+            return "알 수 없음" + e.getMessage();
         }
     }
 
@@ -78,8 +90,6 @@ public class WeatherService {
         double rn = parseDouble(rnStr);
         double dsnw = parseDouble(dsnwStr);
         int cloud = parseInt(cloudStr);
-
-        System.out.printf("강수량: %.1f, 적설량: %.1f, 전운량: %d%n", rn, dsnw, cloud);
 
         if (dsnw > 0.0) return "눈";
         else if (rn > 0.0) return "비";
@@ -114,9 +124,15 @@ public class WeatherService {
         }
     }
 
-    // TODO: 지점 코드 매핑을 좌표 기반으로 구현하거나 임시 하드코딩
     private int getNearestStation(double lat, double lon) {
-        // 간단 예시: 서울 주변이면 108번 사용
-        return 108;
+        if (lat >= 37.4 && lat <= 37.7 && lon >= 126.8 && lon <= 127.1) return 108; // �꽌�슱
+        if (lat >= 35.1 && lat <= 35.3 && lon >= 129.0 && lon <= 129.2) return 159; // 遺��궛
+        if (lat >= 35.8 && lat <= 36.0 && lon >= 127.0 && lon <= 127.2) return 133; // ���쟾
+        if (lat >= 35.5 && lat <= 35.7 && lon >= 128.5 && lon <= 128.7) return 143; // ��援�
+        if (lat >= 35.1 && lat <= 35.3 && lon >= 126.8 && lon <= 127.0) return 156; // 愿묒＜
+        if (lat >= 37.4 && lat <= 37.6 && lon >= 126.6 && lon <= 126.8) return 112; // �씤泥�
+        if (lat >= 37.7 && lat <= 37.9 && lon >= 128.8 && lon <= 129.0) return 211; // 속초
+        if (lat >= 33.3 && lat <= 33.6 && lon >= 126.2 && lon <= 126.4) return 184; // 제주
+        return -1; // 吏��썝�릺吏� �븡�뒗 吏��뿭
     }
 }

@@ -118,6 +118,14 @@ function reservdutch() {
   const [message, setMessage] = useState('');
   const [client, setClient] = useState(null);
   const [username, setUsername] = useState('');
+  const [showJoinPrompt, setShowJoinPrompt] = useState(false);
+  const [createdReservId, setCreatedReservId] = useState(null);
+
+  const handleJoinClick = () => {
+    if (createdReservId) {
+      router.push(`/pay/dutch?reservId=${createdReservId}`);
+    }
+  };
 
   const place = {
     name: "강원도 평창 오대산 국립공원",
@@ -149,12 +157,7 @@ function reservdutch() {
       .catch(error => {
         console.error('Error fetching username:', error);
       });
-            if (response.status === 200) {
-                setIsLoggedIn(true);
-                // 백엔드에서 받은 username으로 상태 업데이트
-                setUsername(response);
-                return true; // 성공 시 true 반환
-            }
+
     // 로그인한 유저 이름 세팅
     // const storedUsername = localStorage.getItem('username');
     // if (storedUsername) {
@@ -217,6 +220,8 @@ function reservdutch() {
       alert('예약 성공! 🎉');
 
       const reservId = res.data.id;
+      setCreatedReservId(reservId);
+      setShowJoinPrompt(true);
 
       // 채팅방에 더치페이 참가 메시지 발송
       if (client && client.connected) {
@@ -224,7 +229,12 @@ function reservdutch() {
           type: 'CHAT',
           sender: username || 'anonymous',
           roomId: roomId,
-          content: '더치페이 예약에 참가했습니다.',
+          content: `
+            더치페이 예약을 생성했습니다.<br/>
+            <a href="/pay/dutch?reservId=${reservId}" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#2c7be5;color:white;border-radius:6px;text-decoration:none;">
+              참가하기
+            </a>
+          `,
         };
 
         client.publish({
@@ -233,8 +243,6 @@ function reservdutch() {
         });
 
         console.log("📤 메시지 전송 완료");
-      } else {
-        console.warn("🚫 STOMP 클라이언트가 연결되지 않았습니다.");
       }
       // 채팅방으로 돌아가기
       router.push(`/chat/chatRoom/${roomId}`);
