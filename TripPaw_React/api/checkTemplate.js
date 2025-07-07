@@ -1,3 +1,4 @@
+//component/api/checkTemplate.js
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080';
@@ -31,6 +32,6 @@ export const deleteTemplate = async(id)=>{
 };
 
 export const getAllTemplateItems = async () =>{
-  const res = await axios.get(`${API_BASE}/item/all`);
+  const res = await axios.get(`${API_BASE}/items/all`);
   return res.data;
 };

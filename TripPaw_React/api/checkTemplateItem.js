@@ -1,3 +1,4 @@
+//component/api/checkTemplateItem.js
 import axios from "axios";
 
 axios.defaults.baseURL = 'http://localhost:8080';
