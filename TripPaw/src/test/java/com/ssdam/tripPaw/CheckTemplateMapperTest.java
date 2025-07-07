@@ -152,7 +152,7 @@ public class CheckTemplateMapperTest {
     @Test //@Test
     public void testInsertRoutine() {
         CheckRoutine routine = new CheckRoutine();
-        routine.setTitle("루틴 테스트4");
+        routine.setTitle("TEST Routine");
         routine.setIsSaved(true);
 
         Member member = new Member();
