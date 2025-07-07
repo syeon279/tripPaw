@@ -12,15 +12,17 @@ const SearchResultCard = ({ place }) => {
         placeType,
     } = place;
 
+    console.log('place : ', place);
+
     const imageUrl =
         placeImages && placeImages.length > 0
             ? placeImages[0].imageUrl
-            : '/images/default-image.jpg'; // 대체 이미지 경로
+            : 'public/image/other/tempImage.jpg'; // 대체 이미지 경로
 
     return (
         <div className="w-64 h-80 rounded-xl shadow-md overflow-hidden bg-white m-2">
             <img
-                src={imageUrl.length ? imageUrl : 'public/image/other/tmepImage.jpg'}
+                src={imageUrl}
                 alt={name}
                 className="w-full h-40 object-cover"
             />

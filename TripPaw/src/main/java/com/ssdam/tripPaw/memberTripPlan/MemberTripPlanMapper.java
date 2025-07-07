@@ -1,4 +1,4 @@
-package com.ssdam.tripPaw.tripPlan;
+package com.ssdam.tripPaw.memberTripPlan;
 
 import com.ssdam.tripPaw.domain.MemberTripPlan;
 import org.apache.ibatis.annotations.Mapper;

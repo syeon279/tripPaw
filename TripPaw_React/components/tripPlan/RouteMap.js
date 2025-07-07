@@ -20,7 +20,10 @@ const RouteMap = forwardRef(
             const firstPlace = routeData[0]?.places?.[0];
             if (!firstPlace) return;
 
-            const center = new kakao.maps.LatLng(firstPlace.latitude, firstPlace.longitude);
+            const center = new kakao.maps.LatLng(
+                Number(firstPlace.latitude),
+                Number(firstPlace.longitude)
+            );
             mapObj.current = new kakao.maps.Map(mapRef.current, {
                 center,
                 level: 6
@@ -49,7 +52,10 @@ const RouteMap = forwardRef(
                 const color = COLORS[dayPlan.day % COLORS.length];
 
                 dayPlan.places.forEach(place => {
-                    const latlng = new kakao.maps.LatLng(place.latitude, place.longitude);
+                    const latlng = new kakao.maps.LatLng(
+                        Number(place.latitude),
+                        Number(place.longitude)
+                    );
                     bounds.extend(latlng);
                     path.push(latlng);
 
@@ -101,7 +107,10 @@ const RouteMap = forwardRef(
             const firstPlace = dayPlan?.places?.[0];
             if (!firstPlace) return;
 
-            const latlng = new kakao.maps.LatLng(firstPlace.latitude, firstPlace.longitude);
+            const latlng = new kakao.maps.LatLng(
+                Number(firstPlace.latitude),
+                Number(firstPlace.longitude)
+            );
             mapObj.current.panTo(latlng);
         }, [focusDay]);
 

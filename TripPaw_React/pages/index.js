@@ -33,8 +33,8 @@ const Home = () => {
     const handleSearch = async () => {
         if (!keyword.trim()) return;
         try {
-            const res = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
-            setSearchResult(res.data);
+            const response = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
+            setSearchResult(response.data);
             setHasSearched(true);
             setSectionIndex(2);
         } catch (err) {

@@ -2,18 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ssdam.tripPaw.tripPlan.MemberTripPlanMapper">
+<mapper namespace="com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper">
 
     <resultMap id="memberTripPlanResultMap" type="com.ssdam.tripPaw.domain.MemberTripPlan">
+        <!-- 🔹 먼저 id, result 순서대로 선언 -->
         <id property="id" column="id"/>
-        <association property="member" javaType="com.ssdam.tripPaw.domain.Member">
-            <id property="id" column="member_id"/>
-        </association>
-        <association property="tripPlan" javaType="com.ssdam.tripPaw.domain.TripPlan">
-            <id property="id" column="trip_plan_id"/>
-        </association>
         <result property="titleOverride" column="title_override"/>
-        <result property="isPublic" column="is_public"/>
+        <result property="publicVisible" column="is_public"/>
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date"/>
         <result property="status" column="status"/>
@@ -21,6 +16,15 @@
         <result property="countPet" column="count_pet"/>
         <result property="createdAt" column="created_at"/>
         <result property="imageUrl" column="image_url"/>
+
+        <!-- 🔹 그 다음에 association 선언 -->
+        <association property="member" javaType="com.ssdam.tripPaw.domain.Member">
+            <id property="id" column="member_id"/>
+        </association>
+
+        <association property="tripPlan" javaType="com.ssdam.tripPaw.domain.TripPlan">
+            <id property="id" column="trip_plan_id"/>
+        </association>
     </resultMap>
 
     <!-- ✅ 단건 조회 -->
@@ -45,7 +49,7 @@
             start_date, end_date, status, count_people, count_pet,
             created_at, image_url
         ) VALUES (
-            #{member.id}, #{tripPlan.id}, #{titleOverride}, #{isPublic},
+            #{member.id}, #{tripPlan.id}, #{titleOverride}, #{publicVisible},
             #{startDate}, #{endDate}, #{status}, #{countPeople}, #{countPet},
             #{createdAt}, #{imageUrl}
         )
@@ -56,7 +60,7 @@
         UPDATE member_trip_plan
         SET
             title_override = #{titleOverride},
-            is_public = #{isPublic},
+            is_public = #{publicVisible},
             start_date = #{startDate},
             end_date = #{endDate},
             status = #{status},

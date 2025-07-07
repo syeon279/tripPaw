@@ -76,22 +76,11 @@ const ContentHeader = ({ theme }) => {
 
   return (
     <HeaderWrapper>
-<<<<<<< HEAD
-      <LogoWrapper onClick={() => router.push('/')}>
-        <Image
-          src={isDark ? '/image/logo/TripPaw-logo.png' : '/image/logo/TripPaw-logo-white.png'}
-          alt="logo"
-          width={160}
-          height={40}
-        />
-      </LogoWrapper>
-=======
       {isWhite ?
         <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={160} height={40} />
         :
         <Image src="/image/logo/TripPaw-logo.png" alt="logo" width={160} height={40} />
       }
->>>>>>> b72c7a1d19b03141d07d4d273a845c013fb275c2
 
       <IconMenu isWhite={isWhite} >
         <NotificationOutlined

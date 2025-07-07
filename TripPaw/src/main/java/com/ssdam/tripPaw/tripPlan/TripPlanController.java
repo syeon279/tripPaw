@@ -69,6 +69,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -93,13 +94,40 @@ public class TripPlanController {
     @PostMapping("/save")
     public ResponseEntity<String> saveTrip(@RequestBody TripSaveRequest request) {
         try {
-            tripPlanService.saveTrip(request);
+            tripPlanService.saveMemberTrip(request);
             return ResponseEntity.ok("✅ 여행 저장 완료!");
         } catch (Exception e) {
             String msg = "❌ 여행 저장 실패: " + e.getMessage();
             System.err.println(msg);
             return ResponseEntity.internalServerError().body(msg);
         }
+    }
+    
+    @PostMapping("/edit")
+    public ResponseEntity<Map<String, Object>> editTrip(@RequestBody TripSaveRequest request) {
+        try {
+            TripPlan tripPlan = tripPlanService.saveTrip(request); // 🛠 service가 TripPlan 반환하도록 변경
+            return ResponseEntity.ok(Map.of(
+                "message", "✅ 여행 저장 완료!",
+                "tripId", tripPlan.getId() // 🧭 프론트에 ID 보내주기
+            ));
+        } catch (Exception e) {
+            String msg = "❌ 여행 저장 실패: " + e.getMessage();
+            System.err.println(msg);
+            return ResponseEntity.internalServerError().body(Map.of("error", msg));
+        }
+    }
+
+    /**
+     * 특정 ID의 여행 경로 조회
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<TripPlan> getTripById(@PathVariable Long id) {
+        TripPlan plan = tripPlanService.findByIdWithCourses(id);
+        if (plan == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(plan);
     }
 
     /**

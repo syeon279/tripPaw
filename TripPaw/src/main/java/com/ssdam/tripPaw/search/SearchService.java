@@ -23,6 +23,8 @@ public class SearchService {
     private final SearchMapper searchMapper;
 
     public SearchResultDto search(String keyword) {
+    	System.out.println("🔍 keyword: " + keyword);
+
         List<Place> places = searchMapper.searchPlacesByKeyword(keyword);
         List<TripPlan> tripPlans = searchMapper.searchTripPlansByKeyword(keyword);
 

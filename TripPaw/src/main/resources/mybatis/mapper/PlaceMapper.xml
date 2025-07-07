@@ -66,7 +66,7 @@
 		SELECT * FROM place WHERE id =
 		#{id}
 	</select>
-	
+
 	<!-- 램덤 추천 -->
 	<select id="findRecommendedPlacesByRandom"
 		resultMap="placeResultMap">
@@ -76,9 +76,11 @@
 		SELECT * FROM (
 		SELECT p.*, 1 AS priority
 		FROM place p
-		JOIN place_category pc ON p.id = pc.place_id
+		JOIN place_category pc ON p.id =
+		pc.place_id
 		WHERE p.place_type_id IN (1, 2)
-		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND p.region LIKE
+		CONCAT('%', #{region}, '%')
 		AND pc.category_id IN
 		<foreach collection="categoryIds" item="id" open="("
 			separator="," close=")">
@@ -89,21 +91,25 @@
 		) AS a1
 		UNION
 		SELECT * FROM (
-		SELECT p.*, 1 AS priority
+		SELECT p.*, 1 AS
+		priority
 		FROM place p
 		WHERE p.place_type_id IN (1, 2)
-		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND p.region LIKE
+		CONCAT('%', #{region}, '%')
 		ORDER BY RAND()
 		LIMIT 1
 		) AS a2
 		) AS t1
 
-		UNION ALL
+		UNION
+		ALL
 
 		-- ✅ [2] placeType = 6
 		SELECT * FROM (
 		SELECT * FROM (
-		SELECT p.*, 2 AS priority
+		SELECT p.*, 2
+		AS priority
 		FROM place p
 		JOIN place_category pc ON p.id = pc.place_id
 		WHERE p.place_type_id = 6
@@ -118,21 +124,25 @@
 		) AS b1
 		UNION
 		SELECT * FROM (
-		SELECT p.*, 2 AS priority
+		SELECT p.*, 2 AS
+		priority
 		FROM place p
 		WHERE p.place_type_id = 6
-		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND p.region LIKE
+		CONCAT('%', #{region}, '%')
 		ORDER BY RAND()
 		LIMIT 1
 		) AS b2
 		) AS t2
 
-		UNION ALL
+		UNION
+		ALL
 
 		-- ✅ [3] placeType = 5
 		SELECT * FROM (
 		SELECT * FROM (
-		SELECT p.*, 3 AS priority
+		SELECT p.*, 3
+		AS priority
 		FROM place p
 		JOIN place_category pc ON p.id = pc.place_id
 		WHERE p.place_type_id = 5
@@ -147,21 +157,25 @@
 		) AS c1
 		UNION
 		SELECT * FROM (
-		SELECT p.*, 3 AS priority
+		SELECT p.*, 3 AS
+		priority
 		FROM place p
 		WHERE p.place_type_id = 5
-		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND p.region LIKE
+		CONCAT('%', #{region}, '%')
 		ORDER BY RAND()
 		LIMIT 1
 		) AS c2
 		) AS t3
 
-		UNION ALL
+		UNION
+		ALL
 
 		-- ✅ [4] placeType = 4
 		SELECT * FROM (
 		SELECT * FROM (
-		SELECT p.*, 4 AS priority
+		SELECT p.*, 4
+		AS priority
 		FROM place p
 		JOIN place_category pc ON p.id = pc.place_id
 		WHERE p.place_type_id = 4
@@ -176,19 +190,76 @@
 		) AS d1
 		UNION
 		SELECT * FROM (
-		SELECT p.*, 4 AS priority
+		SELECT p.*, 4 AS
+		priority
 		FROM place p
 		WHERE p.place_type_id = 4
-		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND p.region LIKE
+		CONCAT('%', #{region}, '%')
 		ORDER BY RAND()
 		LIMIT 1
 		) AS d2
 		) AS t4
-		) AS combined
+		) AS
+		combined
 		ORDER BY priority
 	</select>
 
+	<select id="findFirstRandomPlace" resultMap="placeResultMap">
+		SELECT p.*
+		FROM place p
+		JOIN place_category pc ON p.id = pc.place_id
+		WHERE p.place_type_id IN (1, 2)
+		AND p.region LIKE CONCAT('%',
+		#{region}, '%')
+		AND pc.category_id IN
+		<foreach collection="categoryIds" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+		ORDER BY RAND()
+		LIMIT 1
+	</select>
 
+	<select id="findPlacesByTypeAndDistance"
+		resultMap="placeResultMap">
+		SELECT *
+		FROM (
+		-- ✅ 카테고리 일치 + 거리순
+		SELECT p.*,
+		(6371 * acos(
+		cos(radians(#{baseLat}))
+		* cos(radians(p.latitude))
+		* cos(radians(p.longitude) - radians(#{baseLng}))
+		+ sin(radians(#{baseLat})) * sin(radians(p.latitude))
+		)) AS distance
+		FROM place p
+		JOIN place_category pc ON p.id = pc.place_id
+		WHERE p.place_type_id = #{placeType}
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		AND pc.category_id IN
+		<foreach collection="categoryIds" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+
+		UNION
+
+		-- ✅ 카테고리 없이 fallback
+		SELECT p.*,
+		(6371 * acos(
+		cos(radians(#{baseLat}))
+		* cos(radians(p.latitude))
+		* cos(radians(p.longitude) - radians(#{baseLng}))
+		+ sin(radians(#{baseLat})) * sin(radians(p.latitude))
+		)) AS distance
+		FROM place p
+		WHERE p.place_type_id = #{placeType}
+		AND p.region LIKE CONCAT('%', #{region}, '%')
+		) AS result
+		ORDER BY distance ASC
+		LIMIT 1
+	</select>
 
 
 	<!-- update -->
