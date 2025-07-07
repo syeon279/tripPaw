@@ -53,9 +53,31 @@
 	  ORDER BY r.created_at DESC
 	</select>
 
-  <select id="findById" parameterType="long" resultType="com.ssdam.tripPaw.domain.Reserv">
-    SELECT * FROM reserv WHERE id = #{id}
-  </select>
+<select id="findById" parameterType="long" resultMap="ReservResultMap">
+  SELECT
+    r.id,
+    r.count_people,
+    r.count_pet,
+    r.created_at,
+    r.delete_at,
+    r.start_date,
+    r.end_date,
+    r.expire_at,
+    r.state,
+    r.original_price,
+    r.final_price,
+    r.member_id,
+    m.username AS member_username,
+    r.place_id,
+    p.name AS place_name,
+    p.latitude,
+    p.longitude,
+    p.region
+  FROM reserv r
+  JOIN member m ON r.member_id = m.id
+  JOIN place p ON r.place_id = p.id
+  WHERE r.id = #{id}
+</select>
 
 <insert id="insert" parameterType="com.ssdam.tripPaw.domain.Reserv"
         useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -138,5 +160,20 @@
 	  LIMIT 1
 	</select>
 
+	<select id="findByTripPlanIdAndMember" resultMap="ReservResultMap">
+	  SELECT * FROM reserv
+	  WHERE trip_plan_id = #{tripPlanId}
+	    AND member_id = #{memberId}
+	    AND delete_at IS NULL
+	  ORDER BY start_date ASC
+	</select>
+	
+	<update id="updateWithPay" parameterType="com.ssdam.tripPaw.domain.Reserv">
+	  UPDATE reserv
+	  SET
+	    state = #{state},
+	    pay_id = #{pay.id}
+	  WHERE id = #{id}
+	</update>
   
 </mapper>

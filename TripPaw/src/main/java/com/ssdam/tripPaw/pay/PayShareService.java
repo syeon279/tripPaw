@@ -24,7 +24,7 @@ public class PayShareService {
 	private final PayMapper payMapper;
 	private final ReservMapper reservMapper;
 	
-    public List<PayShare> findAll() {
+    public List<PayShare> findAll() {	
         return payShareMapper.findAll();
     }
     
@@ -32,15 +32,43 @@ public class PayShareService {
         return payShareMapper.findById(payId);
     }
 
-    public void insert(PayShare payShare) {
-        payShare.setCreatedAt(LocalDateTime.now());
-        payShareMapper.insert(payShare);
+    public PayShare findByReservIdAndMember(Long reservId, Member member) {
+        return payShareMapper.findByReservIdAndMember(reservId, member.getId());
     }
     
-    public void delete(Long id) {
-        payShareMapper.delete(id);
+    @Transactional
+    public void joinDutchPay(Long reservId, Member member) {
+        Pay pay = payMapper.findByReservId(reservId);
+        if (pay == null) {
+            throw new IllegalArgumentException("해당 예약에 대한 결제가 존재하지 않습니다.");
+        }
+
+        Reserv reserv = pay.getReserv();
+        int totalPeople = reserv.getCountPeople();
+
+        // 중복 참여 방지
+        PayShare existing = payShareMapper.findByPayIdAndMemberId(pay.getId(), member.getId());
+        if (existing != null) {
+            throw new IllegalStateException("이미 참여한 사용자입니다.");
+        }
+
+        // 인원 수 초과 방지
+        int currentParticipants = payShareMapper.countByPayId(pay.getId());
+        if (currentParticipants >= totalPeople) {
+            throw new IllegalStateException("더 이상 참여할 수 없습니다. 인원이 모두 찼습니다.");
+        }
+
+        int shareAmount = pay.getAmount() / totalPeople;
+
+        PayShare share = new PayShare();
+        share.setPay(pay);
+        share.setMember(member);
+        share.setAmount(shareAmount);
+        share.setHasPaid(false);
+        share.setCreatedAt(LocalDateTime.now());
+
+        payShareMapper.insert(share);
     }
-    
     
     @Transactional
     public Pay createDutchPay(Long reservId, Member owner, List<Member> participants) {
@@ -50,7 +78,8 @@ public class PayShareService {
         }
 
         int totalAmount = reserv.getFinalPrice();
-        int shareAmount = totalAmount / participants.size();
+        int totalPeople = reserv.getCountPeople(); // 예약 인원을 총 인원으로 사용
+        int shareAmount = totalAmount / totalPeople;
 
         Pay pay = new Pay();
         pay.setReserv(reserv);
@@ -64,15 +93,14 @@ public class PayShareService {
 
         payMapper.insert(pay);
 
-        for (Member participant : participants) {
-            PayShare payShare = new PayShare();
-            payShare.setPay(pay);
-            payShare.setMember(participant);
-            payShare.setAmount(shareAmount);
-            payShare.setHasPaid(false);
-            payShare.setCreatedAt(LocalDateTime.now());
-            payShareMapper.insert(payShare); // 이 부분은 payShareMapper 필요
-        }
+        // 초기에 방장 1명만 등록 (참여자는 나중에 /join 통해 합류)
+        PayShare ownerShare = new PayShare();
+        ownerShare.setPay(pay);
+        ownerShare.setMember(owner);
+        ownerShare.setAmount(shareAmount);
+        ownerShare.setHasPaid(false);
+        ownerShare.setCreatedAt(LocalDateTime.now());
+        payShareMapper.insert(ownerShare);
 
         return pay;
     }
