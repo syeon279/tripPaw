@@ -9,6 +9,7 @@ const SearchResultSection = ({
     setKeyword,
     handleSearch,
     handleKeyPress,
+    setSectionIndex
 }) => {
     const [filteredResults, setFilteredResults] = useState(results);
 
@@ -127,7 +128,9 @@ const SearchResultSection = ({
         >
             {/* 검색창 */}
             <div style={boxStyle}>
-                <ArrowLeftOutlined />
+                <ArrowLeftOutlined
+                    onClick={() => setSectionIndex(0)} //클릭 시 1세션으로 이동
+                />
                 <input
                     style={inputStyle}
                     type="text"

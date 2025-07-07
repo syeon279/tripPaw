@@ -148,6 +148,43 @@ const RouteRecommendPage = () => {
         }
     };
 
+    // 수정을 위한 임시 저장
+    const handleSave = async () => {
+        let mapImageBase64 = null;
+
+        try {
+            mapImageBase64 = await handleCaptureMap();
+        } catch (err) {
+            console.warn('지도 캡처 실패:', err);
+        }
+
+        const title = '추천된 여행 경로';
+
+        const travelData = {
+            title,
+            startDate: requestData?.startDate,
+            endDate: requestData?.endDate,
+            countPeople: requestData?.countPeople,
+            countPet: requestData?.countPet,
+            mapImage: mapImageBase64,
+            routeData,
+        };
+
+        try {
+            const res = await axios.post('http://localhost:8080/tripPlan/save', travelData);
+            const tripId = res.data?.tripId;
+            if (tripId) {
+                router.push(`http://localhost:3000/tripPlan/tripPlanEdit/${tripId}`); // 🧭 수정 페이지로 이동
+            } else {
+                alert('여행 저장 후 이동 실패');
+            }
+        } catch (err) {
+            console.error('수정용 저장 실패:', err);
+            alert('저장 실패');
+        }
+    };
+
+
     return (
         <AppLayout>
             <div style={layoutStyle.header} />
@@ -178,7 +215,7 @@ const RouteRecommendPage = () => {
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
                         />
-                        <ActionButtons onSave={() => setShowModal(true)} />
+                        <ActionButtons onSave={() => setShowModal(true)} onEdit={() => handleSave} />
                     </div>
 
                     {showModal && (

@@ -150,6 +150,7 @@ const Home = () => {
                                 setKeyword={setKeyword}
                                 handleKeyPress={handleKeyPress}
                                 handleSearch={handleSearch}
+                                setSectionIndex={setSectionIndex}
                             />
                         </section>
                     )}
