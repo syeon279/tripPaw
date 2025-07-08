@@ -85,7 +85,7 @@ public class NFTService {
             if (rawUri.contains("ipfs://")) {
                 rawUri = rawUri.substring(rawUri.indexOf("ipfs://"));
             }
-            String metadataUrl = rawUri.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/");
+            String metadataUrl = rawUri.replace("ipfs://", "https://ipfs.io/ipfs/");
 
             // ** 메타데이터 JSON 가져와서 image 필드 파싱 **
             String imageUrl = metadataUrl;  // 기본값 (혹시 실패 시)
@@ -121,22 +121,29 @@ public class NFTService {
         List<NftMetadata> savedList = new ArrayList<>();
 
         for (NFTDto nft : nfts) {
-            Long id = Long.parseLong(nft.getTokenId());
-            String imageUrl = nft.getPreviewURL(); // 위에서 파싱한 imageUrl이 저장됨
+            try {
+                Long id = Long.parseLong(nft.getTokenId());
+                String imageUrl = nft.getPreviewURL();
 
-            NftMetadata existing = nftMetadataMapper.findById(id);
-            if (existing == null) {
-                NftMetadata newMeta = new NftMetadata();
-                newMeta.setId(id);
-                newMeta.setTitle("Token #" + id);
-                newMeta.setImageUrl(imageUrl); // 실제 이미지 URL 저장
-                newMeta.setPointValue(0);
-                nftMetadataMapper.insert(newMeta);
-                savedList.add(newMeta);
-            } else {
-                existing.setImageUrl(imageUrl);
-                nftMetadataMapper.update(existing);
-                savedList.add(existing);
+                NftMetadata existing = nftMetadataMapper.findById(id);
+                if (existing == null) {
+                    NftMetadata newMeta = new NftMetadata();
+                    newMeta.setId(id);
+                    newMeta.setTitle("Token #" + id);
+                    newMeta.setImageUrl(imageUrl);
+                    newMeta.setPointValue(0);
+                    nftMetadataMapper.insert(newMeta);
+                    savedList.add(newMeta);
+                } else {
+                    existing.setImageUrl(imageUrl);
+                    nftMetadataMapper.update(existing);
+                    savedList.add(existing);
+                }
+            } catch (Exception e) {
+                // 예외 발생 시 로그 출력
+                System.out.println("Error syncing NFT with tokenId: " + nft.getTokenId());
+                e.printStackTrace();
+                throw new RuntimeException("Failed to sync NFT: " + nft.getTokenId(), e);  // 예외 던지기
             }
         }
         return savedList;
