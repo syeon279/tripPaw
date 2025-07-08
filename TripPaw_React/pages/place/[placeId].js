@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
-import ContentHeader from '../../components/ContentHeader';
 import PetAssistant from '../../components/pet/petassistant';
 import styled from 'styled-components';
 import AppLayout from '@/components/AppLayout';
 
+const ScrollContainer = styled.div`
+  width: 100%;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+`;
+
 const Container = styled.div`
-  border: 2px solid red;
-  //max-width: 1000px;
   width: 80%;
   margin: auto;
   padding: 30px;
@@ -39,17 +42,33 @@ const ImageSection = styled.div`
   flex: 1;
   min-width: 300px;
 
-  img {
+  p {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+`;
+
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 100%;
+
+  img.place-image {
     width: 100%;
+    height: 280px;
+    object-fit: cover;
     border-radius: 12px;
     margin-bottom: 20px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   }
 
-  p {
-    color: #555;
-    line-height: 1.6;
-    font-size: 1rem;
+  img.favorite-icon {
+    position: absolute;
+    top: -5px;
+    right: 12px;
+    width: 60px;
+    height: 55px;
+    cursor: pointer;
   }
 `;
 
@@ -100,99 +119,78 @@ const ErrorMsg = styled.p`
   font-weight: bold;
 `;
 
-const layoutStyle = {
-  header: { width: '100%', height: '100px' },
-  divider: {
-    display: 'flex',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: '20px',
-  },
-  dividerLine: {
-    width: '100%',
-    border: '1px solid rgba(170, 169, 169, 0.9)',
-  },
-  contentWrapper: {
-    width: '70%',
-    height: '80%',
-    justifyContent: 'center',
-    margin: 'auto',
-  },
-  contentBox: {
-    display: 'flex',
-    width: '100%',
-    height: '80%',
-    justifyContent: 'center',
-    margin: 'auto',
-  },
-  mapContainer: {
-    flex: 5,
-    width: '100%',
-    height: '100%',
-  },
-  scheduleContainer: {
-    flex: 3,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    overflowY: 'auto',
-    maxHeight: '600px',
-    paddingRight: '8px',
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
-    overscrollBehavior: 'contain',
-  },
-};
-
 function PlaceReservCreatePage() {
   const router = useRouter();
   const [place, setPlace] = useState(null);
-  const [dateRange, setDateRange] = useState([
-    {
-      startDate: new Date(),
-      endDate: addDays(new Date(), 1),
-      key: 'selection'
-    }
-  ]);
+  const [dateRange, setDateRange] = useState([{ startDate: new Date(), endDate: addDays(new Date(), 1), key: 'selection' }]);
   const [disabledDates, setDisabledDates] = useState([]);
   const [countPeople, setCountPeople] = useState(1);
   const [countPet, setCountPet] = useState(0);
-  const [memberId, setMemberId] = useState(1);
+  const [memberId] = useState(1);
   const [placeId, setPlaceId] = useState(null);
   const [tripPlanId, setTripPlanId] = useState(null);
   const [message, setMessage] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const checkFavorite = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8080/favorite/check`, {
+        params: {
+          memberId,
+          targetId: placeId,
+          targetType: 'PLACE',
+        }
+      });
+      setIsFavorite(res.status === 200 && res.data);
+    } catch (err) {
+      if (err.response?.status === 204) {
+        setIsFavorite(false);
+      } else {
+        console.error('즐겨찾기 여부 확인 실패', err);
+      }
+    }
+  };
+
+  const toggleFavorite = async () => {
+    try {
+      const payload = {
+        targetId: placeId,
+        targetType: 'PLACE',
+        member: { id: memberId }
+      };
+
+      if (isFavorite) {
+        await axios.delete(`http://localhost:8080/favorite/delete`, { data: payload });
+      } else {
+        await axios.post(`http://localhost:8080/favorite/add`, payload);
+      }
+
+      setIsFavorite(!isFavorite);
+    } catch (err) {
+      console.error('즐겨찾기 토글 실패', err);
+    }
+  };
 
   useEffect(() => {
     if (!router.isReady) return;
-
     const { placeId } = router.query;
-
-    if (!placeId) {
-      console.warn('❗ placeId가 아직 없습니다.');
-      return;
-    }
-
-    console.log('🔍 라우터에서 받은 placeId:', placeId);
-
+    if (!placeId) return;
     setPlaceId(Number(placeId));
 
     axios.get(`http://localhost:8080/place/${placeId}`)
-      .then(res => {
-        console.log('📦 장소 데이터:', res.data);
-        setPlace(res.data);
-      })
-      .catch(err => {
-        console.error('❌ 장소 정보 로딩 실패:', err);
-        setMessage('장소 정보를 불러오지 못했습니다.');
-      });
+      .then(res => setPlace(res.data))
+      .catch(err => setMessage('장소 정보를 불러오지 못했습니다.'));
   }, [router.isReady, router.query.placeId]);
+
+  useEffect(() => {
+    if (placeId) checkFavorite();
+  }, [placeId]);
 
   useEffect(() => {
     axios.get('http://localhost:8080/reserv/disabled-dates')
       .then(res => {
         const allDisabled = [];
         const today = new Date();
-
         res.data.forEach(({ startDate, endDate }) => {
           if (parseISO(endDate) >= today) {
             const range = eachDayOfInterval({
@@ -202,19 +200,14 @@ function PlaceReservCreatePage() {
             allDisabled.push(...range);
           }
         });
-
         setDisabledDates(allDisabled);
       })
-      .catch(err => {
-        console.error('예약 불가 날짜 불러오기 실패', err);
-      });
+      .catch(err => console.error('예약 불가 날짜 불러오기 실패', err));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const expireAtDate = addDays(new Date(), 5);
-
     const payload = {
       startDate: format(dateRange[0].startDate, 'yyyy-MM-dd'),
       endDate: format(dateRange[0].endDate, 'yyyy-MM-dd'),
@@ -229,20 +222,17 @@ function PlaceReservCreatePage() {
     try {
       const res = await axios.post('http://localhost:8080/reserv', payload);
       alert('예약 성공! 🎉');
-
-      const reservId = res.data.id;
-
       router.push({
         pathname: '/pay/pay',
         query: {
-          reservId,
+          reservId: res.data.id,
           memberId,
           countPeople,
           countPet,
           startDate: payload.startDate,
           endDate: payload.endDate,
-          amount: 10000
-        }
+          amount: 10000,
+        },
       });
     } catch (err) {
       const errorMsg = err.response?.data || '예약 생성 실패';
@@ -251,10 +241,16 @@ function PlaceReservCreatePage() {
     }
   };
 
+  const fallbackImages = useMemo(() => {
+    if (!place) return {};
+    const randomNum = Math.floor(Math.random() * 10) + 1;
+    return { [place.id]: `/image/other/randomImage/${randomNum}.jpg` };
+  }, [place]);
+
   return (
-    <>
-      <AppLayout >
-        <div style={layoutStyle.header} />
+    <AppLayout>
+      <div style={{ width: '100%', height: '100px' }} />
+      <ScrollContainer>
         {!place ? (
           <Container>
             <Title>장소 정보를 불러오는 중입니다...</Title>
@@ -262,39 +258,39 @@ function PlaceReservCreatePage() {
         ) : (
           <Container>
             <Title>{place.name}</Title>
-
             <Layout>
               <ImageSection>
-                <img src={place.imageUrl || '/default.jpg'} alt={place.name} />
+                <ImageWrapper>
+                  <img
+                    alt="장소 이미지"
+                    className="place-image"
+                    src={place.imageUrl && place.imageUrl.length > 0 ? place.imageUrl : fallbackImages[place.id]}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/image/other/tempImage.jpg";
+                    }}
+                  />
+                  <img
+                    src={isFavorite ? '/image/other/favorite/favorite.png' : '/image/other/favorite/notFavorite.png'}
+                    alt="즐겨 찾기"
+                    className="favorite-icon"
+                    onClick={toggleFavorite}
+                  />
+                </ImageWrapper>
                 <p>{place.description || '반려동물과 함께하는 행복한 여행!'}</p>
-
                 <p><strong>📍 주소:</strong> {place.region}</p>
                 <p><strong>☎️ 전화:</strong> {place.phone}</p>
                 <p><strong>💰 가격:</strong> {place.price}</p>
                 <p><strong>📂 카테고리:</strong> {place.placeType?.name}</p>
-
-                {/* <p>
-                <strong>🐾 반려동물 동반:</strong>{' '}
-                {place.petFriendly ? '가능' : '불가'} /{' '}
-                {place.petVerified ? '인증됨' : '미인증'}
-              </p> */}
-
                 {place.homePage && (
-                  <p>
-                    <strong>🔗 홈페이지:</strong>{' '}
-                    <a href={place.homePage} target="_blank" rel="noopener noreferrer">
-                      {place.homePage}
-                    </a>
-                  </p>
+                  <p><strong>🔗 홈페이지:</strong> <a href={place.homePage} target="_blank" rel="noopener noreferrer">{place.homePage}</a></p>
                 )}
               </ImageSection>
-
-
               <Form onSubmit={handleSubmit}>
                 <div>
                   <Label>예약 날짜</Label>
                   <DateRange
-                    editableDateInputs={true}
+                    editableDateInputs
                     onChange={item => setDateRange([item.selection])}
                     moveRangeOnFirstSelection={false}
                     ranges={dateRange}
@@ -302,39 +298,24 @@ function PlaceReservCreatePage() {
                     disabledDates={disabledDates}
                   />
                 </div>
-
-                <ExpireText>⏳ 만료일: <strong>{format(addDays(new Date(), 5), 'yyyy-MM-dd')}</strong> (자동 설정)</ExpireText>
-
+                <ExpireText>⏳ 만료일: <strong>{format(addDays(new Date(), 5), 'yyyy-MM-dd')}</strong></ExpireText>
                 <div>
                   <Label>인원 수</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={countPeople}
-                    onChange={(e) => setCountPeople(e.target.value)}
-                  />
+                  <Input type="number" min="1" value={countPeople} onChange={(e) => setCountPeople(e.target.value)} />
                 </div>
-
                 <div>
                   <Label>반려동물 수</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={countPet}
-                    onChange={(e) => setCountPet(e.target.value)}
-                  />
+                  <Input type="number" min="0" value={countPet} onChange={(e) => setCountPet(e.target.value)} />
                 </div>
-
                 <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
-
                 {message && <ErrorMsg>{message}</ErrorMsg>}
               </Form>
             </Layout>
             <PetAssistant />
           </Container>
         )}
-      </AppLayout>
-    </>
+      </ScrollContainer>
+    </AppLayout>
   );
 }
 

@@ -2,9 +2,10 @@ import MypageLayout from "@/components/layout/MypageLayout";
 import React from "react";
 
 const Mypage = () => {
-  return (<MypageLayout>
+  return (
+    <MypageLayout>
 
-  </MypageLayout>);
+    </MypageLayout>);
 }
 
 export default Mypage;

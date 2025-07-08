@@ -59,17 +59,23 @@ public class TripPlanController {
 */
 package com.ssdam.tripPaw.tripPlan;
 
+import com.ssdam.tripPaw.domain.MemberTripPlan;
+import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.dto.TripRecommendRequest;
 import com.ssdam.tripPaw.dto.TripRecommendResponse;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -78,6 +84,7 @@ import java.util.Map;
 public class TripPlanController {
 
     private final TripPlanService tripPlanService;
+    private final MemberTripPlanMapper memberTripPlanMapper;
 
     /**
      * 여행 경로 추천 받기
@@ -122,12 +129,45 @@ public class TripPlanController {
      * 특정 ID의 여행 경로 조회
      */
     @GetMapping("/{id}")
-    public ResponseEntity<TripPlan> getTripById(@PathVariable Long id) {
-        TripPlan plan = tripPlanService.findByIdWithCourses(id);
-        if (plan == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getTripById(@PathVariable Long id) {
+        MemberTripPlan plan = memberTripPlanMapper.findById(id);
+        if (plan == null) return ResponseEntity.notFound().build();
+
+        TripSaveRequest dto = new TripSaveRequest();
+        dto.setTitle(plan.getTripPlan().getTitle());
+        dto.setStartDate(plan.getStartDate().toString());
+        dto.setEndDate(plan.getEndDate().toString());
+        dto.setCountPeople(plan.getCountPeople());
+        dto.setCountPet(plan.getCountPet());
+
+        List<TripSaveRequest.RouteDay> routeData = new ArrayList<>();
+
+        // ✅ TripPlanCourse 하나 = 하루
+        List<TripPlanCourse> courses = plan.getTripPlan().getTripPlanCourses();
+        for (int i = 0; i < courses.size(); i++) {
+            TripPlanCourse course = courses.get(i);
+            TripSaveRequest.RouteDay day = new TripSaveRequest.RouteDay();
+            day.setDay(i + 1); // 1일부터 시작
+
+            List<TripSaveRequest.PlaceDto> places = course.getRoute().getRoutePlaces().stream()
+                .map(rp -> {
+                    Place p = rp.getPlace();
+                    TripSaveRequest.PlaceDto pd = new TripSaveRequest.PlaceDto();
+                    pd.setPlaceId(p.getId());
+                    pd.setName(p.getName());
+                    pd.setLatitude(p.getLatitude());
+                    pd.setLongitude(p.getLongitude());
+                    return pd;
+                })
+                .collect(Collectors.toList());
+
+            day.setPlaces(places);
+            routeData.add(day);
         }
-        return ResponseEntity.ok(plan);
+
+        dto.setRouteData(routeData);
+
+        return ResponseEntity.ok(dto);
     }
 
     /**
