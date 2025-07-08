@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import DayScheduleList from '../../components/TripPlanEdit/DayScheduleList';
+import DayScheduleList from '../../components/tripPlan/DayScheduleList';
 import AppLayout from '../../components/AppLayout';
-import ActionButtons from '../../components/TripPlanEdit/ActionButtons';
-import TitleModal from '../../components/TripPlanEdit/TitleModal';
+import MypageActionButton from '../../components/tripPlan/MypageAcionButton';
+import TitleModal from '../../components/tripPlan/TitleModal';
 import axios from 'axios';
+import { format } from 'date-fns';
 
-// SSR 비활성화된 카카오맵 컴포넌트
 const RouteMapNoSSR = dynamic(() => import('../../components/tripPlan/RouteMap'), {
     ssr: false,
 });
@@ -56,9 +56,9 @@ const layoutStyle = {
     },
 };
 
-const RouteRecommendPage = () => {
+const TripPlanDetail = () => {
     const router = useRouter();
-    const mapRef = useRef(null); // 🌟 지도 캡처용 ref
+    const mapRef = useRef(null);
 
     const [routeData, setRouteData] = useState(null);
     const [currentDay, setCurrentDay] = useState(1);
@@ -66,26 +66,35 @@ const RouteRecommendPage = () => {
     const [mapInstance, setMapInstance] = useState(null);
     const [focusDay, setFocusDay] = useState(null);
     const [showModal, setShowModal] = useState(false);
-
-    const requestData = useMemo(() => {
-        if (!router.query.req) return null;
-        try {
-            return JSON.parse(decodeURIComponent(router.query.req));
-        } catch (e) {
-            return null;
-        }
-    }, [router.query.req]);
+    const [countPeople, setCountPeople] = useState(null);
+    const [countPet, setCountPet] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [title, setTitle] = useState('');
 
     useEffect(() => {
-        if (router.query.data) {
+        const fetchTripDetail = async () => {
+            const { id } = router.query;
+            if (!router.isReady || !id) return;
+
             try {
-                const parsed = JSON.parse(decodeURIComponent(router.query.data));
-                setRouteData(parsed);
-            } catch (e) {
-                console.error('데이터 파싱 오류', e);
+                const res = await axios.get(`http://localhost:8080/tripPlan/${id}`);
+                const data = res.data;
+                setRouteData(data.routeData || []);
+                setCountPeople(data.countPeople);
+                setCountPet(data.countPet);
+                setStartDate(data.startDate);
+                setEndDate(data.endDate);
+                setTitle(data.title);
+                console.log('data:', res.data);
+            } catch (err) {
+                console.error("여행 경로 불러오기 실패", err);
             }
-        }
-    }, [router.query]);
+
+        };
+
+        fetchTripDetail();
+    }, [router.isReady, router.query]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -117,7 +126,6 @@ const RouteRecommendPage = () => {
         }
     };
 
-    // 🌟 지도 캡처 함수 전달
     const handleCaptureMap = async () => {
         try {
             return await mapRef.current?.captureMap();
@@ -127,32 +135,62 @@ const RouteRecommendPage = () => {
         }
     };
 
-    // 🌟 여행 저장 핸들러
-    const handleTripSave = async ({ title, startDate, endDate, countPeople, countPet, mapImage }) => {
-        try {
-            const tripData = {
-                title,
-                startDate,
-                endDate,
-                countPeople,
-                countPet,
-                routeData,
-                mapImage, // 🖼️ 캡처된 이미지 포함
-            };
+    const handleEditAndSave = async () => {
+        let mapImageBase64 = null;
 
-            await axios.post('http://localhost:8080/tripPlan/save', tripData);
-            alert('여행 저장 완료!');
-        } catch (error) {
-            console.error('저장 실패:', error);
-            alert('저장 중 오류 발생');
+        try {
+            mapImageBase64 = await handleCaptureMap();
+        } catch (err) {
+            console.warn('지도 캡처 실패:', err);
+        }
+
+        const travelData = {
+            title,
+            startDate,
+            endDate,
+            countPeople,
+            countPet,
+            mapImage: mapImageBase64,
+            routeData,
+        };
+
+        try {
+            const res = await axios.post('http://localhost:8080/tripPlan/edit', travelData);
+            const tripId = res.data?.tripId;
+            if (tripId) {
+                router.push({
+                    pathname: `/tripPlan/tripPlanEdit/${tripId}`,
+                    query: {
+                        id: tripId,
+                        startDate,
+                        endDate,
+                        countPeople,
+                        countPet,
+                    },
+                });
+            } else {
+                alert('여행 저장 후 이동 실패');
+            }
+        } catch (err) {
+            console.error('수정용 저장 실패:', err);
+            alert('저장 실패');
         }
     };
+
+    //이대로 예약하기 : 추가
 
     return (
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
-                <h1>강아지와 함께! 에너지 넘치는 파워 여행 루틴</h1>
+                <h1>{title || '여행 상세 보기'}</h1>
+
+                {startDate && endDate && (
+                    <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
+                        {format(new Date(startDate), 'yyyy.MM.dd')} ~ {format(new Date(endDate), 'yyyy.MM.dd')}
+                    </p>
+                )}
+                <div>{countPeople}명 {countPet}견</div>
 
                 <div style={layoutStyle.divider}>
                     <div style={layoutStyle.dividerLine} />
@@ -161,7 +199,7 @@ const RouteRecommendPage = () => {
                 <div style={layoutStyle.contentBox}>
                     <div id="map-capture-target" style={layoutStyle.mapContainer}>
                         <RouteMapNoSSR
-                            ref={mapRef} // 📌 ref 연결
+                            ref={mapRef}
                             routeData={routeData}
                             focusDay={focusDay}
                             setFocusDay={setFocusDay}
@@ -178,24 +216,16 @@ const RouteRecommendPage = () => {
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
                         />
-                        <ActionButtons onSave={() => setShowModal(true)} />
-                    </div>
-
-                    {showModal && (
-                        <TitleModal
-                            onClose={() => setShowModal(false)}
-                            onSave={handleTripSave}
-                            defaultStartDate={requestData?.startDate}
-                            defaultEndDate={requestData?.endDate}
-                            defaultCountPeople={requestData?.countPeople}
-                            defaultCountPet={requestData?.countPet}
-                            onCaptureMap={handleCaptureMap} // 📸 전달
+                        <MypageActionButton
+                            // 예약하기 추가
+                            //onReserv={() => }
+                            onEdit={() => handleEditAndSave()}
                         />
-                    )}
+                    </div>
                 </div>
             </div>
         </AppLayout>
     );
 };
 
-export default RouteRecommendPage;
+export default TripPlanDetail;

@@ -95,7 +95,7 @@ const ContentHeader = ({ theme }) => {
         />
         {isLoggedIn ? <div style={{ display: "flex" }}>
           <UserOutlined
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/mypage')}
             style={{ marginRight: '25px', color: isWhite ? 'white' : 'black' }}
           />
           <div>
