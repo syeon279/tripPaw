@@ -50,6 +50,8 @@ const MyReviewList = ({ memberId }) => {
 
   const getWeatherImageFileName = (condition) => {
     switch (condition) {
+      case '맑음':
+        return 'sun.png';
       case '흐림':
         return 'cloudy.png';
       case '비':
@@ -79,33 +81,39 @@ const MyReviewList = ({ memberId }) => {
 
       {/* 👇 날씨 아이콘 위치 조정 */}
       <div style={{ position: 'absolute', top: 56, right: 16 }}>
-        {review.weatherCondition === '맑음' && <SunOutlined style={{ color: 'orange', fontSize: 24 }} />}
+        {review.weatherCondition === '맑음' && (
+          <img
+            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
+            alt={review.weatherCondition}
+            style={{ width: 40, height: 40 }}
+          />
+        )}
         {review.weatherCondition === '흐림' && 
           (<img
             src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
             alt={review.weatherCondition}
-            style={{ width: 50, height: 50 }}
+            style={{ width: 40, height: 40 }}
             />
           )}
         {review.weatherCondition === '비' && 
           (<img
             src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
             alt={review.weatherCondition}
-            style={{ width: 50, height: 50 }}
+            style={{ width: 40, height: 40 }}
             />
           )}
         {review.weatherCondition === '눈' && 
           (<img
             src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
             alt={review.weatherCondition}
-            style={{ width: 50, height: 50 }}
+            style={{ width: 40, height: 40 }}
             />
           )}
         {review.weatherCondition === '구름많음' && 
           (<img
             src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
             alt={review.weatherCondition}
-            style={{ width: 50, height: 50 }}
+            style={{ width: 40, height: 40 }}
             />
           )}
         {review.weatherCondition === '알 수 없음' && (

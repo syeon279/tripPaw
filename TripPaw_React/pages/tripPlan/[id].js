@@ -206,6 +206,20 @@ const TripPlanDetail = () => {
         }
     };
 
+    const handleGoToReview = () => {
+        router.push({
+            pathname: '/review/write',
+            query: {
+            title,
+            startDate,
+            endDate,
+            countPeople,
+            countPet,
+            tripPlanId: router.query.id, // 현재 tripPlanId도 같이 넘겨주면 유용
+            },
+        });
+    };
+
     // ✅ isMyTrip 조건: 여행을 만든 사람이 로그인 유저일 때
     const isMyTrip = true;
 
@@ -252,6 +266,7 @@ const TripPlanDetail = () => {
                             // 예약하기 추가
                             //onReserv={() => }
                             onEdit={() => handleEditAndSave()}
+                            onReview={handleGoToReview}
                             isMyTrip={isMyTrip}
                         />
                     </div>
