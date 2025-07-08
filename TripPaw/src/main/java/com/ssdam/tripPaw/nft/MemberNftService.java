@@ -2,8 +2,11 @@ package com.ssdam.tripPaw.nft;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
+
 import com.ssdam.tripPaw.domain.MemberNft;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,5 +38,11 @@ public class MemberNftService {
     // 유저 NFT 삭제
     public void deleteMemberNft(Long id, String memberId) {
         memberNftMapper.deleteByIdAndMemberId(id, memberId);
+    }
+    
+    // NFT 선물 기능
+    public void giftNft(Long nftId, String fromMemberId, String toMemberId) {
+        // 선물하기: 기존 소유자가 toMemberId로 변경
+        memberNftMapper.giftNft(nftId, fromMemberId, toMemberId);
     }
 }
