@@ -44,6 +44,10 @@ public class Reserv {
 	private int countPeople;
 	private int countPet;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "pay_id") // 외래키 이름 (nullable 허용 가능)
+	private Pay pay;
+	
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;

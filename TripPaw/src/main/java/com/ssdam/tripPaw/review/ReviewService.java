@@ -65,6 +65,10 @@ public class ReviewService {
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
 
 	private final String apiKey = "sk-...";
+	
+	public List<Reserv> getReservListForTripPlanReview(Long tripPlanId, Long memberId) {
+        return reservMapper.findByTripPlanIdAndMember(tripPlanId, memberId);
+    }
 
 	public void saveReviewWithWeather(ReviewDto dto, List<MultipartFile> images) {
 	    // 1. 회원 객체 준비
@@ -106,17 +110,29 @@ public class ReviewService {
 	    } else if ("PLACE".equalsIgnoreCase(reviewType.getTargetType())) {
 	        Reserv reserv = reservMapper.findByIdWithPlace(targetId);
 	        if (reserv == null) throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
+
 	        System.out.println("[DEBUG] 예약 start_date: " + reserv.getStartDate());
 
+	        // 1. 경로 기반 장소 리뷰인지 확인
+	        if (reserv.getTripPlan() != null) {
+	            System.out.println("[DEBUG] 경로 기반 장소 리뷰입니다.");
+	            // 필요시 추가 로직 삽입 가능
+	        } else {
+	            System.out.println("[DEBUG] 단독 장소 예약 리뷰입니다.");
+	        }
+
+	        // 2. 장소 정보 확인
 	        Place place = reserv.getPlace();
 	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
 	            throw new RuntimeException("예약에 연결된 장소 정보 부족");
 	        }
 
+	        // 3. 좌표 및 날짜 추출
 	        lat = parseCoordinate(place.getLatitude(), "위도");
 	        lon = parseCoordinate(place.getLongitude(), "경도");
 	        date = reserv.getStartDate();
 
+	        // 4. 리뷰 저장 시 장소 ID로 저장
 	        targetId = place.getId();
 	    } else {
 	        throw new RuntimeException("알 수 없는 리뷰 타입입니다.");
@@ -149,6 +165,8 @@ public class ReviewService {
 	            reviewImageMapper.insertReviewImage(reviewImage);
 	        }
 	    }
+	    // 뱃지 부여
+	    this.evaluateAndGrantBadges(member.getId());
 	}
 	
 	public String getWeatherCondition(String type, Long targetId) {
@@ -209,6 +227,10 @@ public class ReviewService {
     public List<Review> getMemberReviews(Long memberId) {
         return reviewMapper.findByMemberId(memberId);
     }
+    public List<MyReviewDto> getMyReviews(Long memberId) {
+        return reviewMapper.findMyReviewsByMemberId(memberId);
+    }
+
     public List<Review> getReviewsByPlaceId(Long placeId) {
         return reviewMapper.findByPlaceId(placeId);
     }
@@ -268,13 +290,20 @@ public class ReviewService {
     //리뷰삭제
     @Transactional
 	public void deleteReview(Review review) {
+    	Long reviewId = review.getId();
+
+        // 1. 좋아요 삭제
+        reviewMapper.deleteLikesByReviewId(reviewId);
+
+        // 2. 이미지 URL 삭제
 		List<String> imageUrls = reviewImageMapper.findImageUrlsByReviewId(review.getId());
 	    for (String url : imageUrls) {
 	        fileUploadService.delete(url); // S3�뿉�꽌 �궘�젣
 	    }
-		// 由щ럭 �궘�젣 �쟾 �씠誘몄� �궘�젣
-	    reviewImageMapper.deleteImagesByReviewId(review.getId());
 	    
+	    // 3. 이미지 DB 삭제
+	    reviewImageMapper.deleteImagesByReviewId(review.getId());
+	    // 4. 리뷰 삭제
 		reviewMapper.deleteReview(review);
 	}
     
@@ -342,8 +371,12 @@ public class ReviewService {
 
         for (Badge badge : eligibleBadges) {
             if (!badgeMapper.hasBadge(memberId, badge.getId())) {
-                badgeMapper.insertBadge(memberId, badge.getId());
+                badgeMapper.insertMemberBadge(memberId, badge.getId());
             }
         }
+    }
+ 	
+ 	public List<Badge> getBadgesByMemberId(Long memberId) {
+        return badgeMapper.findBadgesByMemberId(memberId);
     }
 }

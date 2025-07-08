@@ -17,9 +17,12 @@ public interface ReviewMapper {
 	
 	void deleteReview(Review review);
 	
+	void deleteLikesByReviewId(Long reviewId);
+	
 	Review findById(@Param("id") Long id);
 	
 	List<Review> findByMemberId(Long memberId);
+	List<MyReviewDto> findMyReviewsByMemberId(Long memberId);
 	
 	List<Review> findByTarget(@Param("targetId") Long targetId, @Param("reviewTypeId") Long reviewTypeId);
 	
