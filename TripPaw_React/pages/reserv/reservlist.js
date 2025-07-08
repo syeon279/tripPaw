@@ -295,8 +295,16 @@ const ReservList = () => {
           withCredentials: true,
         });
         setReservations(response.data);
+
         if(response.data.length > 0) setLatestState(response.data[0].state);
         else setLatestState(null);
+
+        const grouped = groupByYearMonth(response.data);
+        const defaultOpened = {};
+        Object.keys(grouped).forEach((key) => {
+          defaultOpened[key] = true;
+        });
+        setOpenedSections(defaultOpened);
       } catch (err) {
         setError('예약 정보를 불러오는 데 실패했습니다.');
       } finally {

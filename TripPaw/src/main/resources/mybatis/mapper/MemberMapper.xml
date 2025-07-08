@@ -16,9 +16,9 @@
 		<result property="provider" column="provider" />
 		<result property="createdAt" column="createdAt" />
 		<!-- <result property="role" column="role" /> -->
-	 	<collection property="role" ofType="com.ssdam.tripPaw.member.config.MemberRole">
-        		       <result column="role_name"/>     
-        </collection>
+<collection property="role" ofType="com.ssdam.tripPaw.member.config.MemberRole">
+    <result property="roleName" column="role_name"/>     
+</collection>
 	</resultMap>
 	<!-- <select id="findMemberRoleTypeByMemberId">
 		select * from member_roles where member_id = #{memberId}
@@ -41,9 +41,11 @@
     where m.username = #{username}
   </select>
 
-  <select id="findById" resultMap="memberResultMap">
-    SELECT * FROM member WHERE id = #{id}
-  </select>
+<select id="findById" resultMap="memberResultMap">
+  SELECT m.*, r.role_name
+  FROM member m LEFT JOIN member_roles r ON m.id = r.member_id
+  WHERE m.id = #{id}
+</select>
 
   <select id="findAll" resultMap="memberResultMap">
     SELECT * FROM member

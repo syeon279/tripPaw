@@ -231,7 +231,7 @@ function reservdutch() {
           roomId: roomId,
           content: `
             더치페이 예약을 생성했습니다.<br/>
-            <a href="/pay/dutch?reservId=${reservId}" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#2c7be5;color:white;border-radius:6px;text-decoration:none;">
+            <a href="/pay/dutchjoin?reservId=${reservId}" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#2c7be5;color:white;border-radius:6px;text-decoration:none;">
               참가하기
             </a>
           `,

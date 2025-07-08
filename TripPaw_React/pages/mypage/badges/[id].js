@@ -12,7 +12,6 @@ const MyBadgePage = () => {
   if (!router.isReady) return null;
 
   return (
-    <MyPageLayout>
       <div style={{ display: 'flex', minHeight: '100vh' ,overflow: 'hidden' }}>
         <Sidebar />
         <div style={{ 
@@ -25,7 +24,6 @@ const MyBadgePage = () => {
           <MyBadgeSection memberId={id} />
         </div>
       </div>
-    </MyPageLayout>
   );
 };
 
