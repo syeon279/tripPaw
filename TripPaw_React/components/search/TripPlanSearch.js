@@ -1,7 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 const TripPlanSearch = ({ keyword, setKeyword, handleSearch, handleKeyPress }) => {
+    const recommendedKeywords = [
+        '🧐 어디를 가볼까요?', '서울 여행',
+        '🧐 어디를 가볼까요?', ' 관광지',
+        '🧐 어디를 가볼까요?', ' 제주도 맛집',
+        '🧐 어디를 가볼까요?', ' 맛집',
+        '🧐 어디를 가볼까요?', ' 반려견 동반 카페',
+        '🧐 어디를 가볼까요?', '  레포츠',
+        '🧐 어디를 가볼까요?', ' 숙박',
+        '🧐 어디를 가볼까요?', '  쇼핑',
+        '🧐 어디를 가볼까요?', '  호텔'
+    ];
+
+    const [placeholder, setPlaceholder] = useState(recommendedKeywords[0]);
+    const [index, setIndex] = useState(0);
+    const [fade, setFade] = useState(true); // fade 애니메이션용
+
+    useEffect(() => {
+        if (keyword) return; // 사용자가 입력 중이면 변경 멈춤
+
+        const interval = setInterval(() => {
+            setFade(false); // fade out
+
+            setTimeout(() => {
+                const nextIndex = (index + 1) % recommendedKeywords.length;
+                setPlaceholder(recommendedKeywords[nextIndex]);
+                setIndex(nextIndex);
+                setFade(true); // fade in
+            }, 300); // fade out 후 placeholder 변경
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [index, keyword]);
+
     const containerStyle = {
         position: 'relative',
         width: '100vw',
@@ -55,6 +88,8 @@ const TripPlanSearch = ({ keyword, setKeyword, handleSearch, handleKeyPress }) =
         width: '480px',
         marginRight: '20px',
         fontSize: '1.1rem',
+        transition: 'opacity 0.3s ease-in-out',
+        opacity: fade ? 1 : 0,
     };
 
     return (
@@ -80,7 +115,7 @@ const TripPlanSearch = ({ keyword, setKeyword, handleSearch, handleKeyPress }) =
                         <input
                             style={inputStyle}
                             type="text"
-                            placeholder=" 검색어를 입력해주세요"
+                            placeholder={placeholder}
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
                             onKeyPress={handleKeyPress}

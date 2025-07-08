@@ -5,8 +5,7 @@
 <mapper namespace="com.ssdam.tripPaw.search.SearchMapper">
 
 	<!-- 여행 코스 검색 -->
-	<resultMap id="searchTripPlanMap"
-		type="com.ssdam.tripPaw.domain.TripPlan">
+	<resultMap id="searchTripPlanMap" type="com.ssdam.tripPaw.domain.TripPlan">
 		<id property="id" column="tp_id" />
 		<result property="title" column="title" />
 		<result property="days" column="days" />
@@ -14,20 +13,16 @@
 		<result property="createdAt" column="created_at" />
 		<result property="imageUrl" column="image_url" />
 
-		<collection property="tripPlanCourses"
-			ofType="com.ssdam.tripPaw.domain.TripPlanCourse">
+		<collection property="tripPlanCourses" ofType="com.ssdam.tripPaw.domain.TripPlanCourse">
 			<id property="id" column="c_id" />
-			<association property="route"
-				javaType="com.ssdam.tripPaw.domain.Route">
+			<association property="route" javaType="com.ssdam.tripPaw.domain.Route">
 				<id property="id" column="route_id" />
-				<collection property="routePlaces"
-					ofType="com.ssdam.tripPaw.domain.RoutePlace">
+				<collection property="routePlaces" ofType="com.ssdam.tripPaw.domain.RoutePlace">
 					<id property="id" column="rp_id" />
 					<result property="sequence" column="sequence" />
-					<association property="place"
-						javaType="com.ssdam.tripPaw.domain.Place">
+					<association property="place" javaType="com.ssdam.tripPaw.domain.Place">
 						<id property="id" column="place_id" />
-						<result property="name" column="name" />
+						<result property="name" column="place_name" />
 						<result property="latitude" column="latitude" />
 						<result property="longitude" column="longitude" />
 					</association>
@@ -35,8 +30,7 @@
 			</association>
 		</collection>
 
-		<collection property="reviews"
-			ofType="com.ssdam.tripPaw.domain.Review">
+		<collection property="reviews" ofType="com.ssdam.tripPaw.domain.Review">
 			<id property="id" column="review_id" />
 			<result property="content" column="review_content" />
 			<result property="rating" column="rating" />
@@ -47,10 +41,9 @@
 	</resultMap>
 
 	<!-- 장소 검색 -->
-	<resultMap id="searchPlaceResultMap"
-		type="com.ssdam.tripPaw.domain.Place">
+	<resultMap id="searchPlaceResultMap" type="com.ssdam.tripPaw.domain.Place">
 		<id property="id" column="place_id" />
-		<result property="name" column="name" />
+		<result property="name" column="place_name" />
 		<result property="description" column="description" />
 		<result property="latitude" column="latitude" />
 		<result property="longitude" column="longitude" />
@@ -67,20 +60,17 @@
 		<result property="externalContentId" column="external_content_id" />
 		<result property="source" column="source" />
 
-		<association property="placeType"
-			javaType="com.ssdam.tripPaw.domain.PlaceType">
+		<association property="placeType" javaType="com.ssdam.tripPaw.domain.PlaceType">
 			<id property="id" column="place_type_id" />
 			<result property="name" column="place_type_name" />
 		</association>
 
-		<collection property="placeImages"
-			ofType="com.ssdam.tripPaw.domain.PlaceImage">
+		<collection property="placeImages" ofType="com.ssdam.tripPaw.domain.PlaceImage">
 			<id property="id" column="place_image_id" />
 			<result property="imageUrl" column="place_image_url" />
 		</collection>
 
-		<collection property="reviews"
-			ofType="com.ssdam.tripPaw.domain.Review">
+		<collection property="reviews" ofType="com.ssdam.tripPaw.domain.Review">
 			<id property="id" column="review_id" />
 			<result property="content" column="review_content" />
 			<result property="rating" column="rating" />
@@ -91,44 +81,73 @@
 	</resultMap>
 
 	<!-- 장소 검색 쿼리 -->
-	<select id="searchPlacesByKeyword" parameterType="string"
-		resultMap="searchPlaceResultMap">
+	<select id="searchPlacesByKeyword" parameterType="string" resultMap="searchPlaceResultMap">
 		SELECT
-		p.id AS place_id, p.name, p.description, p.latitude, p.longitude,
-		p.region, p.open_hours, p.pet_friendly, p.pet_verified, p.rest_days,
-		p.price, p.parking, p.phone, p.image_url, p.home_page,
-		p.external_content_id, p.source,
+		p.id AS place_id,
+		p.name AS place_name,
+		p.description,
+		p.latitude,
+		p.longitude,
+		p.region,
+		p.open_hours,
+		p.pet_friendly,
+		p.pet_verified,
+		p.rest_days,
+		p.price,
+		p.parking,
+		p.phone,
+		p.image_url,
+		p.home_page,
+		p.external_content_id,
+		p.source,
 
 		pt.id AS place_type_id,
 		pt.name AS place_type_name,
 
-		r.id AS review_id, r.content AS review_content, r.rating,
-		r.created_at AS review_created_at, r.updated_at AS review_updated_at,
+		r.id AS review_id,
+		r.content AS review_content,
+		r.rating,
+		r.created_at AS review_created_at,
+		r.updated_at AS review_updated_at,
 		r.target_id,
 
 		pi.id AS place_image_id,
 		pi.image_url AS place_image_url
 
 		FROM place p
-		LEFT JOIN place_type pt ON p.place_type_id = pt.id
+		INNER JOIN place_type pt ON p.place_type_id = pt.id
 		LEFT JOIN review r ON p.id = r.target_id AND r.review_type_id = 2
 		LEFT JOIN place_image pi ON p.id = pi.place_id
-		WHERE p.name LIKE CONCAT('%', #{keyword}, '%')
+
+		WHERE
+		LOWER(p.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+		OR LOWER(pt.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
 	</select>
 
 	<!-- 여행 코스 검색 쿼리 -->
-	<select id="searchTripPlansByKeyword" parameterType="string"
-		resultMap="searchTripPlanMap">
+	<select id="searchTripPlansByKeyword" parameterType="string" resultMap="searchTripPlanMap">
 		SELECT
-		tp.id AS tp_id, tp.title, tp.days, tp.is_public, tp.created_at,
+		tp.id AS tp_id,
+		tp.title,
+		tp.days,
+		tp.is_public,
+		tp.created_at,
 		tp.image_url,
+
 		c.id AS c_id,
 		r.id AS route_id,
-		rp.id AS rp_id, rp.sequence,
-		p.id AS place_id, p.name, p.latitude, p.longitude,
+		rp.id AS rp_id,
+		rp.sequence,
+		p.id AS place_id,
+		p.name AS place_name,
+		p.latitude,
+		p.longitude,
 
-		rv.id AS review_id, rv.content AS review_content, rv.rating,
-		rv.created_at AS review_created_at, rv.updated_at AS review_updated_at,
+		rv.id AS review_id,
+		rv.content AS review_content,
+		rv.rating,
+		rv.created_at AS review_created_at,
+		rv.updated_at AS review_updated_at,
 		rv.target_id
 
 		FROM trip_plan tp

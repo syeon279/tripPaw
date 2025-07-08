@@ -3,6 +3,7 @@ package com.ssdam.tripPaw.tripPlan;
 import com.ssdam.tripPaw.dto.TripRecommendRequest;
 import com.ssdam.tripPaw.dto.TripRecommendResponse;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.domain.*;
 
@@ -12,9 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,122 +26,204 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class TripPlanService {
 
-    private final PlaceMapper placeMapper;
-    private final TripPlanMapper tripPlanMapper;
+	private final PlaceMapper placeMapper;
+	private final TripPlanMapper tripPlanMapper;
+	private final MemberTripPlanMapper memberTripPlanMapper;
 
-    @Value("${upload.directory:C:/upload/tripThumbnails/}")
-    private String uploadDir;
+	@Value("${upload.directory:C:/upload/tripThumbnails/}")
+	private String uploadDir;
 
-    public List<TripRecommendResponse> recommend(TripRecommendRequest request) {
-        LocalDate startDate = LocalDate.parse(request.getStartDate());
-        LocalDate endDate = LocalDate.parse(request.getEndDate());
-        int totalDays = calculateTripDays(startDate, endDate);
+	// 여행 추천 받기
+	public List<TripRecommendResponse> recommend(TripRecommendRequest request) {
+		LocalDate startDate = LocalDate.parse(request.getStartDate());
+		LocalDate endDate = LocalDate.parse(request.getEndDate());
+		int totalDays = calculateTripDays(startDate, endDate);
 
-        List<TripRecommendResponse> tripPlans = new ArrayList<>();
+		List<TripRecommendResponse> tripPlans = new ArrayList<>();
 
-        for (int i = 0; i < totalDays; i++) {
-            List<Place> dailyPlaces = placeMapper.findRecommendedPlacesByRandom(
-                request.getRegion(), request.getSelectedCategoryIds()
-            );
+		for (int i = 0; i < totalDays; i++) {
+			List<TripRecommendResponse.PlaceInfo> placeInfos = new ArrayList<>();
 
-            List<TripRecommendResponse.PlaceInfo> placeInfos = dailyPlaces.stream()
-                .map(p -> new TripRecommendResponse.PlaceInfo(
-                    p.getId(), p.getName(), p.getDescription(), p.getLatitude(), p.getLongitude(), p.getImageUrl()))
-                .collect(Collectors.toList());
+			// 1. 첫 장소: 관광지(placeType 1) 랜덤 추천
+			Place firstPlace = placeMapper.findFirstRandomPlace(
+				request.getRegion(), request.getSelectedCategoryIds());
+			if (firstPlace == null) continue;
+			placeInfos.add(toPlaceInfo(firstPlace));
 
-            tripPlans.add(new TripRecommendResponse(i + 1, placeInfos, startDate, endDate));
-        }
+			// 2. 두 번째 장소: 음식점(placeType 6), 첫 장소 기준 가까운 순
+			Place secondPlace = findNearestPlace(6, request, firstPlace);
+			if (secondPlace != null) placeInfos.add(toPlaceInfo(secondPlace));
 
-        return tripPlans;
-    }
+			// 3. 세 번째 장소: 랜덤 타입 하나 (3, 5, 1 중)
+			int[] randomTypes = {3, 5, 1};
+			int randomType = randomTypes[new Random().nextInt(randomTypes.length)];
+			Place thirdPlace = findNearestPlace(randomType, request, secondPlace != null ? secondPlace : firstPlace);
+			if (thirdPlace != null) placeInfos.add(toPlaceInfo(thirdPlace));
 
-    private int calculateTripDays(LocalDate startDate, LocalDate endDate) {
-        return (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
-    }
+			// 4. 네 번째 장소: 숙박 (4)
+			Place fourthPlace = findNearestPlace(4, request, thirdPlace != null ? thirdPlace : (secondPlace != null ? secondPlace : firstPlace));
+			if (fourthPlace != null) placeInfos.add(toPlaceInfo(fourthPlace));
 
-    public void saveTrip(TripSaveRequest request) {
-        try {
-            // 🖼️ 이미지 저장: 클라이언트에서 전달한 Base64를 파일로 저장
-            String imagePath = saveBase64Image(request.getMapImage());
-            System.out.println("🖼️ 지도 이미지 저장 완료: " + imagePath);
+			tripPlans.add(new TripRecommendResponse(i + 1, placeInfos, startDate, endDate));
+		}
 
-            // 여행 정보 저장
-            TripPlan tripPlan = new TripPlan();
-            tripPlan.setTitle(request.getTitle());
-            tripPlan.setDays(request.getRouteData().size());
-            tripPlan.setPublicVisible(true);
-            tripPlan.setImageUrl(imagePath);
+		return tripPlans;
+	}
 
-            Member member = new Member();
-            member.setId(1L); // TODO: 실제 로그인 사용자 ID 연동 필요
-            tripPlan.setMember(member);
+	private Place findNearestPlace(int placeType, TripRecommendRequest request, Place base) {
+		List<Place> candidates = placeMapper.findPlacesByTypeAndDistance(
+			placeType,
+			request.getRegion(),
+			request.getSelectedCategoryIds(),
+			base.getLatitude(),
+			base.getLongitude(),
+			1
+		);
+		if (candidates == null || candidates.isEmpty()) {
+			candidates = placeMapper.findPlacesByTypeAndDistance(
+				placeType,
+				request.getRegion(),
+				Collections.emptyList(),
+				base.getLatitude(),
+				base.getLongitude(),
+				1
+			);
+		}
+		return candidates.isEmpty() ? null : candidates.get(0);
+	}
 
-            tripPlanMapper.insertTripPlan(tripPlan);
-            System.out.println("📌 TripPlan 저장 완료");
+	private TripRecommendResponse.PlaceInfo toPlaceInfo(Place place) {
+		return new TripRecommendResponse.PlaceInfo(
+			place.getId(),
+			place.getName(),
+			place.getDescription(),
+			String.valueOf(place.getLatitude()),
+			String.valueOf(place.getLongitude()),
+			place.getImageUrl()
+		);
+	}
 
-            // 루트 및 장소 저장
-            for (TripSaveRequest.RouteDay routeDay : request.getRouteData()) {
-                Route route = new Route();
-                route.setName(request.getTitle() + "_" + routeDay.getDay() + "일차");
-                tripPlanMapper.insertRoute(route);
+	private int calculateTripDays(LocalDate startDate, LocalDate endDate) {
+		return (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
+	}
 
-                AtomicInteger sequence = new AtomicInteger(1);
-                for (TripSaveRequest.PlaceDto placeDto : routeDay.getPlaces()) {
-                    Place place = new Place();
-                    place.setId(placeDto.getPlaceId());
+	public TripPlan saveTrip(TripSaveRequest request) {
+		TripPlan tripPlan = new TripPlan();
+		try {
+			String imagePath = saveBase64Image(request.getMapImage());
+			tripPlan.setTitle(request.getTitle());
+			tripPlan.setDays(request.getRouteData().size());
+			tripPlan.setPublicVisible(false);
+			tripPlan.setImageUrl(imagePath);
+			Member member = new Member();
+			member.setId(request.getMemberId()); 
+			tripPlan.setMember(member);
+			tripPlanMapper.insertTripPlan(tripPlan);
 
-                    RoutePlace routePlace = new RoutePlace();
-                    routePlace.setRoute(route);
-                    routePlace.setPlace(place);
-                    routePlace.setSequence(sequence.getAndIncrement());
+			for (TripSaveRequest.RouteDay routeDay : request.getRouteData()) {
+				Route route = new Route();
+				route.setName(request.getTitle() + "_" + routeDay.getDay() + "일차");
+				tripPlanMapper.insertRoute(route);
 
-                    tripPlanMapper.insertRoutePlace(routePlace);
-                }
+				AtomicInteger sequence = new AtomicInteger(1);
+				for (TripSaveRequest.PlaceDto placeDto : routeDay.getPlaces()) {
+					Place place = new Place();
+					place.setId(placeDto.getPlaceId());
+					RoutePlace routePlace = new RoutePlace();
+					routePlace.setRoute(route);
+					routePlace.setPlace(place);
+					routePlace.setSequence(sequence.getAndIncrement());
+					tripPlanMapper.insertRoutePlace(routePlace);
+				}
 
-                TripPlanCourse course = new TripPlanCourse();
-                course.setTripPlan(tripPlan);
-                course.setRoute(route);
-                tripPlanMapper.insertTripPlanCourse(course);
-            }
+				TripPlanCourse course = new TripPlanCourse();
+				course.setTripPlan(tripPlan);
+				course.setRoute(route);
+				tripPlanMapper.insertTripPlanCourse(course);
+			}
 
-            System.out.println("✅ 여행 저장 전체 완료");
+		} catch (Exception e) {
+			throw new RuntimeException("여행 저장 실패", e);
+		}
+		return tripPlan;
+	}
 
-        } catch (Exception e) {
-            System.err.println("❌ 여행 저장 실패: " + e.getMessage());
-            throw new RuntimeException("여행 저장 실패", e);
-        }
-    }
+	public void saveMemberTrip(TripSaveRequest request) {
+		try {
+			String imagePath = saveBase64Image(request.getMapImage());
+			TripPlan tripPlan = new TripPlan();
+			tripPlan.setTitle(request.getTitle());
+			tripPlan.setDays(request.getRouteData().size());
+			tripPlan.setPublicVisible(false);
+			tripPlan.setImageUrl(imagePath);
+			Member member = new Member();
+			member.setId(request.getMemberId()); 
+			tripPlan.setMember(member);
+			tripPlanMapper.insertTripPlan(tripPlan);
 
-    /**
-     * 📥 클라이언트에서 전달된 Base64 PNG 이미지 저장
-     */
-    private String saveBase64Image(String base64Data) {
-        if (base64Data == null || base64Data.isBlank()) {
-            System.out.println("⚠️ Base64 이미지 없음 - 저장 생략");
-            return null;
-        }
+			for (TripSaveRequest.RouteDay routeDay : request.getRouteData()) {
+				Route route = new Route();
+				route.setName(request.getTitle() + "_" + routeDay.getDay() + "일차");
+				tripPlanMapper.insertRoute(route);
 
-        try {
-            String[] parts = base64Data.split(",");
-            String imageBytesString = (parts.length > 1) ? parts[1] : parts[0];
-            byte[] imageBytes = Base64.getDecoder().decode(imageBytesString);
+				AtomicInteger sequence = new AtomicInteger(1);
+				for (TripSaveRequest.PlaceDto placeDto : routeDay.getPlaces()) {
+					Place place = new Place();
+					place.setId(placeDto.getPlaceId());
+					RoutePlace routePlace = new RoutePlace();
+					routePlace.setRoute(route);
+					routePlace.setPlace(place);
+					routePlace.setSequence(sequence.getAndIncrement());
+					tripPlanMapper.insertRoutePlace(routePlace);
+				}
 
-            String fileName = UUID.randomUUID().toString() + ".png";
-            Path savePath = Paths.get(uploadDir, fileName);
-            Files.createDirectories(savePath.getParent());
+				TripPlanCourse course = new TripPlanCourse();
+				course.setTripPlan(tripPlan);
+				course.setRoute(route);
+				tripPlanMapper.insertTripPlanCourse(course);
+			}
 
-            try (InputStream in = new ByteArrayInputStream(imageBytes)) {
-                Files.copy(in, savePath, StandardCopyOption.REPLACE_EXISTING);
-            }
+			MemberTripPlan memberTripPlan = new MemberTripPlan();
+			memberTripPlan.setMember(member);
+			memberTripPlan.setTripPlan(tripPlan);
+			memberTripPlan.setTitleOverride(request.getTitle());
+			memberTripPlan.setPublicVisible(false);
+			memberTripPlan.setStartDate(LocalDate.parse(request.getStartDate()));
+			memberTripPlan.setEndDate(LocalDate.parse(request.getEndDate()));
+			memberTripPlan.setCreatedAt(LocalDateTime.now());
+			memberTripPlan.setCountPeople(request.getCountPeople());
+			memberTripPlan.setCountPet(request.getCountPet());
+			memberTripPlan.setImageUrl(imagePath);
+			memberTripPlanMapper.insert(memberTripPlan);
 
-            return "/thumbnails/" + fileName; // 웹에서 접근 가능한 URL 포맷으로 반환
-        } catch (Exception e) {
-            System.err.println("❌ Base64 이미지 저장 실패: " + e.getMessage());
-            throw new RuntimeException("Base64 이미지 저장 실패", e);
-        }
-    }
+		} catch (Exception e) {
+			throw new RuntimeException("여행 저장 실패", e);
+		}
+	}
 
-    public List<TripPlan> getAllTrips() {
-        return tripPlanMapper.findAllTrips();
-    }
+	private String saveBase64Image(String base64Data) {
+		if (base64Data == null || base64Data.isBlank()) return null;
+		try {
+			String[] parts = base64Data.split(",");
+			String imageBytesString = (parts.length > 1) ? parts[1] : parts[0];
+			byte[] imageBytes = Base64.getDecoder().decode(imageBytesString);
+			String fileName = UUID.randomUUID().toString() + ".png";
+			Path savePath = Paths.get(uploadDir, fileName);
+			Files.createDirectories(savePath.getParent());
+			try (InputStream in = new ByteArrayInputStream(imageBytes)) {
+				Files.copy(in, savePath, StandardCopyOption.REPLACE_EXISTING);
+			}
+			return "/thumbnails/" + fileName;
+		} catch (Exception e) {
+			throw new RuntimeException("Base64 이미지 저장 실패", e);
+		}
+	}
+
+	public List<TripPlan> getAllTrips() {
+		return tripPlanMapper.findAllTrips();
+	}
+
+	public TripPlan findByIdWithCourses(Long id) {
+		return tripPlanMapper.findByIdWithCourses(id);
+	}
 }

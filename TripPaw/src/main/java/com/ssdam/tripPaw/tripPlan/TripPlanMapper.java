@@ -11,6 +11,7 @@ import com.ssdam.tripPaw.domain.TripPlanCourse;
 
 @Mapper
 public interface TripPlanMapper {
+	
 	TripPlan findByIdWithCourses(Long id); // JOIN해서 course, route, route_place, place까지 가져오기
 
 	int insertTripPlan(TripPlan tripPlan);
@@ -21,5 +22,6 @@ public interface TripPlanMapper {
 
 	int insertTripPlanCourse(TripPlanCourse course);
 
-	List<TripPlan> findAllTrips(); 
+	List<TripPlan> findAllTrips();
+
 }

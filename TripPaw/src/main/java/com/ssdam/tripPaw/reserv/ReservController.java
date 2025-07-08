@@ -93,22 +93,23 @@ public class ReservController {
     }
     
     @GetMapping("/disabled-dates")
-    public ResponseEntity<List<Map<String, String>>> getDisabledDates() {
-        List<Map<String, Object>> rawRanges = reservMapper.findActiveReservedRanges();
+    public ResponseEntity<List<Map<String, String>>> getDisabledDates(@RequestParam Long placeId) {
+        List<Map<String, Object>> rawRanges = reservMapper.findReservedRangesByPlace(placeId);
 
-        List<Map<String, String>> result = rawRanges.stream().map(row -> {
-            Map<String, String> map = new HashMap<>();
+        List<Map<String, String>> result = rawRanges.stream()
+            .map(row -> {
+                Map<String, String> map = new HashMap<>();
+                Object start = row.get("start_date");
+                Object end = row.get("end_date");
 
-            Object start = row.get("start_date");
-            Object end = row.get("end_date");
-
-            if (start != null && end != null) {
-                map.put("startDate", start.toString());
-                map.put("endDate", end.toString());
-            }
-            return map;
-        }).filter(m -> m.containsKey("startDate") && m.containsKey("endDate"))
-          .collect(Collectors.toList());
+                if (start != null && end != null) {
+                    map.put("startDate", start.toString());
+                    map.put("endDate", end.toString());
+                }
+                return map;
+            })
+            .filter(m -> m.containsKey("startDate") && m.containsKey("endDate"))
+            .collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
     }
