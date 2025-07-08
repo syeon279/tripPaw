@@ -25,7 +25,7 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ onReserv, onEdit, isMyTrip }) => {
+const ActionButtons = ({ onReserv, onEdit, isMyTrip, onReview }) => {
     return (
         <div style={bottonWrapperStyle}>
             <button style={{ ...bottonStyle, background: 'blue' }}
@@ -42,9 +42,10 @@ const ActionButtons = ({ onReserv, onEdit, isMyTrip }) => {
             {isMyTrip && (
                 <button
                     style={{ ...bottonStyle, background: 'green' }}
-                //onClick={onWriteReview}
+                    onClick={onReview}
                 >
                     리뷰 쓰기
+
                 </button>
             )}
         </div>
