@@ -8,6 +8,7 @@ import com.ssdam.tripPaw.domain.NftMetadata;
 public interface NftMetadataMapper {
     List<NftMetadata> findAll();
     NftMetadata findById(Long id);
+    NftMetadata findByTokenId(Long tokenId);
     void insert(NftMetadata nftMetadata);
     void update(NftMetadata nftMetadata);
     void delete(Long id);
