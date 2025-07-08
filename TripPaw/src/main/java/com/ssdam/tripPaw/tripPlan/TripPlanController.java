@@ -59,16 +59,23 @@ public class TripPlanController {
 */
 package com.ssdam.tripPaw.tripPlan;
 
+import com.ssdam.tripPaw.domain.MemberTripPlan;
+import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.dto.TripRecommendRequest;
 import com.ssdam.tripPaw.dto.TripRecommendResponse;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -77,6 +84,7 @@ import java.util.List;
 public class TripPlanController {
 
     private final TripPlanService tripPlanService;
+    private final MemberTripPlanMapper memberTripPlanMapper;
 
     /**
      * 여행 경로 추천 받기
@@ -93,13 +101,73 @@ public class TripPlanController {
     @PostMapping("/save")
     public ResponseEntity<String> saveTrip(@RequestBody TripSaveRequest request) {
         try {
-            tripPlanService.saveTrip(request);
+            tripPlanService.saveMemberTrip(request);
             return ResponseEntity.ok("✅ 여행 저장 완료!");
         } catch (Exception e) {
             String msg = "❌ 여행 저장 실패: " + e.getMessage();
             System.err.println(msg);
             return ResponseEntity.internalServerError().body(msg);
         }
+    }
+    
+    @PostMapping("/edit")
+    public ResponseEntity<Map<String, Object>> editTrip(@RequestBody TripSaveRequest request) {
+        try {
+            TripPlan tripPlan = tripPlanService.saveTrip(request); // 🛠 service가 TripPlan 반환하도록 변경
+            return ResponseEntity.ok(Map.of(
+                "message", "✅ 여행 저장 완료!",
+                "tripId", tripPlan.getId() // 🧭 프론트에 ID 보내주기
+            ));
+        } catch (Exception e) {
+            String msg = "❌ 여행 저장 실패: " + e.getMessage();
+            System.err.println(msg);
+            return ResponseEntity.internalServerError().body(Map.of("error", msg));
+        }
+    }
+
+    /**
+     * 특정 ID의 여행 경로 조회
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTripById(@PathVariable Long id) {
+        MemberTripPlan plan = memberTripPlanMapper.findById(id);
+        if (plan == null) return ResponseEntity.notFound().build();
+
+        TripSaveRequest dto = new TripSaveRequest();
+        dto.setTitle(plan.getTripPlan().getTitle());
+        dto.setStartDate(plan.getStartDate().toString());
+        dto.setEndDate(plan.getEndDate().toString());
+        dto.setCountPeople(plan.getCountPeople());
+        dto.setCountPet(plan.getCountPet());
+
+        List<TripSaveRequest.RouteDay> routeData = new ArrayList<>();
+
+        // ✅ TripPlanCourse 하나 = 하루
+        List<TripPlanCourse> courses = plan.getTripPlan().getTripPlanCourses();
+        for (int i = 0; i < courses.size(); i++) {
+            TripPlanCourse course = courses.get(i);
+            TripSaveRequest.RouteDay day = new TripSaveRequest.RouteDay();
+            day.setDay(i + 1); // 1일부터 시작
+
+            List<TripSaveRequest.PlaceDto> places = course.getRoute().getRoutePlaces().stream()
+                .map(rp -> {
+                    Place p = rp.getPlace();
+                    TripSaveRequest.PlaceDto pd = new TripSaveRequest.PlaceDto();
+                    pd.setPlaceId(p.getId());
+                    pd.setName(p.getName());
+                    pd.setLatitude(p.getLatitude());
+                    pd.setLongitude(p.getLongitude());
+                    return pd;
+                })
+                .collect(Collectors.toList());
+
+            day.setPlaces(places);
+            routeData.add(day);
+        }
+
+        dto.setRouteData(routeData);
+
+        return ResponseEntity.ok(dto);
     }
 
     /**

@@ -125,6 +125,7 @@ public class AuthController {
         String authorities = (String)jwtProvider.getAuthoritie(token);
         // 비밀번호 등 민감 정보는 제외하고 DTO로 만들어 반환하는 것이 좋음
         Map<String, Object> userInfo = Map.of(
+        	"id", member.getId(),
             "username", member.getUsername(),
             "nickname", member.getNickname(),
             "memberId", member.getId(),

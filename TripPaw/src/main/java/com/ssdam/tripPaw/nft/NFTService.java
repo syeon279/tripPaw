@@ -2,6 +2,8 @@ package com.ssdam.tripPaw.nft;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+/*
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.*;
@@ -11,7 +13,7 @@ import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.utils.Numeric;
-
+*/
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -19,7 +21,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class NFTService {
-
+/*
     private final Web3j web3j;
 
     public List<NFTDto> getNFTs(String contractAddress, String walletAddress) throws Exception {
@@ -74,4 +76,6 @@ public class NFTService {
 
         return result;
     }
+    
+    */
 }

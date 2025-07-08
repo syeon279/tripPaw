@@ -25,7 +25,7 @@ public class PlaceSearchDto {
     private String phone;
     private String imageUrl;
     private String homePage;
-    private Long extermalContentId;
+    private Long externalContentId;
     private String source;
 
     private PlaceType placeType;
