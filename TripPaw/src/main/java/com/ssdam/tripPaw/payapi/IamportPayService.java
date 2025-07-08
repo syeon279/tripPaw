@@ -3,6 +3,7 @@ package com.ssdam.tripPaw.payapi;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -82,6 +83,63 @@ public class IamportPayService {
         
         return result;
     }
+    
+    public int verifyAndSaveTotalPayment(String impUid, Set<Long> reservIds, Long memberId) throws IamportResponseException, IOException {
+        // 1. 아임포트 결제 검증
+    	IamportResponse<Payment> response = iamportClient.paymentByImpUid(impUid);
+    	Payment payment = response.getResponse();
+
+    	System.out.println("아임포트 결제금액: " + payment.getAmount());
+
+    	int totalReservedAmount = reservIds.stream()
+    	    .mapToInt(id -> {
+    	        Reserv r = reservMapper.findById(id);
+    	        System.out.println("예약 ID: " + id + ", finalPrice: " + r.getFinalPrice());
+    	        return r.getFinalPrice();
+    	    })
+    	    .sum();
+
+    	System.out.println("예약 총 합계 금액: " + totalReservedAmount);
+
+    	if (payment.getAmount().intValue() != totalReservedAmount) {
+    	    throw new IllegalArgumentException("결제 금액과 예약 합계 금액이 다릅니다.");
+    	}
+
+        // 4. 이미 저장된 impUid 체크
+        if (payMapper.findByImpUid(impUid) != null) {
+            throw new IllegalArgumentException("이미 저장된 imp_uid 입니다.");
+        }
+
+        // 5. 총합 결제 Pay 저장
+        Pay pay = new Pay();
+        pay.setImpUid(payment.getImpUid());
+        pay.setMerchantUid(payment.getMerchantUid());
+        pay.setAmount(payment.getAmount().intValue());
+        pay.setPayMethod(payment.getPayMethod());
+        pay.setPgProvider(payment.getPgProvider());
+        pay.setPaidAt(payment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        pay.setCreatedAt(LocalDateTime.now());
+        pay.setState(PayState.PAID);
+        pay.setHaspayShare(false);
+
+        Member member = Member.builder().id(memberId).build();
+        pay.setMember(member);
+
+        int insertResult = payMapper.insert(pay);
+        if (insertResult <= 0) {
+            throw new RuntimeException("결제 정보 저장 실패");
+        }
+
+        // 6. 예약별로 결제(pay) 연결 및 상태 변경
+        for (Long reservId : reservIds) {
+            Reserv reserv = reservMapper.findById(reservId);
+            reserv.setPay(pay);  // 예약에 총합 결제 pay 연결
+            reserv.setState(ReservState.CONFIRMED);
+            reservMapper.updateWithPay(reserv);
+        }
+
+        return insertResult;
+    }	
     
     public boolean cancelPayment(String impUid, boolean isFullCancel) {
         try {

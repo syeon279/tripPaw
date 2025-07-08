@@ -66,6 +66,7 @@
 	    r.id AS reviewId,
 	    r.content,
 	    r.rating,
+	    r.weather_condition AS weatherCondition,
 	    DATE_FORMAT(r.created_at, '%Y.%m.%d') AS createdAt,
 	    rt.target_type AS reviewType,
 	

@@ -16,5 +16,6 @@ public class MyReviewDto {
     private Date tripEndDate;
     private String imageUrl;
     private int imageCount;
+    private String weatherCondition;
 }
 

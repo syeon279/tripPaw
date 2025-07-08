@@ -29,17 +29,16 @@ public class PayShareController {
     public PayShare getById(@PathVariable Long payId) {
         return payShareService.findById(payId);
     }
-
-    // 새로운 더치페이 항목 추가
-    @PostMapping
-    public void addPayShare(@RequestBody PayShare payShare) {
-        payShareService.insert(payShare);
-    }
-
-    // 삭제
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        payShareService.delete(id);
+    
+    @GetMapping("/my-share/{reservId}")
+    public ResponseEntity<?> getMyPayShare(@PathVariable Long reservId,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        Member member = memberService.findByUsername(userDetails.getUsername());
+        PayShare payShare = payShareService.findByReservIdAndMember(reservId, member);
+        if (payShare == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(payShare);
     }
     
     // 더치페이
@@ -52,7 +51,15 @@ public class PayShareController {
         Pay pay = payShareService.createDutchPay(reservId, owner, participants);
         return ResponseEntity.ok(pay);
     }
-
+    
+    @PostMapping("/dutch/join/{reservId}")
+    public ResponseEntity<?> joinDutchPay(@PathVariable Long reservId,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        Member member = memberService.findByUsername(userDetails.getUsername());
+        payShareService.joinDutchPay(reservId, member);
+        return ResponseEntity.ok("참여 완료");
+    }
+    
     @PostMapping("/dutch/pay/{payShareId}")
     public ResponseEntity<?> completeDutchPay(@PathVariable Long payShareId,
                                               @AuthenticationPrincipal UserDetails userDetails) {

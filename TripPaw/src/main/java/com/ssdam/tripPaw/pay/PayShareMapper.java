@@ -3,6 +3,7 @@ package com.ssdam.tripPaw.pay;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.data.repository.query.Param;
 
 import com.ssdam.tripPaw.domain.PayShare;
 
@@ -13,7 +14,10 @@ public interface PayShareMapper {
 	public int insert(PayShare paygroup);
 	public int delete(Long id);
 	
-    int update(PayShare payShare); // 결제 상태 갱신
-    int countUnpaidByPayId(Long payId); // 결제 안한 인원 수
-    List<PayShare> findByPayId(Long payId); // Pay 기준 전체 조회
+	PayShare findByPayIdAndMemberId(@Param("payId") Long payId, @Param("memberId") Long memberId);
+	int countByPayId(@Param("payId") Long payId);
+    int update(PayShare payShare);
+    int countUnpaidByPayId(Long payId);
+    List<PayShare> findByPayId(@Param("payId") Long payId);
+    PayShare findByReservIdAndMember(@Param("reservId") Long reservId, @Param("memberId") Long memberId);
 }
