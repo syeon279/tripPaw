@@ -118,7 +118,6 @@ const tripPlanMain = () => {
         const fetchCategories = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/category', { withCredentials: true, });
-                console.log('응답 데이터:', response.data); // 👈 여기에 주목
                 setCategories(response.data);
             } catch (error) {
                 console.error('카테고리 불러오기 실패:', error);

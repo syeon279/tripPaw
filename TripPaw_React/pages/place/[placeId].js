@@ -41,7 +41,6 @@ const Layout = styled.div`
 const ImageSection = styled.div`
   flex: 1;
   min-width: 300px;
-
   p {
     color: #555;
     line-height: 1.6;
@@ -52,7 +51,6 @@ const ImageSection = styled.div`
 const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
-
   img.place-image {
     width: 100%;
     height: 280px;
@@ -61,7 +59,6 @@ const ImageWrapper = styled.div`
     margin-bottom: 20px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   }
-
   img.favorite-icon {
     position: absolute;
     top: -5px;
@@ -108,7 +105,6 @@ const SubmitButton = styled.button`
   font-size: 1rem;
   font-weight: bold;
   transition: background 0.3s;
-
   &:hover {
     background-color: #1a5edb;
   }
@@ -119,7 +115,8 @@ const ErrorMsg = styled.p`
   font-weight: bold;
 `;
 
-function PlaceReservCreatePage() {
+
+const PlaceReservCreatePage = () => {
   const router = useRouter();
   const [place, setPlace] = useState(null);
   const [dateRange, setDateRange] = useState([{ startDate: new Date(), endDate: addDays(new Date(), 1), key: 'selection' }]);
@@ -129,61 +126,88 @@ function PlaceReservCreatePage() {
   const [placeId, setPlaceId] = useState(null);
   const [tripPlanId, setTripPlanId] = useState(null);
   const [message, setMessage] = useState('');
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
-  const [memberId, setMemberId] = useState(1);
+  const [isFavorite, setIsFavorite] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [memberId, setMemberId] = useState('');
 
-  // 로그인 한 유저 id가져오기
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    const fetchPlaceAndMember = async () => {
+      if (!router.isReady) return;
+
+      const id = router.query.placeId;
+      if (!id) return;
+      setPlaceId(Number(id));
+
       try {
-        const response = await axios.get('http://localhost:8080/api/auth/check', {
-          withCredentials: true,
-        });
+        const res = await axios.get(`http://localhost:8080/place/${id}`);
+        setPlace(res.data);
+      } catch {
+        setMessage('장소 정보를 불러오지 못했습니다.');
+      }
 
-        console.log('user : ', response.data);
-
-        if (response.status === 200) {
-          setIsLoggedIn(true);
-          // 백엔드에서 받은 username으로 상태 업데이트
-          setMemberId(response.data.id);
-          return true; // 성공 시 true 반환
-        }
-      } catch (error) {
-        console.error("로그인 상태 확인 실패:", error);
-        alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-        router.push('/member/login');
-        return false; // 실패 시 false 반환
+      try {
+        const res = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+        setMemberId(res.data.id);
+        setIsLoggedIn(true);
+      } catch (err) {
+        console.error('로그인 정보 확인 실패:', err);
       }
     };
-    checkLoginStatus();
-  }, [router.isReady, router.query]);
 
-  const checkFavorite = async () => {
-    try {
-      const res = await axios.get(`http://localhost:8080/favorite/check`, {
-        params: {
-          memberId,
-          targetId: placeId,
-          targetType: 'PLACE',
-        }
-      });
-      setIsFavorite(res.status === 200 && res.data);
-    } catch (err) {
-      if (err.response?.status === 204) {
-        setIsFavorite(false);
-      } else {
-        console.error('즐겨찾기 여부 확인 실패', err);
+    fetchPlaceAndMember();
+  }, [router.isReady]);
+
+  // ✅ 즐겨찾기 체크는 placeId, memberId 설정 완료 후 별도로 실행
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!placeId || !memberId) return;
+
+      try {
+        const favRes = await axios.get(`http://localhost:8080/favorite/check`, {
+          params: {
+            memberId,
+            targetId: placeId,
+            targetType: 'PLACE',
+          },
+        });
+
+        setIsFavorite(favRes.status === 200 && Number(favRes.data.targetId) === Number(placeId));
+      } catch (err) {
+        console.error('즐겨찾기 상태 확인 실패:', err);
       }
-    }
-  };
+    };
+
+    checkFavorite();
+  }, [placeId, memberId]);
+
+  useEffect(() => {
+    if (!placeId) return;
+    axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${placeId}`)
+      .then(res => {
+        const allDisabled = [];
+        const today = new Date();
+        res.data.forEach(({ startDate, endDate }) => {
+          if (parseISO(endDate) >= today) {
+            const range = eachDayOfInterval({
+              start: parseISO(startDate),
+              end: parseISO(endDate),
+            });
+            allDisabled.push(...range);
+          }
+        });
+        setDisabledDates(allDisabled);
+      })
+      .catch(err => {
+        console.error('예약 불가 날짜 불러오기 실패', err);
+      });
+  }, [placeId]);
 
   const toggleFavorite = async () => {
     try {
       const payload = {
         targetId: placeId,
         targetType: 'PLACE',
-        member: { id: memberId }
+        member: { id: memberId },
       };
 
       if (isFavorite) {
@@ -192,52 +216,19 @@ function PlaceReservCreatePage() {
         await axios.post(`http://localhost:8080/favorite/add`, payload);
       }
 
-      setIsFavorite(!isFavorite);
+      const res = await axios.get(`http://localhost:8080/favorite/check`, {
+        params: {
+          memberId,
+          targetId: placeId,
+          targetType: 'PLACE',
+        },
+      });
+
+      setIsFavorite(res.status === 200 && Number(res.data.targetId) === Number(placeId));
     } catch (err) {
       console.error('즐겨찾기 토글 실패', err);
     }
   };
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    const { placeId } = router.query;
-    if (!placeId) return;
-    setPlaceId(Number(placeId));
-
-    axios.get(`http://localhost:8080/place/${placeId}`)
-      .then(res => setPlace(res.data))
-      .catch(err => setMessage('장소 정보를 불러오지 못했습니다.'));
-  }, [router.isReady, router.query.placeId]);
-
-  useEffect(() => {
-    if (placeId) checkFavorite();
-  }, [placeId]);
-
-  useEffect(() => {
-    if (!placeId) return;
-
-    axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${placeId}`)
-      .then(res => {
-        const allDisabled = [];
-        const today = new Date();
-
-        res.data.forEach(({ startDate, endDate }) => {
-          if (parseISO(endDate) >= today) {
-            const range = eachDayOfInterval({
-              start: parseISO(startDate),
-              end: parseISO(endDate)
-            });
-            allDisabled.push(...range);
-          }
-        });
-
-        setDisabledDates(allDisabled);
-      })
-      .catch(err => {
-        console.error('예약 불가 날짜 불러오기 실패', err);
-      });
-  }, [placeId]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -252,7 +243,6 @@ function PlaceReservCreatePage() {
       place: { id: placeId },
       tripPlan: tripPlanId ? { id: tripPlanId } : null,
     };
-
     try {
       const res = await axios.post('http://localhost:8080/reserv', payload);
       alert('예약 성공! 🎉');
@@ -304,12 +294,16 @@ function PlaceReservCreatePage() {
                       e.target.src = "/image/other/tempImage.jpg";
                     }}
                   />
-                  <img
-                    src={isFavorite ? '/image/other/favorite/favorite.png' : '/image/other/favorite/notFavorite.png'}
-                    alt="즐겨 찾기"
-                    className="favorite-icon"
-                    onClick={toggleFavorite}
-                  />
+                  {isFavorite !== null && (
+                    <img
+                      src={`${isFavorite
+                        ? '/image/other/favorite/favorite.png'
+                        : '/image/other/favorite/notFavorite.png'}?t=${new Date().getTime()}`}
+                      alt="즐겨 찾기"
+                      className="favorite-icon"
+                      onClick={toggleFavorite}
+                    />
+                  )}
                 </ImageWrapper>
                 <p>{place.description || '반려동물과 함께하는 행복한 여행!'}</p>
                 <p><strong>📍 주소:</strong> {place.region}</p>
@@ -351,6 +345,6 @@ function PlaceReservCreatePage() {
       </ScrollContainer>
     </AppLayout>
   );
-}
+};
 
 export default PlaceReservCreatePage;
