@@ -127,7 +127,7 @@ const SearchResultSection = ({
             >
                 <div style={{ display: 'flex', minWidth: 'fit-content', gap: '12px' }}>
                     {places.length === 0 ? (
-                        <p>일치하는 장소가 없습니다.</p>
+                        <p> 검색 결과가 없어요... </p>
                     ) : (
                         places.map((place) => (
                             <div
@@ -198,36 +198,56 @@ const SearchResultSection = ({
                 <div> 트립포우가 당신에게 딱 맞는 여행경로를 추천해 줄게요 </div>
             </div>
             <div style={{ marginTop: '16px' }}>
-                <div>
+                <div style={{
+                    display: 'flex',
+                    overflowX: 'auto',
+                    marginTop: '16px',
+                    gap: '12px',
+                }}>
                     {tripPlans.length === 0 ? (
-                        <p>일치하는 여행 코스가 없습니다.</p>
+                        <p> 검색 결과가 없어요... </p>
                     ) : (
                         tripPlans.map((plan) => (
                             <div
                                 key={plan.id}
+                                onClick={() => router.push(`/tripPlan/${plan.id}`)}
                                 style={{
-                                    border: '1px solid #aaa',
-                                    borderRadius: '12px',
-                                    padding: '16px',
-                                    marginBottom: '16px',
-                                    backgroundColor: '#f9f9f9',
+                                    borderRadius: '16px',
+                                    backgroundColor: 'white',
+                                    width: '400px',
+                                    display: 'inline-block',
+                                    verticalAlign: 'top',
+                                    marginRight: '12px',
+                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                    border: '1px solid #e0e0e0',
+                                    boxSizing: 'border-box',
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
                                 }}
                             >
-                                <h3>{plan.title}</h3>
-                                <p>기간: {plan.days}일</p>
-                                {plan.imageUrl && (
+                                <div style={{ width: '100%', height: '180px', borderRadius: '16px 16px 0 0', overflow: 'hidden' }}>
                                     <img
-                                        src={plan.imageUrl}
+                                        src={plan.imageUrl || "/image/other/tempImage.jpg"}
                                         alt={plan.title}
-                                        style={{
-                                            width: '100%',
-                                            maxHeight: '200px',
-                                            objectFit: 'cover',
-                                            borderRadius: '8px',
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = "/image/other/tempImage.jpg";
                                         }}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
-                                )}
-                                <p>작성일: {new Date(plan.createdAt).toLocaleDateString()}</p>
+                                </div>
+                                <div style={{ padding: '16px' }}>
+                                    <p style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{plan.title}</p>
+                                    <p style={{ fontSize: '14px', color: '#555', marginTop: '6px' }}>
+                                        🗓 {plan.days}일 일정
+                                    </p>
+                                    <p style={{ fontSize: '12px', color: '#888', marginTop: '6px' }}>
+                                        📅 {new Date(plan.createdAt).toLocaleDateString()}
+                                    </p>
+                                    <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>
+                                        ✨ 트립포우 추천 여행 코스
+                                    </p>
+                                </div>
                             </div>
                         ))
                     )}
