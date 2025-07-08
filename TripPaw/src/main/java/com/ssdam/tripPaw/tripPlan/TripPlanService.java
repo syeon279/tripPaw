@@ -116,7 +116,7 @@ public class TripPlanService {
 			tripPlan.setPublicVisible(false);
 			tripPlan.setImageUrl(imagePath);
 			Member member = new Member();
-			member.setId(1L); // TODO
+			member.setId(request.getMemberId()); 
 			tripPlan.setMember(member);
 			tripPlanMapper.insertTripPlan(tripPlan);
 
@@ -157,7 +157,7 @@ public class TripPlanService {
 			tripPlan.setPublicVisible(false);
 			tripPlan.setImageUrl(imagePath);
 			Member member = new Member();
-			member.setId(1L); // TODO
+			member.setId(request.getMemberId()); 
 			tripPlan.setMember(member);
 			tripPlanMapper.insertTripPlan(tripPlan);
 

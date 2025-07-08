@@ -71,6 +71,7 @@ const TripPlanDetail = () => {
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [title, setTitle] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
     const [userId, setUserId] = useState(1);
 
     useEffect(() => {
@@ -117,6 +118,10 @@ const TripPlanDetail = () => {
                 return false; // 실패 시 false 반환
             }
         };
+
+        // ✅ 함수 호출
+        fetchTripDetail();
+        checkLoginStatus();
 
     }, [router.isReady, router.query]);
 

@@ -68,6 +68,35 @@ const RouteRecommendPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [countPeople, setCountPeople] = useState(null);
     const [countPet, setCountPet] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+    const [memberId, setMemberId] = useState(1);
+
+    // 로그인 한 유저 id가져오기
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                    withCredentials: true,
+                });
+
+                console.log('user : ', response.data);
+
+                if (response.status === 200) {
+                    setIsLoggedIn(true);
+                    // 백엔드에서 받은 username으로 상태 업데이트
+                    setMemberId(response.data.id);
+                    return true; // 성공 시 true 반환
+                }
+            } catch (error) {
+                console.error("로그인 상태 확인 실패:", error);
+                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+                router.push('/member/login');
+                return false; // 실패 시 false 반환
+            }
+        };
+        checkLoginStatus();
+    }, [router.isReady, router.query]);
+
 
     const requestData = useMemo(() => {
         if (!router.query.req) return null;
@@ -145,8 +174,9 @@ const RouteRecommendPage = () => {
                 countPet,
                 routeData,
                 mapImage,
+                memberId,
             };
-
+            console.log('tripData : ', tripData);
             await axios.post('http://localhost:8080/tripPlan/save', tripData);
             alert('여행 저장 완료!');
         } catch (error) {

@@ -19,9 +19,36 @@ const layoutStyle = {
 
 const Trips = () => {
     const router = useRouter();
-    const [memberId] = useState(1); // FIXME: 로그인 사용자 ID로 교체 필요
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+    const [memberId, setMemberId] = useState(1);
     const [trips, setTrips] = useState([]);
     const [fallbackImages, setFallbackImages] = useState({});
+
+    // 로그인 한 유저 id가져오기
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                    withCredentials: true,
+                });
+
+                console.log('user : ', response.data);
+
+                if (response.status === 200) {
+                    setIsLoggedIn(true);
+                    // 백엔드에서 받은 username으로 상태 업데이트
+                    setMemberId(response.data.id);
+                    return true; // 성공 시 true 반환
+                }
+            } catch (error) {
+                console.error("로그인 상태 확인 실패:", error);
+                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+                router.push('/member/login');
+                return false; // 실패 시 false 반환
+            }
+        };
+        checkLoginStatus();
+    }, [router.isReady, router.query]);
 
     useEffect(() => {
         axios.get(`http://localhost:8080/favorite/member/trips/${memberId}`)
