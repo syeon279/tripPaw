@@ -53,12 +53,12 @@ const Trips = () => {
     useEffect(() => {
         axios.get(`http://localhost:8080/favorite/member/trips/${memberId}`)
             .then(res => {
-                const favoriteTrips = res.data;
-                setTrips(favoriteTrips);
-                console.log('넘어온 favoriteTrips : ', favoriteTrips);
+                const myTrips = res.data;
+                setTrips(myTrips);
+                console.log('넘어온 myTrips : ', myTrips);
 
                 const fallbackMap = {};
-                favoriteTrips.forEach(trip => {
+                myTrips.forEach(trip => {
                     const randomNum = Math.floor(Math.random() * 10) + 1;
                     fallbackMap[trip.tripPlanId] = `/image/other/randomImage/${randomNum}.jpg`;
                 });
@@ -85,7 +85,7 @@ const Trips = () => {
                         trips.map((trip) => (
                             <div
                                 key={trip.favoriteId}
-                                onClick={() => router.push(`/tripPlan/${trip.favoriteId}`)}
+                                onClick={() => router.push(`/memberTripPlan/${trip.myTripId}`)}
                                 style={{
                                     borderRadius: '16px',
                                     backgroundColor: 'white',
@@ -122,18 +122,7 @@ const Trips = () => {
                                         {trip.title}
                                     </div>
                                     <div style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>
-                                        총 {trip.days}일 여행
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <span style={{ fontSize: '14px', color: '#f44336' }}>
-                                            {trip.avgRating?.toFixed(1) || '0.0'}
-                                        </span>
-                                        <span style={{ fontSize: '14px', color: '#f44336' }}>
-                                            {'★'.repeat(Math.floor(trip.avgRating || 0)) + '☆'.repeat(5 - Math.floor(trip.avgRating || 0))}
-                                        </span>
-                                        <span style={{ fontSize: '12px', color: '#666' }}>
-                                            | 리뷰 {trip.reviewCount || 0}
-                                        </span>
+                                        {trip.startDate} ~ {trip.endDate}
                                     </div>
                                 </div>
                             </div>

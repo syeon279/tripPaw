@@ -59,10 +59,15 @@ public class TripPlanController {
 */
 package com.ssdam.tripPaw.tripPlan;
 
+import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
+import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
+import com.ssdam.tripPaw.dto.TripPlanSearchDto;
+import com.ssdam.tripPaw.dto.TripPlanSearchDto.PlaceDtoResponse;
+import com.ssdam.tripPaw.dto.TripPlanSearchDto.RouteDayResponse;
 import com.ssdam.tripPaw.dto.TripRecommendRequest;
 import com.ssdam.tripPaw.dto.TripRecommendResponse;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
@@ -84,7 +89,6 @@ import java.util.stream.Collectors;
 public class TripPlanController {
 
     private final TripPlanService tripPlanService;
-    private final MemberTripPlanMapper memberTripPlanMapper;
 
     /**
      * 여행 경로 추천 받기
@@ -128,35 +132,71 @@ public class TripPlanController {
     /**
      * 특정 ID의 여행 경로 조회
      */
+    
     @GetMapping("/{id}")
     public ResponseEntity<?> getTripById(@PathVariable Long id) {
-        MemberTripPlan plan = memberTripPlanMapper.findById(id);
+        TripPlan plan = tripPlanService.findByIdWithCourses(id);
         if (plan == null) return ResponseEntity.notFound().build();
 
-        TripSaveRequest dto = new TripSaveRequest();
-        dto.setTitle(plan.getTripPlan().getTitle());
-        dto.setStartDate(plan.getStartDate().toString());
-        dto.setEndDate(plan.getEndDate().toString());
-        dto.setCountPeople(plan.getCountPeople());
-        dto.setCountPet(plan.getCountPet());
+        TripPlanSearchDto dto = new TripPlanSearchDto();
+        dto.setId(plan.getId());
+        dto.setTitle(plan.getTitle());
+        dto.setDays(plan.getDays());
+        dto.setPublicVisible(plan.isPublicVisible());
+        dto.setCreatedAt(plan.getCreatedAt());
 
-        List<TripSaveRequest.RouteDay> routeData = new ArrayList<>();
+        // 작성자 닉네임만
+        Member author = plan.getMember();
+        dto.setAuthorNickname(author != null ? author.getNickname() : "알 수 없음");
 
-        // ✅ TripPlanCourse 하나 = 하루
-        List<TripPlanCourse> courses = plan.getTripPlan().getTripPlanCourses();
-        for (int i = 0; i < courses.size(); i++) {
-            TripPlanCourse course = courses.get(i);
-            TripSaveRequest.RouteDay day = new TripSaveRequest.RouteDay();
-            day.setDay(i + 1); // 1일부터 시작
+        // 코스, 리뷰 설정
+        List<TripPlanCourse> tripPlanCourses = plan.getTripPlanCourses();
+        dto.setTripPlanCourses(tripPlanCourses);
 
-            List<TripSaveRequest.PlaceDto> places = course.getRoute().getRoutePlaces().stream()
+        List<Review> reviews = plan.getReviews();
+        dto.setReviews(reviews);
+
+        if (reviews != null && !reviews.isEmpty()) {
+            double avgRating = reviews.stream()
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0.0);
+            dto.setAvgRating(avgRating);
+            dto.setReviewCount((long) reviews.size());
+        } else {
+            dto.setAvgRating(0.0);
+            dto.setReviewCount(0L);
+        }
+
+        // 대표 이미지
+        String imageUrl = null;
+        if (tripPlanCourses != null && !tripPlanCourses.isEmpty()) {
+            TripPlanCourse firstCourse = tripPlanCourses.get(0);
+            if (firstCourse.getRoute() != null && !firstCourse.getRoute().getRoutePlaces().isEmpty()) {
+                Place place = firstCourse.getRoute().getRoutePlaces().get(0).getPlace();
+                if (place != null) {
+                    imageUrl = place.getImageUrl();
+                }
+            }
+        }
+        dto.setImageUrl(imageUrl);
+        
+        List<RouteDayResponse> routeData = new ArrayList<>();
+
+        for (int i = 0; i < tripPlanCourses.size(); i++) {
+            TripPlanCourse course = tripPlanCourses.get(i);
+
+            RouteDayResponse day = new RouteDayResponse();
+            day.setDay(i + 1);
+
+            List<PlaceDtoResponse> places = course.getRoute().getRoutePlaces().stream()
                 .map(rp -> {
-                    Place p = rp.getPlace();
-                    TripSaveRequest.PlaceDto pd = new TripSaveRequest.PlaceDto();
-                    pd.setPlaceId(p.getId());
-                    pd.setName(p.getName());
-                    pd.setLatitude(p.getLatitude());
-                    pd.setLongitude(p.getLongitude());
+                    Place place = rp.getPlace();
+                    PlaceDtoResponse pd = new PlaceDtoResponse();
+                    pd.setPlaceId(place.getId());
+                    pd.setName(place.getName());
+                    pd.setLatitude(place.getLatitude());
+                    pd.setLongitude(place.getLongitude());
                     return pd;
                 })
                 .collect(Collectors.toList());
@@ -170,6 +210,7 @@ public class TripPlanController {
         return ResponseEntity.ok(dto);
     }
 
+    
     /**
      * 저장된 여행 목록 전체 조회
      */
