@@ -41,4 +41,22 @@ public class MemberNftController {
         memberNftService.markAsUsed(id);
         return ResponseEntity.ok("NFT marked as used");
     }
+    
+    // 유저가 자신의 NFT 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteNft(@PathVariable Long id, @RequestParam String memberId) {
+        memberNftService.deleteMemberNft(id, memberId);
+        return ResponseEntity.ok("NFT deleted");
+    }
+    
+    // NFT 선물 기능
+    @PostMapping("/gift/{nftId}")
+    public ResponseEntity<String> giftNft(@PathVariable Long nftId, @RequestParam String fromMemberId, @RequestParam String toMemberId) {
+        try {
+            memberNftService.giftNft(nftId, fromMemberId, toMemberId);
+            return ResponseEntity.ok("NFT gifted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("NFT gift failed: " + e.getMessage());
+        }
+    }
 }

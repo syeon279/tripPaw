@@ -43,10 +43,10 @@ public class CheckTemplateMapperTest {
 //--- MemberCheck	
 	
 	//1. 유저 체크리스트 삽입
-	@Disabled //@Test
+	@Test //@Test
 	public void testInsertAndSelectMemberCheck() {
 	    // 루틴과 항목 조회 더미데이터 없으면 오류남
-	    CheckRoutine routine = routineMapper.selectCheckRoutineById(2L);
+	    CheckRoutine routine = routineMapper.selectCheckRoutineById(1L);
 	    CheckTemplateItem item = itemMapper.selectItemsByIds(Collections.singletonList(2L)).get(0);
 
 	    // MemberCheck 생성
@@ -152,7 +152,7 @@ public class CheckTemplateMapperTest {
     @Disabled //@Test
     public void testInsertRoutine() {
         CheckRoutine routine = new CheckRoutine();
-        routine.setTitle("루틴 테스트4");
+        routine.setTitle("TEST Routine");
         routine.setIsSaved(true);
 
         Member member = new Member();

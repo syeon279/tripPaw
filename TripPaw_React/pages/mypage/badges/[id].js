@@ -1,0 +1,30 @@
+import React from 'react';
+import { useRouter } from 'next/router';
+import MyPageLayout from '@/components/layout/MyPageLayout';
+import Sidebar from '@/components/mypage/Sidebar';
+import MyBadgeSection from '@/components/review/MyBadgeSection';
+
+const MyBadgePage = () => {
+  const router = useRouter();
+  const { id } = router.query;
+
+  // 라우터 준비되기 전엔 null
+  if (!router.isReady) return null;
+
+  return (
+      <div style={{ display: 'flex', minHeight: '100vh' ,overflow: 'hidden' }}>
+        <Sidebar />
+        <div style={{ 
+            flex: 1, 
+            overflowY: 'auto',
+            padding: '24px',
+            background: '#f9f9f9', 
+            }}>
+          <h2>내 뱃지 목록</h2>
+          <MyBadgeSection memberId={id} />
+        </div>
+      </div>
+  );
+};
+
+export default MyBadgePage;

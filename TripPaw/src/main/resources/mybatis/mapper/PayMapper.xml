@@ -17,6 +17,8 @@
 	  <result property="createdAt" column="created_at"/>
 	  <result property="deleteAt" column="delete_at"/>
 	  <result property="haspayShare" column="haspay_share"/>
+	  <result property="isGroup" column="is_group"/>
+	  <result property="groupId" column="group_id"/>
 	  
 	  <association property="reserv" javaType="com.ssdam.tripPaw.domain.Reserv">
 	    <id property="id" column="reserv_id"/>
@@ -78,6 +80,7 @@
 	  LEFT JOIN reserv r ON p.reserv_id = r.id
 	  LEFT JOIN place pl ON r.place_id = pl.id
 	  LEFT JOIN member m ON p.member_id = m.id
+	  ORDER BY p.created_at DESC
 	</select>
 
 	<select id="findByReservId" parameterType="long" resultMap="PayResultMap">
@@ -92,23 +95,46 @@
 	</select>
 
 	<select id="findByImpUid" parameterType="String" resultMap="PayResultMap">
-	    SELECT * FROM pay WHERE imp_uid = #{impUid}
+	  SELECT 
+	    p.id, p.imp_uid, p.merchant_uid, p.amount, p.pay_method, p.pg_provider, 
+	    p.state, p.paid_at, p.delete_at, p.created_at, p.haspay_share,
+	    
+	    r.id AS reserv_id, r.start_date, r.end_date, r.expire_at, 
+	    r.delete_at AS delete_at_reserv, r.state AS state_reserv, 
+	    r.created_at AS created_at_reserv,
+	    r.original_price, r.final_price, r.count_people, r.count_pet,
+	    
+	    pl.id AS place_id, pl.name AS place_name,
+	    
+	    m.id AS member_id, m.username
+	    
+	  FROM pay p
+	  LEFT JOIN reserv r ON p.reserv_id = r.id
+	  LEFT JOIN place pl ON r.place_id = pl.id
+	  LEFT JOIN member m ON p.member_id = m.id
+	  WHERE p.imp_uid = #{impUid}
 	</select>
-
+	
     <update id="updateStateByImpUid">
         UPDATE pay SET state = #{state} WHERE imp_uid = #{impUid}
     </update>
 
   <!-- 삽입 -->
-  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.Pay" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO pay (
-      imp_uid, merchant_uid, amount, pay_method, pg_provider,
-      state, paid_at, created_at, reserv_id, member_id, haspay_share
-    ) VALUES (
-      #{impUid}, #{merchantUid}, #{amount}, #{payMethod}, #{pgProvider},
-      #{state}, #{paidAt}, #{createdAt}, #{reserv.id}, #{member.id}, #{haspayShare}
-    )
-  </insert>
+	<insert id="insert" parameterType="com.ssdam.tripPaw.domain.Pay" useGeneratedKeys="true" keyProperty="id">
+	    INSERT INTO pay (
+	        imp_uid, merchant_uid, amount, pay_method, pg_provider,
+	        state, paid_at, created_at,
+	        <if test="reserv != null"> reserv_id, </if>
+	        member_id, haspay_share,
+	        is_group, group_id
+	    ) VALUES (
+	        #{impUid}, #{merchantUid}, #{amount}, #{payMethod}, #{pgProvider},
+	        #{state}, #{paidAt}, #{createdAt},
+	        <if test="reserv != null"> #{reserv.id}, </if>
+	        #{member.id}, #{haspayShare},
+	        #{isGroup}, #{groupId}
+	    )
+	</insert>
 
   <!-- 상태 업데이트 -->
   <update id="updateByState" parameterType="com.ssdam.tripPaw.domain.Pay">

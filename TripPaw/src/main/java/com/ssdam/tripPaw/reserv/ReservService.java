@@ -53,7 +53,7 @@ public class ReservService {
 
     /** 예약 조회 */
     public Reserv findById(Long id) {
-        Reserv reserv = reservMapper.findById(id);
+    	Reserv reserv = reservMapper.findByIdWithPlace(id);
         if (reserv == null || reserv.getDeleteAt() != null) {
             throw new IllegalArgumentException("존재하지 않거나 삭제된 예약입니다.");
         }
@@ -65,6 +65,10 @@ public class ReservService {
         return reservMapper.findAll();
     }
 
+    public List<Reserv> findByTripPlansId(Long tripPlanId) {
+        return reservMapper.findByTripPlansId(tripPlanId);  // MyBatis 매퍼 호출
+    }
+    
     /** 예약 상태 업데이트 */
     @Transactional
     public int updateReservState(Long reservId, ReservState newState) {

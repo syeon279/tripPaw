@@ -13,4 +13,8 @@
 	<select id="findAll" resultMap="reviewTypeResultMap">
 	    SELECT id, target_type FROM review_type
 	</select>
+	<insert id="insertReviewTypes">
+	    INSERT IGNORE INTO review_type (id, target_type)
+	    VALUES (1, 'PLAN'), (2, 'PLACE');
+	 </insert>
 </mapper>

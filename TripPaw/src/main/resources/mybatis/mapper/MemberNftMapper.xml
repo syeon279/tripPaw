@@ -66,4 +66,18 @@
     WHERE id = #{id}
   </update>
 
+  <!-- 유저가 자신의 NFT 삭제 -->
+  <delete id="deleteByIdAndMemberId" parameterType="map">
+    DELETE FROM member_nft
+    WHERE id = #{id} AND member_id = #{memberId}
+  </delete>
+
+  <!-- NFT 소유자 변경 (선물 기능) -->
+  <update id="giftNft" parameterType="map">
+    UPDATE member_nft
+    SET member_id = #{toMemberId}
+    WHERE id = #{nftId} AND member_id = #{fromMemberId}
+  </update>
+
+
 </mapper>

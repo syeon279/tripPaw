@@ -47,9 +47,11 @@ public class Member {
 	@Column(nullable = false, length = 255)
 	private String email;
 	@Column(nullable = false, length = 255)
-	private String roadAddress;
+	private String zonecode;
 	@Column(nullable = false, length = 255)
-	private String jibunAddress;
+	private String roadAddress;
+//	@Column(nullable = false, length = 255)
+//	private String jibunAddress;
 	@Column(nullable = false, length = 255)
 	private String namujiAddress;
 	 // JPA에서 Set<Enum>을 매핑하는 올바른 방법
@@ -81,7 +83,7 @@ public class Member {
 //	}
 	
 	//////chat///////////////////////////////////////
-	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Chat> chats = new ArrayList<>();
 	 @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	    private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();

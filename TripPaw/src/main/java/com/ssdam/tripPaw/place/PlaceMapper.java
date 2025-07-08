@@ -17,8 +17,23 @@ public interface PlaceMapper {
 
     // ID로 조회
     Place findById(Long id);
-    
-    List<Place> findByRegionAndCategories(@Param("region") String region, @Param("categoryIds") List<Long> categoryIds);
+    Place findByIdWithAll(Long id);
+
+    List<Place> findRecommendedPlacesByRandom(
+    	    @Param("region") String region,
+    	    @Param("categoryIds") List<Long> categoryIds
+    	);
+
+    Place findFirstRandomPlace(@Param("region") String region, @Param("categoryIds") List<Long> categoryIds);
+
+    List<Place> findPlacesByTypeAndDistance(
+    	    @Param("placeType") int placeType,
+    	    @Param("region") String region,
+    	    @Param("categoryIds") List<Long> categoryIds,
+    	    @Param("baseLat") String baseLat,
+    	    @Param("baseLng") String baseLng,
+    	    @Param("limit") int limit
+    	);
     
     // 업데이트
     int update(Place place);

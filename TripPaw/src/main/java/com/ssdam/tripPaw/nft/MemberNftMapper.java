@@ -11,4 +11,6 @@ public interface MemberNftMapper {
     void insert(MemberNft memberNft);
     void update(MemberNft memberNft);
     void markAsUsed(Long id, LocalDateTime usedAt);
+    void deleteByIdAndMemberId(Long id, String memberId);
+    void giftNft(Long nftId, String fromMemberId, String toMemberId);
 }

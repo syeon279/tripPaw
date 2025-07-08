@@ -22,6 +22,9 @@ public class NftMetadata {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "token_id", nullable = false, unique = true)
+    private Long tokenId; // 🆕 NFT 고유 Token ID (블록체인 ID)
 
     @Column(nullable = false, length = 100)
     private String title; // 예: "강아지 간식 NFT"
@@ -40,7 +43,6 @@ public class NftMetadata {
         this.issuedAt = LocalDateTime.now();
     }
 
-    // 양방향 매핑: 하나의 템플릿에 여러 user_nft
     @OneToMany(mappedBy = "nftMetadata", cascade = CascadeType.ALL)
     private List<MemberNft> memberNfts;
 }
