@@ -1,3 +1,4 @@
+//components/checklist/CheckTemplateList.js
 import { useEffect, useState } from 'react';
 import { Collapse, Button, message } from 'antd';
 import { getTemplates, deleteTemplate } from '@/api/checkTemplate';

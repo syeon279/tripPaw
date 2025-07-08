@@ -10,12 +10,12 @@ const { Sider, Content } = Layout;
 const MypageLayout = ({ children }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider width={240} style={{ background: '#fff', marginTop: '60px'  }}>
+      <Sider width={240} style={{ background: '#fff', paddingTop: '80px'  }}>
         <Sidebar />
       </Sider>
       <Layout>
         <ContentHeader/>
-        <Content style={{ padding: '24px', marginTop: '60px'  }}>
+        <Content style={{ padding: '24px', paddingTop: '80px', background: '#fff' }}>
           {children}
         </Content>
       </Layout>
