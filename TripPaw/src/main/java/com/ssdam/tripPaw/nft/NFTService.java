@@ -2,6 +2,7 @@ package com.ssdam.tripPaw.nft;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -122,21 +123,29 @@ public class NFTService {
 
         for (NFTDto nft : nfts) {
             try {
-                Long id = Long.parseLong(nft.getTokenId());
+                // tokenId를 Long으로 변환 (기존 값 사용)
+                Long tokenId = Long.parseLong(nft.getTokenId());
                 String imageUrl = nft.getPreviewURL();
+                String title = "Token #" + tokenId;  // 제목 설정, 예시로 tokenId를 포함
 
-                NftMetadata existing = nftMetadataMapper.findById(id);
+                // DB에서 token_id로 기존 레코드 조회
+                NftMetadata existing = nftMetadataMapper.findByTokenId(tokenId);
                 if (existing == null) {
+                    // 기존에 없으면 새로 추가
                     NftMetadata newMeta = new NftMetadata();
-                    newMeta.setId(id);
-                    newMeta.setTitle("Token #" + id);
+                    newMeta.setTokenId(tokenId);  // 반드시 token_id를 설정
+                    newMeta.setTitle(title);
                     newMeta.setImageUrl(imageUrl);
-                    newMeta.setPointValue(0);
-                    nftMetadataMapper.insert(newMeta);
+                    newMeta.setPointValue(0);  // 기본 포인트값 설정
+                    newMeta.setIssuedAt(LocalDateTime.now());  // 현재 시간
+                    nftMetadataMapper.insert(newMeta);  // DB에 삽입
                     savedList.add(newMeta);
                 } else {
+                    // 기존에 있으면 업데이트
                     existing.setImageUrl(imageUrl);
-                    nftMetadataMapper.update(existing);
+                    existing.setTitle(title);
+                    existing.setPointValue(0);  // 필요에 따라 업데이트할 필드 설정
+                    nftMetadataMapper.update(existing);  // DB에 업데이트
                     savedList.add(existing);
                 }
             } catch (Exception e) {

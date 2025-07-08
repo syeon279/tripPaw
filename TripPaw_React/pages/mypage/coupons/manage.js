@@ -1,4 +1,4 @@
-import AdminpageLayout from "@/components/layout/AdminpageLayout";
+import MypageLayout from "@/components/layout/MyPageLayout";
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -18,7 +18,7 @@ import axios from "axios";
 
 const { Title } = Typography;
 
-const coupons = () => {
+const couponsmanage = () => {
   const [nfts, setNfts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
@@ -93,7 +93,7 @@ const coupons = () => {
   };
 
   return (
-    <AdminpageLayout>
+    <MypageLayout>
       <div style={{ padding: 24 }}>
         <Title level={2}>NFT 쿠폰 리스트</Title>
 
@@ -170,8 +170,8 @@ const coupons = () => {
           </Form>
         </Modal>
       </div>
-    </AdminpageLayout>
+    </MypageLayout>
   );
 };
 
-export default coupons;
+export default couponsmanage;
