@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Tabs, Rate, Button, Image, Modal, message } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, QuestionOutlined, SunOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 
 const { TabPane } = Tabs;
@@ -48,24 +48,79 @@ const MyReviewList = ({ memberId }) => {
     });
   };
 
+  const getWeatherImageFileName = (condition) => {
+    switch (condition) {
+      case '흐림':
+        return 'cloudy.png';
+      case '비':
+        return 'rain.png';
+      case '눈':
+        return 'snow.png';
+      case '구름많음':
+        return 'mostly-cloudy.png';
+      // default:
+      //   return 'unknown.png'; // fallback (optional)
+    }
+  };
+
   const groupedReviews = {
     PLACE: reviews.filter((r) => r.reviewType?.toUpperCase() === 'PLACE'),
     PLAN: reviews.filter((r) => r.reviewType?.toUpperCase() === 'PLAN'),
   };
 
   const renderReviewCard = (review) => (
-    <div key={review.id} style={{ background: '#fff', padding: 16, marginBottom: 24, position: 'relative' }}>
-      <div style={{ fontWeight: 600 }}>{review.tripTitle}</div>
-      <div style={{ color: '#888' }}>{review.tripStartDate} ~ {review.tripEndDate}</div>
+    <div key={review.id} style={{ background: '#fff', padding: 16, marginBottom: 24, position:    'relative' }}>
+      <div>
+        <div style={{ fontWeight: 600 }}>{review.tripTitle}</div>
+        <div style={{ color: '#888' }}>{review.tripStartDate} ~ {review.tripEndDate}</div>
+      </div>
+
       <Rate disabled value={review.rating} style={{ fontSize: 14, marginTop: 8 }} />
+
+      {/* 👇 날씨 아이콘 위치 조정 */}
+      <div style={{ position: 'absolute', top: 56, right: 16 }}>
+        {review.weatherCondition === '맑음' && <SunOutlined style={{ color: 'orange', fontSize: 24 }} />}
+        {review.weatherCondition === '흐림' && 
+          (<img
+            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
+            alt={review.weatherCondition}
+            style={{ width: 50, height: 50 }}
+            />
+          )}
+        {review.weatherCondition === '비' && 
+          (<img
+            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
+            alt={review.weatherCondition}
+            style={{ width: 50, height: 50 }}
+            />
+          )}
+        {review.weatherCondition === '눈' && 
+          (<img
+            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
+            alt={review.weatherCondition}
+            style={{ width: 50, height: 50 }}
+            />
+          )}
+        {review.weatherCondition === '구름많음' && 
+          (<img
+            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
+            alt={review.weatherCondition}
+            style={{ width: 50, height: 50 }}
+            />
+          )}
+        {review.weatherCondition === '알 수 없음' && (
+          <QuestionOutlined style={{ color: '#aaa', fontSize: 24 }} />
+        )}
+      </div>
+
       <div style={{ margin: '8px 0', color: '#555' }}>{review.createdAt}</div>
       <p style={{ whiteSpace: 'pre-wrap' }}>{review.content}</p>
 
       {review.imageUrl && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Image
-            src={review.imageUrl.startsWith('http') 
-              ? review.imageUrl 
+            src={review.imageUrl.startsWith('http')
+              ? review.imageUrl
               : `http://localhost:8080/upload/reviews/${review.imageUrl}`}
             width={100}
             height={100}
