@@ -71,6 +71,7 @@ const TripPlanDetail = () => {
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [title, setTitle] = useState('');
+    const [userId, setUserId] = useState(1);
 
     useEffect(() => {
         const fetchTripDetail = async () => {
@@ -94,6 +95,29 @@ const TripPlanDetail = () => {
         };
 
         fetchTripDetail();
+
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                    withCredentials: true,
+                });
+
+                console.log('user : ', response.data);
+
+                if (response.status === 200) {
+                    setIsLoggedIn(true);
+                    // 백엔드에서 받은 username으로 상태 업데이트
+                    setUserId(response.data.id);
+                    return true; // 성공 시 true 반환
+                }
+            } catch (error) {
+                console.error("로그인 상태 확인 실패:", error);
+                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+                router.push('/member/login');
+                return false; // 실패 시 false 반환
+            }
+        };
+
     }, [router.isReady, router.query]);
 
     useEffect(() => {
@@ -177,6 +201,9 @@ const TripPlanDetail = () => {
         }
     };
 
+    // ✅ isMyTrip 조건: 여행을 만든 사람이 로그인 유저일 때
+    const isMyTrip = true;
+
     //이대로 예약하기 : 추가
 
     return (
@@ -220,6 +247,7 @@ const TripPlanDetail = () => {
                             // 예약하기 추가
                             //onReserv={() => }
                             onEdit={() => handleEditAndSave()}
+                            isMyTrip={isMyTrip}
                         />
                     </div>
                 </div>
