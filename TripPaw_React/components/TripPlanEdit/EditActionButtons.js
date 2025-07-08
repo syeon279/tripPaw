@@ -25,10 +25,11 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ onSave }) => {
+const ActionButtons = ({ onSave, onEditPlace }) => {
     return (
         <div style={bottonWrapperStyle}>
-            <button style={{ ...bottonStyle, background: 'blue' }}>
+            <button style={{ ...bottonStyle, background: 'blue' }}
+                onClick={onEditPlace}>
                 장소 추가
             </button>
             <button

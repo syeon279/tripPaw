@@ -138,7 +138,7 @@
           resultMap="ReservWithPlaceResultMap">
     SELECT 
       r.id, r.start_date, r.end_date, r.expire_at, r.delete_at, r.state,
-      r.count_people, r.count_pet, r.original_price, r.final_price,
+      r.count_people, r.count_pet, r.original_price, r.final_price, r.trip_plan_id,
       p.id AS p_id, p.name AS p_name, p.latitude, p.longitude, p.region
     FROM reserv r
     JOIN place p ON r.place_id = p.id
@@ -166,6 +166,14 @@
 	    AND member_id = #{memberId}
 	    AND delete_at IS NULL
 	  ORDER BY start_date ASC
+	</select>
+	
+	<select id="findReservedRangesByPlace" parameterType="long" resultType="map">
+	  SELECT start_date, end_date
+	  FROM reserv
+	  WHERE delete_at IS NULL
+	    AND state IN ('WAITING', 'CONFIRMED')
+	    AND place_id = #{placeId}
 	</select>
 	
 	<update id="updateWithPay" parameterType="com.ssdam.tripPaw.domain.Reserv">

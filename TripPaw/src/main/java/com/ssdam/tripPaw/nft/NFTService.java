@@ -121,32 +121,26 @@ public class NFTService {
         List<NftMetadata> savedList = new ArrayList<>();
 
         for (NFTDto nft : nfts) {
-            try {
-                Long id = Long.parseLong(nft.getTokenId());
-                String imageUrl = nft.getPreviewURL();
+            Long id = Long.parseLong(nft.getTokenId());
+            String imageUrl = nft.getPreviewURL(); // 위에서 파싱한 imageUrl이 저장됨
 
-                NftMetadata existing = nftMetadataMapper.findById(id);
-                if (existing == null) {
-                    NftMetadata newMeta = new NftMetadata();
-                    newMeta.setId(id);
-                    newMeta.setTitle("Token #" + id);
-                    newMeta.setImageUrl(imageUrl);
-                    newMeta.setPointValue(0);
-                    nftMetadataMapper.insert(newMeta);
-                    savedList.add(newMeta);
-                } else {
-                    existing.setImageUrl(imageUrl);
-                    nftMetadataMapper.update(existing);
-                    savedList.add(existing);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                // 필요시 throw e; 로 다시 던지거나, 오류 발생한 NFT tokenId 로그 출력 가능
+            NftMetadata existing = nftMetadataMapper.findById(id);
+            if (existing == null) {
+                NftMetadata newMeta = new NftMetadata();
+                newMeta.setId(id);
+                newMeta.setTitle("Token #" + id);
+                newMeta.setImageUrl(imageUrl); // 실제 이미지 URL 저장
+                newMeta.setPointValue(0);
+                nftMetadataMapper.insert(newMeta);
+                savedList.add(newMeta);
+            } else {
+                existing.setImageUrl(imageUrl);
+                nftMetadataMapper.update(existing);
+                savedList.add(existing);
             }
         }
         return savedList;
     }
-
 
     // DB에서 모든 NFT 템플릿 조회
     public List<NftMetadata> getAllNftMetadata() {
@@ -168,4 +162,4 @@ public class NFTService {
     public void deleteNftMetadata(Long id) {
         nftMetadataMapper.delete(id);
     }
-}  
+}

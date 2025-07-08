@@ -2,66 +2,56 @@ import React from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
 
 const itemWrapper = {
-    //border: '2px solid black',
     display: 'flex',
     padding: '10px',
     margin: '20px',
     cursor: 'pointer',
-}
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '10px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+};
+
 const dayWrapper = {
-    //border: '2px solid red',
     backgroundColor: 'rgba(189, 189, 189, 0.29)',
     width: '90px',
     padding: '20px',
     borderRadius: '30px',
     marginRight: '10px',
     display: 'flex',
-    justifyContent: 'center', // 수평 가운데
-    alignItems: 'center',     // 수직 가운데
-    height: '15px',          // 높이 있어야 수직 정렬 가능
-    coler: 'rgba(90, 90, 90, 0.65)',
-}
-
-const items = {
-    //border: '2px solid purple',
+    justifyContent: 'center',
     alignItems: 'center',
-    fontSize: 'bold',
-}
-
-const dividerLine = {
-    width: '90%',
-    border: '1px solid rgba(204, 204, 204, 0.9)',
-    height: '1px',
-    margin: 'auto',
+    height: '15px',
+    color: 'rgba(90, 90, 90, 0.65)',
 };
 
-const DayScheduleItem = ({ day, isActive, onPlaceClick }) => (
-    <div>
-        {day.places.map((place) => (
-            <div
-                key={place.placeId}
-                style={itemWrapper}
-                onClick={(e) => { onPlaceClick(place); e.stopPropagation(); }}
-            >
-                {/* 일자 표시를 매 카드마다 */}
-                <div style={dayWrapper}>{day.day}일차</div>
+const placeInfo = {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+};
 
-                {/* 장소 */}
-                <div>
-                    <div>
-                        <div>{place.name}</div>
-                    </div>
-                    <div>
-                        <DeleteOutlined
-                        // onClick={handlePlaceDelete}
-                        />
-                    </div>
-                </div>
+const DayScheduleItem = ({ day, place, onPlaceClick, onDeletePlace }) => {
+    return (
+        <div
+            style={itemWrapper}
+            onClick={(e) => {
+                onPlaceClick(place);
+                e.stopPropagation();
+            }}
+        >
+            <div style={dayWrapper}>{day.day}일차</div>
+            <div style={placeInfo}>
+                <div>{place.name}</div>
+                <DeleteOutlined
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDeletePlace(day.day, place.placeId);
+                    }}
+                />
             </div>
-        ))}
-        <div style={dividerLine} />
-    </div>
-);
-
+        </div>
+    );
+};
 
 export default DayScheduleItem;
