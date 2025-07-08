@@ -37,7 +37,7 @@ const ChecklistPage = () => {
   checkUser();
 }, []);
 
-  if (!user || isAdmin === null) return <div>로딩중...</div>; 
+  if (!isAdmin) return <div>관리자 전용 페이지입니다.</div>; 
 
   return (
     <MypageLayout>

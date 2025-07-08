@@ -2,27 +2,42 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { checkAuthStatus } from '@/api/auth'; // 로그인 상태 확인 API
 import MypageLayout from '@/components/layout/MypageLayout';
 import ChecklistRoutineList from '@/components/checklist/ChecklistRoutineList';
+import axios from 'axios';
 
 const MyChecklistPage = () => {
-  const [user, setUser] = useState(null); // 유저 상태
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const userInfo = await checkAuthStatus();
-      if (userInfo) {
-        setUser(userInfo); // 유저 정보 저장
-      } else {
-        router.push('/login'); // 로그인되지 않았다면 로그인 페이지로 리다이렉트
-      }
-    };
-    fetchUser();
-  }, []);
+  const checkUser = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/auth/check', {
+        withCredentials: true,
+      });
 
-  if (!user) return <div>로딩중...</div>; // 유저 정보를 받아올 때까지 로딩 화면 표시
+      if (response.status === 200) {
+        const data = response.data;
+        console.log('auth:', data.auth); // 확인용
+
+        setUser({
+          nickname: data.nickname,
+          username: data.username,
+          memberId : data.memberId,
+        });
+
+        setIsAdmin(data.auth === 'ADMIN');
+      }
+    } catch (error) {
+      console.error('사용자 정보 확인 실패:', error);
+      setIsAdmin(false);
+    }
+  };
+
+  checkUser();
+}, []);
 
   return (
     <MypageLayout>

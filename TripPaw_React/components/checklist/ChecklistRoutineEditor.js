@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Input, Button, List, message, Modal } from 'antd';
 import { getRoutineWithItems, updateRoutine, deleteRoutine } from '@/api/checkRoutine';
 import { addItem, updateItem, deleteItem } from '@/api/checkTemplateItem';
+import { updateMemberCheck } from '@/api/memberCheck'; // 수정된 항목 업데이트를 위한 API
 
 export default function ChecklistRoutineEditor({ routineId, onDeleteSuccess }) {
   const [routine, setRoutine] = useState(null);
@@ -51,34 +52,37 @@ export default function ChecklistRoutineEditor({ routineId, onDeleteSuccess }) {
     });
   };
 
-  const handleAddItem = async () => {
-    if (!newItemContent.trim()) return;
-    try {
-      await addItem({ content: newItemContent, routineId: routine.id });
-      setNewItemContent('');
-      loadRoutine(routine.id);
-    } catch {
-      message.error('항목 추가 실패');
-    }
-  };
+  const handleAddItem = async (routineId) => {
+  if (!newItemContent.trim()) return;
+
+  try {
+    // API에 필요한 데이터를 정확히 전달
+    await addMemberCheck({ custom_content: newItemContent, routineId });
+    setNewItemContent(''); // 입력란 초기화
+    handleCollapseChange(routineId); // 항목 추가 후 다시 불러오기
+  } catch {
+    message.error('항목 추가 실패');
+  }
+};
 
   const handleUpdateItem = async (itemId, content) => {
-    try {
-      await updateItem(itemId, { content });
-      loadRoutine(routine.id);
-    } catch {
-      message.error('항목 수정 실패');
-    }
-  };
+  try {
+    await updateMemberCheck(itemId, content); 
+    loadRoutine(routine.id); 
+  } catch {
+    message.error('항목 수정 실패');
+  }
+};
 
   const handleDeleteItem = async (itemId) => {
-    try {
-      await deleteItem(itemId);
-      loadRoutine(routine.id);
-    } catch {
-      message.error('항목 삭제 실패');
-    }
-  };
+  try {
+    await deleteItem(itemId); // 항목 삭제
+    message.success('항목이 삭제되었습니다.');
+    handleCollapseChange(itemId); // 삭제 후 다시 불러오기
+  } catch {
+    message.error('항목 삭제 실패');
+  }
+};
 
   if (!routine) return null;
 
@@ -133,11 +137,22 @@ function EditableItem({ item, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [content, setContent] = useState(item.content);
 
+  useEffect(() => {
+    if (item.custom_content) {
+      setContent(item.custom_content); // custom_content가 있으면 그것으로 수정
+    }
+  }, [item.custom_content]);
+
+  const handleSave = () => {
+    onUpdate(item.id, content); // custom_content로 업데이트
+    setEditing(false);
+  };
+
   return (
     <List.Item
       actions={[
         editing ? (
-          <Button size="small" onClick={() => { onUpdate(item.id, content); setEditing(false); }}>
+          <Button size="small" onClick={handleSave}>
             저장
           </Button>
         ) : (
@@ -150,7 +165,11 @@ function EditableItem({ item, onUpdate, onDelete }) {
         </Button>,
       ]}
     >
-      {editing ? <Input value={content} onChange={(e) => setContent(e.target.value)} /> : <span>{item.content}</span>}
+      {editing ? (
+        <Input value={content} onChange={(e) => setContent(e.target.value)} />
+      ) : (
+        <span>{content || '내용 없음'}</span>
+      )}
     </List.Item>
   );
 }

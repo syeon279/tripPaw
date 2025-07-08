@@ -37,6 +37,7 @@ const Sidebar = () => {
         setUser({
           nickname: data.nickname,
           username: data.username,
+          memberId : data.memberId,
         });
 
         setIsAdmin(data.auth === 'ADMIN');
@@ -67,8 +68,8 @@ const Sidebar = () => {
           <SidebarItem text="내 리뷰 관리" href="/mypage/reviews" />
           <SidebarItem
             text="내 체크리스트"
-            href="/mypage/checklist"
-            active={router.pathname === '/mypage/checklist'}
+            href={`/mypage/checklist/mychecklist/${user?.memberId}`}
+            active={router.asPath === `/mypage/checklist/mychecklist/${user?.memberId}`}
           />
           <SidebarItem text="내 뱃지" href="/mypage/badges" />
         </>
@@ -78,7 +79,7 @@ const Sidebar = () => {
       {isAdmin && (
         <>
           <SidebarSection title="관리자">
-            <SidebarItem text="체크리스트 관리" href="/mypage/checklist" />
+            <SidebarItem text="체크리스트 관리" href="/mypage/checklist/mychecklist" />
             <SidebarItem text="카테고리 관리" href="/mypage/categories" />
             <SidebarItem text="도장 관리" href="/mypage/badges/manage" />
             <SidebarItem text="신고 관리" href="/mypage/reports" />

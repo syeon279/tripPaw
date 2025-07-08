@@ -127,6 +127,7 @@ public class AuthController {
         Map<String, Object> userInfo = Map.of(
             "username", member.getUsername(),
             "nickname", member.getNickname(),
+            "memberId", member.getId(),
             "auth", authorities
             // 필요한 다른 정보 추가
         );
