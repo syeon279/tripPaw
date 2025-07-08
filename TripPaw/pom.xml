@@ -204,14 +204,14 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
-<!--
+
 		<dependency>
 			<groupId>org.web3j</groupId>
 			<artifactId>core</artifactId>
-			<version>4.10.3</version>  또는 최신 안정 버전 
+			<version>4.8.7</version>  
 		</dependency>
 
--->
+
 
 		<!-- coolsms  -->
 		<dependency>

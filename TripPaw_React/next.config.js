@@ -21,6 +21,16 @@ const nextConfig = {
 
     return config;
   },
+
+   // 여기에 프록시 rewrites 추가
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*', // ex) /api/nft/tokens
+        destination: 'http://localhost:8080/api/:path*', // Spring Boot 백엔드 주소
+      },
+    ];
+  },
 };
 
 module.exports = withTM(nextConfig);
