@@ -30,7 +30,8 @@ public class MemberTripPlan {
 
     private String titleOverride;
 
-    private boolean isPublic;
+    @Column(name = "is_public")
+    private boolean publicVisible;
 
     private LocalDate startDate;
     private LocalDate endDate;

@@ -61,5 +61,12 @@ public interface ReviewMapper {
 	void unlikeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
 	int countLikes(@Param("reviewId") Long reviewId);
 	boolean hasLikedReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
+	
+	
+	
+	// 해당 장소의 평균 별점 가져오기
+	Double getAverageRatingByPlaceId(Long id);
+	// 해장 당소의 리뷰 개수 가져오기
+	Integer getReviewCountByPlaceId(Long id);
 
 }

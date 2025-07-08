@@ -23,6 +23,8 @@ public class SearchService {
     private final SearchMapper searchMapper;
 
     public SearchResultDto search(String keyword) {
+    	System.out.println("🔍 keyword: " + keyword);
+
         List<Place> places = searchMapper.searchPlacesByKeyword(keyword);
         List<TripPlan> tripPlans = searchMapper.searchTripPlansByKeyword(keyword);
 
@@ -51,7 +53,7 @@ public class SearchService {
             dto.setPhone(p.getPhone());
             dto.setImageUrl(p.getImageUrl());
             dto.setHomePage(p.getHomePage());
-            dto.setExtermalContentId(p.getExternalContentId());
+            dto.setExternalContentId(p.getExternalContentId());
             dto.setSource(p.getSource());
 
             dto.setPlaceType(p.getPlaceType());
