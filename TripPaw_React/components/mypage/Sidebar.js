@@ -80,6 +80,7 @@ const Sidebar = () => {
         <>
           <SidebarSection title="관리자">
             <SidebarItem text="체크리스트 관리" href="/mypage/checklist/mychecklist" />
+            <SidebarItem text="쿠폰 관리" href="/mypage/coupons/manage" />
             <SidebarItem text="카테고리 관리" href="/mypage/categories" />
             <SidebarItem text="도장 관리" href="/mypage/badges/manage" />
             <SidebarItem text="신고 관리" href="/mypage/reports" />
