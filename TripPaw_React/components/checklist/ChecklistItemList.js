@@ -1,3 +1,4 @@
+//component/checklist/ChecklistItemList.js
 import { useEffect, useState } from 'react';
 import { getTemplateWithItems } from '@/api/checkTemplate';
 
