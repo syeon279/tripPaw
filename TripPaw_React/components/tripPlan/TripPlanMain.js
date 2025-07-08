@@ -96,6 +96,10 @@ const tripPlanMain = () => {
         //MozAppearance: 'none',      // 파이어폭스용
     }
 
+    // 지난 날짜 막기
+    const today = new Date().toISOString().split("T")[0]; // 'YYYY-MM-DD' 형식
+
+
 
     // 폼 데이터 보내기
     const [region, setRegion] = useState('');
@@ -114,7 +118,6 @@ const tripPlanMain = () => {
         const fetchCategories = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/category', { withCredentials: true, });
-                console.log('응답 데이터:', response.data); // 👈 여기에 주목
                 setCategories(response.data);
             } catch (error) {
                 console.error('카테고리 불러오기 실패:', error);
@@ -242,6 +245,7 @@ const tripPlanMain = () => {
                                             value={startDate}
                                             onChange={(e) => setStartDate(e.target.value)}
                                             placeholder="시작일"
+                                            min={today}
                                             style={{
                                                 ...inputStyle,
                                                 width: '100%',
@@ -256,6 +260,7 @@ const tripPlanMain = () => {
                                             value={endDate}
                                             onChange={(e) => setEndDate(e.target.value)}
                                             placeholder="종료일"
+                                            min={startDate || today}
                                             style={{
                                                 ...inputStyle,
                                                 width: '100%',
@@ -274,7 +279,7 @@ const tripPlanMain = () => {
                                 <div style={fieldStyle}>
                                     <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>동행</label>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '0px', }}>
-                                        <input style={inputStyle} type="number" value={countPeople}
+                                        <input style={inputStyle} type="number" value={countPeople} min="1"
                                             onChange={(e) => setCountPeople(Number(e.target.value))} /> 명
                                         <div style={{
                                             width: '1px',
@@ -283,7 +288,7 @@ const tripPlanMain = () => {
                                             margin: '10px',
                                             //marginRight: '15px'
                                         }}></div>
-                                        <input style={inputStyle} type="number" value={countPet} onChange={(e) => setCountPet(Number(e.target.value))} /> 견
+                                        <input style={inputStyle} type="number" value={countPet} min="1" onChange={(e) => setCountPet(Number(e.target.value))} /> 견
                                     </div>
                                     <div>
                                     </div>

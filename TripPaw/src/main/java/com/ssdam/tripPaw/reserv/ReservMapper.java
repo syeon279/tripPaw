@@ -31,5 +31,9 @@ public interface ReservMapper {
 	public  List<Reserv> findByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
 
 	public Reserv findByTripPlanId(@Param("tripPlanId") Long tripPlanId);
+	
+	public int updateWithPay(Reserv reserv);
+	
+	public List<Map<String, Object>> findReservedRangesByPlace(@Param("placeId") Long placeId);
 
 }

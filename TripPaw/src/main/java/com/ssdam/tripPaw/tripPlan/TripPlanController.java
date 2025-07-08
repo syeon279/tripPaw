@@ -59,16 +59,28 @@ public class TripPlanController {
 */
 package com.ssdam.tripPaw.tripPlan;
 
+import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberTripPlan;
+import com.ssdam.tripPaw.domain.Place;
+import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.domain.TripPlanCourse;
+import com.ssdam.tripPaw.dto.TripPlanSearchDto;
+import com.ssdam.tripPaw.dto.TripPlanSearchDto.PlaceDtoResponse;
+import com.ssdam.tripPaw.dto.TripPlanSearchDto.RouteDayResponse;
 import com.ssdam.tripPaw.dto.TripRecommendRequest;
 import com.ssdam.tripPaw.dto.TripRecommendResponse;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -93,7 +105,7 @@ public class TripPlanController {
     @PostMapping("/save")
     public ResponseEntity<String> saveTrip(@RequestBody TripSaveRequest request) {
         try {
-            tripPlanService.saveTrip(request);
+            tripPlanService.saveMemberTrip(request);
             return ResponseEntity.ok("✅ 여행 저장 완료!");
         } catch (Exception e) {
             String msg = "❌ 여행 저장 실패: " + e.getMessage();
@@ -101,7 +113,104 @@ public class TripPlanController {
             return ResponseEntity.internalServerError().body(msg);
         }
     }
+    
+    @PostMapping("/edit")
+    public ResponseEntity<Map<String, Object>> editTrip(@RequestBody TripSaveRequest request) {
+        try {
+            TripPlan tripPlan = tripPlanService.saveTrip(request); // 🛠 service가 TripPlan 반환하도록 변경
+            return ResponseEntity.ok(Map.of(
+                "message", "✅ 여행 저장 완료!",
+                "tripId", tripPlan.getId() // 🧭 프론트에 ID 보내주기
+            ));
+        } catch (Exception e) {
+            String msg = "❌ 여행 저장 실패: " + e.getMessage();
+            System.err.println(msg);
+            return ResponseEntity.internalServerError().body(Map.of("error", msg));
+        }
+    }
 
+    /**
+     * 특정 ID의 여행 경로 조회
+     */
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTripById(@PathVariable Long id) {
+        TripPlan plan = tripPlanService.findByIdWithCourses(id);
+        if (plan == null) return ResponseEntity.notFound().build();
+
+        TripPlanSearchDto dto = new TripPlanSearchDto();
+        dto.setId(plan.getId());
+        dto.setTitle(plan.getTitle());
+        dto.setDays(plan.getDays());
+        dto.setPublicVisible(plan.isPublicVisible());
+        dto.setCreatedAt(plan.getCreatedAt());
+
+        // 작성자 닉네임만
+        Member author = plan.getMember();
+        dto.setAuthorNickname(author != null ? author.getNickname() : "알 수 없음");
+
+        // 코스, 리뷰 설정
+        List<TripPlanCourse> tripPlanCourses = plan.getTripPlanCourses();
+        dto.setTripPlanCourses(tripPlanCourses);
+
+        List<Review> reviews = plan.getReviews();
+        dto.setReviews(reviews);
+
+        if (reviews != null && !reviews.isEmpty()) {
+            double avgRating = reviews.stream()
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0.0);
+            dto.setAvgRating(avgRating);
+            dto.setReviewCount((long) reviews.size());
+        } else {
+            dto.setAvgRating(0.0);
+            dto.setReviewCount(0L);
+        }
+
+        // 대표 이미지
+        String imageUrl = null;
+        if (tripPlanCourses != null && !tripPlanCourses.isEmpty()) {
+            TripPlanCourse firstCourse = tripPlanCourses.get(0);
+            if (firstCourse.getRoute() != null && !firstCourse.getRoute().getRoutePlaces().isEmpty()) {
+                Place place = firstCourse.getRoute().getRoutePlaces().get(0).getPlace();
+                if (place != null) {
+                    imageUrl = place.getImageUrl();
+                }
+            }
+        }
+        dto.setImageUrl(imageUrl);
+        
+        List<RouteDayResponse> routeData = new ArrayList<>();
+
+        for (int i = 0; i < tripPlanCourses.size(); i++) {
+            TripPlanCourse course = tripPlanCourses.get(i);
+
+            RouteDayResponse day = new RouteDayResponse();
+            day.setDay(i + 1);
+
+            List<PlaceDtoResponse> places = course.getRoute().getRoutePlaces().stream()
+                .map(rp -> {
+                    Place place = rp.getPlace();
+                    PlaceDtoResponse pd = new PlaceDtoResponse();
+                    pd.setPlaceId(place.getId());
+                    pd.setName(place.getName());
+                    pd.setLatitude(place.getLatitude());
+                    pd.setLongitude(place.getLongitude());
+                    return pd;
+                })
+                .collect(Collectors.toList());
+
+            day.setPlaces(places);
+            routeData.add(day);
+        }
+
+        dto.setRouteData(routeData);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    
     /**
      * 저장된 여행 목록 전체 조회
      */

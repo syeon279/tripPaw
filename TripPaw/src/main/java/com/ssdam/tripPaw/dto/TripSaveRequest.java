@@ -12,6 +12,7 @@ public class TripSaveRequest {
     private int countPet;
     private List<RouteDay> routeData;
     private String mapImage;
+    private Long memberId;
 
     @Data
     public static class RouteDay {

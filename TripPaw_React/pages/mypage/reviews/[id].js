@@ -12,7 +12,7 @@ const MyReviewPage = () => {
   if (!router.isReady) return null;
 
   return (
-    <MyPageLayout>
+    
       <div style={{ display: 'flex', minHeight: '100vh' ,overflow: 'hidden' }}>
         <Sidebar />
         <div style={{ 
@@ -25,7 +25,7 @@ const MyReviewPage = () => {
           <MyReviewList memberId={id} />
         </div>
       </div>
-    </MyPageLayout>
+    
   );
 };
 

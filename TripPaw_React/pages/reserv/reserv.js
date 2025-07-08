@@ -97,6 +97,23 @@ const ErrorMsg = styled.p`
   font-weight: bold;
 `;
 
+const DummyButton = styled.button`
+  margin-top: 30px;
+  padding: 12px 20px;
+  background-color: #28a745;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #218838;
+  }
+`;
+
 function ReservCreatePage() {
   const router = useRouter();
   const [dateRange, setDateRange] = useState([
@@ -121,7 +138,9 @@ function ReservCreatePage() {
   };
 
   useEffect(() => {
-    axios.get('http://localhost:8080/reserv/disabled-dates')
+    if (!placeId) return;
+
+    axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${placeId}`)
       .then(res => {
         const allDisabled = [];
         const today = new Date();
@@ -141,7 +160,7 @@ function ReservCreatePage() {
       .catch(err => {
         console.error('예약 불가 날짜 불러오기 실패', err);
       });
-  }, []);
+  }, [placeId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -234,6 +253,28 @@ function ReservCreatePage() {
           <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
 
           {message && <ErrorMsg>{message}</ErrorMsg>}
+{/* 더미 테스트 */}
+        <DummyButton type="button" onClick={async () => {
+          try {
+            const res = await axios.post('http://localhost:8080/pay/dummy?memberId=1', null, {
+              withCredentials: true,
+            });
+            const tripPlanId = res.data.tripPlanId;
+            if (tripPlanId) {
+              router.push({
+              pathname: '/pay/paybatch',
+              query: { tripPlanId }
+            });
+            } else {
+              alert('트립플랜 ID를 받지 못했습니다.');
+            }
+          } catch (err) {
+            alert('더미 트립플랜 생성 실패: ' + (err.response?.data || err.message));
+          }
+        }}>
+          🚀 더미 트립플랜으로 결제 테스트하기
+        </DummyButton>
+
         </Form>
       </Layout>
       <PetAssistant />
