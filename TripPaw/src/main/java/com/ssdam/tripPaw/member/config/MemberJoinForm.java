@@ -18,6 +18,8 @@ public class MemberJoinForm {
 	private String password2;
 	@NotEmpty(message="이메일은 필수 항목입니다.")
 	private String email;	
+	@NotEmpty(message="휴대폰 번호는 필수 항목입니다.")
+	private String phoneNum;	
 }
 
 //https://beanvalidation.org/

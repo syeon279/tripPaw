@@ -118,15 +118,19 @@
     </update>
 
   <!-- 삽입 -->
-  <insert id="insert" parameterType="com.ssdam.tripPaw.domain.Pay" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO pay (
-      imp_uid, merchant_uid, amount, pay_method, pg_provider,
-      state, paid_at, created_at, reserv_id, member_id, haspay_share
-    ) VALUES (
-      #{impUid}, #{merchantUid}, #{amount}, #{payMethod}, #{pgProvider},
-      #{state}, #{paidAt}, #{createdAt}, #{reserv.id}, #{member.id}, #{haspayShare}
-    )
-  </insert>
+	<insert id="insert" parameterType="com.ssdam.tripPaw.domain.Pay" useGeneratedKeys="true" keyProperty="id">
+	  INSERT INTO pay (
+	    imp_uid, merchant_uid, amount, pay_method, pg_provider,
+	    state, paid_at, created_at,
+	    <if test="reserv != null"> reserv_id, </if>
+	    member_id, haspay_share
+	  ) VALUES (
+	    #{impUid}, #{merchantUid}, #{amount}, #{payMethod}, #{pgProvider},
+	    #{state}, #{paidAt}, #{createdAt},
+	    <if test="reserv != null"> #{reserv.id}, </if>
+	    #{member.id}, #{haspayShare}
+	  )
+	</insert>
 
   <!-- 상태 업데이트 -->
   <update id="updateByState" parameterType="com.ssdam.tripPaw.domain.Pay">

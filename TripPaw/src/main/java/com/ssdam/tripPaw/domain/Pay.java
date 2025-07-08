@@ -47,7 +47,7 @@ public class Pay {
     private boolean haspayShare;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reserv_id", nullable = false)
+    @JoinColumn(name = "reserv_id", nullable = true)
     private Reserv reserv;
     
     @ManyToOne(fetch = FetchType.LAZY)

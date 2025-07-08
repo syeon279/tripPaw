@@ -53,6 +53,24 @@
 	  SELECT * FROM pay_share
 	  WHERE pay_id = #{payId}
 	</select>
+	
+	<select id="findByPayIdAndMemberId" resultMap="PayShareResultMap">
+	  SELECT * FROM pay_share
+	  WHERE pay_id = #{payId} AND member_id = #{memberId}
+	</select>
+	
+	<select id="countByPayId" resultType="int">
+	  SELECT COUNT(*) FROM pay_share
+	  WHERE pay_id = #{payId}
+	</select>
+
+	<select id="findByReservIdAndMember" resultMap="PayShareResultMap" parameterType="map">
+	  SELECT ps.*
+	  FROM pay_share ps
+	  JOIN pay p ON ps.pay_id = p.id
+	  WHERE p.reserv_id = #{reservId}
+	    AND ps.member_id = #{memberId}
+	</select>
 
   <delete id="delete">
     DELETE FROM pay_share WHERE id = #{id}

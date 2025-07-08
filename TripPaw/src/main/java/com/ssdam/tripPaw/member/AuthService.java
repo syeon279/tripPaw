@@ -68,7 +68,7 @@ public class AuthService {
         // 1. 사용자 조회 (기존과 동일)
 //        User user = userRepository.findByUsername(request.getUsername())
 //                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getUsername()));
-        
+        //토큰에 권한을 부여하기 위해 사용자 정보 가지고 옴
         Member member = memberMapper.findByUsername(request.getUsername());
         // 2. 비밀번호 검증 (기존과 동일)
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
@@ -171,8 +171,9 @@ public class AuthService {
         					  .email(request.getEmail())
         					  .provider(request.getProvider())
         					  .nickname(request.getNickname())
+        					  .zonecode(request.getZonecode())
         					  .roadAddress(request.getRoadAddress())
-        					  .jibunAddress(request.getJibunAddress())
+        					  //.jibunAddress(request.getJibunAddress())
         					  .namujiAddress(request.getNamujiAddress())
         					  //.role(MemberRole.MEMBER)
         					  .build();

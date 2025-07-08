@@ -1,23 +1,18 @@
-import React from 'react';
-import MyPageLayout from '@/components/layout/MyPageLayout';
-import Sidebar from '@/components/mypage/Sidebar';
-import ChecklistManagerLayout from '@/components/checklist/ChecklistManagerLayout';
-import TemplateSection from '@/components/checklist/TemplateSection';
-import ItemSection from '@/components/checklist/ItemSection';
+// pages/mypage/checklist.js
+import MypageLayout from '@/components/layout/MypageLayout';
+import ChecklistTemplateList from '@/components/checklist/ChecklistTemplateList';
+import { Divider } from 'antd';
+import ChecklistItemManager from '@/components/checklist/ChecklistItemManager';
 
 const ChecklistPage = () => {
   return (
-    <MyPageLayout>
-      <div style={{ display: 'flex', height: '100%' }}>
-        <Sidebar />
-        <div style={{ flex: 1 }}>
-          <ChecklistManagerLayout>
-            <TemplateSection />
-            <ItemSection />
-          </ChecklistManagerLayout>
-        </div>
-      </div>
-    </MyPageLayout>
+    <> 
+    <MypageLayout>
+      <ChecklistTemplateList />
+      <Divider/>
+      <ChecklistItemManager/>
+    </MypageLayout>
+    </>
   );
 };
 
