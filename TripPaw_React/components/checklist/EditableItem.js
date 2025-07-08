@@ -4,7 +4,7 @@ import { Input, Button } from 'antd';
 
 const EditableItem = ({ item, onUpdate, onDelete }) => {
   const [editing, setEditing] = useState(false);
-  const [content, setContent] = useState(item.customContent || item.checkTemplateItem?.content); // 수정: customContent나 checkTemplateItem의 content를 사용
+  const [content, setContent] = useState(item.customContent || item.checkTemplateItem?.content); 
 
   useEffect(() => {
     if (item.customContent) {

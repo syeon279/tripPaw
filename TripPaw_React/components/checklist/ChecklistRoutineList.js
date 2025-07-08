@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Collapse, message, Spin, Button, Input } from 'antd';
 import { getRoutinesByMember } from '@/api/checkRoutine';
 import { getMemberChecksByRoutineId } from '@/api/memberCheck'; // API 호출 추가
-import { addMemberCheck, updateMemberCheck, deleteItem } from '@/api/memberCheck'; // 추가한 API
+import { addMemberCheck, updateMemberCheck, deleteItem } from '@/api/memberCheck';
 
 const ChecklistRoutineList = () => {
   const router = useRouter();
@@ -19,35 +19,45 @@ const ChecklistRoutineList = () => {
         .then(setRoutines)
         .catch(() => message.error('루틴을 불러오지 못했습니다.'));
     }
-  }, [memberId]);
+  }, [memberId]); 
 
   const handleCollapseChange = async (activeKey) => {
-    if (!activeKey) return;
-    const routineId = Number(activeKey);
-    if (routineItems[routineId]) return; // 이미 불러온 항목이 있으면 불러오지 않음
+  if (!activeKey) return;
+  const routineId = Number(activeKey);
+  if (routineItems[routineId]) return;
 
-    setLoadingItems((prev) => ({ ...prev, [routineId]: true }));
-    try {
-      const items = await getMemberChecksByRoutineId(routineId);
-      setRoutineItems((prev) => ({ ...prev, [routineId]: items }));
-    } catch (e) {
-      message.error('항목을 불러오지 못했습니다.');
-    } finally {
-      setLoadingItems((prev) => ({ ...prev, [routineId]: false }));
-    }
-  };
+  setLoadingItems((prev) => ({ ...prev, [routineId]: true }));
+  try {
+    const items = await getMemberChecksByRoutineId(routineId);
+    console.log('Items......:', items); // 데이터  확인
+    setRoutineItems((prev) => ({ ...prev, [routineId]: items }));
+  } catch (e) {
+    message.error('항목을 불러오지 못했습니다.');
+  } finally {
+    setLoadingItems((prev) => ({ ...prev, [routineId]: false }));
+  }
+};
 
   const handleAddItem = async (routineId) => {
+    console.log('1. handleAddItem called with:', routineId, newItemContent);
     if (!newItemContent.trim()) return;
 
     try {
-      await addMemberCheck({ custom_content: newItemContent, routineId });
-      setNewItemContent(''); // 입력란 초기화
-      handleCollapseChange(routineId); // 항목 추가 후 다시 불러오기
-    } catch {
-      message.error('항목 추가 실패');
+        const routine = await getMemberChecksByRoutineId(routineId); 
+        console.log('2. Adding item:', { custom_content: newItemContent, routineId });
+
+        await addMemberCheck({
+            custom_content: newItemContent,
+            checkRoutine: routine, 
+        });
+
+        setNewItemContent(''); 
+        handleCollapseChange(routineId);
+    } catch (error) {
+        console.error('3. Error adding item:', error);
+        message.error('항목 추가 실패');
     }
-  };
+};
 
   const handleUpdateItem = async (itemId, content) => {
     try {
@@ -79,20 +89,24 @@ const ChecklistRoutineList = () => {
             ) : (
               <>
                 <ul>
-                  {routineItems[routine.id]?.map((item) => (
-                    <li key={item.id}>
-                      <span>{item.customContent || item.checkTemplateItem?.content}</span>
-                      <Button
-                        size="small"
-                        onClick={() => handleUpdateItem(item.id, item.customContent || item.checkTemplateItem?.content)}
-                      >
-                        수정
-                      </Button>
-                      <Button size="small" danger onClick={() => handleDeleteItem(item.id)}>
-                        삭제
-                      </Button>
-                    </li>
-                  )) || <li>항목없음</li>}
+                  {routineItems[routine.id]?.length ? (
+                    routineItems[routine.id].map((item) => (
+                      <li key={item.id}>
+                        <span>{item.customContent || item.checkTemplateItem?.content}</span>
+                        <Button
+                          size="small"
+                          onClick={() => handleUpdateItem(item.id, item.customContent || item.checkTemplateItem?.content)}
+                        >
+                          수정
+                        </Button>
+                        <Button size="small" danger onClick={() => handleDeleteItem(item.id)}>
+                          삭제
+                        </Button>
+                      </li>
+                    ))
+                  ) : (
+                    <li>항목없음</li>
+                  )}
                 </ul>
                 {/* 항목 추가 입력란 및 버튼 */}
                 <Input

@@ -56,7 +56,7 @@ export default function ChecklistRoutineEditor({ routineId, onDeleteSuccess }) {
   if (!newItemContent.trim()) return;
 
   try {
-    // API에 필요한 데이터를 정확히 전달
+    console.log('1. Adding item......:', { custom_content: newItemContent, routineId });  // 데이터 확인용
     await addMemberCheck({ custom_content: newItemContent, routineId });
     setNewItemContent(''); // 입력란 초기화
     handleCollapseChange(routineId); // 항목 추가 후 다시 불러오기

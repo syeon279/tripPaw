@@ -2,6 +2,7 @@ package com.ssdam.tripPaw.domain;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,7 +17,10 @@ import lombok.Setter;
 public class MemberCheck {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	@Column(name = "custom_content")
 	private String customContent;
+	
 	private boolean isChecked;
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
@@ -29,6 +33,11 @@ public class MemberCheck {
 	@ManyToOne
     @JoinColumn(name = "checktemplateitem_id")
 	private CheckTemplateItem checkTemplateItem;
+	
+	@Override
+	public String toString() {
+	    return "MemberCheck{id=" + id + ", custom_content=" + customContent + ", routineId=" + checkRoutine + "}";
+	}
 	
 	public void setIsChecked(boolean isChecked) {this.isChecked = isChecked;}
 }
