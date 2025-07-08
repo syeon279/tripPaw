@@ -1,47 +1,44 @@
-// pages/mypage/checklist/mychecklist/[id].js
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import MypageLayout from '@/components/layout/MypageLayout';
-import ChecklistRoutineList from '@/components/checklist/ChecklistRoutineList';
+import { Divider, message } from 'antd';
 import axios from 'axios';
+
+import MypageLayout from '@/components/layout/MyPageLayOut';
+import UserChecklistRoutineList from '@/components/checkUser/UserChecklistRoutineList';
 
 const MyChecklistPage = () => {
   const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
+  const { id: memberId } = router.query;
 
   useEffect(() => {
-  const checkUser = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/auth/check', {
-        withCredentials: true,
-      });
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+        if (res.status === 200) {
+          const authUser = res.data;
+          setUser(authUser);
 
-      if (response.status === 200) {
-        const data = response.data;
-        console.log('auth:', data.auth); // 확인용
-
-        setUser({
-          nickname: data.nickname,
-          username: data.username,
-          memberId : data.memberId,
-        });
-
-        setIsAdmin(data.auth === 'ADMIN');
+          if (`${authUser.id}` !== memberId) {
+            message.warning('본인만 접근할 수 있습니다.');
+            router.push('/mypage');
+          }
+        }
+      } catch (err) {
+        message.error('로그인이 필요합니다.');
+        router.push('/login');
       }
-    } catch (error) {
-      console.error('사용자 정보 확인 실패:', error);
-      setIsAdmin(false);
-    }
-  };
+    };
 
-  checkUser();
-}, []);
+    if (memberId) checkAuth();
+  }, [memberId]);
+
+  if (!user || `${user.id}` !== memberId) return <div>접근 권한이 없습니다.</div>;
 
   return (
     <MypageLayout>
-      <ChecklistRoutineList />
+      <UserChecklistRoutineList memberId={memberId} />
+      <Divider />
     </MypageLayout>
   );
 };

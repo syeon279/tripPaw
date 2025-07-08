@@ -25,36 +25,18 @@ public class MemberCheckController {
 	private final CheckRoutineMapper checkRoutineMapper;
 
     // 체크리스트 항목 추가
-//    @PostMapping
-//    public ResponseEntity<Void> addMemberCheck(@RequestBody MemberCheck memberCheck) {
-//        System.out.println("3. Received MemberCheck......: " + memberCheck);
-//
-//        // CheckRoutine을 찾아서 MemberCheck에 설정 (서비스에서 처리하도록)
-//        memberCheckService.addMemberCheck(memberCheck);
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).build();
-//    }
 	@PostMapping
 	public ResponseEntity<String> addMemberCheck(@RequestBody MemberCheck memberCheck) {
-	    System.out.println("3. Received MemberCheck......: " + memberCheck);
-
 	    // CheckRoutine 존재 여부 확인
 	    if (memberCheck.getCheckRoutine() == null || memberCheck.getCheckRoutine().getId() == null) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("CheckRoutine ID is required.");
-	    }
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("CheckRoutine ID is required.");	    }
 
-	    // CheckRoutine을 Mapper를 통해 조회
 	    CheckRoutine checkRoutine = checkRoutineMapper.selectCheckRoutineById(memberCheck.getCheckRoutine().getId());
-	    
-	    // CheckRoutine이 존재하지 않으면 에러 반환
 	    if (checkRoutine == null) {
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CheckRoutine not found for id: " + memberCheck.getCheckRoutine().getId());
 	    }
 
-	    // MemberCheck에 CheckRoutine 설정
 	    memberCheck.setCheckRoutine(checkRoutine);
-
-	    // MemberCheck 저장 (서비스에서 처리)
 	    memberCheckService.addMemberCheck(memberCheck);
 
 	    return ResponseEntity.status(HttpStatus.CREATED).build();

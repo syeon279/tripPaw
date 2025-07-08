@@ -1,45 +1,26 @@
-// api/memberCheck.js
 import axios from 'axios';
+const BASE_URL = '/api/member-checks';
 
-const API_BASE = '/api/member-checks';
+export const getMemberChecksByRoutineId = async (routineId) =>
+  axios.get(`${BASE_URL}/routine/${routineId}`).then(res => res.data);
 
-// 루틴 기준 조회
-export const getMemberChecksByRoutineId = async (routineId) => {
-  const res = await axios.get(`${API_BASE}/routine/${routineId}`);
-  return res.data;
-};
+export const getMemberChecksByMemberId = async (memberId) =>
+  axios.get(`${BASE_URL}/member/${memberId}`).then(res => res.data);
 
-// 멤버 기준조회
-export const getMemberChecksByMemberId = async (memberId) => {
-  const res = await axios.get(`${API_BASE}/member/${memberId}`);
-  return res.data;
-};
+export const getMemberChecksByRouteId = async (routeId) =>
+  axios.get(`${BASE_URL}/route/${routeId}`).then(res => res.data);
 
-// 항목 수정 (custom_content 업데이트)
-export const updateMemberCheck = async (itemId, content) => {
-  const res = await axios.put(`${API_BASE}/${itemId}`, { custom_content: content });
-  return res.data;
-};
+export const getRoutineWithItems = async (routineId) =>
+  axios.get(`${BASE_URL}/routine/detail/${routineId}`).then(res => res.data);
 
-// 항목 추가
-export const addMemberCheck = async (newItem) => {
-  try {
-    if (!newItem.routineId) {
-      throw new Error("Routine ID is required");
-    }
+export const getRoutinesByMember = async (memberId) =>
+  axios.get(`${BASE_URL}/routines/member/${memberId}`).then(res => res.data);
 
-    const res = await axios.post(`${API_BASE}`, {
-      custom_content: newItem.custom_content, 
-      checkRoutine: { id: newItem.routineId }, 
-    });
-    console.log(res.data);
-  } catch (error) {
-    console.error("Error adding member check:", error.message || error);
-  }
-};
+export const addMemberCheck = async (memberCheck) =>
+  axios.post(`${BASE_URL}`, memberCheck).then(res => res.status);
 
-//항목 삭제
-export const deleteMemberCheck = async(itemId)=>{
-  const res = await axios.delete(`${API_BASE}/${itemId}`);
-  return res.data;
-};
+export const updateMemberCheck = async (id, memberCheck) =>
+  axios.put(`${BASE_URL}/${id}`, memberCheck).then(res => res.status);
+
+export const deleteMemberCheck = async (id) =>
+  axios.delete(`${BASE_URL}/${id}`).then(res => res.status);
