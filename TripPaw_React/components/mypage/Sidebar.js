@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import SidebarSection from './SidebarSection';
 import SidebarItem from './SidebarItem';
 import styled from 'styled-components';
+import axios from 'axios';
 import { useRouter } from 'next/router';
-import { checkAuthStatus } from '@/api/auth'; // 로그인 상태 확인 API
 
 const Wrapper = styled.div`
   width: 240px;
@@ -19,37 +19,41 @@ const Footer = styled.div`
 `;
 
 const Sidebar = () => {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
-  const [user, setUser] = useState(null);  // 로그인된 유저 정보
-  const [isAdmin, setIsAdmin] = useState(false);  // 관리자 여부
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await checkAuthStatus();
-        console.log(userData);  // 인증된 사용자 데이터 출력
+  const checkUser = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/auth/check', {
+        withCredentials: true,
+      });
 
-        // 로그인된 사용자 정보를 user 상태에 저장
-        setUser(userData);
+      if (response.status === 200) {
+        const data = response.data;
+        console.log('auth:', data.auth); // 확인용
 
-        // admin 권한 여부를 확인하여 isAdmin 상태에 저장
-        if (userData.auth === 'ADMIN') {
-          setIsAdmin(true);
-        }
-      } catch (error) {
-        console.log('인증되지 않음');
+        setUser({
+          nickname: data.nickname,
+          username: data.username,
+        });
+
+        setIsAdmin(data.auth === 'ADMIN');
       }
-    };
+    } catch (error) {
+      console.error('사용자 정보 확인 실패:', error);
+      setIsAdmin(false);
+    }
+  };
 
-    fetchUser();
-  }, []);
-
-  if (!user) return null;  // 로그인되지 않은 상태에서는 아무것도 렌더링하지 않음
+  checkUser();
+}, []);
 
   return (
     <Wrapper>
       {/* 유저 전용 항목 */}
-      {!isAdmin && (
+      {!isAdmin && user && (
         <>
           <SidebarSection title={`안녕하세요, ${user.nickname}님`}>
             <SidebarItem text="내 정보 관리" href="/mypage/profile" />
@@ -61,7 +65,11 @@ const Sidebar = () => {
           <SidebarItem text="내 장소" href="/mypage/places" />
           <SidebarItem text="내 여행" href="/mypage/trips" />
           <SidebarItem text="내 리뷰 관리" href="/mypage/reviews" />
-          <SidebarItem text="내 체크리스트" href="/mypage/checklist" active={router.pathname === '/mypage/checklist'} />
+          <SidebarItem
+            text="내 체크리스트"
+            href="/mypage/checklist"
+            active={router.pathname === '/mypage/checklist'}
+          />
           <SidebarItem text="내 뱃지" href="/mypage/badges" />
         </>
       )}
@@ -69,7 +77,6 @@ const Sidebar = () => {
       {/* 관리자 전용 항목 */}
       {isAdmin && (
         <>
-          {/* 관리자 전용 항목 */}
           <SidebarSection title="관리자">
             <SidebarItem text="체크리스트 관리" href="/mypage/checklist" />
             <SidebarItem text="카테고리 관리" href="/mypage/categories" />
@@ -79,10 +86,17 @@ const Sidebar = () => {
         </>
       )}
 
-      <Footer>
-        <div style={{ cursor: 'pointer' }}>로그아웃</div>
-        <div style={{ cursor: 'pointer' }}>탈퇴하기</div>
-      </Footer>
+      {!isAdmin && user &&(
+        <Footer>
+          <div style={{ cursor: 'pointer' }}>로그아웃</div>
+          <div style={{ cursor: 'pointer' }}>탈퇴하기</div>
+        </Footer>
+      )}
+      {isAdmin &&(
+        <Footer>
+          <div style={{ cursor: 'pointer' }}>로그아웃</div>
+        </Footer>
+      )}
     </Wrapper>
   );
 };

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { checkAuthStatus } from '@/api/auth'; // 로그인 상태 확인 API
-import MypageLayout from '@/components/layout/MyPageLayout';
+import MypageLayout from '@/components/layout/MypageLayout';
 import ChecklistRoutineList from '@/components/checklist/ChecklistRoutineList';
 
 const MyChecklistPage = () => {

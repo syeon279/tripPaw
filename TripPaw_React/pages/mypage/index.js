@@ -1,4 +1,4 @@
-import MypageLayout from "@/components/layout/MyPageLayout";
+import MypageLayout from "@/components/layout/MypageLayout";
 import React from "react";
 
 const Mypage = ()=>{
