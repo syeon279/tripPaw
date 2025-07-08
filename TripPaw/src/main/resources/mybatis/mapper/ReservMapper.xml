@@ -168,6 +168,14 @@
 	  ORDER BY start_date ASC
 	</select>
 	
+	<select id="findReservedRangesByPlace" parameterType="long" resultType="map">
+	  SELECT start_date, end_date
+	  FROM reserv
+	  WHERE delete_at IS NULL
+	    AND state IN ('WAITING', 'CONFIRMED')
+	    AND place_id = #{placeId}
+	</select>
+	
 	<update id="updateWithPay" parameterType="com.ssdam.tripPaw.domain.Reserv">
 	  UPDATE reserv
 	  SET
