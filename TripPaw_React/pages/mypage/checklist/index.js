@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import MypageLayout from '@/components/layout/MyPageLayOut';
+import MypageLayout from '@/components/layout/MypageLayout';
 import ChecklistTemplateList from '@/components/checklist/ChecklistTemplateList';
 import ChecklistItemManager from '@/components/checklist/ChecklistItemManager';
 import { Divider } from 'antd';

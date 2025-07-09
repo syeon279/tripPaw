@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssdam.tripPaw.chatting.chatroom.ChatRoomForm;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.member.config.MemberLoginForm;
-import com.ssdam.tripPaw.member.oauth.LoginResponseDto;
 import com.ssdam.tripPaw.member.util.JwtProvider;
 import com.ssdam.tripPaw.member.util.RedisUtil;
 
