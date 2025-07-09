@@ -20,7 +20,16 @@ public class MemberCheckService {
     // 체크리스트 항목 추가
     @Transactional
     public void addMemberCheck(MemberCheck memberCheck) {
-        memberCheckMapper.insertMemberCheck(memberCheck);
+        // routineId로 CheckRoutine 객체 찾기
+        CheckRoutine checkRoutine = checkRoutineMapper.selectCheckRoutineById(memberCheck.getCheckRoutine().getId());
+
+        if (checkRoutine != null) {
+            memberCheck.setCheckRoutine(checkRoutine);
+            memberCheckMapper.insertMemberCheck(memberCheck);
+        } else {
+            // routineId가 유효하지 않으면 예외 처리
+            throw new RuntimeException("CheckRoutine not found for id: " + memberCheck.getCheckRoutine().getId());
+        }
     }
 
     // 루틴 ID 기준 체크리스트 조회

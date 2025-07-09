@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import MypageLayout from "@/components/layout/MypageLayout";
+import MypageLayout from "@/components/layout/MyPageLayout";
 
 const layoutStyle = {
     header: { width: '100%', height: '80px' },
