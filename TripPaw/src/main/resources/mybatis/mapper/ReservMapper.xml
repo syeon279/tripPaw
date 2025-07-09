@@ -79,6 +79,14 @@
   WHERE r.id = #{id}
 </select>
 
+<select id="findByTripPlansId" resultMap="ReservResultMap" parameterType="long">
+  SELECT r.*, p.*, pay.*
+  FROM reserv r
+  LEFT JOIN place p ON r.place_id = p.id
+  LEFT JOIN pay pay ON pay.reserv_id = r.id
+  WHERE r.trip_plan_id = #{tripPlanId}
+</select>
+
 <insert id="insert" parameterType="com.ssdam.tripPaw.domain.Reserv"
         useGeneratedKeys="true" keyProperty="id" keyColumn="id">
   INSERT INTO reserv (
