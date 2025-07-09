@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssdam.tripPaw.chatting.chatroom.ChatRoomForm;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.member.config.MemberLoginForm;
+import com.ssdam.tripPaw.member.oauth.LoginResponseDto;
 import com.ssdam.tripPaw.member.util.JwtProvider;
 import com.ssdam.tripPaw.member.util.RedisUtil;
 
@@ -129,6 +130,9 @@ public class AuthController {
             "username", member.getUsername(),
             "nickname", member.getNickname(),
             "memberId", member.getId(),
+            "zonecode",member.getZonecode(),
+            "roadAddress",member.getRoadAddress(),
+            "namujiAddress",member.getNamujiAddress(),
             "auth", authorities
             // 필요한 다른 정보 추가
         );
@@ -136,4 +140,12 @@ public class AuthController {
         return ResponseEntity.ok(userInfo);
     }
     
+//    @GetMapping("/login/oauth2/code/kakao")
+//    public ResponseEntity<?> kakaoLogin(HttpServletRequest request){
+//    	
+//    	System.out.println("카카오테스트");
+//    	//String code = request.getParameter("code");
+//    	//String kakaoAccessToken = authService.getKakaoAccessToken(code);
+//    	return ResponseEntity.ok("");//authService.kakaoLogin(kakaoAccessToken);
+//    }
 }
