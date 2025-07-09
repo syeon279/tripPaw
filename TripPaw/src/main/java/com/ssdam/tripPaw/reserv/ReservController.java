@@ -79,6 +79,12 @@ public class ReservController {
         return ResponseEntity.ok(reservList);
     }
 
+    @GetMapping("/tripplan/{tripPlanId}")
+    public ResponseEntity<List<Reserv>> getReservListByTripPlan(@PathVariable Long tripPlanId) {
+        List<Reserv> reservList = reservMapper.findByTripPlansId(tripPlanId);
+        return ResponseEntity.ok(reservList);
+    }
+    
     /** 예약 상태 변경 */
     @PatchMapping("/{id}/state")
     public ResponseEntity<String> updateReservState(

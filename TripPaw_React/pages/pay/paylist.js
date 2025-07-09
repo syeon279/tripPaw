@@ -37,12 +37,12 @@ const stateMap = {
   REFUNDED: '환불 완료',
 };
 
-function groupByYearMonth(payments) {
+// groupId로 그룹화하는 함수
+function groupByGroupId(payments) {
   return payments.reduce((acc, pay) => {
-    const date = new Date(pay.paidAt);
-    const yearMonth = `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
-    if (!acc[yearMonth]) acc[yearMonth] = [];
-    acc[yearMonth].push(pay);
+    const groupId = pay.groupId || 'single'; // groupId가 없으면 single로 처리
+    if (!acc[groupId]) acc[groupId] = [];
+    acc[groupId].push(pay);
     return acc;
   }, {});
 }
@@ -55,7 +55,6 @@ const PayList = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // 접힌 년-월 상태를 객체로 관리 (key: "2025년 7월", value: boolean)
   const [openedSections, setOpenedSections] = useState({});
 
   const openDetailModal = (payment) => {
@@ -77,7 +76,7 @@ const PayList = () => {
         setPayments(response.data);
 
         // 기본적으로 모든 년월을 펼치도록 설정 (원하면 false로 바꿀 수 있음)
-        const grouped = groupByYearMonth(response.data);
+        const grouped = groupByGroupId(response.data); // groupId로 그룹화
         const initOpen = {};
         Object.keys(grouped).forEach((key) => {
           initOpen[key] = true;
@@ -93,10 +92,10 @@ const PayList = () => {
     fetchPayments();
   }, []);
 
-  const toggleSection = (yearMonth) => {
+  const toggleSection = (groupId) => {
     setOpenedSections((prev) => ({
       ...prev,
-      [yearMonth]: !prev[yearMonth],
+      [groupId]: !prev[groupId],
     }));
   };
 
@@ -139,7 +138,7 @@ const PayList = () => {
   if (error) return <p className={styles.error}>{error}</p>;
   if (payments.length === 0) return <p className={styles.empty}>결제 내역이 없습니다.</p>;
 
-  const groupedPayments = groupByYearMonth(payments);
+  const groupedPayments = groupByGroupId(payments); // 그룹화된 결제 항목들
 
   return (
     <>
@@ -154,16 +153,18 @@ const PayList = () => {
           />
         </div>
 
-        {Object.entries(groupedPayments).map(([yearMonth, pays]) => (
-          <section key={yearMonth}>
-            <YearMonthTitle onClick={() => toggleSection(yearMonth)}>
-              <span>{yearMonth}</span>
+        {Object.entries(groupedPayments).map(([groupId, pays]) => (
+          <section key={groupId}>
+            <YearMonthTitle onClick={() => toggleSection(groupId)}>
+              <span>{groupId === '' ? '단일 결제' : `그룹 결제 (그룹 ID: ${groupId})`}</span>
               <ArrowIcon
-                style={{ transform: openedSections[yearMonth] ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                style={{
+                  transform: openedSections[groupId] ? 'rotate(90deg)' : 'rotate(0deg)',
+                }}
               />
             </YearMonthTitle>
 
-            {openedSections[yearMonth] &&
+            {openedSections[groupId] &&
               pays.map((pay) => (
                 <div key={pay.id} className={styles.receipt}>
                   <div className={styles.receiptHeader}>

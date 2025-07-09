@@ -17,6 +17,8 @@
 	  <result property="createdAt" column="created_at"/>
 	  <result property="deleteAt" column="delete_at"/>
 	  <result property="haspayShare" column="haspay_share"/>
+	  <result property="isGroup" column="is_group"/>
+	  <result property="groupId" column="group_id"/>
 	  
 	  <association property="reserv" javaType="com.ssdam.tripPaw.domain.Reserv">
 	    <id property="id" column="reserv_id"/>
@@ -119,17 +121,19 @@
 
   <!-- 삽입 -->
 	<insert id="insert" parameterType="com.ssdam.tripPaw.domain.Pay" useGeneratedKeys="true" keyProperty="id">
-	  INSERT INTO pay (
-	    imp_uid, merchant_uid, amount, pay_method, pg_provider,
-	    state, paid_at, created_at,
-	    <if test="reserv != null"> reserv_id, </if>
-	    member_id, haspay_share
-	  ) VALUES (
-	    #{impUid}, #{merchantUid}, #{amount}, #{payMethod}, #{pgProvider},
-	    #{state}, #{paidAt}, #{createdAt},
-	    <if test="reserv != null"> #{reserv.id}, </if>
-	    #{member.id}, #{haspayShare}
-	  )
+	    INSERT INTO pay (
+	        imp_uid, merchant_uid, amount, pay_method, pg_provider,
+	        state, paid_at, created_at,
+	        <if test="reserv != null"> reserv_id, </if>
+	        member_id, haspay_share,
+	        is_group, group_id
+	    ) VALUES (
+	        #{impUid}, #{merchantUid}, #{amount}, #{payMethod}, #{pgProvider},
+	        #{state}, #{paidAt}, #{createdAt},
+	        <if test="reserv != null"> #{reserv.id}, </if>
+	        #{member.id}, #{haspayShare},
+	        #{isGroup}, #{groupId}
+	    )
 	</insert>
 
   <!-- 상태 업데이트 -->

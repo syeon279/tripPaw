@@ -48,4 +48,15 @@ public class MemberNftController {
         memberNftService.deleteMemberNft(id, memberId);
         return ResponseEntity.ok("NFT deleted");
     }
+    
+    // NFT 선물 기능
+    @PostMapping("/gift/{nftId}")
+    public ResponseEntity<String> giftNft(@PathVariable Long nftId, @RequestParam String fromMemberId, @RequestParam String toMemberId) {
+        try {
+            memberNftService.giftNft(nftId, fromMemberId, toMemberId);
+            return ResponseEntity.ok("NFT gifted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("NFT gift failed: " + e.getMessage());
+        }
+    }
 }

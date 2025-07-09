@@ -107,6 +107,7 @@ public class TripPlanService {
 		return (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
 	}
 
+	//// TripPlan 저장하기
 	public TripPlan saveTrip(TripSaveRequest request) {
 		TripPlan tripPlan = new TripPlan();
 		try {
@@ -148,6 +149,9 @@ public class TripPlanService {
 		return tripPlan;
 	}
 
+	
+	
+	// MemberTripPlan 저장하기
 	public void saveMemberTrip(TripSaveRequest request) {
 		try {
 			String imagePath = saveBase64Image(request.getMapImage());
@@ -201,6 +205,7 @@ public class TripPlanService {
 		}
 	}
 
+	// 썸네일 저장하기
 	private String saveBase64Image(String base64Data) {
 		if (base64Data == null || base64Data.isBlank()) return null;
 		try {
@@ -223,6 +228,7 @@ public class TripPlanService {
 		return tripPlanMapper.findAllTrips();
 	}
 
+	// 경로 가져오기
 	public TripPlan findByIdWithCourses(Long id) {
 		return tripPlanMapper.findByIdWithCourses(id);
 	}

@@ -29,6 +29,7 @@ const Menu = () => {
     const menuItem = {
         fontSize: '3em',
         margin: '10px',
+        cursor: 'pointer',
     };
 
     const menuWrapper = {
@@ -57,7 +58,7 @@ const Menu = () => {
             <div style={{ backgroundColor: 'rgba(245, 244, 237, 0.7)', minHeight: '100vh' }}>
                 <div ref={menuWrapperRef} style={menuWrapper}>
                     <div style={menuItem}>홈</div>
-                    <div style={menuItem}>리뷰</div>
+                    <div style={menuItem} onClick={() => Router.push('/review/route-review')}>리뷰</div>
                     <div style={menuItem}>나의 채팅</div>
                     <div style={menuItem}>로그인</div>
                 </div>
