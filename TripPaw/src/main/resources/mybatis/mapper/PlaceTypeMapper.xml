@@ -5,6 +5,10 @@
 
 <mapper namespace="com.ssdam.tripPaw.place.PlaceTypeMapper">
 
+	<select id="findAll" resultType="com.ssdam.tripPaw.domain.PlaceType">
+	    SELECT * FROM place_type
+	</select>
+
     <select id="findByName" resultType="com.ssdam.tripPaw.domain.PlaceType">
         SELECT * FROM place_type WHERE name = #{name}
     </select>
