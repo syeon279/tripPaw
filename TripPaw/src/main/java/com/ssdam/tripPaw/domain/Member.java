@@ -46,13 +46,13 @@ public class Member {
 	private String nickname;
 	@Column(nullable = false, length = 255)
 	private String email;
-	@Column(nullable = false, length = 255)
+	@Column(nullable = true, length = 255)
 	private String zonecode;
-	@Column(nullable = false, length = 255)
+	@Column(name = "road_address", nullable = true, length = 255)
 	private String roadAddress;
 //	@Column(nullable = false, length = 255)
 //	private String jibunAddress;
-	@Column(nullable = false, length = 255)
+	@Column(name = "namuji_address", nullable = true, length = 255)
 	private String namujiAddress;
 	 // JPA에서 Set<Enum>을 매핑하는 올바른 방법
     @ElementCollection(targetClass = MemberRole.class) // 컬렉션 요소의 타입 지정
