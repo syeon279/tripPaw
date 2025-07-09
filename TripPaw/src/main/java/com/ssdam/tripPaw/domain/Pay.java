@@ -44,6 +44,10 @@ public class Pay {
     private LocalDateTime deleteAt;
     private LocalDateTime createdAt = LocalDateTime.now();
     
+    @Column(name = "is_group")
+    private Boolean isGroup; 
+    @Column(name = "group_id")
+    private Long groupId;
     private boolean haspayShare;
     
     @ManyToOne(fetch = FetchType.LAZY)

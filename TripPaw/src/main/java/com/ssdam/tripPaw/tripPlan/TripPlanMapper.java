@@ -21,7 +21,13 @@ public interface TripPlanMapper {
 	int insertRoutePlace(RoutePlace routePlace);
 
 	int insertTripPlanCourse(TripPlanCourse course);
-
+	
+	List<TripPlan> findByMemberId(Long id);
+	
 	List<TripPlan> findAllTrips();
+	
+	// 공개로 전환하기
+	void makeTripPlanPublic(Long id);
+	Boolean isTripPlanPublic(Long id);
 
 }

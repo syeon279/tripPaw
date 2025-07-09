@@ -5,22 +5,32 @@
 <mapper namespace="com.ssdam.tripPaw.search.SearchMapper">
 
 	<!-- 여행 코스 검색 -->
-	<resultMap id="searchTripPlanMap" type="com.ssdam.tripPaw.domain.TripPlan">
+	<resultMap id="searchTripPlanMap"
+		type="com.ssdam.tripPaw.domain.TripPlan">
 		<id property="id" column="tp_id" />
 		<result property="title" column="title" />
 		<result property="days" column="days" />
 		<result property="publicVisible" column="is_public" />
 		<result property="createdAt" column="created_at" />
 		<result property="imageUrl" column="image_url" />
+		<association property="member"
+			javaType="com.ssdam.tripPaw.domain.Member">
+			<id property="id" column="member_id" />
+			<result property="nickname" column="member_nickname" />
+		</association>
 
-		<collection property="tripPlanCourses" ofType="com.ssdam.tripPaw.domain.TripPlanCourse">
+		<collection property="tripPlanCourses"
+			ofType="com.ssdam.tripPaw.domain.TripPlanCourse">
 			<id property="id" column="c_id" />
-			<association property="route" javaType="com.ssdam.tripPaw.domain.Route">
+			<association property="route"
+				javaType="com.ssdam.tripPaw.domain.Route">
 				<id property="id" column="route_id" />
-				<collection property="routePlaces" ofType="com.ssdam.tripPaw.domain.RoutePlace">
+				<collection property="routePlaces"
+					ofType="com.ssdam.tripPaw.domain.RoutePlace">
 					<id property="id" column="rp_id" />
 					<result property="sequence" column="sequence" />
-					<association property="place" javaType="com.ssdam.tripPaw.domain.Place">
+					<association property="place"
+						javaType="com.ssdam.tripPaw.domain.Place">
 						<id property="id" column="place_id" />
 						<result property="name" column="place_name" />
 						<result property="latitude" column="latitude" />
@@ -30,7 +40,8 @@
 			</association>
 		</collection>
 
-		<collection property="reviews" ofType="com.ssdam.tripPaw.domain.Review">
+		<collection property="reviews"
+			ofType="com.ssdam.tripPaw.domain.Review">
 			<id property="id" column="review_id" />
 			<result property="content" column="review_content" />
 			<result property="rating" column="rating" />
@@ -41,7 +52,8 @@
 	</resultMap>
 
 	<!-- 장소 검색 -->
-	<resultMap id="searchPlaceResultMap" type="com.ssdam.tripPaw.domain.Place">
+	<resultMap id="searchPlaceResultMap"
+		type="com.ssdam.tripPaw.domain.Place">
 		<id property="id" column="place_id" />
 		<result property="name" column="place_name" />
 		<result property="description" column="description" />
@@ -57,20 +69,24 @@
 		<result property="phone" column="phone" />
 		<result property="imageUrl" column="image_url" />
 		<result property="homePage" column="home_page" />
-		<result property="externalContentId" column="external_content_id" />
+		<result property="externalContentId"
+			column="external_content_id" />
 		<result property="source" column="source" />
 
-		<association property="placeType" javaType="com.ssdam.tripPaw.domain.PlaceType">
+		<association property="placeType"
+			javaType="com.ssdam.tripPaw.domain.PlaceType">
 			<id property="id" column="place_type_id" />
 			<result property="name" column="place_type_name" />
 		</association>
 
-		<collection property="placeImages" ofType="com.ssdam.tripPaw.domain.PlaceImage">
+		<collection property="placeImages"
+			ofType="com.ssdam.tripPaw.domain.PlaceImage">
 			<id property="id" column="place_image_id" />
 			<result property="imageUrl" column="place_image_url" />
 		</collection>
 
-		<collection property="reviews" ofType="com.ssdam.tripPaw.domain.Review">
+		<collection property="reviews"
+			ofType="com.ssdam.tripPaw.domain.Review">
 			<id property="id" column="review_id" />
 			<result property="content" column="review_content" />
 			<result property="rating" column="rating" />
@@ -81,7 +97,8 @@
 	</resultMap>
 
 	<!-- 장소 검색 쿼리 -->
-	<select id="searchPlacesByKeyword" parameterType="string" resultMap="searchPlaceResultMap">
+	<select id="searchPlacesByKeyword" parameterType="string"
+		resultMap="searchPlaceResultMap">
 		SELECT
 		p.id AS place_id,
 		p.name AS place_name,
@@ -115,17 +132,20 @@
 		pi.image_url AS place_image_url
 
 		FROM place p
-		INNER JOIN place_type pt ON p.place_type_id = pt.id
-		LEFT JOIN review r ON p.id = r.target_id AND r.review_type_id = 2
+		INNER JOIN place_type pt ON
+		p.place_type_id = pt.id
+		LEFT JOIN review r ON p.id = r.target_id AND
+		r.review_type_id = 2
 		LEFT JOIN place_image pi ON p.id = pi.place_id
 
-		WHERE
-		LOWER(p.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
-		OR LOWER(pt.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+		WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+		OR
+		LOWER(pt.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
 	</select>
 
 	<!-- 여행 코스 검색 쿼리 -->
-	<select id="searchTripPlansByKeyword" parameterType="string" resultMap="searchTripPlanMap">
+	<select id="searchTripPlansByKeyword" parameterType="string"
+		resultMap="searchTripPlanMap">
 		SELECT
 		tp.id AS tp_id,
 		tp.title,
@@ -133,6 +153,7 @@
 		tp.is_public,
 		tp.created_at,
 		tp.image_url,
+		m.nickname AS member_nickname,
 
 		c.id AS c_id,
 		r.id AS route_id,
@@ -151,13 +172,21 @@
 		rv.target_id
 
 		FROM trip_plan tp
-		JOIN trip_plan_course c ON tp.id = c.trip_plan_id
-		JOIN route r ON c.route_id = r.id
+		JOIN member m ON tp.member_id = m.id
+		JOIN
+		trip_plan_course c ON tp.id = c.trip_plan_id
+		JOIN route r ON c.route_id
+		= r.id
 		JOIN route_place rp ON r.id = rp.route_id
-		JOIN place p ON rp.place_id = p.id
-		LEFT JOIN review rv ON tp.id = rv.target_id AND rv.review_type_id = 1
-		WHERE tp.title LIKE CONCAT('%', #{keyword}, '%')
-		ORDER BY tp.id DESC, c.id ASC, rp.sequence ASC
+		JOIN place p ON
+		rp.place_id = p.id
+		LEFT JOIN review rv ON tp.id = rv.target_id AND
+		rv.review_type_id = 1
+		WHERE tp.is_public = true
+		AND tp.title LIKE
+		CONCAT('%', #{keyword}, '%')
+		ORDER BY tp.id DESC, c.id ASC, rp.sequence
+		ASC
 	</select>
 
 </mapper>

@@ -69,16 +69,22 @@ public class PayController {
     }
 
     @PostMapping("/batch/{tripPlanId}")
-    public ResponseEntity<?> createBatchPaysForDummy(@PathVariable Long tripPlanId) {
-        // 👇 더미 유저 ID로 직접 조회
-        Member member = memberService.findById(1L);
+    public ResponseEntity<?> createBatchPaysForDummy(@PathVariable Long tripPlanId, 
+        @AuthenticationPrincipal UserDetails userDetails) {
+        // 로그인한 유저 정보 가져오기
+        Member member = memberService.findByUsername(userDetails.getUsername());
         if (member == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("더미 유저(ID=1)를 찾을 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인된 유저를 찾을 수 없습니다.");
         }
 
         try {
             List<Pay> pays = payService.createBatchPaysByTripPlan(tripPlanId, member);
             int totalAmount = pays.stream().mapToInt(Pay::getAmount).sum();
+
+            // 그룹 결제에서 is_group이 true, group_id가 설정됨을 확인
+            pays.forEach(pay -> {
+                System.out.println("isGroup: " + pay.getIsGroup() + ", groupId: " + pay.getGroupId());
+            });
 
             return ResponseEntity.ok(Map.of("totalAmount", totalAmount, "payList", pays));
         } catch (Exception e) {

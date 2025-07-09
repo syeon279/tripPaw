@@ -15,7 +15,7 @@ import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.dto.FavoritePlaceDto;
-import com.ssdam.tripPaw.dto.FavoriteTripsDto;
+import com.ssdam.tripPaw.dto.MyTripsDto;
 import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.review.ReviewMapper;
@@ -99,61 +99,6 @@ public class FavoriteService {
             .collect(Collectors.toList());
     }
 
-    // 특정 유저의 즐겨찾기 여행(TripPlan) 목록 조회
-    @Transactional(readOnly = true)
-    public List<FavoriteTripsDto> getFavoriteTripsByMember(Long memberId) {
-        List<MemberTripPlan> myTrips = memberTripPlanMapper.findByMemberId(memberId);
-        List<FavoriteTripsDto> result = new ArrayList<>();
 
-        for (MemberTripPlan mtp : myTrips) {
-            if (mtp == null || mtp.getTripPlan() == null) continue;
-
-            TripPlan tripPlan = mtp.getTripPlan();
-
-            List<TripPlanCourse> tripPlanCourses = tripPlan.getTripPlanCourses();
-            List<Review> reviews = tripPlan.getReviews();
-
-            double avgRating = 0.0;
-            long reviewCount = 0;
-
-            if (reviews != null && !reviews.isEmpty()) {
-                avgRating = reviews.stream()
-                        .mapToInt(Review::getRating)
-                        .average()
-                        .orElse(0.0);
-                reviewCount = reviews.size();
-            }
-
-            // 대표 이미지 설정
-            String imageUrl = null;
-            /*
-            if (tripPlanCourses != null && !tripPlanCourses.isEmpty()) {
-                TripPlanCourse firstCourse = tripPlanCourses.get(0);
-                Place place = firstCourse.getPlace();
-                if (place != null) {
-                    imageUrl = place.getImageUrl();
-                }
-            }
-            */
-
-            FavoriteTripsDto dto = new FavoriteTripsDto();
-            dto.setFavoriteId(mtp.getId());
-            dto.setMemberId(memberId);
-            dto.setTripPlanId(tripPlan.getId());
-            dto.setTitle(tripPlan.getTitle());
-            dto.setDays(tripPlan.getDays());
-            dto.setPublicVisible(tripPlan.isPublicVisible());
-            dto.setCreatedAt(tripPlan.getCreatedAt());
-            dto.setImageUrl(imageUrl);
-            dto.setTripPlanCourses(tripPlanCourses != null ? tripPlanCourses : new ArrayList<>());
-            dto.setReviews(reviews != null ? reviews : new ArrayList<>());
-            dto.setAvgRating(avgRating);
-            dto.setReviewCount(reviewCount);
-
-            result.add(dto);
-        }
-
-        return result;
-    }
 
 }
