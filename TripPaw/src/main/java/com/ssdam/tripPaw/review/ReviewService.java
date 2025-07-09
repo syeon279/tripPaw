@@ -41,6 +41,8 @@ import com.ssdam.tripPaw.domain.ReviewType;
 import com.ssdam.tripPaw.domain.Route;
 import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
+import com.ssdam.tripPaw.member.MemberMapper;
+import com.ssdam.tripPaw.member.MemberService;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
@@ -60,6 +62,8 @@ public class ReviewService {
     private final FileUploadService fileUploadService;
     private final ReviewImageMapper reviewImageMapper;
     private final MemberBadgeMapper badgeMapper;
+    private final MemberService memberService;
+    private final MemberMapper memberMapper;
     
     private static final ObjectMapper mapper = new ObjectMapper();
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
@@ -72,8 +76,9 @@ public class ReviewService {
 
 	public void saveReviewWithWeather(ReviewDto dto, List<MultipartFile> images) {
 	    // 1. 회원 객체 준비
-	    Member member = new Member();
-	    member.setId(dto.getMemberId());
+	    Member member = memberMapper.findById(dto.getMemberId());
+	    if (member == null) throw new RuntimeException("회원 정보를 찾을 수 없습니다.");
+	    //member.setId(dto.getMemberId());
 
 	    // 2. 리뷰타입 조회
 	    ReviewType reviewType = reviewTypeMapper.findById(dto.getReviewTypeId());
@@ -140,6 +145,7 @@ public class ReviewService {
 
 	    String weather = weatherService.getWeather(date, lat, lon);
 
+	    // 5. Review 객체 생성 및 저장
 	    Review review = new Review();
 	    review.setMember(member);
 	    review.setReviewType(reviewType);
@@ -151,7 +157,7 @@ public class ReviewService {
 
 	    reviewMapper.insertReview(review);
 	    
-	    // ===== 이미지 업로드 추가 =====
+	    // 6. 이미지 업로드
 	    if (images != null && !images.isEmpty()) {
 	        for (MultipartFile file : images) {
 	            String imageUrl = fileUploadService.upload(file); // 파일 저장 (로컬 or S3)
@@ -165,10 +171,10 @@ public class ReviewService {
 	            reviewImageMapper.insertReviewImage(reviewImage);
 	        }
 	    }
-	    // 뱃지 부여
+	    // 7. 뱃지 부여
 	    this.evaluateAndGrantBadges(member.getId());
 	}
-	
+
 	public String getWeatherCondition(String type, Long targetId) {
 	    LocalDate date;
 	    double lat, lon;

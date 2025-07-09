@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import DayScheduleList from '../../components/tripPlan/DayScheduleList';
 import AppLayout from '../../components/AppLayout';
-import SearchTripPlanActionButton from '../../components/tripPlan/SearchTripPlanActionButtons'
+import MypageActionButton from '../../components/tripPlan/MypageAcionButton';
+import TitleModal from '../../components/tripPlan/TitleModal';
 import axios from 'axios';
 import { format } from 'date-fns';
 
@@ -58,19 +59,20 @@ const layoutStyle = {
 const TripPlanDetail = () => {
     const router = useRouter();
     const mapRef = useRef(null);
+
     const [routeData, setRouteData] = useState(null);
     const [currentDay, setCurrentDay] = useState(1);
     const [kakaoReady, setKakaoReady] = useState(false);
     const [mapInstance, setMapInstance] = useState(null);
     const [focusDay, setFocusDay] = useState(null);
+    const [showModal, setShowModal] = useState(false);
     const [countPeople, setCountPeople] = useState(null);
     const [countPet, setCountPet] = useState(null);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [title, setTitle] = useState('');
-    const [authorNickname, setAuthorNickname] = useState('');
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userId, setUserId] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+    const [userId, setUserId] = useState(1);
 
     useEffect(() => {
         const fetchTripDetail = async () => {
@@ -78,16 +80,19 @@ const TripPlanDetail = () => {
             if (!router.isReady || !id) return;
 
             try {
-                const res = await axios.get(`http://localhost:8080/tripPlan/${id}`);
+                const res = await axios.get(`http://localhost:8080/memberTripPlan/${id}`);
                 const data = res.data;
-
                 setRouteData(data.routeData || []);
+                setCountPeople(data.countPeople);
+                setCountPet(data.countPet);
+                setStartDate(data.startDate);
+                setEndDate(data.endDate);
                 setTitle(data.title);
-                setAuthorNickname(data.authorNickname || '알 수 없음');
                 console.log('data:', res.data);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
             }
+
         };
 
         fetchTripDetail();
@@ -98,18 +103,26 @@ const TripPlanDetail = () => {
                     withCredentials: true,
                 });
 
+                console.log('user : ', response.data);
+
                 if (response.status === 200) {
                     setIsLoggedIn(true);
+                    // 백엔드에서 받은 username으로 상태 업데이트
                     setUserId(response.data.id);
+                    return true; // 성공 시 true 반환
                 }
             } catch (error) {
                 console.error("로그인 상태 확인 실패:", error);
                 alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
                 router.push('/member/login');
+                return false; // 실패 시 false 반환
             }
         };
 
+        // ✅ 함수 호출
+        fetchTripDetail();
         checkLoginStatus();
+
     }, [router.isReady, router.query]);
 
     useEffect(() => {
@@ -126,8 +139,8 @@ const TripPlanDetail = () => {
         return <div>경로 데이터를 불러오는 중입니다...</div>;
     }
 
-    const currentPlan = routeData.find((r) => Number(r.day) === currentDay);
-    if (!currentPlan || !currentPlan.places || !kakaoReady) {
+    const currentPlan = routeData.find((r) => r.day === currentDay);
+    if (!currentPlan || !kakaoReady) {
         return <div>지도를 불러오는 중입니다...</div>;
     }
 
@@ -180,6 +193,8 @@ const TripPlanDetail = () => {
                         id: tripId,
                         startDate,
                         endDate,
+                        countPeople,
+                        countPet,
                     },
                 });
             } else {
@@ -191,23 +206,23 @@ const TripPlanDetail = () => {
         }
     };
 
+    // ✅ isMyTrip 조건: 여행을 만든 사람이 로그인 유저일 때
+    const isMyTrip = true;
+
+    //이대로 예약하기 : 추가
+
     return (
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
                 <h1>{title || '여행 상세 보기'}</h1>
 
-                {authorNickname && (
-                    <p style={{ fontSize: '15px', color: '#666', marginBottom: '6px' }}>
-                        이 여행 경로를 만든 사람: {authorNickname}
-                    </p>
-                )}
-
                 {startDate && endDate && (
                     <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
                         {format(new Date(startDate), 'yyyy.MM.dd')} ~ {format(new Date(endDate), 'yyyy.MM.dd')}
                     </p>
                 )}
+                <div>{countPeople}명 {countPet}견</div>
 
                 <div style={layoutStyle.divider}>
                     <div style={layoutStyle.dividerLine} />
@@ -233,8 +248,11 @@ const TripPlanDetail = () => {
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
                         />
-                        <SearchTripPlanActionButton
+                        <MypageActionButton
+                            // 예약하기 추가
+                            //onReserv={() => }
                             onEdit={() => handleEditAndSave()}
+                            isMyTrip={isMyTrip}
                         />
                     </div>
                 </div>

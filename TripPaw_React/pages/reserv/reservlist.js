@@ -323,19 +323,31 @@ const ReservList = () => {
     }
   }, [reservations]);
 
-  const cancelReserv = async (reservId) => {
-    if (!confirm('정말 예약을 취소하시겠습니까?')) return;
+  const cancelSingleReserv = async (reservId) => {
+    if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, {
-        withCredentials: true,
-      });
+      await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
-      setReservations((prev) =>
-        prev.map((r) => (r.id === reservId ? { ...r, state: 'CANCELLED' } : r))
+      setReservations(prev =>
+        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
       );
     } catch (err) {
       alert('예약 취소에 실패했습니다.');
+    }
+  };
+
+  const cancelTripPlanReservs = async (tripPlanId) => {
+    if (!window.confirm('일괄 예약 전체를 취소하시겠습니까?')) return;
+
+    try {
+      await axios.post(`http://localhost:8080/reserv/tripplan/${tripPlanId}/delete`, null, { withCredentials: true });
+      alert('일괄 예약 전체가 취소되었습니다.');
+      setReservations(prev =>
+        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
+      );
+    } catch (err) {
+      alert('일괄 예약 취소에 실패했습니다.');
     }
   };
 
@@ -378,8 +390,8 @@ const ReservList = () => {
         withCredentials: true,
       });
       alert('예약이 취소되었습니다.');
-      setReservations((prev) =>
-        prev.map((r) => (r.id === reservId ? { ...r, state: 'CANCELLED' } : r))
+      setReservations(prev =>
+        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
       );
       closeDetailModal();
     } catch (err) {
@@ -453,7 +465,18 @@ const ReservList = () => {
                       {reserv.state === 'WAITING' && (
                         <>
                           <Button onClick={() => goToPayPage(reserv)}>결제하기</Button>
-                          <Button danger onClick={() => cancelReserv(reserv.id)}>예약 취소</Button>
+                          <Button
+                            danger
+                            onClick={() => {
+                              if (reserv.tripPlanId) {
+                                cancelTripPlanReservs(reserv.tripPlanId);
+                              } else {
+                                cancelSingleReserv(reserv.id);
+                              }
+                            }}
+                          >
+                            예약 취소
+                          </Button>
                         </>
                       )}
                       {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
@@ -485,7 +508,17 @@ const ReservList = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {selectedReserv.state === 'CONFIRMED' && (
-                  <Button danger fullWidth onClick={() => cancelReservInModal(selectedReserv.id)}>
+                  <Button
+                    danger
+                    onClick={() => {
+                      if (selectedReserv.tripPlanId) {
+                        cancelTripPlanReservs(selectedReserv.tripPlanId);
+                      } else {
+                        cancelSingleReserv(selectedReserv.id);
+                      }
+                      closeDetailModal();
+                    }}
+                  >
                     예약 취소
                   </Button>
                 )}
