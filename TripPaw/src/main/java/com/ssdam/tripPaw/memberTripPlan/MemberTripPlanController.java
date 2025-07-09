@@ -8,12 +8,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
+import com.ssdam.tripPaw.dto.MemberTripPlanSaveRequest;
+import com.ssdam.tripPaw.dto.MyTripsDto;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
 import com.ssdam.tripPaw.tripPlan.TripPlanService;
 
@@ -27,7 +31,21 @@ public class MemberTripPlanController {
 
     private final MemberTripPlanMapper memberTripPlanMapper;
     private final TripPlanService tripPlanService;
+    private final MemberTripPlanService memberTripPlanService;
 
+    // TripPlan -> MemberTripPlan으로 저장하기
+    @PostMapping("/save")
+    public ResponseEntity<String> saveMemberTripPlan(@RequestBody MemberTripPlanSaveRequest request) {
+        try {
+            memberTripPlanService.saveMemberTripPlan(request);
+            return ResponseEntity.ok("✅ 내 여행으로 저장 완료");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("❌ 저장 실패: " + e.getMessage());
+        }
+    }
+    
+    // 경로 상세보기
     @GetMapping("/{id}")
     public ResponseEntity<?> getMemberTripById(@PathVariable Long id) {
         MemberTripPlan plan = memberTripPlanMapper.findById(id);
@@ -69,5 +87,15 @@ public class MemberTripPlanController {
 
         return ResponseEntity.ok(dto);
     }
+    
+    // 특정 유저의 내 여행  목록 (/memberTripPlan/{id}/mytrips)
+    @GetMapping("/{id}/mytrips")
+    public ResponseEntity<List<MyTripsDto>> getMyTrips(@PathVariable Long id) {
+    	List<MyTripsDto> dtos = memberTripPlanService.getMyTripsByMember(id);
+    	System.out.println("MyTripsDto : " + dtos);
+    	return ResponseEntity.ok(dtos);
+    }
+    
+    
 }
 

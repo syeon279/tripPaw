@@ -19,114 +19,158 @@ const layoutStyle = {
 
 const Trips = () => {
     const router = useRouter();
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
-    const [memberId, setMemberId] = useState(1);
+    const [memberId, setMemberId] = useState(null);
+    const [tab, setTab] = useState("mytrips"); // mytrips or created
     const [trips, setTrips] = useState([]);
     const [fallbackImages, setFallbackImages] = useState({});
 
-    // 로그인 한 유저 id가져오기
+    // 로그인 확인 및 memberId 세팅
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/api/auth/check', {
                     withCredentials: true,
                 });
-
-                console.log('user : ', response.data);
-
                 if (response.status === 200) {
-                    setIsLoggedIn(true);
-                    // 백엔드에서 받은 username으로 상태 업데이트
                     setMemberId(response.data.id);
-                    return true; // 성공 시 true 반환
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
                 alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
                 router.push('/member/login');
-                return false; // 실패 시 false 반환
             }
         };
         checkLoginStatus();
-    }, [router.isReady, router.query]);
+    }, []);
 
+    // 탭별 데이터 가져오기
     useEffect(() => {
-        axios.get(`http://localhost:8080/favorite/member/trips/${memberId}`)
-            .then(res => {
-                const myTrips = res.data;
-                setTrips(myTrips);
-                console.log('넘어온 myTrips : ', myTrips);
+        if (!memberId) return;
+
+        const fetchTrips = async () => {
+            try {
+                const url =
+                    tab === "mytrips"
+                        ? `http://localhost:8080/memberTripPlan/${memberId}/mytrips`
+                        : `http://localhost:8080/tripPlan/${memberId}/trips`;
+
+                const response = await axios.get(url);
+                const data = response.data;
+                console.log('data : ', data);
+
+                setTrips(data);
 
                 const fallbackMap = {};
-                myTrips.forEach(trip => {
+                data.forEach(trip => {
+                    const tripId = trip.tripPlanId || trip.id;
                     const randomNum = Math.floor(Math.random() * 10) + 1;
-                    fallbackMap[trip.tripPlanId] = `/image/other/randomImage/${randomNum}.jpg`;
+                    fallbackMap[tripId] = `/image/other/randomImage/${randomNum}.jpg`;
                 });
                 setFallbackImages(fallbackMap);
-            })
-            .catch(err => {
-                console.error('즐겨찾기 여행 목록 불러오기 실패', err);
+            } catch (error) {
+                console.error('여행 목록 불러오기 실패:', error);
                 setTrips([]);
-            });
-    }, [memberId]);
+            }
+        };
+
+        fetchTrips();
+    }, [memberId, tab]);
+
+    const handleTabChange = (newTab) => setTab(newTab);
+
+    const TripCard = ({ trip }) => {
+        const tripId = trip.myTripId || trip.id;
+        const imageUrl = trip.imageUrl && trip.imageUrl.length > 0
+            ? trip.imageUrl
+            : fallbackImages[trip.tripPlanId || trip.id] || "/image/other/tempImage.jpg";
+
+        return (
+            <div
+                key={tripId}
+                onClick={() =>
+                    router.push(tab === "mytrips"
+                        ? `/memberTripPlan/${tripId}`
+                        : `/tripPlan/${tripId}`)
+                }
+                style={{
+                    borderRadius: '16px',
+                    backgroundColor: 'white',
+                    width: '400px',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    border: '1px solid #e0e0e0',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                }}
+            >
+                <div style={{ width: '100%', height: '180px', overflow: 'hidden' }}>
+                    <img
+                        alt="여행 이미지"
+                        src={imageUrl}
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/image/other/tempImage.jpg";
+                        }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                </div>
+                <div style={{ padding: '16px' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>
+                        {trip.title}
+                    </div>
+                    {trip.startDate && trip.endDate && (
+                        <div style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>
+                            {trip.startDate} ~ {trip.endDate}
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <MypageLayout>
             <div>
-                <div>마이페이지 &gt; 내 여행 </div>
-                <div>내 여행</div>
+                <div>마이페이지 &gt; 내 여행</div>
+                <h2 style={{ margin: '20px 0' }}>내 여행</h2>
+
+                {/* 탭 선택 */}
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                    <button
+                        onClick={() => handleTabChange("mytrips")}
+                        style={{
+                            padding: '10px 20px',
+                            borderRadius: '10px',
+                            border: '1px solid #ccc',
+                            backgroundColor: tab === "mytrips" ? '#333' : '#fff',
+                            color: tab === "mytrips" ? '#fff' : '#333',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        내가 다녀온 여행
+                    </button>
+                    <button
+                        onClick={() => handleTabChange("created")}
+                        style={{
+                            padding: '10px 20px',
+                            borderRadius: '10px',
+                            border: '1px solid #ccc',
+                            backgroundColor: tab === "created" ? '#333' : '#fff',
+                            color: tab === "created" ? '#fff' : '#333',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        내가 만든 여행
+                    </button>
+                </div>
+
                 <div style={layoutStyle.divider}>
                     <div style={layoutStyle.dividerLine} />
                 </div>
+
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                     {trips.length === 0 ? (
                         <p>여행이 없습니다.</p>
                     ) : (
-                        trips.map((trip) => (
-                            <div
-                                key={trip.favoriteId}
-                                onClick={() => router.push(`/memberTripPlan/${trip.myTripId}`)}
-                                style={{
-                                    borderRadius: '16px',
-                                    backgroundColor: 'white',
-                                    width: '400px',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                                    border: '1px solid #e0e0e0',
-                                    boxSizing: 'border-box',
-                                    overflow: 'hidden',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <div style={{
-                                    width: '100%',
-                                    height: '180px',
-                                    borderRadius: '16px 16px 0 0',
-                                    overflow: 'hidden'
-                                }}>
-                                    <img
-                                        alt="여행 이미지"
-                                        src={
-                                            trip.imageUrl && trip.imageUrl.length > 0
-                                                ? trip.imageUrl
-                                                : fallbackImages[trip.tripPlanId] || "/image/other/tempImage.jpg"
-                                        }
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = "/image/other/tempImage.jpg";
-                                        }}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                </div>
-                                <div style={{ padding: '16px' }}>
-                                    <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>
-                                        {trip.title}
-                                    </div>
-                                    <div style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>
-                                        {trip.startDate} ~ {trip.endDate}
-                                    </div>
-                                </div>
-                            </div>
-                        ))
+                        trips.map((trip) => <TripCard key={trip.id || trip.myTripId} trip={trip} />)
                     )}
                 </div>
             </div>

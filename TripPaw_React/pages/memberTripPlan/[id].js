@@ -206,9 +206,6 @@ const TripPlanDetail = () => {
         }
     };
 
-    // ✅ isMyTrip 조건: 여행을 만든 사람이 로그인 유저일 때
-    const isMyTrip = true;
-
     //이대로 예약하기 : 추가
 
     return (
@@ -252,7 +249,6 @@ const TripPlanDetail = () => {
                             // 예약하기 추가
                             //onReserv={() => }
                             onEdit={() => handleEditAndSave()}
-                            isMyTrip={isMyTrip}
                         />
                     </div>
                 </div>
