@@ -62,7 +62,7 @@ const Sidebar = () => {
           </SidebarSection>
 
           <SidebarItem text="반려동물 여권" href="/mypage/passport" />
-          <SidebarItem text="예약 내역 보기" href="/mypage/reservations" />
+          <SidebarItem text="예약 내역 보기" href="/reserv/reservlist" />
           <SidebarItem text="내 장소" href="/mypage/places" />
           <SidebarItem text="내 여행" href="/mypage/trips" />
           <SidebarItem text="내 리뷰 관리" href="/mypage/reviews" />

@@ -110,26 +110,124 @@ const PayButton = styled.button`
   }
 `;
 
+const PlaceList = styled.ul`
+  padding-left: 0;
+  list-style: none;
+  margin-bottom: 24px;
+`;
+
+const PlaceItem = styled.li`
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: #555;
+`;
+
 function PayBatchPage() {
   const router = useRouter();
-  const { tripPlanId } = router.query;
+  const { memberTripPlanId } = router.query;
 
   const [totalAmount, setTotalAmount] = useState(0);
+  const [reservList, setReservList] = useState([]);
   const [payList, setPayList] = useState([]);
   const [selectedPg, setSelectedPg] = useState('html5_inicis');
+  const [placeSummaryList, setPlaceSummaryList] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [userName, setUserName] = useState('');
+
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                    withCredentials: true,
+                });
+
+                if (response.status === 200) {
+                    setIsLoggedIn(true);
+                    setUserId(response.data.id);
+                    setUserName(response.data.username);
+                }
+            } catch (error) {
+                console.error("로그인 상태 확인 실패:", error);
+                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+                router.push('/member/login');
+            }
+        };
+
+        checkLoginStatus();
+    },[])
 
   useEffect(() => {
-    if (!tripPlanId) return;
+    if (!memberTripPlanId || !userId) return;
 
-    axios.post(`http://localhost:8080/pay/batch/${tripPlanId}`, null, {
+    console.log('📦 API 요청 준비:', memberTripPlanId, userId);
+
+    axios.get(`http://localhost:8080/pay/batch/${memberTripPlanId}?userId=${userId}`, {
       withCredentials: true,
-    }).then(res => {
+    })
+    .then(res => {
+      console.log('✅ API 응답 성공:', res.data);
+
       setTotalAmount(res.data.totalAmount);
-      setPayList(res.data.payList);
-    }).catch(() => {
+
+      if (res.data.payList) {
+        console.log('payList 있음:', res.data.payList);
+        setPayList(res.data.payList);
+        setPlaceSummaryList(createPlaceSummary(res.data.payList));
+        setReservList([]);
+      } else if (res.data.reservList) {
+        console.log('reservList 있음:', res.data.reservList);
+        console.log('reservList 길이:', res.data.reservList.length);
+        setPayList([]);
+        setReservList(res.data.reservList);
+        setPlaceSummaryList(createPlaceSummaryFromReserv(res.data.reservList));
+      } else {
+        console.log('payList, reservList 모두 없음');
+        setPayList([]);
+        setReservList([]);
+        setPlaceSummaryList([]);
+      }
+    })
+    .catch(() => {
       alert('일괄 결제 정보 불러오기 실패');
     });
-  }, [tripPlanId]);
+  }, [memberTripPlanId, userId]);
+
+  // 장소별 요약 생성 함수 (payList 기준)
+  const createPlaceSummary = (payList) => {
+    const summaryMap = {};
+    payList.forEach(pay => {
+      const placeName = pay.reserv?.place?.name || '이름 없음';
+      if (!summaryMap[placeName]) {
+        summaryMap[placeName] = { count: 0, total: 0 };
+      }
+      summaryMap[placeName].count += 1;
+      summaryMap[placeName].total += pay.amount;
+    });
+    return Object.entries(summaryMap).map(([placeName, info]) => ({
+      placeName,
+      count: info.count,
+      total: info.total,
+    }));
+  };
+
+  // 장소별 요약 생성 함수 (reservList 기준)
+  const createPlaceSummaryFromReserv = (reservList) => {
+    const summaryMap = {};
+    reservList.forEach(reserv => {
+      const placeName = reserv.place?.name || '이름 없음';
+      if (!summaryMap[placeName]) {
+        summaryMap[placeName] = { count: 0, total: 0 };
+      }
+      summaryMap[placeName].count += 1;
+      summaryMap[placeName].total += reserv.finalPrice || 0;
+    });
+    return Object.entries(summaryMap).map(([placeName, info]) => ({
+      placeName,
+      count: info.count,
+      total: info.total,
+    }));
+  };
 
   const loadIamportScript = () => {
     return new Promise((resolve, reject) => {
@@ -160,14 +258,14 @@ function PayBatchPage() {
       async (rsp) => {
         if (rsp.success) {
           try {
-            await axios.post(`http://localhost:8080/pay/batch/${tripPlanId}/verify`, 
+            await axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}/verify`, 
             { impUid: rsp.imp_uid }, 
             { withCredentials: true });
 
             alert('일괄 결제가 완료되었습니다!');
             router.push({
               pathname:'/pay/paygroup-success',
-              query: { tripPlanId: tripPlanId }
+              query: { memberTripPlanId: memberTripPlanId }
             });
           } catch (err) {
             alert('검증 중 오류가 발생했습니다.');
@@ -184,16 +282,36 @@ function PayBatchPage() {
       <Title>일괄 결제</Title>
 
       <PayList>
-        {payList.map((pay, idx) => (
-          <PayItem key={idx}>
-            <PayInfo><strong>숙소:</strong> {pay.reserv.place?.name || '이름 없음'}</PayInfo>
-            <PayInfo><strong>기간:</strong> {pay.reserv.startDate} ~ {pay.reserv.endDate}</PayInfo>
-            <PayInfo><strong>금액:</strong> {pay.amount.toLocaleString()}원</PayInfo>
-          </PayItem>
-        ))}
+        {payList.length > 0 ? (
+          <>
+            {payList.map((pay, idx) => (
+              <PayItem key={idx}>
+                <PayInfo><strong>숙소:</strong> {pay.placeName || '이름 없음'}</PayInfo>
+                <PayInfo><strong>기간:</strong> {pay.startDate} ~ {pay.endDate}</PayInfo>
+                <PayInfo><strong>금액:</strong> {pay.amount.toLocaleString()}원</PayInfo>
+              </PayItem>
+            ))}
+            <TotalAmount>
+              총 금액: {payList.reduce((total, pay) => total + (pay.amount || 0), 0).toLocaleString()}원
+            </TotalAmount>
+          </>
+        ) : reservList.length > 0 ? (
+          <>
+            {reservList.map((reserv, idx) => (
+              <PayItem key={idx}>
+                <PayInfo><strong>숙소:</strong> {reserv.place?.name || '이름 없음'}</PayInfo>
+                <PayInfo><strong>기간:</strong> {reserv.startDate} ~ {reserv.endDate}</PayInfo>
+                <PayInfo><strong>금액:</strong> {reserv.finalPrice.toLocaleString()}원</PayInfo>
+              </PayItem>
+            ))}
+            <TotalAmount>
+              총 금액: {reservList.reduce((total, reserv) => total + (reserv.finalPrice || 0), 0).toLocaleString()}원
+            </TotalAmount>
+          </>
+        ) : (
+          <p>예약된 장소가 없습니다.</p>
+        )}
       </PayList>
-
-      <TotalAmount>총 결제 금액: {totalAmount.toLocaleString()}원</TotalAmount>
 
       <PgSelectContainer>
         <RadioLabel>

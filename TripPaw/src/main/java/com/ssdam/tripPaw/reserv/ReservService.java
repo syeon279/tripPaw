@@ -2,6 +2,7 @@ package com.ssdam.tripPaw.reserv;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -9,8 +10,11 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.dto.TripPlanCoursePlaceDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -67,6 +71,50 @@ public class ReservService {
 
     public List<Reserv> findByTripPlansId(Long tripPlanId) {
         return reservMapper.findByTripPlansId(tripPlanId);  // MyBatis 매퍼 호출
+    }
+    
+    public List<Reserv> findByMemberTripPlanIdAndMember(Long memberTripPlanId, Long memberId) {
+        return reservMapper.findByMemberTripPlanIdAndMember(memberTripPlanId, memberId);
+    }
+    
+    public MemberTripPlan findMemberTripPlanById(Long id) {
+        return reservMapper.findMemberTripPlanById(id);
+    }
+    
+    @Transactional
+    public List<Reserv> createReservationsFromTripPlanByUserId(Long userId) {
+        Member member = reservMapper.findMemberById(userId);
+        if (member == null) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+        
+        List<TripPlanCoursePlaceDto> courseList = reservMapper.findCoursesByMemberId(member.getId());
+        
+        List<Reserv> savedList = new ArrayList<>();
+        LocalDate baseDate = LocalDate.now();
+
+        for (int i = 0; i < courseList.size(); i++) {
+            TripPlanCoursePlaceDto dto = courseList.get(i);
+
+            Place place = placeMapper.findById(dto.getPlaceId());
+            MemberTripPlan memberTripPlan = reservMapper.findMemberTripPlanById(dto.getMemberTripPlanId());
+
+            if (place == null || memberTripPlan == null) continue;
+
+            dto.setStartDate(baseDate.plusDays(i));
+            dto.setEndDate(baseDate.plusDays(i + 1));
+
+            Reserv reserv = dto.toReserv(member, place, memberTripPlan);
+
+            if (!reservMapper.existsOverlappingReservation(
+                    member.getId(), place.getId(), reserv.getStartDate(), reserv.getEndDate())) {
+
+                reservMapper.insert(reserv);
+                savedList.add(reserv);
+            }
+        }
+
+        return savedList;
     }
     
     /** 예약 상태 업데이트 */

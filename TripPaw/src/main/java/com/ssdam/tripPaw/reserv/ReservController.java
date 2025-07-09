@@ -1,13 +1,19 @@
 package com.ssdam.tripPaw.reserv;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
 
 import lombok.RequiredArgsConstructor;
@@ -76,7 +83,7 @@ public class ReservController {
                 && r.getState() == ReservState.WAITING) {
                 
                 // 특정 트립 플랜에 속하는 예약만 처리
-                if (tripPlanId == null || r.getTripPlan().getId().equals(tripPlanId)) {
+                if (tripPlanId == null || r.getMemberTripPlan().getTripPlan().getId().equals(tripPlanId)) {
                     r.setState(ReservState.EXPIRED);
                     reservService.updateReservState(r.getId(), ReservState.EXPIRED);
                 }
@@ -90,6 +97,20 @@ public class ReservController {
     public ResponseEntity<List<Reserv>> getReservListByTripPlan(@PathVariable Long tripPlanId) {
         List<Reserv> reservList = reservMapper.findByTripPlansId(tripPlanId);
         return ResponseEntity.ok(reservList);
+    }
+    
+    @PostMapping("/auto/plan")
+    public ResponseEntity<?> createAutoReservations(@RequestBody Map<String, Object> body) {
+        try {
+            Long userId = Long.valueOf(body.get("userId").toString());
+            List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(userId);
+            return ResponseEntity.ok(savedList);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("잘못된 요청: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("서버 오류");
+        }
     }
     
     /** 예약 상태 변경 */
@@ -154,7 +175,7 @@ public class ReservController {
 
             // 트랜잭션을 통해 예약 상태를 'CANCELLED'로 일괄 변경
             for (Reserv reserv : reservList) {
-                if (!reserv.getTripPlan().getId().equals(tripPlanId)) {
+                if (!reserv.getMemberTripPlan().getTripPlan().getId().equals(tripPlanId)) {
                     // 같은 tripPlanId를 가지지 않는 예약은 취소하지 않음
                     continue;
                 }

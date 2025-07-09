@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Pay;
+import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.dto.PayResponseDto;
 import com.ssdam.tripPaw.member.MemberService;
 import com.ssdam.tripPaw.payapi.IamportPayService;
+import com.ssdam.tripPaw.reserv.ReservService;
 import com.ssdam.tripPaw.reserv.ReservState;
 
 @CrossOrigin(
@@ -33,6 +36,7 @@ public class PayController {
     @Autowired private IamportPayService iamportPayService;
     @Autowired private PayService payService;
     @Autowired private MemberService memberService;
+    @Autowired private ReservService reservService;
 
     @GetMapping("")
     public ResponseEntity<?> getAllPayments() {
@@ -67,34 +71,54 @@ public class PayController {
         }
         return ResponseEntity.ok(pay);
     }
-
-    @PostMapping("/batch/{tripPlanId}")
-    public ResponseEntity<?> createBatchPaysForDummy(@PathVariable Long tripPlanId) {
-        Member member = memberService.findById(1L);
-        System.out.println("member = " + member);
+    
+    @GetMapping("/batch/{memberTripPlanId}")
+    public ResponseEntity<?> getBatchPayInfo(
+        @PathVariable Long memberTripPlanId,
+        @RequestParam Long userId
+    ) {
+        Member member = memberService.findById(userId);
 
         if (member == null) {
-            return ResponseEntity.badRequest().body("더미 유저(ID=1)를 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body("해당 사용자를 찾을 수 없습니다.");
         }
 
         try {
-            List<Pay> pays = payService.createBatchPaysByTripPlan(tripPlanId, member);
-            int totalAmount = pays.stream().mapToInt(Pay::getAmount).sum();
+            List<PayResponseDto> payList = payService.createBatchPayDtosByMemberTripPlan(memberTripPlanId, member);
 
-            // 그룹 결제에서 is_group이 true, group_id가 설정됨을 확인
-            pays.forEach(pay -> {
-                System.out.println("isGroup: " + pay.getIsGroup() + ", groupId: " + pay.getGroupId());
-            });
+            // 💡 amount가 0이면 10000으로 설정
+            for (PayResponseDto dto : payList) {
+                if (dto.getAmount() == 0) {
+                    dto.setAmount(10000);
+                }
+            }
 
-            return ResponseEntity.ok(Map.of("totalAmount", totalAmount, "payList", pays));
+            int totalAmount = payList.stream().mapToInt(PayResponseDto::getAmount).sum();
+
+            if (payList.isEmpty()) {
+                List<Reserv> reservList = reservService.findByMemberTripPlanIdAndMember(memberTripPlanId, userId);
+                int reservTotalAmount = reservList.stream()
+                    .mapToInt(Reserv::getFinalPrice)
+                    .sum();
+
+                return ResponseEntity.ok(Map.of(
+                    "totalAmount", reservTotalAmount,
+                    "reservList", reservList
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "totalAmount", totalAmount,
+                "payList", payList
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("일괄 결제 내역 생성 실패: " + e.getMessage());
         }
     }
     
-    @PostMapping("/batch/{tripPlanId}/verify")
+    @PostMapping("/batch/{memberTripPlanId}/verify")
     public ResponseEntity<?> createAndVerifyTotalPayment(
-        @PathVariable Long tripPlanId,
+        @PathVariable Long memberTripPlanId,
         @RequestBody Map<String, String> body // impUid만 받음
     ) {
         System.out.println("요청 body = " + body);
@@ -113,7 +137,7 @@ public class PayController {
 
             System.out.println("impUid = " + impUid);
 
-            payService.createAndVerifySingleTotalPayment(tripPlanId, member, impUid);
+            payService.createAndVerifySingleTotalPaymentByMemberTripPlan(memberTripPlanId, member, impUid);
             System.out.println("createAndVerifySingleTotalPayment 성공");
 
             return ResponseEntity.ok("총합 결제 저장 및 예약 상태 업데이트 완료");
@@ -124,23 +148,23 @@ public class PayController {
         }
     }
     
-    // 더미 테스트
-    @PostMapping("/dummy")
-    public ResponseEntity<?> createDummyTripPlanForTest(
-        @RequestParam(defaultValue = "1") Long memberId // 기본 더미 유저 ID: 1
-    ) {
-        Member member = memberService.findById(memberId);
-        if (member == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("해당 ID의 더미 유저가 없습니다.");
-        }
-
-        try {
-            Long tripPlanId = payService.createDummyTripPlanWithReservs(member);
-            return ResponseEntity.ok(Map.of("tripPlanId", tripPlanId));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("더미 생성 실패: " + e.getMessage());
-        }
-    }
+//    // 더미 테스트
+//    @PostMapping("/dummy")
+//    public ResponseEntity<?> createDummyTripPlanForTest(
+//        @RequestParam(defaultValue = "1") Long memberId // 기본 더미 유저 ID: 1
+//    ) {
+//        Member member = memberService.findById(memberId);
+//        if (member == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("해당 ID의 더미 유저가 없습니다.");
+//        }
+//
+//        try {
+//            Long tripPlanId = payService.createDummyTripPlanWithReservs(member);
+//            return ResponseEntity.ok(Map.of("tripPlanId", tripPlanId));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("더미 생성 실패: " + e.getMessage());
+//        }
+//    }
     
     /** 결제 취소(환불) 처리 */
     @PostMapping("/{id}/cancel")
