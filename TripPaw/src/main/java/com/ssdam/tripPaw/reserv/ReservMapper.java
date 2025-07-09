@@ -36,4 +36,6 @@ public interface ReservMapper {
 	
 	public List<Map<String, Object>> findReservedRangesByPlace(@Param("placeId") Long placeId);
 
+	public List<Reserv> findByTripPlansId(Long tripPlanId);
+	
 }

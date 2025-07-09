@@ -129,6 +129,7 @@ public class AuthController {
         	"id", member.getId(),
             "username", member.getUsername(),
             "nickname", member.getNickname(),
+            "memberId", member.getId(),
             "auth", authorities
             // 필요한 다른 정보 추가
         );

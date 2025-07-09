@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
@@ -44,12 +46,24 @@ public class ReviewController {
     }
     
     @PostMapping(value = "/write", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> createReview(
-    		@RequestPart("review") ReviewDto reviewDto,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-        reviewService.saveReviewWithWeather(reviewDto, images);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> createReview(
+        @RequestPart("review") String reviewDtoJson,
+        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ReviewDto reviewDto = objectMapper.readValue(reviewDtoJson, ReviewDto.class);
+
+            // reviewDto와 이미지 전달 → 서비스에서 Member 조회 포함하여 처리
+            reviewService.saveReviewWithWeather(reviewDto, images);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace(); // 에러 로그
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("리뷰 작성 중 오류 발생");
+        }
     }
+
     
     @GetMapping("/weather")
     public ResponseEntity<String> getWeather(

@@ -1,5 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import Router from 'next/router';
+import axios from 'axios';
 import AppLayout from '../components/AppLayout';
 
 const layoutStyle = {
@@ -12,6 +14,8 @@ const layoutStyle = {
 
 const Menu = () => {
     const menuWrapperRef = useRef(null);
+    const router = useRouter();
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -26,9 +30,27 @@ const Menu = () => {
         };
     }, []);
 
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                    withCredentials: true,
+                });
+
+                if (response.status === 200) {
+                    setIsLoggedIn(true);
+                }
+            } catch (error) {
+                console.error("로그인 상태 확인 실패:", error);
+            }
+        };
+        checkLoginStatus();
+    }, [router]);
+
     const menuItem = {
         fontSize: '3em',
         margin: '10px',
+        cursor: 'pointer',
     };
 
     const menuWrapper = {
@@ -45,6 +67,7 @@ const Menu = () => {
         display: 'flex',
         justifyContent: 'center',
         margin: '5px',
+        flexWrap: 'wrap',
     };
 
     const footerItems = {
@@ -56,10 +79,14 @@ const Menu = () => {
             <div style={layoutStyle.header} />
             <div style={{ backgroundColor: 'rgba(245, 244, 237, 0.7)', minHeight: '100vh' }}>
                 <div ref={menuWrapperRef} style={menuWrapper}>
-                    <div style={menuItem}>홈</div>
-                    <div style={menuItem}>리뷰</div>
-                    <div style={menuItem}>나의 채팅</div>
-                    <div style={menuItem}>로그인</div>
+                    <div style={menuItem} onClick={() => Router.push('/')}>홈</div>
+                    <div style={menuItem} onClick={() => Router.push('/review/route-review')}>리뷰</div>
+                    <div style={menuItem} onClick={() => Router.push('/chat/chatRooms')}>나의 채팅</div>
+                    {isLoggedIn ? (
+                        <div style={menuItem} onClick={() => Router.push('/mypage')}>마이페이지</div>
+                    ) : (
+                        <div style={menuItem} onClick={() => Router.push('/member/login')}>로그인</div>
+                    )}
                 </div>
 
                 <div style={layoutStyle.dividerLine} />

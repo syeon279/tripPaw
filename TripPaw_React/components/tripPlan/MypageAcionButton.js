@@ -25,7 +25,7 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ onReserv, onEdit, isMyTrip }) => {
+const ActionButtons = ({ onReserv, onEdit }) => {
     return (
         <div style={bottonWrapperStyle}>
             <button style={{ ...bottonStyle, background: 'blue' }}
@@ -36,17 +36,8 @@ const ActionButtons = ({ onReserv, onEdit, isMyTrip }) => {
                 style={{ ...bottonStyle, background: 'black' }}
                 onClick={onReserv}
             >
-                이대로 예약하기
+                이대로 다시 예약하기
             </button>
-            {/* ✅ 내 여행일 때만 리뷰쓰기 버튼 노출 */}
-            {isMyTrip && (
-                <button
-                    style={{ ...bottonStyle, background: 'green' }}
-                //onClick={onWriteReview}
-                >
-                    리뷰 쓰기
-                </button>
-            )}
         </div>
     );
 };
