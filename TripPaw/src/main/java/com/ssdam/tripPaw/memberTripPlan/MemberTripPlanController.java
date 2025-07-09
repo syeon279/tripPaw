@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
+import com.ssdam.tripPaw.dto.MyTripsDto;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
 import com.ssdam.tripPaw.tripPlan.TripPlanService;
 
@@ -27,7 +28,9 @@ public class MemberTripPlanController {
 
     private final MemberTripPlanMapper memberTripPlanMapper;
     private final TripPlanService tripPlanService;
+    private final MemberTripPlanService memberTripPlanService;
 
+    // 경로 상세보기
     @GetMapping("/{id}")
     public ResponseEntity<?> getMemberTripById(@PathVariable Long id) {
         MemberTripPlan plan = memberTripPlanMapper.findById(id);
@@ -69,5 +72,15 @@ public class MemberTripPlanController {
 
         return ResponseEntity.ok(dto);
     }
+    
+    // 특정 유저의 내 여행  목록 (/memberTripPlan/{id}/mytrips)
+    @GetMapping("/{id}/mytrips")
+    public ResponseEntity<List<MyTripsDto>> getMyTrips(@PathVariable Long id) {
+    	List<MyTripsDto> dtos = memberTripPlanService.getMyTripsByMember(id);
+    	System.out.println("MyTripsDto : " + dtos);
+    	return ResponseEntity.ok(dtos);
+    }
+    
+    
 }
 
