@@ -43,20 +43,23 @@
 		DELETE FROM check_routine WHERE id = #{id}
 	</delete>
 
+	<!-- 루틴 단건조회 -->
 	<select id="selectRoutineWithItemsById"	resultMap="CheckRoutineWithItemsMap">
 		SELECT
-		cr.id AS cr_id, cr.title, cr.is_saved, cr.created_at,
-		cr.member_id, cr.route_id,
+	        cr.id AS cr_id, cr.title, cr.is_saved, cr.created_at,
+	        cr.member_id, cr.route_id,
+	
+	        mc.id AS id, mc.custom_content,
+	        mc.is_checked, mc.created_at,
+	        mc.checkroutine_id,
+	        mc.checktemplateitem_id,
+	        
+	        cti.content AS cti_content
 
-		mc.id AS id, mc.custom_content,
-		mc.is_checked, mc.created_at,
-		mc.checkroutine_id,
-		mc.checktemplateitem_id
-
-		FROM check_routine cr
-		LEFT JOIN member_check mc
-		ON cr.id = mc.checkroutine_id
-		WHERE cr.id = #{id}
+	    FROM check_routine cr
+	    LEFT JOIN member_check mc ON cr.id = mc.checkroutine_id
+	    LEFT JOIN check_template_item cti ON mc.checktemplateitem_id = cti.id
+	    WHERE cr.id = #{id}
 	</select>
 
 	<!-- ResultMap -->

@@ -22,13 +22,25 @@ import lombok.RequiredArgsConstructor;
 public class MemberCheckController {
 
 	private final MemberCheckService memberCheckService;
+	private final CheckRoutineMapper checkRoutineMapper;
 
     // 체크리스트 항목 추가
-    @PostMapping
-    public ResponseEntity<Void> addMemberCheck(@RequestBody MemberCheck memberCheck) {
-        memberCheckService.addMemberCheck(memberCheck);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+	@PostMapping
+	public ResponseEntity<String> addMemberCheck(@RequestBody MemberCheck memberCheck) {
+	    // CheckRoutine 존재 여부 확인
+	    if (memberCheck.getCheckRoutine() == null || memberCheck.getCheckRoutine().getId() == null) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("CheckRoutine ID is required.");	    }
+
+	    CheckRoutine checkRoutine = checkRoutineMapper.selectCheckRoutineById(memberCheck.getCheckRoutine().getId());
+	    if (checkRoutine == null) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CheckRoutine not found for id: " + memberCheck.getCheckRoutine().getId());
+	    }
+
+	    memberCheck.setCheckRoutine(checkRoutine);
+	    memberCheckService.addMemberCheck(memberCheck);
+
+	    return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
 
     // 루틴 기준 체크리스트 조회
     @GetMapping("/routine/{routineId}")

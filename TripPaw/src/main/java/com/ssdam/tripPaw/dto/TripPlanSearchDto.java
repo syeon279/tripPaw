@@ -19,6 +19,7 @@ public class TripPlanSearchDto {
     private LocalDateTime createdAt;
     private String imageUrl;
     private String authorNickname;
+    private Long authorId;
 
     private List<TripPlanCourse> tripPlanCourses;
     private List<RouteDayResponse> routeData;
