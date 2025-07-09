@@ -34,6 +34,7 @@ const SealAdminPage = () => {
 
   return (
     <MypageLayout>
+      <div style={{padding:'2em'}}>
       <h2>도장 관리</h2>
       <button onClick={() => { setSelectedSeal(null); setShowModal(true); }}>
         도장 추가
@@ -46,6 +47,7 @@ const SealAdminPage = () => {
           onSaved={loadSeals}
         />
       )}
+      </div>
     </MypageLayout>
   );
 };
