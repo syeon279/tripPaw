@@ -57,6 +57,6 @@ public class Reserv {
     private Place place;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tripPlan_id", nullable = true)
-    private TripPlan tripPlan;
+    @JoinColumn(name = "memberTripPlan_id", nullable = true)
+    private MemberTripPlan memberTripPlan;
 }

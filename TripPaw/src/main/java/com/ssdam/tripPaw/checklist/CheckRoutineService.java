@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @Service @RequiredArgsConstructor
 public class CheckRoutineService {
 	private final CheckRoutineMapper checkRoutineMapper;
+	private final MemberCheckMapper memberCheckMapper;
 	
     // 루틴 생성
     public void createRoutine(CheckRoutine checkRoutine) {
@@ -33,6 +34,7 @@ public class CheckRoutineService {
 
     // 루틴 삭제
     public void deleteRoutine(Long id) {
+    	memberCheckMapper.deleteByRoutineId(id);
         checkRoutineMapper.deleteCheckRoutineById(id);
     }
 }

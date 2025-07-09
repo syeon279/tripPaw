@@ -10,9 +10,9 @@
 		<result property="nickname" column="nickname" />
 		<result property="email" column="email" />
 		<result property="zonecode" column="zonecode"/>
-		<result property="roadAddress" column="roadAddress" />
+		<result property="roadAddress" column="road_address" />
 		<!-- <result property="jibunAddress" column="jibunAddress" /> -->
-		<result property="namujiAddress" column="namujiAddress" />
+		<result property="namujiAddress" column="namuji_address" />
 		<result property="provider" column="provider" />
 		<result property="createdAt" column="createdAt" />
 		<!-- <result property="role" column="role" /> -->

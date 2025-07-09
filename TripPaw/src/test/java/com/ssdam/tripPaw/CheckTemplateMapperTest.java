@@ -43,7 +43,7 @@ public class CheckTemplateMapperTest {
 //--- MemberCheck	
 	
 	//1. 유저 체크리스트 삽입
-	@Test //@Test
+	@Disabled //@Test
 	public void testInsertAndSelectMemberCheck() {
 	    // 루틴과 항목 조회 더미데이터 없으면 오류남
 	    CheckRoutine routine = routineMapper.selectCheckRoutineById(1L);

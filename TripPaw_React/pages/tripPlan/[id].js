@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import DayScheduleList from '../../components/tripPlan/DayScheduleList';
 import AppLayout from '../../components/AppLayout';
-import SearchTripPlanActionButton from '../../components/tripPlan/SearchTripPlanActionButtons'
+import SearchTripPlanActionButton from '../../components/tripPlan/SearchTripPlanActionButtons';
 import axios from 'axios';
 import { format } from 'date-fns';
 
@@ -63,15 +63,17 @@ const TripPlanDetail = () => {
     const [kakaoReady, setKakaoReady] = useState(false);
     const [mapInstance, setMapInstance] = useState(null);
     const [focusDay, setFocusDay] = useState(null);
-    const [countPeople, setCountPeople] = useState(null);
-    const [countPet, setCountPet] = useState(null);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
     const [title, setTitle] = useState('');
     const [authorNickname, setAuthorNickname] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState('');
+    const [authorId, setAuthorId] = useState('');
+    const [avgRating, setAvgRating] = useState(0);
+    const [reviewCount, setReviewCount] = useState(0);
+    const [rating, setRating] = useState(0);
+    const { id } = router.query;
 
+    // 여행 정보, 로그인 정보 불러오기
     useEffect(() => {
         const fetchTripDetail = async () => {
             const { id } = router.query;
@@ -84,7 +86,11 @@ const TripPlanDetail = () => {
                 setRouteData(data.routeData || []);
                 setTitle(data.title);
                 setAuthorNickname(data.authorNickname || '알 수 없음');
-                console.log('data:', res.data);
+                setAuthorId(data.authorId);
+                setAvgRating(data.avgRating || 0);
+                setRating(data.avgRating || 0);
+                setReviewCount(data.reviewCount || 0);
+                console.log('data:', data);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
             }
@@ -112,6 +118,7 @@ const TripPlanDetail = () => {
         checkLoginStatus();
     }, [router.isReady, router.query]);
 
+    // 지도 그리기
     useEffect(() => {
         const interval = setInterval(() => {
             if (window.kakao && window.kakao.maps) {
@@ -191,21 +198,29 @@ const TripPlanDetail = () => {
         }
     };
 
+
+    const myTrip = Number(authorId) === Number(userId);
+
     return (
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
                 <h1>{title || '여행 상세 보기'}</h1>
+                <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', gap: '6px' }}>
+                    <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                        {rating?.toFixed(1) || '0.0'}
+                    </p>
+                    <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                        {'★'.repeat(Math.floor(rating || 0)) + '☆'.repeat(5 - Math.floor(rating || 0))}
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
+                        | 리뷰 {reviewCount || 0}
+                    </p>
+                </div>
 
                 {authorNickname && (
                     <p style={{ fontSize: '15px', color: '#666', marginBottom: '6px' }}>
                         이 여행 경로를 만든 사람: {authorNickname}
-                    </p>
-                )}
-
-                {startDate && endDate && (
-                    <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
-                        {format(new Date(startDate), 'yyyy.MM.dd')} ~ {format(new Date(endDate), 'yyyy.MM.dd')}
                     </p>
                 )}
 
@@ -235,6 +250,9 @@ const TripPlanDetail = () => {
                         />
                         <SearchTripPlanActionButton
                             onEdit={() => handleEditAndSave()}
+                            tripPlanId={id}
+                            myTrip={myTrip}
+                            myId={userId}
                         />
                     </div>
                 </div>

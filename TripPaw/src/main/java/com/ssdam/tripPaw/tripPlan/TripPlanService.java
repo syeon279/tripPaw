@@ -10,6 +10,7 @@ import com.ssdam.tripPaw.domain.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
@@ -45,24 +46,28 @@ public class TripPlanService {
 			List<TripRecommendResponse.PlaceInfo> placeInfos = new ArrayList<>();
 
 			// 1. 첫 장소: 관광지(placeType 1) 랜덤 추천
-			Place firstPlace = placeMapper.findFirstRandomPlace(
-				request.getRegion(), request.getSelectedCategoryIds());
-			if (firstPlace == null) continue;
+			Place firstPlace = placeMapper.findFirstRandomPlace(request.getRegion(), request.getSelectedCategoryIds());
+			if (firstPlace == null)
+				continue;
 			placeInfos.add(toPlaceInfo(firstPlace));
 
 			// 2. 두 번째 장소: 음식점(placeType 6), 첫 장소 기준 가까운 순
 			Place secondPlace = findNearestPlace(6, request, firstPlace);
-			if (secondPlace != null) placeInfos.add(toPlaceInfo(secondPlace));
+			if (secondPlace != null)
+				placeInfos.add(toPlaceInfo(secondPlace));
 
 			// 3. 세 번째 장소: 랜덤 타입 하나 (3, 5, 1 중)
-			int[] randomTypes = {3, 5, 1};
+			int[] randomTypes = { 3, 5, 1 };
 			int randomType = randomTypes[new Random().nextInt(randomTypes.length)];
 			Place thirdPlace = findNearestPlace(randomType, request, secondPlace != null ? secondPlace : firstPlace);
-			if (thirdPlace != null) placeInfos.add(toPlaceInfo(thirdPlace));
+			if (thirdPlace != null)
+				placeInfos.add(toPlaceInfo(thirdPlace));
 
 			// 4. 네 번째 장소: 숙박 (4)
-			Place fourthPlace = findNearestPlace(4, request, thirdPlace != null ? thirdPlace : (secondPlace != null ? secondPlace : firstPlace));
-			if (fourthPlace != null) placeInfos.add(toPlaceInfo(fourthPlace));
+			Place fourthPlace = findNearestPlace(4, request,
+					thirdPlace != null ? thirdPlace : (secondPlace != null ? secondPlace : firstPlace));
+			if (fourthPlace != null)
+				placeInfos.add(toPlaceInfo(fourthPlace));
 
 			tripPlans.add(new TripRecommendResponse(i + 1, placeInfos, startDate, endDate));
 		}
@@ -71,36 +76,18 @@ public class TripPlanService {
 	}
 
 	private Place findNearestPlace(int placeType, TripRecommendRequest request, Place base) {
-		List<Place> candidates = placeMapper.findPlacesByTypeAndDistance(
-			placeType,
-			request.getRegion(),
-			request.getSelectedCategoryIds(),
-			base.getLatitude(),
-			base.getLongitude(),
-			1
-		);
+		List<Place> candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
+				request.getSelectedCategoryIds(), base.getLatitude(), base.getLongitude(), 1);
 		if (candidates == null || candidates.isEmpty()) {
-			candidates = placeMapper.findPlacesByTypeAndDistance(
-				placeType,
-				request.getRegion(),
-				Collections.emptyList(),
-				base.getLatitude(),
-				base.getLongitude(),
-				1
-			);
+			candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
+					Collections.emptyList(), base.getLatitude(), base.getLongitude(), 1);
 		}
 		return candidates.isEmpty() ? null : candidates.get(0);
 	}
 
 	private TripRecommendResponse.PlaceInfo toPlaceInfo(Place place) {
-		return new TripRecommendResponse.PlaceInfo(
-			place.getId(),
-			place.getName(),
-			place.getDescription(),
-			String.valueOf(place.getLatitude()),
-			String.valueOf(place.getLongitude()),
-			place.getImageUrl()
-		);
+		return new TripRecommendResponse.PlaceInfo(place.getId(), place.getName(), place.getDescription(),
+				String.valueOf(place.getLatitude()), String.valueOf(place.getLongitude()), place.getImageUrl());
 	}
 
 	private int calculateTripDays(LocalDate startDate, LocalDate endDate) {
@@ -117,7 +104,7 @@ public class TripPlanService {
 			tripPlan.setPublicVisible(false);
 			tripPlan.setImageUrl(imagePath);
 			Member member = new Member();
-			member.setId(request.getMemberId()); 
+			member.setId(request.getMemberId());
 			tripPlan.setMember(member);
 			tripPlanMapper.insertTripPlan(tripPlan);
 
@@ -149,8 +136,6 @@ public class TripPlanService {
 		return tripPlan;
 	}
 
-	
-	
 	// MemberTripPlan 저장하기
 	public void saveMemberTrip(TripSaveRequest request) {
 		try {
@@ -161,7 +146,7 @@ public class TripPlanService {
 			tripPlan.setPublicVisible(false);
 			tripPlan.setImageUrl(imagePath);
 			Member member = new Member();
-			member.setId(request.getMemberId()); 
+			member.setId(request.getMemberId());
 			tripPlan.setMember(member);
 			tripPlanMapper.insertTripPlan(tripPlan);
 
@@ -207,7 +192,8 @@ public class TripPlanService {
 
 	// 썸네일 저장하기
 	private String saveBase64Image(String base64Data) {
-		if (base64Data == null || base64Data.isBlank()) return null;
+		if (base64Data == null || base64Data.isBlank())
+			return null;
 		try {
 			String[] parts = base64Data.split(",");
 			String imageBytesString = (parts.length > 1) ? parts[1] : parts[0];
@@ -224,12 +210,29 @@ public class TripPlanService {
 		}
 	}
 
-	public List<TripPlan> getAllTrips() {
-		return tripPlanMapper.findAllTrips();
-	}
-
 	// 경로 가져오기
 	public TripPlan findByIdWithCourses(Long id) {
 		return tripPlanMapper.findByIdWithCourses(id);
+	}
+
+	// 특정 유저가 만든 여행 가져오기
+	public List<TripPlan> findByMemberId(Long id) {
+		return tripPlanMapper.findByMemberId(id);
+	}
+
+	// 공개로 전환하기
+	@Transactional
+	public void makeTripPublic(Long tripPlanId) {
+		Boolean isAlreadyPublic = tripPlanMapper.isTripPlanPublic(tripPlanId);
+		if (Boolean.TRUE.equals(isAlreadyPublic)) {
+			throw new IllegalStateException("이미 공개된 여행입니다.");
+		}
+
+		tripPlanMapper.makeTripPlanPublic(tripPlanId);
+	}
+
+	// 모든 여행 가져오기
+	public List<TripPlan> getAllTrips() {
+		return tripPlanMapper.findAllTrips();
 	}
 }
