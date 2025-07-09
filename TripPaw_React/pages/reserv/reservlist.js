@@ -282,6 +282,7 @@ const ReservList = () => {
   const [selectedReserv, setSelectedReserv] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const router = useRouter();
+  const { tripPlanId } = router.query;
   const [openedSections, setOpenedSections] = useState({});
   const [latestState, setLatestState] = useState(null);
 
@@ -323,14 +324,31 @@ const ReservList = () => {
     }
   }, [reservations]);
 
+  const cancelReservationsByTripPlanId = (tripPlanId) => {
+    // 1. tripPlanId로 예약들을 필터링
+    const reservationsToCancel = reservations.filter(r => r.tripPlanId === tripPlanId);
+
+    // 2. 필터링된 예약들의 상태를 CANCELLED로 업데이트
+    setReservations(prevReservations => {
+      return prevReservations.map(r => 
+        reservationsToCancel.some(reservation => reservation.id === r.id)
+          ? { ...r, state: 'CANCELLED' }
+          : r
+      );
+    });
+  };
+
   const cancelSingleReserv = async (reservId) => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
       await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
-      setReservations(prev =>
-        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
+
+      setReservations(prevReservations =>
+        prevReservations.map(r => 
+          r.id === reservId ? { ...r, state: 'CANCELLED' } : r
+        )
       );
     } catch (err) {
       alert('예약 취소에 실패했습니다.');
@@ -341,11 +359,12 @@ const ReservList = () => {
     if (!window.confirm('일괄 예약 전체를 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`http://localhost:8080/reserv/tripplan/${tripPlanId}/delete`, null, { withCredentials: true });
+      // 서버에 요청 보내기
+      await axios.post(`http://localhost:8080/reserv/tripPlan/${tripPlanId}/delete`, null, { withCredentials: true });
       alert('일괄 예약 전체가 취소되었습니다.');
-      setReservations(prev =>
-        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
-      );
+
+      // 상태 업데이트 (예약 취소 처리)
+      cancelReservationsByTripPlanId(tripPlanId);
     } catch (err) {
       alert('일괄 예약 취소에 실패했습니다.');
     }

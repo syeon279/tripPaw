@@ -69,12 +69,12 @@ public class PayController {
     }
 
     @PostMapping("/batch/{tripPlanId}")
-    public ResponseEntity<?> createBatchPaysForDummy(@PathVariable Long tripPlanId, 
-        @AuthenticationPrincipal UserDetails userDetails) {
-        // 로그인한 유저 정보 가져오기
-        Member member = memberService.findByUsername(userDetails.getUsername());
+    public ResponseEntity<?> createBatchPaysForDummy(@PathVariable Long tripPlanId) {
+        Member member = memberService.findById(1L);
+        System.out.println("member = " + member);
+
         if (member == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인된 유저를 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body("더미 유저(ID=1)를 찾을 수 없습니다.");
         }
 
         try {
