@@ -165,7 +165,10 @@ function PayBatchPage() {
             { withCredentials: true });
 
             alert('일괄 결제가 완료되었습니다!');
-            router.push('/pay/pay-success');
+            router.push({
+              pathname:'/pay/paygroup-success',
+              query: { tripPlanId: tripPlanId }
+            });
           } catch (err) {
             alert('검증 중 오류가 발생했습니다.');
           }
