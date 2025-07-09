@@ -64,12 +64,5 @@ public class FavoriteController {
         return ResponseEntity.ok(dtos);
     }
     
-    // 특정 유저의 내 여행  목록
-    @GetMapping("/member/trips/{memberId}")
-    public ResponseEntity<List<MyTripsDto>> getMyTrips(@PathVariable Long memberId) {
-    	List<MyTripsDto> dtos = favoriteService.getMyTripsByMember(memberId);
-    	System.out.println("MyTripsDto : " + dtos);
-    	return ResponseEntity.ok(dtos);
-    }
 
 }

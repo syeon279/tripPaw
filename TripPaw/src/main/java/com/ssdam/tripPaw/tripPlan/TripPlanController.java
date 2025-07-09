@@ -90,18 +90,14 @@ public class TripPlanController {
 
     private final TripPlanService tripPlanService;
 
-    /**
-     * 여행 경로 추천 받기
-     */
+    //여행 경로 추천 받기
     @PostMapping("/recommend")
     public ResponseEntity<List<TripRecommendResponse>> recommendTrip(@RequestBody TripRecommendRequest request) {
         List<TripRecommendResponse> result = tripPlanService.recommend(request);
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * 여행 경로 저장 (지도 이미지 포함)
-     */
+    //여행 경로 저장 (지도 이미지 포함)
     @PostMapping("/save")
     public ResponseEntity<String> saveTrip(@RequestBody TripSaveRequest request) {
         try {
@@ -114,6 +110,7 @@ public class TripPlanController {
         }
     }
     
+    // 경로 수정하기
     @PostMapping("/edit")
     public ResponseEntity<Map<String, Object>> editTrip(@RequestBody TripSaveRequest request) {
         try {
@@ -128,11 +125,8 @@ public class TripPlanController {
             return ResponseEntity.internalServerError().body(Map.of("error", msg));
         }
     }
-
-    /**
-     * 특정 ID의 여행 경로 조회
-     */
-    
+ 
+    // 특정 ID의 여행 경로 조회
     @GetMapping("/{id}")
     public ResponseEntity<?> getTripById(@PathVariable Long id) {
         TripPlan plan = tripPlanService.findByIdWithCourses(id);
@@ -145,9 +139,10 @@ public class TripPlanController {
         dto.setPublicVisible(plan.isPublicVisible());
         dto.setCreatedAt(plan.getCreatedAt());
 
-        // 작성자 닉네임만
+        // 작성자 닉네임, id
         Member author = plan.getMember();
         dto.setAuthorNickname(author != null ? author.getNickname() : "알 수 없음");
+        dto.setAuthorId(author.getId());
 
         // 코스, 리뷰 설정
         List<TripPlanCourse> tripPlanCourses = plan.getTripPlanCourses();
@@ -211,9 +206,26 @@ public class TripPlanController {
     }
 
     
-    /**
-     * 저장된 여행 목록 전체 조회
-     */
+    // 특정 유저의 모든 여행 가져오기(/tripPlan/{id}/trips)
+    @GetMapping("/{id}/trips")
+    public ResponseEntity<List<TripPlan>> getAllTripsByMemberId(@PathVariable Long id){
+    	List<TripPlan> plans = tripPlanService.findByMemberId(id);
+		return ResponseEntity.ok(plans);
+    }
+    
+    // 공개로 전환하기
+    @PutMapping("/{id}/public")
+    public ResponseEntity<?> makeTripPublic(@PathVariable Long id) {
+        try {
+            tripPlanService.makeTripPublic(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    
+    //저장된 여행 목록 전체 조회
     @GetMapping("/list")
     public ResponseEntity<List<TripPlan>> getAllTrips() {
         List<TripPlan> plans = tripPlanService.getAllTrips();
