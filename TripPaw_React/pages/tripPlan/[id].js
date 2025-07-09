@@ -73,6 +73,7 @@ const TripPlanDetail = () => {
     const [rating, setRating] = useState(0);
     const { id } = router.query;
 
+    // 여행 정보, 로그인 정보 불러오기
     useEffect(() => {
         const fetchTripDetail = async () => {
             const { id } = router.query;
@@ -117,6 +118,7 @@ const TripPlanDetail = () => {
         checkLoginStatus();
     }, [router.isReady, router.query]);
 
+    // 지도 그리기
     useEffect(() => {
         const interval = setInterval(() => {
             if (window.kakao && window.kakao.maps) {
@@ -196,6 +198,7 @@ const TripPlanDetail = () => {
         }
     };
 
+
     const myTrip = Number(authorId) === Number(userId);
 
     return (
@@ -249,6 +252,7 @@ const TripPlanDetail = () => {
                             onEdit={() => handleEditAndSave()}
                             tripPlanId={id}
                             myTrip={myTrip}
+                            myId={userId}
                         />
                     </div>
                 </div>
