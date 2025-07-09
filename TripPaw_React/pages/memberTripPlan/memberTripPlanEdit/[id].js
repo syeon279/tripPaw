@@ -5,6 +5,7 @@ import DayScheduleList from '../../../components/tripPlanEdit/DayScheduleList';
 import AppLayout from '../../../components/AppLayout';
 import EditActionButtons from '../../../components/tripPlanEdit/EditActionButtons';
 import TitleModal from '@/components/tripPlan/TitleModal';
+import TripPlanToMyTrip from '@/components/tripPlan/TripPlanToMyTrip';
 import PlaceSearchModal from '@/components/tripPlanEdit/PlaceSearchModal';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -57,7 +58,7 @@ const layoutStyle = {
     },
 };
 
-const tripEdit = () => {
+const memberTripPlanEdit = () => {
     const router = useRouter();
     const mapRef = useRef(null);
     const TripPlanId = router.query.id;
@@ -68,69 +69,56 @@ const tripEdit = () => {
     const [mapInstance, setMapInstance] = useState(null);
     const [focusDay, setFocusDay] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [title, setTitle] = useState(null);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [countPeople, setCountPeople] = useState(null);
     const [countPet, setCountPet] = useState(null);
     const [isPlaceSearchOpen, setIsPlaceSearchOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [memberId, setMemberId] = useState(1);
 
-    // 로그인 한 유저 id가져오기
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/api/auth/check', {
                     withCredentials: true,
                 });
-
-                console.log('user : ', response.data);
-
                 if (response.status === 200) {
                     setIsLoggedIn(true);
-                    // 백엔드에서 받은 username으로 상태 업데이트
                     setMemberId(response.data.id);
-                    return true; // 성공 시 true 반환
                 }
             } catch (error) {
                 console.error("로그인 상태 확인 실패:", error);
-                return false; // 실패 시 false 반환
             }
         };
         checkLoginStatus();
     }, [router.isReady, router.query]);
 
-
     useEffect(() => {
         const fetchTripById = async (TripPlanId) => {
             try {
-                const response = await axios.get(`http://localhost:8080/tripPlan/${TripPlanId}`);
+                const response = await axios.get(`http://localhost:8080/memberTripPlan/${TripPlanId}`);
                 const trip = response.data;
 
-                if (!trip.tripPlanCourses || !Array.isArray(trip.tripPlanCourses)) {
+                if (!trip.routeData || !Array.isArray(trip.routeData)) {
                     throw new Error('잘못된 여행 데이터 형식입니다.');
                 }
 
-                const convertedRouteData = trip.tripPlanCourses.map((course, idx) => ({
-                    day: idx + 1,
-                    places: course.route.routePlaces
-                        .map((rp) => {
-                            const place = rp.place;
-                            if (!place || !place.id || !place.latitude || !place.longitude) return null;
-
-                            return {
-                                placeId: place.id,
-                                draggableId: `day-${idx + 1}-place-${place.id}`,
-                                name: place.name,
-                                description: place.description,
-                                latitude: parseFloat(place.latitude),
-                                longitude: parseFloat(place.longitude),
-                                imageUrl: place.imageUrl,
-                            };
-                        })
-                        .filter(Boolean),
+                const convertedRouteData = trip.routeData.map((day) => ({
+                    day: day.day,
+                    places: day.places.map((place) => ({
+                        placeId: place.placeId,
+                        draggableId: `day-${day.day}-place-${place.placeId}`,
+                        name: place.name,
+                        description: place.description || '',
+                        latitude: parseFloat(place.latitude),
+                        longitude: parseFloat(place.longitude),
+                        imageUrl: place.imageUrl || '',
+                    })),
                 }));
 
+                setTitle(trip.title);
                 setRouteData(convertedRouteData);
                 setStartDate(trip.startDate || router.query.startDate);
                 setEndDate(trip.endDate || router.query.endDate);
@@ -194,24 +182,47 @@ const tripEdit = () => {
         }
     };
 
-    const handleTripSave = async ({ title, mapImage }) => {
+    const handleTripSave = async ({
+        title,
+        startDate: newStartDate,
+        endDate: newEndDate,
+        countPeople,
+        countPet,
+        mapImage
+    }) => {
         try {
+            const originalStart = new Date(startDate);
+            const originalEnd = new Date(endDate);
+            const originalDays = Math.ceil((originalEnd - originalStart) / (1000 * 60 * 60 * 24)) + 1;
+
+            const newStart = new Date(newStartDate);
+            const newEnd = new Date(newEndDate);
+            const newDays = Math.ceil((newEnd - newStart) / (1000 * 60 * 60 * 24)) + 1;
+
+            if (newDays < originalDays) {
+                alert(`저장할 여행은 최소 ${originalDays}일 이상이어야 합니다.`);
+                return false;
+            }
+
             const tripData = {
                 title,
-                startDate,
-                endDate,
+                startDate: newStartDate,
+                endDate: newEndDate,
                 countPeople,
                 countPet,
                 routeData,
                 mapImage,
-                memberId
+                memberId,
             };
 
             await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
+            router.push('/mypage/trips');
+            return true;
         } catch (error) {
             console.error('저장 실패:', error);
             alert('저장 중 오류 발생');
+            return false;
         }
     };
 
@@ -258,7 +269,7 @@ const tripEdit = () => {
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
-                <h1>강아지와 함께! 에너지 넘치는 파워 여행 루틴</h1>
+                <h1>{title}</h1>
                 {startDate && endDate && (
                     <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
                         {format(new Date(startDate), 'yyyy.MM.dd')} ~{' '}
@@ -312,7 +323,7 @@ const tripEdit = () => {
                     )}
 
                     {showModal && (
-                        <TitleModal
+                        <TripPlanToMyTrip
                             onClose={() => setShowModal(false)}
                             onSave={handleTripSave}
                             defaultStartDate={startDate}
@@ -328,4 +339,4 @@ const tripEdit = () => {
     );
 };
 
-export default tripEdit;
+export default memberTripPlanEdit;

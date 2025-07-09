@@ -5,11 +5,14 @@ const itemWrapper = {
     display: 'flex',
     padding: '10px',
     margin: '20px',
-    cursor: 'pointer',
     alignItems: 'center',
     backgroundColor: '#f9f9f9',
     borderRadius: '10px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    touchAction: 'none', // ✅ 드래그 안정화
+    cursor: 'pointer',
 };
 
 const dayWrapper = {
@@ -31,21 +34,29 @@ const placeInfo = {
     justifyContent: 'space-between',
 };
 
-const DayScheduleItem = ({ day, place, onPlaceClick, onDeletePlace }) => {
+const DayScheduleItem = ({
+    day,
+    place,
+    onDeletePlace,
+    dragListeners = {},
+    dragAttributes = {},
+    dragRef = null,
+    itemStyle = {}
+}) => {
     return (
         <div
-            style={itemWrapper}
-            onClick={(e) => {
-                onPlaceClick(place);
-                e.stopPropagation();
-            }}
+            ref={dragRef}
+            style={{ ...itemWrapper, ...itemStyle }}
+            {...dragListeners}
+            {...dragAttributes}
         >
             <div style={dayWrapper}>{day.day}일차</div>
             <div style={placeInfo}>
                 <div>{place.name}</div>
                 <DeleteOutlined
+                    onPointerDown={(e) => e.stopPropagation()} // ✅ 드래그 방해 방지
                     onClick={(e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); // ✅ 드래그 외에도 이벤트 전파 차단
                         onDeletePlace(day.day, place.placeId);
                     }}
                 />
