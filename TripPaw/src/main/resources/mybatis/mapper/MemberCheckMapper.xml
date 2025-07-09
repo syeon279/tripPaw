@@ -12,11 +12,14 @@
 
 	<!-- 루틴기준 체크리스트 조회 -->
     <select id="selectByRoutineId" resultMap="MemberCheckResultMap">
-        SELECT id, custom_content, is_checked, created_at, checkroutine_id, checktemplateitem_id
-        FROM member_check
-        WHERE checkroutine_id = #{routineId}
-        ORDER BY created_at
-    </select>
+	    SELECT mc.id, mc.custom_content, mc.is_checked, mc.created_at, 
+	           mc.checkroutine_id, mc.checktemplateitem_id,
+	           cti.content AS cti_content
+	    FROM member_check mc
+	    LEFT JOIN check_template_item cti ON mc.checktemplateitem_id = cti.id
+	    WHERE mc.checkroutine_id = #{routineId}
+	    ORDER BY mc.created_at
+	</select>
 
 	<!-- 멤버 기준 체크리스트 조회 -->
 	<select id="selectByMemberId" resultMap="MemberCheckResultMap">
@@ -61,6 +64,7 @@
 
         <association property="checkTemplateItem" javaType="com.ssdam.tripPaw.domain.CheckTemplateItem">
             <id property="id" column="checktemplateitem_id"/>
+            <result property="content" column="cti_content"/>
         </association>
     </resultMap>
 
