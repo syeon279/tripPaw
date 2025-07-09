@@ -130,6 +130,9 @@ public class AuthController {
             "username", member.getUsername(),
             "nickname", member.getNickname(),
             "memberId", member.getId(),
+            "zonecode",member.getZonecode(),
+            "roadAddress",member.getRoadAddress(),
+            "namujiAddress",member.getNamujiAddress(),
             "auth", authorities
             // 필요한 다른 정보 추가
         );
