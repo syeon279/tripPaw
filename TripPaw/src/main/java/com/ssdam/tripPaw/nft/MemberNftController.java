@@ -1,10 +1,21 @@
 package com.ssdam.tripPaw.nft;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ssdam.tripPaw.domain.MemberNft;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -16,8 +27,15 @@ public class MemberNftController {
 
     // 특정 멤버의 NFT 조회
     @GetMapping("/{memberId}")
-    public ResponseEntity<List<MemberNft>> getMemberNfts(@PathVariable String memberId) {
-        return ResponseEntity.ok(memberNftService.getMemberNfts(memberId));
+    public ResponseEntity<List<MemberNftDto>> getMemberNfts(@PathVariable Long memberId) {
+        List<MemberNft> memberNfts = memberNftService.getMemberNfts(memberId);
+
+        // MemberNft 객체를 MemberNftDto로 변환
+        List<MemberNftDto> memberNftDtos = memberNfts.stream()
+            .map(nft -> new MemberNftDto(nft.getId(), nft.getNftMetadata().getTitle(), nft.getNftMetadata().getImageUrl()))
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(memberNftDtos);
     }
 
     // NFT 발급

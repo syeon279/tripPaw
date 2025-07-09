@@ -68,5 +68,9 @@ public interface ReviewMapper {
 	Double getAverageRatingByPlaceId(Long id);
 	// 해장 당소의 리뷰 개수 가져오기
 	Integer getReviewCountByPlaceId(Long id);
+	
+	// 추가
+	// 평점/추천순으로 리뷰 Top 5
+	List<Review> findTop5ByLikes();
 
 }
