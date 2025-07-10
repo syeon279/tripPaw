@@ -33,4 +33,6 @@ public interface TripPlanMapper {
 	int delete(Long id);
 
 	void update(TripPlan tripPlan);
+	
+	List<TripPlan> findByMemberIdWithReviews(Long id);
 }
