@@ -42,7 +42,7 @@ public interface ReservMapper {
 
 	public List<Reserv> findByTripPlansId(Long tripPlanId);
 	
-	public List<TripPlanCoursePlaceDto> findCoursesByMemberId(Long memberTripPlanId);
+	public List<TripPlanCoursePlaceDto> findCoursesByMemberId(Long memberId);
 	
 	public Member findMemberById(Long userId);
 	

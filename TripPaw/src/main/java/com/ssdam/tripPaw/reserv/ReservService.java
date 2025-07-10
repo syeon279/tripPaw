@@ -82,7 +82,7 @@ public class ReservService {
     }
     
     @Transactional
-    public List<Reserv> createReservationsFromTripPlanByUserId(Long userId) {
+    public List<Reserv> createReservationsFromTripPlanByUserId(Long userId, Long memberTripPlanId) {
         Member member = reservMapper.findMemberById(userId);
         if (member == null) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");

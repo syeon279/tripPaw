@@ -97,8 +97,8 @@ const TripPlanDetail = () => {
                 setMyId(data.memberId);
                 setOriginMemberId(data.originalMemberId);
                 console.log('data:', res.data);
-                setPlanData(res.data);
-                console.log('setPlanData', planData);
+                //setPlanData(res.data);
+                //console.log('setPlanData', planData);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
             }
@@ -243,14 +243,15 @@ const TripPlanDetail = () => {
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
                             startDate={startDate}
-                            onDatesChange={handleDatesChange}
                         />
                         <MypageActionButton
-                            planData={planData}
+                            //planData={planData}
+                            routeData={routeData}
                             onEdit={() => handleEdit()}
                             // 리뷰쓰기 추가
                             //onReview={}
                             isNotMytrip={isNotMytrip}
+                            memberTripPlanId = {id}
                         />
                     </div>
                 </div>

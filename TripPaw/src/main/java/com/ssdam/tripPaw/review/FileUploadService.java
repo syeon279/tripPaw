@@ -31,16 +31,16 @@ public class FileUploadService {
             String originalFilename = Objects.requireNonNull(file.getOriginalFilename(), "파일명이 없습니다.");
             String safeFilename = UUID.randomUUID() + "_" + Paths.get(originalFilename).getFileName().toString();
             
-            Path targetDir = this.rootLocation.resolve(subFolder).normalize();
-            Files.createDirectories(targetDir); // 하위 디렉토리까지 생성
-            
-            Path destinationFile = this.rootLocation.resolve(safeFilename).normalize();
-            String safeFilename = UUID.randomUUID() + "_" + originalFilename;
+//            Path targetDir = this.rootLocation.resolve(subFolder).normalize();
+//            Files.createDirectories(targetDir); // 하위 디렉토리까지 생성
+//            
+//            Path destinationFile = this.rootLocation.resolve(safeFilename).normalize();
+//            String safeFilename = UUID.randomUUID() + "_" + originalFilename;
 
             Path path = Paths.get(uploadDir, safeFilename);
             file.transferTo(path.toFile());
 
-            return subFolder + "/" + destinationFile.getFileName().toString();
+//            return subFolder + "/" + destinationFile.getFileName().toString();
             return safeFilename; // DB에 저장될 경로
         } catch (Exception e) {
             throw new RuntimeException("리뷰 이미지 저장 실패", e);
