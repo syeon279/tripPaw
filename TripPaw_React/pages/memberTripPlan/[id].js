@@ -76,6 +76,7 @@ const TripPlanDetail = () => {
     const [userId, setUserId] = useState(1);
     const { id } = router.query;
     const [isNotMytrip, setIsNotMytrip] = useState('');
+    const [memberTripPlanId, setMemberTripPlanId] = useState(null);
 
     // 리뷰쓰기
     const [myId, setMyId] = useState('');
@@ -96,6 +97,7 @@ const TripPlanDetail = () => {
                 setTitle(data.title);
                 setMyId(data.memberId);
                 setOriginMemberId(data.originalMemberId);
+                setMemberTripPlanId(id);
                 console.log('data:', res.data);
                 //setPlanData(res.data);
                 //console.log('setPlanData', planData);
@@ -251,7 +253,7 @@ const TripPlanDetail = () => {
                             // 리뷰쓰기 추가
                             //onReview={}
                             isNotMytrip={isNotMytrip}
-                            memberTripPlanId = {id}
+                            memberTripPlanId={Number(id)}
                         />
                     </div>
                 </div>

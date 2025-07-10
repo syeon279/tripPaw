@@ -89,7 +89,7 @@ public class ReservService {
         }
 
         // 사용자의 여행 코스 목록 조회
-        List<TripPlanCoursePlaceDto> courseList = reservMapper.findCoursesByMemberId(member.getId());
+        List<TripPlanCoursePlaceDto> courseList = reservMapper.findCoursesByMemberTripPlanId(memberTripPlanId);
 
         List<Reserv> savedList = new ArrayList<>();
         LocalDate baseDate = LocalDate.now();
@@ -132,11 +132,11 @@ public class ReservService {
 
             	System.out.println("Inserting Reserv: " + reserv);
             	int result = reservMapper.insert(reserv);
-            	System.out.println("Insert Result: " + result);	
-            	
-                // 예약이 겹치지 않으면 저장
-                reservMapper.insert(reserv);
-                savedList.add(reserv);
+            	System.out.println("Insert Result: " + result);
+
+            	if (result > 0) {
+            	    savedList.add(reserv);
+            	}
             }
         }
 

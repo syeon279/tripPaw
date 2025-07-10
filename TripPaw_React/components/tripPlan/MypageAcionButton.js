@@ -34,7 +34,7 @@ const ActionButtons = ({ planData, onEdit , isNotMytrip, routeData, memberTripPl
     const [userName, setUserName] = useState('');
    // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
 
-    console.log('[ button ] planData : ', planData);
+    console.log('ActionButtons memberTripPlanId:', memberTripPlanId);
 
     useEffect(() => {
         const checkLoginStatus = async () => {

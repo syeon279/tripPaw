@@ -121,6 +121,24 @@
 	  ORDER BY r.start_date ASC
 	</select>
 
+	<select id="findCoursesByMemberTripPlanId" resultType="com.ssdam.tripPaw.dto.TripPlanCoursePlaceDto">
+	    SELECT
+	        mtp.id AS memberTripPlanId,
+	        tp.id AS tripPlanId,
+	        p.id AS placeId,
+	        p.name AS placeName,
+	        p.latitude,
+	        p.longitude
+	    FROM member_trip_plan mtp
+	    JOIN trip_plan tp ON mtp.trip_plan_id = tp.id
+	    LEFT JOIN trip_plan_course c ON tp.id = c.trip_plan_id
+	    LEFT JOIN route r ON c.route_id = r.id
+	    LEFT JOIN route_place rp ON r.id = rp.route_id
+	    LEFT JOIN place p ON rp.place_id = p.id
+	    WHERE mtp.id = #{memberTripPlanId}
+	    ORDER BY c.id ASC, rp.id ASC
+	</select>
+
 	<select id="findByTripPlansId" resultMap="ReservResultMap" parameterType="long">
 	  SELECT r.*, p.*, pay.*
 	  FROM reserv r

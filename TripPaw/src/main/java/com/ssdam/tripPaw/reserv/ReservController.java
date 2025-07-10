@@ -104,9 +104,9 @@ public class ReservController {
     public ResponseEntity<?> createAutoReservations(@RequestBody Map<String, Object> body) {
     	System.out.println("[controller] body " + body);
         try {
-            Long userId = Long.valueOf(body.get("userId").toString());
-            Long memberTripPlanId = Long.valueOf(body.get("memberTripPlanId").toString());
-            List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(memberTripPlanId, userId);
+        	Long userId = Long.valueOf(body.get("userId").toString());
+        	Long memberTripPlanId = Long.valueOf(body.get("memberTripPlanId").toString());
+        	List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(userId, memberTripPlanId);
             return ResponseEntity.ok(savedList);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("잘못된 요청: " + e.getMessage());
