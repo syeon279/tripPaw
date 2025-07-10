@@ -87,6 +87,7 @@
     DELETE FROM member WHERE id = #{id}
   </delete>
   
+<<<<<<< HEAD
   
   <!-- 포인트 적립 내역 추가 (insert) -->
   <insert id="insertPoints" parameterType="map">
@@ -102,4 +103,17 @@
   </select>
   
   
+=======
+  <update id="updateMember" parameterType="Member">
+  	update member
+  	set username = #{username}
+  		,nickname = #{nickname}
+  		,password = #{password}
+  		,zonecode = #{zonecode}
+  		,road_address = #{roadAddress}
+  		,namuji_address= #{namujiAddress}
+  		,provider = #{provider}
+  	where id = #{id}
+  </update>
+>>>>>>> b18590b6cf42105321d5a3f5cf5de4d85f83b7b4
 </mapper>

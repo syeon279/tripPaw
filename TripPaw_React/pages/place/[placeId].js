@@ -15,6 +15,7 @@ import {
   // ThunderboltOutlined,
   QuestionOutlined
 } from '@ant-design/icons';
+import LoginFormModal from '@/components/member/LoginFormModal';
 
 const { TabPane } = Tabs;
 
@@ -148,10 +149,14 @@ const PlaceReservCreatePage = () => {
   const [avgRating, setAvgRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [likeStates, setLikeStates] = useState({});
+  // 상태 변수
+  const [pendingAction, setPendingAction] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-
+  ////////////////////////////////////////////////////////////////////////////////
+  // 장소 정보 불러오기
   useEffect(() => {
-    const fetchPlaceAndMember = async () => {
+    const fetchPlace = async () => {
       if (!router.isReady) return;
 
       const id = router.query.placeId;
@@ -164,42 +169,27 @@ const PlaceReservCreatePage = () => {
       } catch {
         setMessage('장소 정보를 불러오지 못했습니다.');
       }
-
-      try {
-        const res = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
-        setMemberId(res.data.id);
-        setIsLoggedIn(true);
-      } catch (err) {
-        console.error('로그인 정보 확인 실패:', err);
-      }
     };
 
-    fetchPlaceAndMember();
+    fetchPlace();
   }, [router.isReady]);
 
-  // ✅ 즐겨찾기 체크는 placeId, memberId 설정 완료 후 별도로 실행
-  useEffect(() => {
-    const checkFavorite = async () => {
-      if (!placeId || !memberId) return;
+  // 장소 이미지
+  const getFallbackImages = (items) => {
+    const map = {};
+    items.forEach(item => {
+      const randomNum = Math.floor(Math.random() * 10) + 1;
+      map[item.id] = `/image/other/randomImage/${randomNum}.jpg`;
+    });
+    return map;
+  };
+  const fallbackImages = useMemo(() => {
+    if (!place) return {};
+    return getFallbackImages([place, place]); // 배열로 감싸기
+  }, [place]);
+  //////////////////////////////////////////////////////////////////////////////////////////////////
 
-      try {
-        const favRes = await axios.get(`http://localhost:8080/favorite/check`, {
-          params: {
-            memberId,
-            targetId: placeId,
-            targetType: 'PLACE',
-          },
-        });
-
-        setIsFavorite(favRes.status === 200 && Number(favRes.data.targetId) === Number(placeId));
-      } catch (err) {
-        console.error('즐겨찾기 상태 확인 실패:', err);
-      }
-    };
-
-    checkFavorite();
-  }, [placeId, memberId]);
-
+  // 예약 날짜 불러오기
   useEffect(() => {
     if (!placeId) return;
     axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${placeId}`)
@@ -222,6 +212,35 @@ const PlaceReservCreatePage = () => {
       });
   }, [placeId]);
 
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // ✅ 즐겨찾기 체크는 placeId, memberId 설정 완료 후 별도로 실행
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!placeId || !memberId) return;
+
+      try {
+        const favRes = await axios.get(`http://localhost:8080/favorite/check`, {
+          params: {
+            memberId,
+            targetId: placeId,
+            targetType: 'PLACE',
+          },
+        });
+
+        setIsFavorite(favRes.status === 200 && Number(favRes.data.targetId) === Number(placeId));
+      } catch (err) {
+        console.error('즐겨찾기 상태 확인 실패:', err);
+      }
+    };
+
+    checkFavorite();
+  }, [placeId, memberId, isLoggedIn]);
+
+
+  // 즐겨찾기 
   const toggleFavorite = async () => {
     try {
       const payload = {
@@ -250,8 +269,10 @@ const PlaceReservCreatePage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  // 예약하기
+  const executeReservation = async (resolvedMemberId) => {
     const expireAtDate = addDays(new Date(), 5);
     const payload = {
       startDate: format(dateRange[0].startDate, 'yyyy-MM-dd'),
@@ -259,10 +280,11 @@ const PlaceReservCreatePage = () => {
       expireAt: format(expireAtDate, 'yyyy-MM-dd'),
       countPeople: Number(countPeople),
       countPet: Number(countPet),
-      member: { id: memberId },
+      member: { id: resolvedMemberId },
       place: { id: placeId },
       tripPlan: tripPlanId ? { id: tripPlanId } : null,
     };
+
     try {
       const res = await axios.post('http://localhost:8080/reserv', payload);
       alert('예약 성공! 🎉');
@@ -270,7 +292,7 @@ const PlaceReservCreatePage = () => {
         pathname: '/pay/pay',
         query: {
           reservId: res.data.id,
-          memberId,
+          memberId: resolvedMemberId,
           countPeople,
           countPet,
           startDate: payload.startDate,
@@ -285,12 +307,21 @@ const PlaceReservCreatePage = () => {
     }
   };
 
-  const fallbackImages = useMemo(() => {
-    if (!place) return {};
-    const randomNum = Math.floor(Math.random() * 10) + 1;
-    return { [place.id]: `/image/other/randomImage/${randomNum}.jpg` };
-  }, [place]);
+  // 예약 핸들러
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
+    if (!isLoggedIn || !memberId) {
+      // ✅ memberId 인자를 받아 실행하는 함수로 설정
+      setPendingAction(() => (idFromLogin) => executeReservation(idFromLogin));
+      setShowLoginModal(true);
+      return;
+    }
+
+    executeReservation(memberId); // ✅ 인자 전달
+  };
+
+  // 리뷰 날씨
   const getWeatherImageFileName = (condition) => {
     switch (condition) {
       case '흐림':
@@ -306,24 +337,42 @@ const PlaceReservCreatePage = () => {
     }
   };
 
+  // 로그인 체크 useEffect
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/auth/check', {
+          withCredentials: true,
+        });
+        setMemberId(response.data.id);
+        setIsLoggedIn(true);
+      } catch (err) {
+        setIsLoggedIn(false);
+        setMemberId(null);
+        console.warn('로그인 실패', err);
+      }
+    };
+
+    if (router.isReady && router.query.placeId) {
+      checkLoginStatus();
+    }
+  }, [router.isReady, router.query.placeId]);
+
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        // 1. 로그인 여부 확인
         const authRes = await axios.get('http://localhost:8080/api/auth/check', {
           withCredentials: true,
         });
         const userId = authRes.data.id;
-        setMemberId(userId);
+        setMemberId(userId);             // ✅ 이걸 먼저 설정하고
         setIsLoggedIn(true);
 
-        // 2. 예약 여부 확인
         const reservRes = await axios.get(`http://localhost:8080/review/reserv/check`, {
           params: { memberId: userId, placeId },
         });
         setCanWriteReview(reservRes.data === true);
 
-        // 3. 리뷰 불러오기
         await fetchReviews(placeId, userId);
       } catch (err) {
         console.error('로그인 또는 예약 확인 실패:', err);
@@ -332,10 +381,14 @@ const PlaceReservCreatePage = () => {
       }
     };
 
-    if (placeId) {
+    // ✅ 조건 추가
+    if (placeId && isLoggedIn && memberId) {
       fetchAllData();
     }
-  }, [placeId]);
+  }, [placeId, isLoggedIn, memberId]);
+
+
+  // 리뷰
   const fetchReviews = async (placeId, memberId) => {
     setLoading(true);
     try {
@@ -373,6 +426,7 @@ const PlaceReservCreatePage = () => {
     setLoading(false);
   };
 
+  // 좋아요 
   const toggleLike = async (reviewId) => {
     if (!memberId) {
       message.warning('로그인 후 이용 가능합니다.');
@@ -409,6 +463,32 @@ const PlaceReservCreatePage = () => {
     } catch (err) {
       console.error('좋아요 처리 실패:', err);
       message.error('좋아요 처리에 실패했습니다.');
+    }
+  };
+
+  //로그인
+  const handleLoginSuccess = async () => {
+    setShowLoginModal(false);
+
+    try {
+      const res = await axios.get('http://localhost:8080/api/auth/check', {
+        withCredentials: true,
+      });
+
+      const id = res.data.id;
+      console.log('[DEBUG] 로그인 후 받은 memberId:', id);
+      setMemberId(id);
+      setIsLoggedIn(true);
+
+      if (pendingAction) {
+        const action = pendingAction;
+        setPendingAction(null);
+
+        // 이 시점 memberId 바로 쓰도록 인라인 인자로 넘김
+        action(id); // ✅ id 직접 넘김
+      }
+    } catch (err) {
+      console.error('로그인 후 memberId 확인 실패:', err);
     }
   };
 
@@ -456,11 +536,11 @@ const PlaceReservCreatePage = () => {
                   <p><strong>🔗 홈페이지:</strong> <a href={place.homePage} target="_blank" rel="noopener noreferrer">{place.homePage}</a></p>
                 )}
               </ImageSection>
-              <TabsSection>
-                <Tabs defaultActiveKey="reserv" style={{ marginTop: 32 }}>
+              <TabsSection >
+                <Tabs defaultActiveKey="reserv" style={{ marginTop: 32, textAlign: 'center' }}>
                   <TabPane tab="예약" key="reserv">
                     <Form onSubmit={handleSubmit}>
-                      <div>
+                      <div style={{ textAlign: 'center' }}>
                         <Label>예약 날짜</Label>
                         <DateRange
                           editableDateInputs
@@ -472,52 +552,58 @@ const PlaceReservCreatePage = () => {
                         />
                       </div>
                       <ExpireText>⏳ 만료일: <strong>{format(addDays(new Date(), 5), 'yyyy-MM-dd')}</strong></ExpireText>
-                      <div>
-                        <Label>인원 수</Label>
-                        <Input type="number" min="1" value={countPeople} onChange={(e) => setCountPeople(e.target.value)} />
-                      </div>
-                      <div>
-                        <Label>반려동물 수</Label>
-                        <Input type="number" min="0" value={countPet} onChange={(e) => setCountPet(e.target.value)} />
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div style={{ marginLeft: '30px', marginRight: '30px' }}>
+                          <Label>인원 수</Label>
+                          <Input type="number" min="1" value={countPeople} onChange={(e) => setCountPeople(e.target.value)} />
+                        </div>
+                        <div style={{ marginLeft: '30px', marginRight: '30px' }}>
+                          <Label>반려동물 수</Label>
+                          <Input type="number" min="0" value={countPet} onChange={(e) => setCountPet(e.target.value)} />
+                        </div>
                       </div>
                       <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
                       {message && <ErrorMsg>{message}</ErrorMsg>}
                     </Form>
                   </TabPane>
                   <TabPane tab="리뷰" key="review">
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                      <Rate value={avgRating} disabled />
-                      <span style={{ marginLeft: 8 }}>{avgRating}</span>
-                      <span style={{ marginLeft: 12, color: '#888' }}>리뷰 {reviewCount}개</span>
-                      {isLoggedIn && canWriteReview && (
-                        <Button
-                          type="primary"
-                          onClick={async () => {
-                            try {
-                              const res = await axios.get('http://localhost:8080/review/reserv/place', {
-                                params: { memberId, placeId },
-                              });
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, justifyContent: 'space-between' }}>
+                      <div style={{ border: 'none' }}>
+                        <Rate value={avgRating} disabled />
+                        <span style={{ marginLeft: 8 }}>{avgRating}</span>
+                        <span style={{ marginLeft: 12, color: '#888' }}>리뷰 {reviewCount}개</span>
+                      </div>
+                      <div style={{ border: 'none' }}>
+                        {isLoggedIn && canWriteReview && (
+                          <Button
+                            //type="primary"
+                            onClick={async () => {
+                              try {
+                                const res = await axios.get('http://localhost:8080/review/reserv/place', {
+                                  params: { memberId, placeId },
+                                });
 
-                              const reservId = res.data;
+                                const reservId = res.data;
 
-                              router.push({
-                                pathname: '/review/write',
-                                query: {
-                                  reservId,              // 예약 ID
-                                  reviewTypeId: 2,       // 장소 리뷰
-                                  placeName: place.name,
-                                },
-                              });
-                            } catch (err) {
-                              console.error('예약 ID 가져오기 실패:', err);
-                              message.error('예약 정보를 찾을 수 없습니다.');
-                            }
-                          }}
-                          style={{ marginBottom: 20 }}
-                        >
-                          ✍️ 리뷰 작성하기
-                        </Button>
-                      )}
+                                router.push({
+                                  pathname: '/review/write',
+                                  query: {
+                                    reservId,              // 예약 ID
+                                    reviewTypeId: 2,       // 장소 리뷰
+                                    placeName: place.name,
+                                  },
+                                });
+                              } catch (err) {
+                                console.error('예약 ID 가져오기 실패:', err);
+                                message.error('예약 정보를 찾을 수 없습니다.');
+                              }
+                            }}
+                            style={{ marginBottom: 0, backgroundColor: 'black', color: 'white' }}
+                          >
+                            리뷰 작성하기
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {loading ? (
@@ -564,6 +650,10 @@ const PlaceReservCreatePage = () => {
               </TabsSection>
             </Layout>
             <PetAssistant />
+            {showLoginModal && <LoginFormModal
+              onLoginSuccess={handleLoginSuccess}
+              onToggleForm={() => setShowLoginModal(false)}
+            />}
           </Container>
         )}
       </ScrollContainer>

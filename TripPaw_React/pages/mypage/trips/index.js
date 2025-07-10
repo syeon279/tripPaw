@@ -1,3 +1,5 @@
+// Trips.jsx
+
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
@@ -81,13 +83,18 @@ const Trips = () => {
         const tripId = trip.myTripId || trip.id;
         const imageUrl = trip.imageUrl && trip.imageUrl.length > 0
             ? trip.imageUrl
-            : fallbackImages[trip.tripPlanId || trip.id] || "/image/other/tempImage.jpg";
+            : fallbackImages[tripId] || "/image/other/tempImage.jpg";
 
         const [menuOpen, setMenuOpen] = useState(false);
         const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
         const [showModal, setShowModal] = useState(false);
         const iconRef = useRef(null);
         const menuRef = useRef(null);
+
+        const reviewCount = trip.reviews?.length || 0;
+        const avgRating = reviewCount > 0
+            ? (trip.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)
+            : '0.0';
 
         const toggleMenu = (e) => {
             e.stopPropagation();
@@ -196,6 +203,19 @@ const Trips = () => {
                         {trip.startDate && trip.endDate && (
                             <div style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>
                                 {trip.startDate} ~ {trip.endDate}
+                            </div>
+                        )}
+                        {tab === "created" && (
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', gap: '6px' }}>
+                                <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                    {avgRating}
+                                </p>
+                                <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                    {'★'.repeat(Math.floor(avgRating)) + '☆'.repeat(5 - Math.floor(avgRating))}
+                                </p>
+                                <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
+                                    | 리뷰 {reviewCount}
+                                </p>
                             </div>
                         )}
                     </div>

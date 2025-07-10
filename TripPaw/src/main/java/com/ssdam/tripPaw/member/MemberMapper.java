@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberImage;
 import com.ssdam.tripPaw.member.config.MemberRole;
 
 @Mapper
@@ -23,6 +24,7 @@ public interface MemberMapper {
 									,@Param("newPassword") String newPassword );
 
 	public int insertMemberRole(Long memberId, MemberRole memberRoleType);
+
 	
 	Member findByMemberIdString(@Param("memberId") String memberId);
     
@@ -32,4 +34,7 @@ public interface MemberMapper {
 	// 포인트 총합 조회
 	int getTotalPointsByMemberId(@Param("memberId") String memberId);
    
+
+	public int updateMember(Member member);
+
 }

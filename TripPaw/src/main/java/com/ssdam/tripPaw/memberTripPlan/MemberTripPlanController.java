@@ -21,7 +21,11 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.dto.MemberTripPlanSaveRequest;
 import com.ssdam.tripPaw.dto.MyTripsDto;
+import com.ssdam.tripPaw.dto.NotMyTripDto;
+import com.ssdam.tripPaw.dto.NotMyTripDto.PlacesDto;
+import com.ssdam.tripPaw.dto.NotMyTripDto.RouteDayDto;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
+import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
 import com.ssdam.tripPaw.tripPlan.TripPlanService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,7 @@ public class MemberTripPlanController {
 
     private final MemberTripPlanMapper memberTripPlanMapper;
     private final MemberTripPlanService memberTripPlanService;
+    private final TripPlanMapper tripPlanMapper;
 
     
     // 경로 삭제하기
@@ -75,28 +80,39 @@ public class MemberTripPlanController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getMemberTripById(@PathVariable Long id) {
         MemberTripPlan plan = memberTripPlanMapper.findById(id);
-        if (plan == null) return ResponseEntity.notFound().build();
+        System.out.println("plan: " + plan);
+        TripPlan tripPlan = plan.getTripPlan();
+        if (tripPlan == null) {
+            return ResponseEntity.status(404).body("여행 정보가 없습니다.");
+        }
+        TripPlan originPlan = tripPlanMapper.findByIdWithMember(tripPlan.getId());
+        if (originPlan == null || originPlan.getMember() == null) {
+            return ResponseEntity.status(404).body("작성자 정보를 찾을 수 없습니다.");
+        }
 
-        TripSaveRequest dto = new TripSaveRequest();
+        NotMyTripDto dto = new NotMyTripDto();
         dto.setTitle(plan.getTitleOverride());
         dto.setStartDate(plan.getStartDate().toString());
         dto.setEndDate(plan.getEndDate().toString());
         dto.setCountPeople(plan.getCountPeople());
         dto.setCountPet(plan.getCountPet());
+        dto.setMemberId(plan.getMember().getId());
+        dto.setOriginalMemberId(originPlan.getMember().getId());
+        
 
-        List<TripSaveRequest.RouteDay> routeData = new ArrayList<>();
+        List<RouteDayDto> routeData = new ArrayList<>();
 
         // ✅ TripPlanCourse 하나 = 하루
         List<TripPlanCourse> courses = plan.getTripPlan().getTripPlanCourses();
         for (int i = 0; i < courses.size(); i++) {
             TripPlanCourse course = courses.get(i);
-            TripSaveRequest.RouteDay day = new TripSaveRequest.RouteDay();
+            RouteDayDto day = new NotMyTripDto.RouteDayDto();
             day.setDay(i + 1); // 1일부터 시작
 
-            List<TripSaveRequest.PlaceDto> places = course.getRoute().getRoutePlaces().stream()
+            List<PlacesDto> places = course.getRoute().getRoutePlaces().stream()
                 .map(rp -> {
                     Place p = rp.getPlace();
-                    TripSaveRequest.PlaceDto pd = new TripSaveRequest.PlaceDto();
+                    NotMyTripDto.PlacesDto pd = new NotMyTripDto.PlacesDto();
                     pd.setPlaceId(p.getId());
                     pd.setName(p.getName());
                     pd.setLatitude(p.getLatitude());

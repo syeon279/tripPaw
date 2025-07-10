@@ -64,6 +64,9 @@ public class MemberService {
 		}
 		return 0;
 	};
+	public int updateMember(Member member) {
+		return memberMapper.updateMember(member);
+	}
 	
 	// 포인트 적립 내역 추가
 	public void addPoints(Long memberId, int points) {

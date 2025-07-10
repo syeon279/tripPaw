@@ -29,6 +29,7 @@ const TitleModal = ({
     defaultCountPeople,
     defaultCountPet,
     onCaptureMap, // 지도 캡처 함수 (RouteMap에서 전달받음)
+    memberId
 }) => {
     const [title, setTitle] = useState('');
 
@@ -57,7 +58,7 @@ const TitleModal = ({
         };
 
         // 저장 콜백 실행
-        await onSave(travelData);
+        await onSave(travelData, memberId);
         onClose();
     };
 
