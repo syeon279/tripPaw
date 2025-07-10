@@ -20,6 +20,15 @@
 			<id property="id" column="review_type_id" />
 		</association>
 	</resultMap>
+	<resultMap id="reviewWithPlaceMap" type="com.ssdam.tripPaw.domain.Review">
+	  <id property="id" column="id"/>
+	  <result property="content" column="content"/>
+	  <result property="rating" column="rating"/>
+	  <result property="createdAt" column="created_at"/>
+	  <association property="place" javaType="com.ssdam.tripPaw.domain.Place">
+	    <result property="name" column="place_name"/>
+	  </association>
+	</resultMap>
 
 	<insert id="insertReview" useGeneratedKeys="true"
 		keyProperty="id">
@@ -104,9 +113,13 @@
 		WHERE r.member_id = #{memberId}
 	</select>
 
-
-
-
+	<select id="findByPlaceIdWithPlaceName" resultMap="reviewWithPlaceMap" parameterType="long">
+	  SELECT r.*, p.name AS place_name
+	  FROM review r
+	  JOIN place p ON r.target_id = p.id
+	  WHERE r.review_type_id = 2 AND r.target_id = #{placeId}
+	  ORDER BY r.created_at DESC
+	</select>
 
 	<!-- 장소 리뷰 목록 -->
 	<select id="findByPlaceId" resultMap="reviewResultMap"
@@ -137,6 +150,7 @@
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
+		r.target_id AS tripPlanId,
 		(
 		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
@@ -162,6 +176,7 @@
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
+		r.target_id AS tripPlanId,
 		(
 		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
@@ -187,6 +202,7 @@
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
+		r.target_id AS tripPlanId,
 		(
 		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
@@ -212,6 +228,7 @@
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
+		r.target_id AS tripPlanId,
 		(
 		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
@@ -281,6 +298,19 @@
 		SELECT COUNT(*)
 		FROM review
 		WHERE review_type_id = 2 AND target_id = #{id}
+	</select>
+
+	<!-- 추가 -->
+	<!-- Top5 추천순 리뷰 조회 -->
+	<select id="findTop5ByLikes" resultMap="reviewResultMap">
+	  SELECT
+	    r.*,
+	    COUNT(ml.member_id) AS likeCount
+	  FROM review r
+	  LEFT JOIN member_likes_review ml ON r.id = ml.review_id
+	  GROUP BY r.id
+	  ORDER BY likeCount DESC
+	  LIMIT 5
 	</select>
 
 </mapper>

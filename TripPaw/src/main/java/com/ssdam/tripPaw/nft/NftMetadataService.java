@@ -37,4 +37,9 @@ public class NftMetadataService {
     public void delete(Long id) {
         nftMetadataMapper.delete(id);
     }
+    
+    // nft 발급
+    public NftMetadata findNextAvailableMetadata() {
+        return nftMetadataMapper.findFirstUnused();
+    }
 }
