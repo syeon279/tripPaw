@@ -58,11 +58,24 @@ public class SearchService {
 
             dto.setPlaceType(p.getPlaceType());
             dto.setReviews(p.getReviews());
-            
             dto.setPlaceImages(p.getPlaceImages());
 
-            dto.setAvgRating(p.getAvgRating());        // MyBatis가 함께 조회한 값
-            dto.setReviewCount(p.getReviewCount());    // MyBatis가 함께 조회한 값
+            // ✅ reviewCount 계산
+            int reviewCount = (p.getReviews() != null) ? p.getReviews().size() : 0;
+            dto.setReviewCount(reviewCount);
+
+            // ✅ avgRating 계산
+            double avgRating = 0.0;
+            if (p.getReviews() != null && !p.getReviews().isEmpty()) {
+            	avgRating = p.getReviews().stream()
+            		    .mapToInt(r -> {
+            		        Integer rating = r.getRating();
+            		        return (rating != null) ? rating : 0;
+            		    })
+            		    .average()
+            		    .orElse(0.0);
+            }
+            dto.setAvgRating(avgRating);
 
             return dto;
         }).collect(Collectors.toList());
