@@ -74,7 +74,8 @@ public class AuthController {
         
         return ResponseEntity.ok(Map.of("message", "로그인 성공!", 
         		"nickname", member.getNickname(),
-        		"role",authorities)); 
+        		"role",authorities,
+        		 "id", member.getId() )); 
         //return "redirect:/chat/rooms";
     }
     
