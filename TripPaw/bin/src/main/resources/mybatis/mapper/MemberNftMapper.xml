@@ -4,10 +4,36 @@
 
 <mapper namespace="com.ssdam.tripPaw.nft.MemberNftMapper">
 
+  <!-- resultMap 정의: id → result → association 순서 지킴 -->
+  <resultMap id="MemberNftResultMap" type="com.ssdam.tripPaw.domain.MemberNft">
+    <id property="id" column="id" />
+
+    <result property="tokenId" column="token_id" />
+    <result property="walletAddress" column="wallet_address" />
+    <result property="barcode" column="barcode" />
+    <result property="dueAt" column="due_at" />
+    <result property="issuedReason" column="issued_reason" />
+    <result property="txHash" column="tx_hash" />
+    <result property="issuedAt" column="issued_at" />
+    <result property="usedAt" column="used_at" />
+
+    <association property="nftMetadata" javaType="com.ssdam.tripPaw.domain.NftMetadata">
+      <id property="id" column="nft_metadata_id" />
+    </association>
+
+    <association property="member" javaType="com.ssdam.tripPaw.domain.Member">
+      <id property="id" column="member_id" />
+    </association>
+  </resultMap>
+
   <!-- 멤버 ID로 NFT 리스트 조회 -->
-  <select id="findByMemberId" resultType="com.ssdam.tripPaw.domain.MemberNft" parameterType="string">
-    SELECT * FROM member_nft WHERE member_id = #{memberId}
-  </select>
+  <select id="findByMemberId" resultMap="MemberNftResultMap" parameterType="long">
+	  SELECT 
+	    mn.*, nm.title, nm.image_url, nm.point_value
+	  FROM member_nft mn
+	  JOIN nft_metadata nm ON mn.nft_metadata_id = nm.id
+	  WHERE mn.member_id = #{memberId}
+ </select>
 
   <!-- NFT 삽입 -->
   <insert id="insert" parameterType="com.ssdam.tripPaw.domain.MemberNft">
@@ -35,10 +61,28 @@
   </update>
 
   <!-- 사용 처리 -->
-  <update id="markAsUsed">
+  <update id="markAsUsed" parameterType="com.ssdam.tripPaw.domain.MemberNft">
     UPDATE member_nft
     SET used_at = #{usedAt}
     WHERE id = #{id}
   </update>
+
+  <!-- 유저가 자신의 NFT 삭제 -->
+  <delete id="deleteByIdAndMemberId" parameterType="map">
+    DELETE FROM member_nft
+    WHERE id = #{id} AND member_id = #{memberId}
+  </delete>
+
+  <!-- NFT 소유자 변경 (선물 기능) -->
+  <update id="giftNft" parameterType="map">
+    UPDATE member_nft
+    SET member_id = #{toMemberId}
+    WHERE id = #{nftId} AND member_id = #{fromMemberId}
+  </update>
+
+  <!-- ✅ 특정 NFT 메타데이터 ID에 해당하는 발급 여부 확인 -->
+  <select id="existsByNftMetadataId" parameterType="long" resultType="boolean">
+    SELECT COUNT(*) > 0 FROM member_nft WHERE nft_metadata_id = #{metadataId}
+  </select>
 
 </mapper>

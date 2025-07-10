@@ -34,5 +34,5 @@ public class PlaceSearchDto {
     private List<PlaceImage> placeImages;
     
     private Double avgRating;
-    private int reviewCount;
+    private Long reviewCount;
 }
