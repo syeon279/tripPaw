@@ -74,6 +74,11 @@ const TripPlanDetail = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
     const [userId, setUserId] = useState(1);
     const { id } = router.query;
+    const [isNotMytrip, setIsNotMytrip] = useState('');
+
+    // 리뷰쓰기
+    const [myId, setMyId] = useState('');
+    const [originMemberId, setOriginMemberId] = useState('');
 
     useEffect(() => {
         const fetchTripDetail = async () => {
@@ -88,6 +93,8 @@ const TripPlanDetail = () => {
                 setStartDate(data.startDate);
                 setEndDate(data.endDate);
                 setTitle(data.title);
+                setMyId(data.memberId);
+                setOriginMemberId(data.originalMemberId);
                 console.log('data:', res.data);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
@@ -124,6 +131,17 @@ const TripPlanDetail = () => {
         checkLoginStatus();
 
     }, [router.isReady, router.query]);
+
+    /// 리뷰쓰기 가능?
+    useEffect(() => {
+        if (userId && myId && originMemberId) {
+            if (myId != originMemberId) {
+                setIsNotMytrip(true);
+            } else {
+                setIsNotMytrip(false);
+            }
+        }
+    }, [userId, myId, originMemberId]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -226,6 +244,9 @@ const TripPlanDetail = () => {
                             // 예약하기 추가
                             //onReserv={() => }
                             onEdit={() => handleEdit()}
+                            // 리뷰쓰기 추가
+                            //onReview={}
+                            isNotMytrip={isNotMytrip}
                         />
                     </div>
                 </div>
