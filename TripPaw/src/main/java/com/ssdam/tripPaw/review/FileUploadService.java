@@ -24,17 +24,21 @@ public class FileUploadService {
         }
     }
 
-    public String upload(MultipartFile file) {
+    public String upload(MultipartFile file, String subFolder) {
         try {
             String originalFilename = Objects.requireNonNull(file.getOriginalFilename(), "파일명이 없습니다.");
             String safeFilename = UUID.randomUUID() + "_" + Paths.get(originalFilename).getFileName().toString();
+            
+            Path targetDir = this.rootLocation.resolve(subFolder).normalize();
+            Files.createDirectories(targetDir); // 하위 디렉토리까지 생성
+            
             Path destinationFile = this.rootLocation.resolve(safeFilename).normalize();
 
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            return destinationFile.getFileName().toString(); // ✅ 파일명만 리턴됨
+            return subFolder + "/" + destinationFile.getFileName().toString();
         } catch (Exception e) {
             throw new RuntimeException("파일 저장 실패", e);
         }
