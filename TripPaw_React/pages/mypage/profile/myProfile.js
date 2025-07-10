@@ -288,11 +288,24 @@ const timer = () => {
       return router.back();
   }
   const [imgFile, setImgFile] = useState("");
+  const [profileImageFile, setProfileImageFile] = useState(null); // ✅ 전송용 파일 객체를 저장할 state 추가
+  useEffect(() => {
+    // 이 console.log는 state가 성공적으로 변경된 후에만 호출됩니다.
+    console.log('✅ useEffect에서 확인한 profileImageFile:', profileImageFile);
+
+    // 만약 파일 객체가 있다면, 파일 이름도 출력해볼 수 있습니다.
+    if (profileImageFile) {
+        console.log('✅ 파일 이름:', profileImageFile.name);
+    }
+  }, [profileImageFile]); // <-- 의존성 배열에 감시할 state를 넣어줍니다.
   //////이미지 미리보기
-  const saveImgFile = useCallback(() => {
-    console.log('.........saveImage');
+  const saveImgFile = useCallback((e) => {
+    console.log('.........saveImage', e.target.files[0]);
     console.log('.........saveImage',imageInput.current.files[0]);
-    const file = imageInput.current.files[0];
+    const file = e.target.files[0];
+    console.log("file=",file)
+    setProfileImageFile(file);
+
     const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
@@ -320,7 +333,8 @@ const onClickImageUpload = useCallback(() => {
       imageInput.current?.click();
   }, [imageInput.current]);
 
-  const onSubmitForm = useCallback( async() => {
+  const onSubmitForm = useCallback( async(e) => {
+    //e.preventDefault();
      setPhoneNumLenError(false);
      setPhoneNumRegError(false);
      setPasswordError(false);
@@ -348,18 +362,37 @@ const onClickImageUpload = useCallback(() => {
     }
     if (password !== passwordRe) { return setPasswordReError(true); }
     console.log('zonecode=',zonecode);
-    const response = await axios.post('http://localhost:8080/api/auth/join',{
-      "username":username,
-      "phoneNum":phoneNum,
-      "email":useremail,
-      "nickname":nickname,
-      "password":password,
-      "zonecode":zonecode,
-      "roadAddress":roadAddress,
-      "namujiAddress":namujiAddress,
-      "provider":""
-    },{withCredentials:true})
-    
+
+    // console.log('이미지변경');
+    // console.log(`.....`,e.target.files);
+    const formData = new FormData();
+    alert('profileImageFile=',profileImageFile.name);
+      if (profileImageFile) {
+    formData.append('profileImage', profileImageFile);
+  }
+    //   [].forEach.call(e.target.files, (f)=>{
+    //     console.log('filetext=',f)
+    //      return imageFormData.append('profileImage',f);
+    //  });
+     formData.append("username",username);
+     formData.append("useremail",useremail);
+     formData.append("nickname",nickname);
+     formData.append("password",password);
+     formData.append("zonecode",zonecode);
+     formData.append("roadAddress",roadAddress);
+     formData.append("namujiAddress",namujiAddress);
+     formData.append("provider","nomal");
+     console.log(`imageFormData111=`,formData);
+
+    const response = await axios.post('http://localhost:8080/api/auth/update',
+     formData
+    ,{
+      headers:{
+        'Content-Type':'multipart/form-data'
+      },
+      withCredentials:true
+    })
+
     alert(response.data);
     
     router.push('/member/login');
@@ -368,7 +401,7 @@ const onClickImageUpload = useCallback(() => {
     //   data:{ username, phoneNum, email, password, nickname  }
     // }); 
     // 5. dispatch ###
-  } , [username, phoneNum, useremail, password, passwordRe, nickname]);
+  } , [username, phoneNum, useremail, password, passwordRe, nickname,profileImageFile,zonecode,roadAddress,namujiAddress]);
   return (
     <div>
        <div style={{display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", width: "100%",}}>
@@ -444,17 +477,17 @@ const onClickImageUpload = useCallback(() => {
             <div style={{display:'flex'}}>
                 <label htmlFor='phone'></label>
                  <Avatar
-    size={{
-      xs: 24,
-      sm: 32,
-      md: 40,
-      lg: 64,
-      xl: 80,
-      xxl: 100,
-    }}
-    icon={<AntDesignOutlined />}
-    src={imgFile ? imgFile: `http://localhost:8080/userImages/${filename}`}
-  />
+                    size={{
+                      xs: 24,
+                      sm: 32,
+                      md: 40,
+                      lg: 64,
+                      xl: 80,
+                      xxl: 100,
+                    }}
+                    src={imgFile}
+                    icon={<AntDesignOutlined />}
+                  />
               <input
                 type="file"
                 name="profileImage"
@@ -463,9 +496,8 @@ const onClickImageUpload = useCallback(() => {
                 ref={imageInput}
                 style={{ display: 'none' }}
                 onChange={(e) => {
-                  
                   saveImgFile(e);
-                  onChangeImage(e);
+                  // onChangeImage(e);
                 }}
               />
               <Button onClick={onClickImageUpload}>프로필편집</Button>
