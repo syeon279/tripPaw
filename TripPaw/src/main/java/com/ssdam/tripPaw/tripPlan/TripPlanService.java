@@ -103,8 +103,8 @@ public class TripPlanService {
 	}
 
 	// 특정 유저가 만든 여행 가져오기
-	public List<TripPlan> findByMemberId(Long id) {
-		return tripPlanMapper.findByMemberId(id);
+	public List<TripPlan> findByMemberIdWithReviews(Long id) {
+		return tripPlanMapper.findByMemberIdWithReviews(id);
 	}
 
 	// 공개로 전환하기

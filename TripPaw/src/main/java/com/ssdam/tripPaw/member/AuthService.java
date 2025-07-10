@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberImage;
 import com.ssdam.tripPaw.member.config.MemberLoginForm;
 import com.ssdam.tripPaw.member.config.MemberRole;
 import com.ssdam.tripPaw.member.util.JwtFilter;
@@ -34,7 +35,7 @@ public class AuthService {
 	private final MemberMapper memberMapper;
     //private final UserRepository userRepository;
     //private final RoleRepository roleRepository;
-    
+    private final MemberImageMapper memberImageMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RedisUtil redisUtil;
@@ -188,6 +189,10 @@ public class AuthService {
         // 저장
         //userRepository.save(user);
     }
+    public int insertMemberImage(MemberImage memberImage) {
+    	return memberImageMapper.insertMemberImage(memberImage);
+    }
+    
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         System.out.println("bearerToken="+bearerToken);
@@ -196,6 +201,7 @@ public class AuthService {
         }
         return null;
     }
+    
 //    @Transactional
 //    public KakaoTokenDto getKakaoAccessToken(String code) {
 //
