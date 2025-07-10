@@ -322,7 +322,7 @@ function PayBatchPage() {
             checked={selectedPg === 'html5_inicis'}
             onChange={(e) => setSelectedPg(e.target.value)}
           />
-          KG이니시스
+          카드결제
         </RadioLabel>
         <RadioLabel>
           <input

@@ -1,102 +1,146 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
+import {
+    DndContext,
+    closestCenter,
+    useSensor,
+    useSensors,
+    DragOverlay,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { PointerSensor } from '@dnd-kit/core';
 import DayScheduleItem from './DayScheduleItem';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const DayScheduleList = ({
-    routeData,
-    currentDay,
-    onSelectDay,
-    onPlaceClick,
-    setFocusDay,
-    onDeletePlace,
-    setRouteData,
-}) => {
-    const dayRefs = useRef([]);
+const SortablePlaceItem = ({ place, day, onDeletePlace }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id: place.draggableId });
 
-    const handleDayClick = (dayIndex) => {
-        onSelectDay(dayIndex);
-        dayRefs.current[dayIndex - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const style = {
+        transform: transform ? CSS.Transform.toString(transform) : undefined,
+        transition: 'transform 200ms ease',
     };
 
-    const handleDragEnd = (result) => {
-        const { source, destination } = result;
-        if (!destination) return;
+    return (
+        <DayScheduleItem
+            day={day}
+            place={place}
+            onDeletePlace={onDeletePlace}
+            dragRef={setNodeRef}
+            dragListeners={listeners}
+            dragAttributes={attributes}
+            itemStyle={style}
+        />
+    );
+};
 
-        const sourceDayIndex = parseInt(source.droppableId.split('-')[1]);
-        const destDayIndex = parseInt(destination.droppableId.split('-')[1]);
+const DayScheduleList = ({ routeData, setRouteData, onDeletePlace }) => {
+    const sensors = useSensors(useSensor(PointerSensor));
+
+    const [activePlace, setActivePlace] = useState(null);
+    const [activeDay, setActiveDay] = useState(null);
+
+    const handleDragStart = (event) => {
+        const { active } = event;
+        const id = active.id;
+
+        for (const day of routeData) {
+            const found = day.places.find((p) => p.draggableId === id);
+            if (found) {
+                setActivePlace(found);
+                setActiveDay(day.day);
+                break;
+            }
+        }
+    };
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+        setActivePlace(null);
+        setActiveDay(null);
+
+        if (!active || !over || active.id === over.id) return;
 
         const updatedData = [...routeData];
 
-        const sourceDay = updatedData.find((d) => d.day === sourceDayIndex);
-        const destDay = updatedData.find((d) => d.day === destDayIndex);
+        let fromDayObj = null, fromIdx = null;
+        let toDayObj = null, toIdx = null;
 
-        const [movedPlace] = sourceDay.places.splice(source.index, 1);
-
-        if (sourceDayIndex === destDayIndex) {
-            // 같은 일차 내에서 이동
-            sourceDay.places.splice(destination.index, 0, movedPlace);
-        } else {
-            // 다른 일차로 이동
-            destDay.places.splice(destination.index, 0, movedPlace);
+        for (const day of updatedData) {
+            const idx = day.places.findIndex(p => p.draggableId === active.id);
+            if (idx !== -1) {
+                fromDayObj = day;
+                fromIdx = idx;
+            }
         }
+
+        for (const day of updatedData) {
+            const idx = day.places.findIndex(p => p.draggableId === over.id);
+            if (idx !== -1) {
+                toDayObj = day;
+                toIdx = idx;
+            }
+        }
+
+        if (!fromDayObj || !toDayObj || fromIdx === null || toIdx === null) return;
+
+        const [moved] = fromDayObj.places.splice(fromIdx, 1);
+        toDayObj.places.splice(toIdx, 0, moved);
 
         setRouteData(updatedData);
     };
 
     return (
-        <DragDropContext onDragEnd={handleDragEnd}>
-            {routeData.map((day, index) => (
-                <div
-                    key={day.day}
-                    ref={(el) => (dayRefs.current[index] = el)}
-                    style={{ marginBottom: '16px' }}
-                >
-                    <div
-                        onClick={() => handleDayClick(day.day)}
-                        style={{
-                            fontWeight: day.day === currentDay ? 'bold' : 'normal',
-                            cursor: 'pointer',
-                            marginBottom: '8px',
-                        }}
-                    >
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+        >
+            {routeData.map((day) => (
+                <div key={day.day} style={{ marginBottom: '16px' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '8px', textAlign: 'center' }}>
+                        {day.day}일차 일정
                     </div>
-
-                    <Droppable droppableId={`day-${day.day}`}>
-                        {(provided) => (
-                            <div {...provided.droppableProps} ref={provided.innerRef}>
-                                {day.places.map((place, idx) => (
-                                    <Draggable
-                                        key={`place-${place.placeId}`}
-                                        draggableId={`place-${place.placeId}`}
-                                        index={idx}
-                                    >
-                                        {(provided) => (
-                                            <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                            >
-                                                <DayScheduleItem
-                                                    day={day}
-                                                    place={place}
-                                                    isActive={day.day === currentDay}
-                                                    onPlaceClick={() => {
-                                                        setFocusDay(day.day);
-                                                        onPlaceClick(place, day.day);
-                                                    }}
-                                                    onDeletePlace={onDeletePlace}
-                                                />
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
+                    <SortableContext
+                        items={day.places.map((p) => p.draggableId)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        {day.places.map((place) => (
+                            <SortablePlaceItem
+                                key={place.draggableId}
+                                place={place}
+                                day={day}
+                                onDeletePlace={onDeletePlace}
+                            />
+                        ))}
+                    </SortableContext>
                 </div>
             ))}
-        </DragDropContext>
+
+            <DragOverlay>
+                {activePlace && (
+                    <DayScheduleItem
+                        day={{ day: activeDay }}
+                        place={activePlace}
+                        onDeletePlace={() => { }} // 삭제는 드래그 중에는 비활성
+                        itemStyle={{
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                            backgroundColor: '#fff',
+                            opacity: 0.9,
+                        }}
+                    />
+                )}
+            </DragOverlay>
+        </DndContext>
     );
 };
 

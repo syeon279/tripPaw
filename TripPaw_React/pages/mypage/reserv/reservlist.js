@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styled, { keyframes } from 'styled-components';
 import { useRouter } from 'next/router';
-import ContentHeader from '../../components/ContentHeader';
+import ContentHeader from '@/components/ContentHeader';
 import { RightOutlined } from '@ant-design/icons';
-import PetAssistant from '../../components/pet/petassistant';
+import PetAssistant from '@/components/pet/petassistant';
 import { Select } from 'antd';
+import MypageLayout from '@/components/layout/MyPageLayout';
 
 const Wrapper = styled.div`
   max-width: 1000px;
@@ -133,9 +134,9 @@ const StatusBadge = styled.span`
   border-radius: 6px;
   background-color: ${({ state }) =>
     state === 'WAITING' ? '#facc15' :
-    state === 'CANCELLED' ? '#f87171' :
-    state === 'EXPIRED' ? '#9ca3af' :
-    '#34d399'};
+      state === 'CANCELLED' ? '#f87171' :
+        state === 'EXPIRED' ? '#9ca3af' :
+          '#34d399'};
   color: #fff;
   font-weight: 600;
   line-height: 1;
@@ -282,7 +283,6 @@ const ReservList = () => {
   const [selectedReserv, setSelectedReserv] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const router = useRouter();
-  const { tripPlanId } = router.query;
   const [openedSections, setOpenedSections] = useState({});
   const [latestState, setLatestState] = useState(null);
 
@@ -297,7 +297,7 @@ const ReservList = () => {
         });
         setReservations(response.data);
 
-        if(response.data.length > 0) setLatestState(response.data[0].state);
+        if (response.data.length > 0) setLatestState(response.data[0].state);
         else setLatestState(null);
 
         const grouped = groupByYearMonth(response.data);
@@ -324,31 +324,14 @@ const ReservList = () => {
     }
   }, [reservations]);
 
-  const cancelReservationsByTripPlanId = (tripPlanId) => {
-    // 1. tripPlanId로 예약들을 필터링
-    const reservationsToCancel = reservations.filter(r => r.tripPlanId === tripPlanId);
-
-    // 2. 필터링된 예약들의 상태를 CANCELLED로 업데이트
-    setReservations(prevReservations => {
-      return prevReservations.map(r => 
-        reservationsToCancel.some(reservation => reservation.id === r.id)
-          ? { ...r, state: 'CANCELLED' }
-          : r
-      );
-    });
-  };
-
   const cancelSingleReserv = async (reservId) => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
       await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
-
-      setReservations(prevReservations =>
-        prevReservations.map(r => 
-          r.id === reservId ? { ...r, state: 'CANCELLED' } : r
-        )
+      setReservations(prev =>
+        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
       );
     } catch (err) {
       alert('예약 취소에 실패했습니다.');
@@ -359,12 +342,11 @@ const ReservList = () => {
     if (!window.confirm('일괄 예약 전체를 취소하시겠습니까?')) return;
 
     try {
-      // 서버에 요청 보내기
-      await axios.post(`http://localhost:8080/reserv/tripPlan/${tripPlanId}/delete`, null, { withCredentials: true });
+      await axios.post(`http://localhost:8080/reserv/tripplan/${tripPlanId}/delete`, null, { withCredentials: true });
       alert('일괄 예약 전체가 취소되었습니다.');
-
-      // 상태 업데이트 (예약 취소 처리)
-      cancelReservationsByTripPlanId(tripPlanId);
+      setReservations(prev =>
+        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
+      );
     } catch (err) {
       alert('일괄 예약 취소에 실패했습니다.');
     }
@@ -426,135 +408,153 @@ const ReservList = () => {
 
   return (
     <>
-      <ContentHeader theme="dark" />
-      <Wrapper>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-          <Title>예약 내역</Title>
-        </div>
+      <MypageLayout>
+        <Wrapper>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+            <Title>예약 내역</Title>
+          </div>
 
-      {Object.entries(groupedReservations).map(([yearMonth, reservs]) => {
-        const selectedStatus = sectionStatusFilters[yearMonth] || 'ALL';
+          {Object.entries(groupedReservations).map(([yearMonth, reservs]) => {
+            const selectedStatus = sectionStatusFilters[yearMonth] || 'ALL';
 
-        const filteredReservs = selectedStatus === 'ALL'
-          ? reservs
-          : reservs.filter(r => r.state === selectedStatus);
+            const filteredReservs = selectedStatus === 'ALL'
+              ? reservs
+              : reservs.filter(r => r.state === selectedStatus);
 
-        if (filteredReservs.length === 0) return null; // 해당 월에 필터 결과 없으면 숨김
+            if (filteredReservs.length === 0) return null; // 해당 월에 필터 결과 없으면 숨김
 
-        return (
-          <section key={yearMonth}>
-          <YearMonthTitle>
-            <YearMonthText onClick={() => toggleSection(yearMonth)}>{yearMonth}</YearMonthText>
+            return (
+              <section key={yearMonth}>
+                <YearMonthTitle>
+                  <YearMonthText onClick={() => toggleSection(yearMonth)}>{yearMonth}</YearMonthText>
 
-            <RightControls onClick={e => e.stopPropagation()}>
-              <StyledSelect
-                size="small"
-                value={selectedStatus}
-                onChange={(value) => setSectionStatusFilters(prev => ({ ...prev, [yearMonth]: value }))}
-                options={[
-                  { label: '전체', value: 'ALL' },
-                  { label: '결제 대기중', value: 'WAITING' },
-                  { label: '예약 완료', value: 'CONFIRMED' },
-                  { label: '예약 취소', value: 'CANCELLED' },
-                  { label: '예약 만료', value: 'EXPIRED' },
-                ]}
-              />
-              <ArrowIcon
-                onClick={() => toggleSection(yearMonth)}
-                style={{ transform: openedSections[yearMonth] ? 'rotate(90deg)' : 'rotate(0deg)' }}
-              />
-            </RightControls>
-          </YearMonthTitle>
+                  <RightControls onClick={e => e.stopPropagation()}>
+                    <StyledSelect
+                      size="small"
+                      value={selectedStatus}
+                      onChange={(value) => setSectionStatusFilters(prev => ({ ...prev, [yearMonth]: value }))}
+                      options={[
+                        { label: '전체', value: 'ALL' },
+                        { label: '결제 대기중', value: 'WAITING' },
+                        { label: '예약 완료', value: 'CONFIRMED' },
+                        { label: '예약 취소', value: 'CANCELLED' },
+                        { label: '예약 만료', value: 'EXPIRED' },
+                      ]}
+                    />
+                    <ArrowIcon
+                      onClick={() => toggleSection(yearMonth)}
+                      style={{ transform: openedSections[yearMonth] ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                    />
+                  </RightControls>
+                </YearMonthTitle>
 
-              {openedSections[yearMonth] && filteredReservs.map((reserv) => (
-                <ReservCard key={reserv.id}>
-                  <td>
-                    {reserv.startDate} ~ {reserv.endDate}
-                    <StatusBadge state={reserv.state}>
-                      {statusMap[reserv.state] || reserv.state}
-                    </StatusBadge>
-                  </td>
-                  <ReservPlaceInfo>
-                    <PlaceInfoLeft>
-                      <div><strong>{reserv.place?.name}</strong></div>
-                      <div>{reserv.place?.region}</div>
-                    </PlaceInfoLeft>
+                {openedSections[yearMonth] && filteredReservs.map((reserv) => (
+                  <ReservCard key={reserv.id}>
+                    <td>
+                      {reserv.startDate} ~ {reserv.endDate}
+                      <StatusBadge state={reserv.state}>
+                        {statusMap[reserv.state] || reserv.state}
+                      </StatusBadge>
+                    </td>
+                    <ReservPlaceInfo>
+                      <PlaceInfoLeft>
+                        <div><strong>{reserv.place?.name}</strong></div>
+                        <div>{reserv.place?.region}</div>
+                      </PlaceInfoLeft>
 
-                    <PlaceInfoRight>
-                      {reserv.state === 'WAITING' && (
-                        <>
-                          <Button onClick={() => goToPayPage(reserv)}>결제하기</Button>
-                          <Button
-                            danger
-                            onClick={() => {
-                              if (reserv.tripPlanId) {
-                                cancelTripPlanReservs(reserv.tripPlanId);
-                              } else {
-                                cancelSingleReserv(reserv.id);
+                      <PlaceInfoRight>
+                        {reserv.state === 'WAITING' && (
+                          <>
+                            <Button onClick={() => goToPayPage(reserv)}>결제하기</Button>
+                            <Button
+                              danger
+                              onClick={() => {
+                                if (reserv.tripPlanId) {
+                                  cancelTripPlanReservs(reserv.tripPlanId);
+                                } else {
+                                  cancelSingleReserv(reserv.id);
+                                }
+                              }}
+                            >
+                              예약 취소
+                            </Button>
+                          </>
+                        )}
+                        {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
+                          <>
+                            <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
+                            <Button
+                              style={{ backgroundColor: 'green' }}
+                              onClick={() =>
+                                router.push({
+                                  pathname: '/review/write',
+                                  query: {
+                                    reservId: reserv.id,
+                                    reviewTypeId: 2,
+                                    placeName: reserv.place?.name || '',
+                                  },
+                                })
                               }
-                            }}
-                          >
-                            예약 취소
-                          </Button>
-                        </>
-                      )}
-                      {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
-                        <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
-                      )}
-                    </PlaceInfoRight>
-                  </ReservPlaceInfo>
-                </ReservCard>
-              ))}
-            </section>
-          );
-        })}
+                            >
+                              리뷰쓰기
+                            </Button>
+                          </>
+                        )}
+                      </PlaceInfoRight>
+                    </ReservPlaceInfo>
+                  </ReservCard>
+                ))}
+              </section>
+            );
+          })}
 
-        {isDetailModalOpen && selectedReserv && (
-          <ModalOverlay onClick={closeDetailModal}>
-            <Modal onClick={(e) => e.stopPropagation()}>
-              <ModalTitle>예약 상세 정보</ModalTitle>
-              <ModalContent>
-                <p><strong>예약 ID:</strong> {selectedReserv.id}</p>
-                <p><strong>사용자:</strong> {selectedReserv.member?.username}</p>
-                <p><strong>장소:</strong> {selectedReserv.place?.name}</p>
-                <p><strong>주소:</strong> {selectedReserv.place?.region}</p>
-                <p><strong>시작일:</strong> {selectedReserv.startDate}</p>
-                <p><strong>종료일:</strong> {selectedReserv.endDate}</p>
-                <p><strong>사람 수:</strong> {selectedReserv.countPeople}</p>
-                <p><strong>반려동물 수:</strong> {selectedReserv.countPet}</p>
-                <p><strong>상태:</strong> {statusMap[selectedReserv.state] || selectedReserv.state}</p>
-              </ModalContent>
+          {isDetailModalOpen && selectedReserv && (
+            <ModalOverlay onClick={closeDetailModal}>
+              <Modal onClick={(e) => e.stopPropagation()}>
+                <ModalTitle>예약 상세 정보</ModalTitle>
+                <ModalContent>
+                  <p><strong>예약 ID:</strong> {selectedReserv.id}</p>
+                  <p><strong>사용자:</strong> {selectedReserv.member?.username}</p>
+                  <p><strong>장소:</strong> {selectedReserv.place?.name}</p>
+                  <p><strong>주소:</strong> {selectedReserv.place?.region}</p>
+                  <p><strong>시작일:</strong> {selectedReserv.startDate}</p>
+                  <p><strong>종료일:</strong> {selectedReserv.endDate}</p>
+                  <p><strong>사람 수:</strong> {selectedReserv.countPeople}</p>
+                  <p><strong>반려동물 수:</strong> {selectedReserv.countPet}</p>
+                  <p><strong>상태:</strong> {statusMap[selectedReserv.state] || selectedReserv.state}</p>
+                </ModalContent>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {selectedReserv.state === 'CONFIRMED' && (
-                  <Button
-                    danger
-                    onClick={() => {
-                      if (selectedReserv.tripPlanId) {
-                        cancelTripPlanReservs(selectedReserv.tripPlanId);
-                      } else {
-                        cancelSingleReserv(selectedReserv.id);
-                      }
-                      closeDetailModal();
-                    }}
-                  >
-                    예약 취소
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {selectedReserv.state === 'CONFIRMED' && (
+                    <Button
+                      danger
+                      onClick={() => {
+                        if (selectedReserv.tripPlanId) {
+                          cancelTripPlanReservs(selectedReserv.tripPlanId);
+                        } else {
+                          cancelSingleReserv(selectedReserv.id);
+                        }
+                        closeDetailModal();
+                      }}
+                    >
+                      예약 취소
+                    </Button>
+                  )}
+
+                  <Button fullWidth onClick={closeDetailModal}>
+                    닫기
                   </Button>
-                )}
-
-                <Button fullWidth onClick={closeDetailModal}>
-                  닫기
-                </Button>
-              </div>
-            </Modal>
-          </ModalOverlay>
-        )}
-        <PetAssistant reservState={latestState} />
-        <Footer>
-          <BottomButton onClick={() => router.push('/')}>홈으로</BottomButton>
-          <BottomButton onClick={() => router.push('/pay/paylist')}>결제 내역 보기</BottomButton>
-        </Footer>
-      </Wrapper>
+                </div>
+              </Modal>
+            </ModalOverlay>
+          )}
+          <PetAssistant reservState={latestState} />
+          <Footer>
+            <BottomButton onClick={() => router.push('/')}>홈으로</BottomButton>
+            <BottomButton onClick={() => router.push('/mypage/pay/paylist')}>결제 내역 보기</BottomButton>
+          </Footer>
+        </Wrapper>
+      </MypageLayout>
     </>
   );
 };

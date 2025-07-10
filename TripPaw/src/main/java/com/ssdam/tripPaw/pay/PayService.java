@@ -163,14 +163,15 @@ public class PayService {
     
     @Transactional
     public void createAndVerifySingleTotalPaymentByMemberTripPlan(Long memberTripPlanId, Member member, String impUid) throws Exception {
-        List<Reserv> reservList = reservMapper.findByMemberTripPlanIdAndMember(memberTripPlanId, member.getId());
+    	System.out.println("memberTripPlanId: " + memberTripPlanId + ", memberId: " + member.getId());
+    	List<Reserv> reservList = reservMapper.findByMemberTripPlanIdAndMember(memberTripPlanId, member.getId());
         if (reservList.isEmpty()) {
             throw new RuntimeException("예약이 없습니다.");
         }
 
         Set<Long> reservIds = reservList.stream().map(Reserv::getId).collect(Collectors.toSet());
 
-        iamportPayService.verifyAndSaveTotalPayment(impUid, reservIds, member.getId());
+        iamportPayService.verifyAndSaveTotalPayment(impUid, reservIds, member.getId(), memberTripPlanId);
     }
     
     /** 결제 삭제 */

@@ -97,24 +97,13 @@ public class TripPlanController {
         return ResponseEntity.ok(result);
     }
 
-    //여행 경로 저장 (지도 이미지 포함)
-    @PostMapping("/save")
-    public ResponseEntity<String> saveTrip(@RequestBody TripSaveRequest request) {
-        try {
-            tripPlanService.saveMemberTrip(request);
-            return ResponseEntity.ok("✅ 여행 저장 완료!");
-        } catch (Exception e) {
-            String msg = "❌ 여행 저장 실패: " + e.getMessage();
-            System.err.println(msg);
-            return ResponseEntity.internalServerError().body(msg);
-        }
-    }
     
-    // 경로 수정하기
+    // 여행 경로 추천 받기 -> 경로 수정하기
     @PostMapping("/edit")
     public ResponseEntity<Map<String, Object>> editTrip(@RequestBody TripSaveRequest request) {
         try {
-            TripPlan tripPlan = tripPlanService.saveTrip(request); // 🛠 service가 TripPlan 반환하도록 변경
+        	// 저장 후 반환
+            TripPlan tripPlan = tripPlanService.saveTrip(request); 
             return ResponseEntity.ok(Map.of(
                 "message", "✅ 여행 저장 완료!",
                 "tripId", tripPlan.getId() // 🧭 프론트에 ID 보내주기
@@ -125,6 +114,7 @@ public class TripPlanController {
             return ResponseEntity.internalServerError().body(Map.of("error", msg));
         }
     }
+    
  
     // 특정 ID의 여행 경로 조회
     @GetMapping("/{id}")
@@ -141,8 +131,13 @@ public class TripPlanController {
 
         // 작성자 닉네임, id
         Member author = plan.getMember();
-        dto.setAuthorNickname(author != null ? author.getNickname() : "알 수 없음");
-        dto.setAuthorId(author.getId());
+        if (author != null) {
+            dto.setAuthorNickname(author.getNickname());
+            dto.setAuthorId(author.getId());
+        } else {
+            dto.setAuthorNickname("알 수 없음");
+            dto.setAuthorId(null); 
+        }
 
         // 코스, 리뷰 설정
         List<TripPlanCourse> tripPlanCourses = plan.getTripPlanCourses();
@@ -209,7 +204,7 @@ public class TripPlanController {
     // 특정 유저의 모든 여행 가져오기(/tripPlan/{id}/trips)
     @GetMapping("/{id}/trips")
     public ResponseEntity<List<TripPlan>> getAllTripsByMemberId(@PathVariable Long id){
-    	List<TripPlan> plans = tripPlanService.findByMemberId(id);
+    	List<TripPlan> plans = tripPlanService.findByMemberIdWithReviews(id);
 		return ResponseEntity.ok(plans);
     }
     
@@ -223,6 +218,14 @@ public class TripPlanController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+    //딜리트
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTripPlan(@PathVariable Long id) {
+        tripPlanService.deleteTripPlan(id);
+        return ResponseEntity.noContent().build();
+    }
+
     
     
     //저장된 여행 목록 전체 조회

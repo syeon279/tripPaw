@@ -27,12 +27,14 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ onReserv, onEdit }) => {
+const ActionButtons = ({ planData, onEdit , isNotMytrip, routeData, memberTripPlanId}) => {
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState('');
     const [userName, setUserName] = useState('');
-    const [memberTripPlanId, setMemberTripPlanId] = useState(null);
+   // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
+
+    console.log('[ button ] planData : ', planData);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -56,18 +58,20 @@ const ActionButtons = ({ onReserv, onEdit }) => {
         checkLoginStatus();
     },[])
 
-    useEffect(() => {
-    if (router.query.memberTripPlanId) {
-        setMemberTripPlanId(router.query.memberTripPlanId);
-    }
-    }, [router.query.memberTripPlanId]);
+    // useEffect(() => {
+    // if (router.query.memberTripPlanId) {
+    //     setMemberTripPlanId(router.query.memberTripPlanId);
+    // }
+    // }, [router.query.memberTripPlanId]);
 
     const handleReservation = async () => {
     try {
         const response = await axios.post('http://localhost:8080/reserv/auto/plan', { 
             userId: userId,
-            memberTripPlanId: memberTripPlanId
+            memberTripPlanId: memberTripPlanId,
+            routeData: routeData,
          });
+        
         const reservations = response.data; 
 
         console.log("reservations:", reservations);
@@ -77,6 +81,7 @@ const ActionButtons = ({ onReserv, onEdit }) => {
         alert('예약이 생성되지 않았습니다.');
         return;
         }
+        
 
         const firstMemberTripPlanId = reservations[0]?.memberTripPlan?.id;
         const allSame = reservations.every(r => r.memberTripPlan?.id === firstMemberTripPlanId);
@@ -97,13 +102,20 @@ const ActionButtons = ({ onReserv, onEdit }) => {
     
     return (
         <div style={bottonWrapperStyle}>
-            <button style={{ ...bottonStyle, background: 'blue' }} onClick={onEdit} >
-                경로 수정하기
+            <button style={{ ...bottonStyle, background: 'blue' }}
+                onClick={onEdit}>
+                이 여행으로 다시 여행하기
             </button>
             <button
                 style={{ ...bottonStyle, background: 'black' }} onClick={handleReservation}>
                 이대로 예약하기
             </button>
+            {isNotMytrip &&
+                <button style={{ ...bottonStyle, background: 'green' }}
+                >
+                    리뷰쓰기
+                </button>
+            }
         </div>
     );
 };

@@ -64,6 +64,7 @@ public class ReviewService {
     private final MemberBadgeMapper badgeMapper;
     private final MemberService memberService;
     private final MemberMapper memberMapper;
+    private final ReservForReviewMapper reservForReviewMapper;
     
     private static final ObjectMapper mapper = new ObjectMapper();
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
@@ -71,7 +72,7 @@ public class ReviewService {
 	private final String apiKey = "sk-...";
 	
 	public List<Reserv> getReservListForTripPlanReview(Long tripPlanId, Long memberId) {
-        return reservMapper.findByTripPlanIdAndMember(tripPlanId, memberId);
+        return reservForReviewMapper.findByTripPlanIdAndMember(tripPlanId, memberId);
     }
 
 	public void saveReviewWithWeather(ReviewDto dto, List<MultipartFile> images) {
@@ -131,6 +132,11 @@ public class ReviewService {
 	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
 	            throw new RuntimeException("예약에 연결된 장소 정보 부족");
 	        }
+	        
+	        int count = reservForReviewMapper.countByMemberAndPlace(member.getId(), place.getId());
+	        if (count == 0) {
+	            throw new RuntimeException("해당 장소에 대한 예약 이력이 없어 리뷰를 작성할 수 없습니다.");
+	        }
 
 	        // 3. 좌표 및 날짜 추출
 	        lat = parseCoordinate(place.getLatitude(), "위도");
@@ -160,7 +166,7 @@ public class ReviewService {
 	    // 6. 이미지 업로드
 	    if (images != null && !images.isEmpty()) {
 	        for (MultipartFile file : images) {
-	            String imageUrl = fileUploadService.upload(file); // 파일 저장 (로컬 or S3)
+	            String imageUrl = fileUploadService.upload(file, "reviews"); // 파일 저장 (로컬 or S3)
 
 	            ReviewImage reviewImage = new ReviewImage();
 	            reviewImage.setReview(review);
@@ -174,6 +180,11 @@ public class ReviewService {
 	    // 7. 뱃지 부여
 	    this.evaluateAndGrantBadges(member.getId());
 	}
+	
+	public boolean existsReservationForMemberAndPlace(Long memberId, Long placeId) {
+	    return reservForReviewMapper.countByMemberAndPlace(memberId, placeId) > 0;
+	}
+
 
 	public String getWeatherCondition(String type, Long targetId) {
 	    LocalDate date;
@@ -237,9 +248,13 @@ public class ReviewService {
         return reviewMapper.findMyReviewsByMemberId(memberId);
     }
 
+//    public List<Review> getReviewsByPlaceId(Long placeId) {
+//        return reviewMapper.findByPlaceIdWithPlaceName(placeId);
+//    }
     public List<Review> getReviewsByPlaceId(Long placeId) {
-        return reviewMapper.findByPlaceId(placeId);
+        return reviewMapper.findByPlaceId(placeId); // reviewResultMap 사용
     }
+
 
     public List<Review> getReviewsByPlanId(Long planId) {
         return reviewMapper.findByPlanId(planId);
@@ -279,7 +294,7 @@ public class ReviewService {
 
             // 새 이미지 업로드
             for (MultipartFile file : images) {
-                String imageUrl = fileUploadService.upload(file);
+                String imageUrl = fileUploadService.upload(file,"reviews");
 
                 ReviewImage reviewImage = new ReviewImage();
                 reviewImage.setReview(review);

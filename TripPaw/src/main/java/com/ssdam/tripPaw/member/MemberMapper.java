@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberImage;
 import com.ssdam.tripPaw.member.config.MemberRole;
 
 @Mapper
@@ -23,4 +24,5 @@ public interface MemberMapper {
 									,@Param("newPassword") String newPassword );
 
 	public int insertMemberRole(Long memberId, MemberRole memberRoleType);
+	public int updateMember(Member member);
 }

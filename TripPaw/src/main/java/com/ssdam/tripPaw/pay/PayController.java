@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import com.ssdam.tripPaw.domain.Pay;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.dto.PayResponseDto;
 import com.ssdam.tripPaw.member.MemberService;
+import com.ssdam.tripPaw.member.util.JwtProvider;
 import com.ssdam.tripPaw.payapi.IamportPayService;
 import com.ssdam.tripPaw.reserv.ReservService;
 import com.ssdam.tripPaw.reserv.ReservState;
@@ -37,6 +39,7 @@ public class PayController {
     @Autowired private PayService payService;
     @Autowired private MemberService memberService;
     @Autowired private ReservService reservService;
+    @Autowired private JwtProvider jwtProvider;
 
     @GetMapping("")
     public ResponseEntity<?> getAllPayments() {
@@ -119,15 +122,16 @@ public class PayController {
     @PostMapping("/batch/{memberTripPlanId}/verify")
     public ResponseEntity<?> createAndVerifyTotalPayment(
         @PathVariable Long memberTripPlanId,
-        @RequestBody Map<String, String> body // impUid만 받음
+        @RequestBody Map<String, String> body, // impUid만 받음
+        @CookieValue(value = "jwt", required = false) String token
     ) {
-        System.out.println("요청 body = " + body);
-        Member member = memberService.findById(1L);
-        System.out.println("member = " + member);
-
-        if (member == null) {
-            return ResponseEntity.badRequest().body("더미 유저(ID=1)를 찾을 수 없습니다.");
+        if (token == null || jwtProvider.isExpired(token)) {
+            // 토큰이 없거나 만료되었으면 401 Unauthorized 응답
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        
+        String username = jwtProvider.getUsername(token);
+        Member member = memberService.findByUsername(username);
 
         try {
             String impUid = body.get("impUid");

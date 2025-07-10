@@ -5,8 +5,9 @@ import DayScheduleList from '../../components/tripPlan/DayScheduleList';
 import AppLayout from '../../components/AppLayout';
 import ActionButtons from '../../components/tripPlan/ActionButtons';
 import TitleModal from '../../components/tripPlan/TitleModal';
+import LoginFormModal from '../../components/member/LoginFormModal';
 import axios from 'axios';
-import { format } from 'date-fns'; // ✅ 날짜 포맷용
+import { format } from 'date-fns';
 
 const RouteMapNoSSR = dynamic(() => import('../../components/tripPlan/RouteMap'), {
     ssr: false,
@@ -68,35 +69,27 @@ const RouteRecommendPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [countPeople, setCountPeople] = useState(null);
     const [countPet, setCountPet] = useState(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
-    const [memberId, setMemberId] = useState(1);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [memberId, setMemberId] = useState(null);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [pendingAction, setPendingAction] = useState(null);
 
-    // 로그인 한 유저 id가져오기
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/api/auth/check', {
                     withCredentials: true,
                 });
-
-                console.log('user : ', response.data);
-
                 if (response.status === 200) {
                     setIsLoggedIn(true);
-                    // 백엔드에서 받은 username으로 상태 업데이트
                     setMemberId(response.data.id);
-                    return true; // 성공 시 true 반환
                 }
             } catch (error) {
                 console.error("로그인 상태 확인 실패:", error);
-                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-                router.push('/member/login');
-                return false; // 실패 시 false 반환
             }
         };
         checkLoginStatus();
     }, [router.isReady, router.query]);
-
 
     const requestData = useMemo(() => {
         if (!router.query.req) return null;
@@ -164,7 +157,13 @@ const RouteRecommendPage = () => {
         }
     };
 
-    const handleTripSave = async ({ title, startDate, endDate, countPeople, countPet, mapImage }) => {
+    const handleTripSave = async ({ title, startDate, endDate, countPeople, countPet, mapImage }, overrideMemberId) => {
+        const effectiveMemberId = overrideMemberId || memberId;
+        if (!effectiveMemberId) {
+            console.error('❌ memberId 누락: 저장 중단');
+            alert('로그인 정보가 유실되었습니다. 다시 시도해주세요.');
+            return;
+        }
         try {
             const tripData = {
                 title,
@@ -174,30 +173,28 @@ const RouteRecommendPage = () => {
                 countPet,
                 routeData,
                 mapImage,
-                memberId,
+                memberId: effectiveMemberId,
             };
-            console.log('tripData : ', tripData);
-            await axios.post('http://localhost:8080/tripPlan/save', tripData);
+            console.log('[저장 요청 데이터]', tripData);
+            await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
+            setShowModal(false);
+            await router.push('/mypage/trips');
         } catch (error) {
             console.error('저장 실패:', error);
             alert('저장 중 오류 발생');
         }
     };
 
-    const handleSave = async () => {
+    const handleEditforSave = async () => {
         let mapImageBase64 = null;
-
         try {
             mapImageBase64 = await handleCaptureMap();
         } catch (err) {
             console.warn('지도 캡처 실패:', err);
         }
-
-        const title = '추천된 여행 경로';
-
         const travelData = {
-            title,
+            title: 'TripPlanForEdit',
             startDate: requestData?.startDate,
             endDate: requestData?.endDate,
             countPeople: requestData?.countPeople,
@@ -205,7 +202,6 @@ const RouteRecommendPage = () => {
             mapImage: mapImageBase64,
             routeData,
         };
-
         try {
             const res = await axios.post('http://localhost:8080/tripPlan/edit', travelData);
             const tripId = res.data?.tripId;
@@ -229,13 +225,31 @@ const RouteRecommendPage = () => {
         }
     };
 
+    const checkLoginAndProceed = (action) => {
+        if (isLoggedIn && memberId) {
+            action(memberId);
+        } else {
+            setPendingAction(() => (id) => action(id));
+            setShowLoginModal(true);
+        }
+    };
+
+    const handleLoginSuccess = (userData) => {
+        setIsLoggedIn(true);
+        setMemberId(userData.id);
+        setShowLoginModal(false);
+        if (pendingAction) {
+            pendingAction(userData.id);
+            setPendingAction(null);
+        }
+    };
+
     return (
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
                 <h1>강아지와 함께! 에너지 넘치는 파워 여행 루틴</h1>
 
-                {/* ✅ 날짜 표시 추가 */}
                 {requestData?.startDate && requestData?.endDate && (
                     <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
                         {format(new Date(requestData.startDate), 'yyyy.MM.dd')} ~{' '}
@@ -268,18 +282,29 @@ const RouteRecommendPage = () => {
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
                         />
-                        <ActionButtons onSave={() => setShowModal(true)} onEdit={() => handleSave()} />
+                        <ActionButtons
+                            onSave={() => checkLoginAndProceed((id) => setShowModal(true))}
+                            onEditforSave={() => checkLoginAndProceed(() => handleEditforSave())}
+                        />
                     </div>
 
                     {showModal && (
                         <TitleModal
                             onClose={() => setShowModal(false)}
-                            onSave={handleTripSave}
+                            onSave={(params) => handleTripSave(params, memberId)}
                             defaultStartDate={requestData?.startDate}
                             defaultEndDate={requestData?.endDate}
                             defaultCountPeople={requestData?.countPeople}
                             defaultCountPet={requestData?.countPet}
                             onCaptureMap={handleCaptureMap}
+                            memberId={memberId}
+                        />
+                    )}
+
+                    {showLoginModal && (
+                        <LoginFormModal
+                            onLoginSuccess={handleLoginSuccess}
+                            onToggleForm={() => setShowLoginModal(false)}
                         />
                     )}
                 </div>

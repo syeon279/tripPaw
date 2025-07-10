@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.dto.PayResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -93,17 +94,19 @@ public class ReservController {
         return ResponseEntity.ok(reservList);
     }
 
-    @GetMapping("/tripplan/{tripPlanId}")
-    public ResponseEntity<List<Reserv>> getReservListByTripPlan(@PathVariable Long tripPlanId) {
-        List<Reserv> reservList = reservMapper.findByTripPlansId(tripPlanId);
+    @GetMapping("/membertripplan/{memberTripPlanId}")
+    public ResponseEntity<List<Reserv>> getReservListByMemberTripPlan(@PathVariable Long memberTripPlanId) {
+        List<Reserv> reservList = reservMapper.findByMemberTripPlanId(memberTripPlanId);
         return ResponseEntity.ok(reservList);
     }
     
     @PostMapping("/auto/plan")
     public ResponseEntity<?> createAutoReservations(@RequestBody Map<String, Object> body) {
+    	System.out.println("[controller] body " + body);
         try {
             Long userId = Long.valueOf(body.get("userId").toString());
-            List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(userId);
+            Long memberTripPlanId = Long.valueOf(body.get("memberTripPlanId").toString());
+            List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(memberTripPlanId, userId);
             return ResponseEntity.ok(savedList);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("잘못된 요청: " + e.getMessage());
@@ -163,32 +166,23 @@ public class ReservController {
     }
     
     /** 일괄 취소 */
-    @PostMapping("/tripPlan/{tripPlanId}/delete")
-    public ResponseEntity<String> cancelAllReservations(@PathVariable Long tripPlanId) {
+    @PostMapping("/batch/cancel")
+    public ResponseEntity<?> cancelBatchReservations(@RequestBody List<PayResponseDto> request) {
         try {
-            // tripPlanId에 해당하는 예약들 조회
-            List<Reserv> reservList = reservMapper.findByTripPlansId(tripPlanId);
-            
-            if (reservList.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 tripPlanId에 대한 예약이 없습니다.");  // 예약이 없으면 404
-            }
+            // 요청에서 reservIds와 memberTripPlanId 추출
+            List<Long> reservIds = request.stream()
+                                          .map(PayResponseDto::getReservId)
+                                          .collect(Collectors.toList());
+            Long memberTripPlanId = request.get(0).getMemberTripPlanId(); // 모든 예약에 같은 tripPlanId가 포함된다고 가정
 
-            // 트랜잭션을 통해 예약 상태를 'CANCELLED'로 일괄 변경
-            for (Reserv reserv : reservList) {
-                if (!reserv.getMemberTripPlan().getTripPlan().getId().equals(tripPlanId)) {
-                    // 같은 tripPlanId를 가지지 않는 예약은 취소하지 않음
-                    continue;
-                }
-                reserv.setState(ReservState.CANCELLED);  // 상태 변경
-                reservService.updateReservState(reserv.getId(), ReservState.CANCELLED);  // 예약 상태 업데이트
-            }
+            // 일괄 취소 서비스 호출
+            reservService.softGroupDelete(reservIds, memberTripPlanId);
 
-            return ResponseEntity.ok("일괄 예약 취소가 완료되었습니다.");  // 성공 메시지 반환
-
+            // 성공 시 응답
+            return ResponseEntity.ok("예약이 일괄 취소되었습니다.");
         } catch (Exception e) {
-            // 예외 처리 로깅 추가
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("일괄 예약 취소에 실패했습니다. 오류: " + e.getMessage());  // 실패 메시지
+            // 실패 시 응답
+            return ResponseEntity.status(500).body("예약 취소 중 오류 발생: " + e.getMessage());
         }
     }
 }
