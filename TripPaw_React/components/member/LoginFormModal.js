@@ -200,8 +200,6 @@ const LoginFormModal = ({ onToggleForm, onLoginSuccess }) => {
         if (onLoginSuccess) {
           console.log('로그인 응답 결과:', loginSubmit.data);
           onLoginSuccess(loginSubmit.data);
-        } else {
-          Router.replace('/');
         }
       }
     } catch (err) {
@@ -213,7 +211,6 @@ const LoginFormModal = ({ onToggleForm, onLoginSuccess }) => {
     <ModalOverlay>
       <ModalContent>
         <CloseButton onClick={onToggleForm}>×</CloseButton>
-        <h2>로그인</h2>
         <LoginBox>
           <LoginFormTag onSubmit={handleSubmit}>
             <div className="logo-login-section">
