@@ -1,61 +1,85 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Rate, Input, Button, message } from 'antd';
+import { Rate, Input, Button, message, Upload, Checkbox, Row, Col } from 'antd';
+import { UploadOutlined, CheckCircleTwoTone, QuestionOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { TextArea } = Input;
+const keywordOptions = [
+  '트렌디해요', '청결 상태가 좋아요', '다시 방문하고 싶어요', '뷰가 멋있어요',
+  '편안해요', '가격이 합리적이에요', '반려견 친화적', '서비스가 친절해요',
+  '힐링돼요', '주차하기 편해요', '조용해요', '기대보다 아쉬웠어요'
+];
+
+const getWeatherImage = (condition) => {
+  switch (condition) {
+    case '흐림': return 'cloudy.png';
+    case '맑음': return 'sun.png';
+    case '구름많음': return 'mostly-cloudy.png';
+    case '비': return 'rain.png';
+    case '눈': return 'snow.png';
+    default: return null;
+  }
+};
 
 const PlaceReviewWrite = () => {
   const router = useRouter();
   const { tripPlanId } = router.query;
-  const { placeId } = router.query;
+
   const [memberId, setMemberId] = useState(null);
   const [reservs, setReservs] = useState([]);
-  const [reviews, setReviews] = useState({}); // {reservId: {rating, content}}
+  const [reviews, setReviews] = useState({});
   const [loading, setLoading] = useState(false);
-  const formData = new FormData();
-  formData.append(
-    'review',
-    new Blob([JSON.stringify(reviewDto)], { type: 'application/json' })
-  );
 
-  // 1. 로그인 사용자 조회
   useEffect(() => {
     axios.get('http://localhost:8080/api/auth/check', { withCredentials: true })
       .then(res => setMemberId(res.data.id))
-      .catch(err => {
+      .catch(() => {
         message.error("로그인이 필요합니다.");
         router.push('/member/login');
       });
   }, []);
 
-  // 2. 예약 목록 조회
   useEffect(() => {
     if (!tripPlanId || !memberId) return;
 
     axios.get(`http://localhost:8080/review/trip/${tripPlanId}/places`, {
       params: { memberId },
     })
-      .then(res => setReservs(res.data))
-      .catch(err => {
-        console.error("예약 목록 로딩 실패:", err);
+      .then(res => {
+        const initialData = {};
+        res.data.forEach(r => {
+          initialData[r.id] = {
+            rating: 0,
+            content: '',
+            keywords: [],
+            fileList: [],
+            submitted: false,
+            weather: '',
+          };
+        });
+        setReservs(res.data);
+        setReviews(initialData);
+
+        res.data.forEach(r => {
+          axios.get('http://localhost:8080/review/weather', {
+            params: { type: 'PLACE', targetId: r.id },
+          }).then(resp => {
+            setReviews(prev => ({
+              ...prev,
+              [r.id]: {
+                ...prev[r.id],
+                weather: resp.data,
+              },
+            }));
+          });
+        });
+      })
+      .catch(() => {
         message.error("장소 목록을 불러오지 못했습니다.");
       });
   }, [tripPlanId, memberId]);
 
-  useEffect(() => {
-    if (!placeId) return;
-
-    axios.get(`http://localhost:8080/review/place/${placeId}`)
-      .then((res) => {
-        setReviews(res.data); // review + place 정보 포함
-      })
-      .catch((err) => {
-        console.error('리뷰 불러오기 실패:', err);
-      });
-  }, [placeId]);
-
-  // 3. 입력 핸들러
   const handleChange = (reservId, field, value) => {
     setReviews(prev => ({
       ...prev,
@@ -66,10 +90,9 @@ const PlaceReviewWrite = () => {
     }));
   };
 
-  // 4. 리뷰 저장
   const handleSubmit = async (reservId) => {
     const review = reviews[reservId];
-    if (!review || !review.rating || !review.content) {
+    if (!review.rating || !review.content) {
       message.warning("별점과 내용을 입력해주세요.");
       return;
     }
@@ -82,22 +105,56 @@ const PlaceReviewWrite = () => {
       content: review.content,
     };
 
+    const formData = new FormData();
+    formData.append('review', new Blob([JSON.stringify(reviewDto)], { type: 'application/json' }));
+    review.fileList.forEach(file => {
+      formData.append('images', file.originFileObj);
+    });
+
     try {
       setLoading(true);
       await axios.post('http://localhost:8080/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
+      setReviews(prev => ({
+        ...prev,
+        [reservId]: { ...prev[reservId], submitted: true },
+      }));
       message.success("리뷰가 저장되었습니다.");
     } catch (err) {
-      console.error("리뷰 저장 실패:", err);
       message.error("리뷰 저장 실패");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!tripPlanId || !memberId) return <div>로딩 중...</div>;
+  const handleAIReview = async (reservId) => {
+    const selected = reviews[reservId].keywords;
+    if (selected.length === 0) {
+      message.warning("키워드를 하나 이상 선택해주세요.");
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await axios.post("http://localhost:8080/review/generate", { keywords: selected });
+      setReviews(prev => ({
+        ...prev,
+        [reservId]: { ...prev[reservId], content: res.data.content },
+      }));
+      message.success("AI 리뷰가 생성되었습니다.");
+    } catch (err) {
+      message.error("AI 리뷰 생성 실패");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUploadChange = (reservId, { fileList }) => {
+    handleChange(reservId, 'fileList', fileList);
+  };
+
+  const allSubmitted = Object.values(reviews).every(r => r.submitted);
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
@@ -107,32 +164,66 @@ const PlaceReviewWrite = () => {
         <div>등록된 장소가 없습니다.</div>
       ) : (
         reservs.map((reserv) => {
-          const review = reviews[reserv.id] || {};
+          const review = reviews[reserv.id];
+          if (!review || review.submitted) return null;
+
           return (
             <div key={reserv.id} style={{ marginBottom: 32, borderBottom: '1px solid #ddd', paddingBottom: 16 }}>
-              <h3>{reserv.place?.name || '장소 이름 없음'}</h3>
-              <Rate
-                value={review.rating || 0}
-                onChange={(value) => handleChange(reserv.id, 'rating', value)}
+              <img
+                src={reserv.place?.imageUrl}
+                alt={reserv.place?.name}
+                style={{ width: '200px', height: 'auto', borderRadius: '8px' }}
               />
+              <h3>{reserv.place?.name || '장소 이름 없음'}
+                {review.weather && (
+                  <div style={{ width: 60, textAlign: 'right' }}>
+                    {['맑음', '흐림', '비', '눈', '구름많음'].includes(review.weather) ? (
+                      <img src={`/image/weather/${getWeatherImage(review.weather)}`} alt={review.weather} style={{ width: 40, height: 40 }} />
+                    ) : (
+                      <QuestionOutlined style={{ fontSize: 24, color: '#ccc' }} />
+                    )}
+                  </div>
+                )}
+              </h3>
+              <Rate value={review.rating} onChange={(v) => handleChange(reserv.id, 'rating', v)} />
+              <Checkbox.Group value={review.keywords} onChange={(v) => handleChange(reserv.id, 'keywords', v)}>
+                <Row gutter={[8, 8]} style={{ marginTop: 10 }}>
+                  {keywordOptions.map((keyword) => (
+                    <Col key={keyword}><Checkbox value={keyword}>{keyword}</Checkbox></Col>
+                  ))}
+                </Row>
+              </Checkbox.Group>
+              <Button onClick={() => handleAIReview(reserv.id)} style={{ marginTop: 10 }}>AI 리뷰 생성</Button>
               <TextArea
                 rows={4}
-                value={review.content || ''}
+                value={review.content}
                 onChange={(e) => handleChange(reserv.id, 'content', e.target.value)}
-                placeholder="이 장소에 대한 리뷰를 작성해주세요"
+                placeholder="리뷰를 작성해주세요"
                 style={{ marginTop: 10 }}
               />
-              <Button
-                type="primary"
-                onClick={() => handleSubmit(reserv.id)}
-                loading={loading}
-                style={{ marginTop: 10 }}
+              <Upload
+                multiple
+                fileList={review.fileList}
+                onChange={(info) => handleUploadChange(reserv.id, info)}
+                beforeUpload={() => false}
+                listType="picture"
               >
+                <Button icon={<UploadOutlined />}>사진 첨부하기</Button>
+              </Upload>
+              <Button type="primary" onClick={() => handleSubmit(reserv.id)} loading={loading} style={{ marginTop: 10 }}>
                 저장
               </Button>
             </div>
           );
         })
+      )}
+
+      {allSubmitted && (
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: 32 }} />
+          <h3>모든 리뷰를 작성했습니다!</h3>
+          <Button type="primary" onClick={() => router.push('/')}>홈으로 이동</Button>
+        </div>
       )}
     </div>
   );
