@@ -32,69 +32,9 @@ public class TripPlanService {
 	private final MemberTripPlanMapper memberTripPlanMapper;
 
 	@Value("${upload.directory:C:/upload/tripThumbnails/}")
-	private String uploadDir;
-
-	// 여행 추천 받기
-	public List<TripRecommendResponse> recommend(TripRecommendRequest request) {
-		LocalDate startDate = LocalDate.parse(request.getStartDate());
-		LocalDate endDate = LocalDate.parse(request.getEndDate());
-		int totalDays = calculateTripDays(startDate, endDate);
-
-		List<TripRecommendResponse> tripPlans = new ArrayList<>();
-
-		for (int i = 0; i < totalDays; i++) {
-			List<TripRecommendResponse.PlaceInfo> placeInfos = new ArrayList<>();
-
-			// 1. 첫 장소: 관광지(placeType 1) 랜덤 추천
-			Place firstPlace = placeMapper.findFirstRandomPlace(request.getRegion(), request.getSelectedCategoryIds());
-			if (firstPlace == null)
-				continue;
-			placeInfos.add(toPlaceInfo(firstPlace));
-
-			// 2. 두 번째 장소: 음식점(placeType 6), 첫 장소 기준 가까운 순
-			Place secondPlace = findNearestPlace(6, request, firstPlace);
-			if (secondPlace != null)
-				placeInfos.add(toPlaceInfo(secondPlace));
-
-			// 3. 세 번째 장소: 랜덤 타입 하나 (3, 5, 1 중)
-			int[] randomTypes = { 3, 5, 1 };
-			int randomType = randomTypes[new Random().nextInt(randomTypes.length)];
-			Place thirdPlace = findNearestPlace(randomType, request, secondPlace != null ? secondPlace : firstPlace);
-			if (thirdPlace != null)
-				placeInfos.add(toPlaceInfo(thirdPlace));
-
-			// 4. 네 번째 장소: 숙박 (4)
-			Place fourthPlace = findNearestPlace(4, request,
-					thirdPlace != null ? thirdPlace : (secondPlace != null ? secondPlace : firstPlace));
-			if (fourthPlace != null)
-				placeInfos.add(toPlaceInfo(fourthPlace));
-
-			tripPlans.add(new TripRecommendResponse(i + 1, placeInfos, startDate, endDate));
-		}
-
-		return tripPlans;
-	}
-
-	private Place findNearestPlace(int placeType, TripRecommendRequest request, Place base) {
-		List<Place> candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
-				request.getSelectedCategoryIds(), base.getLatitude(), base.getLongitude(), 1);
-		if (candidates == null || candidates.isEmpty()) {
-			candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
-					Collections.emptyList(), base.getLatitude(), base.getLongitude(), 1);
-		}
-		return candidates.isEmpty() ? null : candidates.get(0);
-	}
-
-	private TripRecommendResponse.PlaceInfo toPlaceInfo(Place place) {
-		return new TripRecommendResponse.PlaceInfo(place.getId(), place.getName(), place.getDescription(),
-				String.valueOf(place.getLatitude()), String.valueOf(place.getLongitude()), place.getImageUrl());
-	}
-
-	private int calculateTripDays(LocalDate startDate, LocalDate endDate) {
-		return (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
-	}
-
-	//// TripPlan 저장하기
+	private String uploadDir;	
+	
+	//// 경로추천 받기 -> 경로 수정하기 -> TripPlan 저장하기
 	public TripPlan saveTrip(TripSaveRequest request) {
 		TripPlan tripPlan = new TripPlan();
 		try {
@@ -136,59 +76,6 @@ public class TripPlanService {
 		return tripPlan;
 	}
 
-	// MemberTripPlan 저장하기
-	public void saveMemberTrip(TripSaveRequest request) {
-		try {
-			String imagePath = saveBase64Image(request.getMapImage());
-			TripPlan tripPlan = new TripPlan();
-			tripPlan.setTitle(request.getTitle());
-			tripPlan.setDays(request.getRouteData().size());
-			tripPlan.setPublicVisible(false);
-			tripPlan.setImageUrl(imagePath);
-			Member member = new Member();
-			member.setId(request.getMemberId());
-			tripPlan.setMember(member);
-			tripPlanMapper.insertTripPlan(tripPlan);
-
-			for (TripSaveRequest.RouteDay routeDay : request.getRouteData()) {
-				Route route = new Route();
-				route.setName(request.getTitle() + "_" + routeDay.getDay() + "일차");
-				tripPlanMapper.insertRoute(route);
-
-				AtomicInteger sequence = new AtomicInteger(1);
-				for (TripSaveRequest.PlaceDto placeDto : routeDay.getPlaces()) {
-					Place place = new Place();
-					place.setId(placeDto.getPlaceId());
-					RoutePlace routePlace = new RoutePlace();
-					routePlace.setRoute(route);
-					routePlace.setPlace(place);
-					routePlace.setSequence(sequence.getAndIncrement());
-					tripPlanMapper.insertRoutePlace(routePlace);
-				}
-
-				TripPlanCourse course = new TripPlanCourse();
-				course.setTripPlan(tripPlan);
-				course.setRoute(route);
-				tripPlanMapper.insertTripPlanCourse(course);
-			}
-
-			MemberTripPlan memberTripPlan = new MemberTripPlan();
-			memberTripPlan.setMember(member);
-			memberTripPlan.setTripPlan(tripPlan);
-			memberTripPlan.setTitleOverride(request.getTitle());
-			memberTripPlan.setPublicVisible(false);
-			memberTripPlan.setStartDate(LocalDate.parse(request.getStartDate()));
-			memberTripPlan.setEndDate(LocalDate.parse(request.getEndDate()));
-			memberTripPlan.setCreatedAt(LocalDateTime.now());
-			memberTripPlan.setCountPeople(request.getCountPeople());
-			memberTripPlan.setCountPet(request.getCountPet());
-			memberTripPlan.setImageUrl(imagePath);
-			memberTripPlanMapper.insert(memberTripPlan);
-
-		} catch (Exception e) {
-			throw new RuntimeException("여행 저장 실패", e);
-		}
-	}
 
 	// 썸네일 저장하기
 	private String saveBase64Image(String base64Data) {
@@ -230,7 +117,90 @@ public class TripPlanService {
 
 		tripPlanMapper.makeTripPlanPublic(tripPlanId);
 	}
+	
+	// 삭제
+	public void deleteTripPlan(Long id) {
+	    TripPlan tripPlan = tripPlanMapper.findByIdWithCourses(id);
+	    if (tripPlan == null) {
+	        throw new IllegalArgumentException("해당 TripPlan을 찾을 수 없습니다.");
+	    }
+	    tripPlanMapper.update(tripPlan);
 
+	    /*
+	    if (tripPlan.isPublicVisible()) {
+	        // 공개된 경우: 소프트 딜리트 (memberId를 1로 변경)
+	        tripPlanMapper.update(tripPlan);
+	    } else {
+	        // 비공개인 경우: 완전 삭제
+	        tripPlanMapper.delete(id);
+	    }
+	    */
+	}
+
+
+	
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// 여행 추천 받기
+		public List<TripRecommendResponse> recommend(TripRecommendRequest request) {
+			LocalDate startDate = LocalDate.parse(request.getStartDate());
+			LocalDate endDate = LocalDate.parse(request.getEndDate());
+			int totalDays = calculateTripDays(startDate, endDate);
+
+			List<TripRecommendResponse> tripPlans = new ArrayList<>();
+
+			for (int i = 0; i < totalDays; i++) {
+				List<TripRecommendResponse.PlaceInfo> placeInfos = new ArrayList<>();
+
+				// 1. 첫 장소: 관광지(placeType 1) 랜덤 추천
+				Place firstPlace = placeMapper.findFirstRandomPlace(request.getRegion(), request.getSelectedCategoryIds());
+				if (firstPlace == null)
+					continue;
+				placeInfos.add(toPlaceInfo(firstPlace));
+
+				// 2. 두 번째 장소: 음식점(placeType 6), 첫 장소 기준 가까운 순
+				Place secondPlace = findNearestPlace(6, request, firstPlace);
+				if (secondPlace != null)
+					placeInfos.add(toPlaceInfo(secondPlace));
+
+				// 3. 세 번째 장소: 랜덤 타입 하나 (3, 5, 1 중)
+				int[] randomTypes = { 3, 5, 1 };
+				int randomType = randomTypes[new Random().nextInt(randomTypes.length)];
+				Place thirdPlace = findNearestPlace(randomType, request, secondPlace != null ? secondPlace : firstPlace);
+				if (thirdPlace != null)
+					placeInfos.add(toPlaceInfo(thirdPlace));
+
+				// 4. 네 번째 장소: 숙박 (4)
+				Place fourthPlace = findNearestPlace(4, request,
+						thirdPlace != null ? thirdPlace : (secondPlace != null ? secondPlace : firstPlace));
+				if (fourthPlace != null)
+					placeInfos.add(toPlaceInfo(fourthPlace));
+
+				tripPlans.add(new TripRecommendResponse(i + 1, placeInfos, startDate, endDate));
+			}
+
+			return tripPlans;
+		}
+
+		private Place findNearestPlace(int placeType, TripRecommendRequest request, Place base) {
+			List<Place> candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
+					request.getSelectedCategoryIds(), base.getLatitude(), base.getLongitude(), 1);
+			if (candidates == null || candidates.isEmpty()) {
+				candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
+						Collections.emptyList(), base.getLatitude(), base.getLongitude(), 1);
+			}
+			return candidates.isEmpty() ? null : candidates.get(0);
+		}
+
+		private TripRecommendResponse.PlaceInfo toPlaceInfo(Place place) {
+			return new TripRecommendResponse.PlaceInfo(place.getId(), place.getName(), place.getDescription(),
+					String.valueOf(place.getLatitude()), String.valueOf(place.getLongitude()), place.getImageUrl());
+		}
+
+		private int calculateTripDays(LocalDate startDate, LocalDate endDate) {
+			return (int) ChronoUnit.DAYS.between(startDate, endDate) + 1;
+		}
+	
+	
 	// 모든 여행 가져오기
 	public List<TripPlan> getAllTrips() {
 		return tripPlanMapper.findAllTrips();
