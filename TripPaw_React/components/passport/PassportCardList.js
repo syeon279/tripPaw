@@ -83,6 +83,7 @@ const PassportCardList = ({ memberId }) => {
       {showDetailModal && (
         <PassportDetailModal
           passport={selectedPassport}
+          memberId={memberId}
           onClose={() => setShowDetailModal(false)}
         />
       )}

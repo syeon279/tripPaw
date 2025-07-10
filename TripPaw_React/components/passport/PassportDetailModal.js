@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getPassportWithSeals } from '@/api/passportApi';
+import ReviewSelectorModal from './ReviewSelectorModal';
+import axios from 'axios';
 
-const PassportDetailModal = ({ passport, onClose }) => {
+const PassportDetailModal = ({ passport, onClose, memberId }) => {
   const [fullPassport, setFullPassport] = useState(null);
+  const [showReviewSelector, setShowReviewSelector] = useState(false);
 
   useEffect(() => {
     if (passport) {
@@ -13,6 +16,11 @@ const PassportDetailModal = ({ passport, onClose }) => {
   if (!fullPassport) return null;
 
   const { petName, species, petAge, petGender, passNum, imageUrl, passportSeals } = fullPassport;
+
+  const refreshSeals = () => {
+    getPassportWithSeals(passport.id).then((res) => setFullPassport(res.data));
+  };
+
 
   return (
     <>
@@ -115,7 +123,20 @@ const PassportDetailModal = ({ passport, onClose }) => {
           ) : (
             <p>아직 도장이 없습니다.</p>
           )}
+
+          <button onClick={() => setShowReviewSelector(true)}>도장 추가하기</button>
+          {showReviewSelector && (
+            <ReviewSelectorModal
+              memberId={memberId}
+              passportId={passport.id}
+              onClose={() => setShowReviewSelector(false)}
+              onSaved={refreshSeals} // 도장 추가 후 여권 상세 다시 로딩
+            />
+          )}
+
         </div>
+
+
       </div>
     </>
   );

@@ -400,4 +400,19 @@ public class ReviewService {
  	public List<Badge> getBadgesByMemberId(Long memberId) {
         return badgeMapper.findBadgesByMemberId(memberId);
     }
+ 	
+ 	//여권 도장용 추가코드
+ 	public List<Reserv> getReservsWithoutReview(Long memberId){
+ 		List<Reserv> list = reviewMapper.findReservWithoutReview(memberId);
+ 		for (Reserv r : list) {
+ 		    System.out.println("Reserv ID..........: " + r.getId());
+ 		    System.out.println("Trip Title..........: " + 
+ 		        (r.getTripPlan() != null ? r.getTripPlan().getTitle() : "null"));
+ 		}
+ 		return reviewMapper.findReservWithoutReview(memberId);
+ 	}
+ 	public List<MyReviewDto> getReviewsWithPlaceTypeByMemberId(Long memberId){
+ 	    return reviewMapper.findReviewsWithPlaceTypeByMemberId(memberId);
+ 	}
+
 }
