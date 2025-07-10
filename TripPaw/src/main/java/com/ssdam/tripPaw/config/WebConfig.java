@@ -24,5 +24,10 @@ public class WebConfig implements WebMvcConfigurer {
         System.out.println("뱃지 이미지 경로: " + badgePath);  // 디버깅을 위한 출력
         registry.addResourceHandler("/upload/badge/**")
                 .addResourceLocations("file:///" + badgePath + "/");  // 'file:///' 세 개의 슬래시 사용
+        // 멤버 이미지 경로 추가
+        String memberPath = Paths.get("C:/upload/memberImg").toFile().getAbsolutePath();
+        System.out.println("뱃지 이미지 경로: " + memberPath);  // 디버깅을 위한 출력
+        registry.addResourceHandler("/upload/badge/**")
+        .addResourceLocations("file:///" + memberPath + "/");  // 'file:///' 세 개의 슬래시 사용
     }
 }

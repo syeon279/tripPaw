@@ -62,5 +62,8 @@ public class MemberService {
 		}
 		return 0;
 	};
+	public int updateMember(Member member) {
+		return memberMapper.updateMember(member);
+	}
 	
 }

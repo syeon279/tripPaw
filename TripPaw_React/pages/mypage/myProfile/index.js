@@ -26,7 +26,7 @@ const UnderlineInput = styled(Input)`
 
 const Profile = () => {
   const router = useRouter();
-  const memberId = router.query.id;
+  //const memberId = router.query.id;
   const [user, setUser] = useState(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
@@ -37,7 +37,7 @@ const Profile = () => {
   const [jibunAddress, setJibunAddress] = useState('');
   const [username, setUsername] = useState('');
   const [phoneNum, setPhoneNum] = useState('');
-
+  const [memberId,setMemberId] = useState('');
 useEffect(() => {
   const checkLoginStatus = async () => {
         try {
@@ -52,7 +52,9 @@ useEffect(() => {
             // }
             if (response.status === 200) {
               setIsLoggedIn(true);
-              console.log('닉네임=',response.data.useremail);
+              console.log('id=',response.data.id);
+              
+                setMemberId(response.data.id)
                 setNickname(response.data.nickname);
                 setUseremail(response.data.useremail);
                 setRoadAddress(response.data.roadAddress);
@@ -60,6 +62,7 @@ useEffect(() => {
                 setJibunAddress(response.data.jibunAddress);
                 // 백엔드에서 받은 username으로 상태 업데이트
                 setUsername(response.data.username);
+
                 return true; // 성공 시 true 반환
             }
         } catch (error) {
@@ -289,6 +292,18 @@ const timer = () => {
   }
   const [imgFile, setImgFile] = useState("");
   const [profileImageFile, setProfileImageFile] = useState(null); // ✅ 전송용 파일 객체를 저장할 state 추가
+  useEffect(()=>{
+    console.log("memberId==",memberId)
+     if (memberId) {
+    const profileImageResponse = async () => {
+      const response = await axios.get(`http://localhost:8080/api/auth/getProfileImage?id=${memberId}`
+      ,{withCredentials:true})
+      console.log("profileImage=",response.data.src);
+      setProfileImageFile(response.data.src);
+    }
+    profileImageResponse();
+  }
+  },[memberId])
   useEffect(() => {
     // 이 console.log는 state가 성공적으로 변경된 후에만 호출됩니다.
     console.log('✅ useEffect에서 확인한 profileImageFile:', profileImageFile);
@@ -395,7 +410,7 @@ const onClickImageUpload = useCallback(() => {
 
     alert(response.data);
     
-    router.push('/member/login');
+    router.push('/');
     // return dispatch({
     //   type: SIGN_UP_REQUEST, 
     //   data:{ username, phoneNum, email, password, nickname  }
@@ -476,18 +491,35 @@ const onClickImageUpload = useCallback(() => {
           <Form.Item>
             <div style={{display:'flex'}}>
                 <label htmlFor='phone'></label>
-                 <Avatar
-                    size={{
-                      xs: 24,
-                      sm: 32,
-                      md: 40,
-                      lg: 64,
-                      xl: 80,
-                      xxl: 100,
-                    }}
-                    src={imgFile && imgFile !== 'null' && imgFile !== 'undefined' ? imgFile : null}
-                    icon={<AntDesignOutlined />}
-                  />
+
+              {profileImageFile && 
+                  <Avatar
+                      size={{
+                        xs: 24,
+                        sm: 32,
+                        md: 40,
+                        lg: 64,
+                        xl: 80,
+                        xxl: 100,
+                      }}
+                      src={(profileImageFile) && profileImageFile !== 'null' && profileImageFile !== 'undefined' ? `http://localhost:8080/upload/memberImg/${profileImageFile}` : null}
+                      icon={<AntDesignOutlined />}
+                    />
+              }
+              {imgFile && 
+                  <Avatar
+                      size={{
+                        xs: 24,
+                        sm: 32,
+                        md: 40,
+                        lg: 64,
+                        xl: 80,
+                        xxl: 100,
+                      }}
+                      src={(imgFile) && imgFile !== 'null' && imgFile !== 'undefined' ? imgFile : null}
+                      icon={<AntDesignOutlined />}
+                    />
+              }
               <input
                 type="file"
                 name="profileImage"
