@@ -89,8 +89,6 @@ const RouteRecommendPage = () => {
                 }
             } catch (error) {
                 console.error("로그인 상태 확인 실패:", error);
-                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-                router.push('/member/login');
                 return false; // 실패 시 false 반환
             }
         };
@@ -164,6 +162,7 @@ const RouteRecommendPage = () => {
         }
     };
 
+    // 저장하기
     const handleTripSave = async ({ title, startDate, endDate, countPeople, countPet, mapImage }) => {
         try {
             const tripData = {
@@ -177,15 +176,17 @@ const RouteRecommendPage = () => {
                 memberId,
             };
             console.log('tripData : ', tripData);
-            await axios.post('http://localhost:8080/tripPlan/save', tripData);
+            await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
+            router.push('/mypage/trips');
         } catch (error) {
             console.error('저장 실패:', error);
             alert('저장 중 오류 발생');
         }
     };
 
-    const handleSave = async () => {
+    // 경로 수정하기 위한 TripPlan 저장
+    const handleEditforSave = async () => {
         let mapImageBase64 = null;
 
         try {
@@ -194,10 +195,8 @@ const RouteRecommendPage = () => {
             console.warn('지도 캡처 실패:', err);
         }
 
-        const title = '추천된 여행 경로';
-
         const travelData = {
-            title,
+            title: 'TripPlanForEdit',
             startDate: requestData?.startDate,
             endDate: requestData?.endDate,
             countPeople: requestData?.countPeople,
@@ -268,7 +267,7 @@ const RouteRecommendPage = () => {
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
                         />
-                        <ActionButtons onSave={() => setShowModal(true)} onEdit={() => handleSave()} />
+                        <ActionButtons onSave={() => setShowModal(true)} onEditforSave={() => handleEditforSave()} />
                     </div>
 
                     {showModal && (

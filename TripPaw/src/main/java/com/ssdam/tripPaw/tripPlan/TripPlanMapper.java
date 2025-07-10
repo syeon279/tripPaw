@@ -30,4 +30,7 @@ public interface TripPlanMapper {
 	void makeTripPlanPublic(Long id);
 	Boolean isTripPlanPublic(Long id);
 
+	int delete(Long id);
+
+	void update(TripPlan tripPlan);
 }

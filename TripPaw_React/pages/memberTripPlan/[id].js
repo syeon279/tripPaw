@@ -73,10 +73,10 @@ const TripPlanDetail = () => {
     const [title, setTitle] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
     const [userId, setUserId] = useState(1);
+    const { id } = router.query;
 
     useEffect(() => {
         const fetchTripDetail = async () => {
-            const { id } = router.query;
             if (!router.isReady || !id) return;
 
             try {
@@ -164,45 +164,22 @@ const TripPlanDetail = () => {
         }
     };
 
-    const handleEditAndSave = async () => {
-        let mapImageBase64 = null;
+    const handleEdit = async () => {
 
         try {
-            mapImageBase64 = await handleCaptureMap();
+            router.push({
+                pathname: `/memberTripPlan/memberTripPlanEdit/${id}`,
+                query: {
+                    id: id,
+                    startDate,
+                    endDate,
+                    countPeople,
+                    countPet,
+                },
+            });
         } catch (err) {
-            console.warn('지도 캡처 실패:', err);
-        }
-
-        const travelData = {
-            title,
-            startDate,
-            endDate,
-            countPeople,
-            countPet,
-            mapImage: mapImageBase64,
-            routeData,
-        };
-
-        try {
-            const res = await axios.post('http://localhost:8080/tripPlan/edit', travelData);
-            const tripId = res.data?.tripId;
-            if (tripId) {
-                router.push({
-                    pathname: `/tripPlan/tripPlanEdit/${tripId}`,
-                    query: {
-                        id: tripId,
-                        startDate,
-                        endDate,
-                        countPeople,
-                        countPet,
-                    },
-                });
-            } else {
-                alert('여행 저장 후 이동 실패');
-            }
-        } catch (err) {
-            console.error('수정용 저장 실패:', err);
-            alert('저장 실패');
+            console.error('MemberTripPlan 수정용 저장 실패:', err);
+            alert('수정 실패');
         }
     };
 
@@ -248,7 +225,7 @@ const TripPlanDetail = () => {
                         <MypageActionButton
                             // 예약하기 추가
                             //onReserv={() => }
-                            onEdit={() => handleEditAndSave()}
+                            onEdit={() => handleEdit()}
                         />
                     </div>
                 </div>

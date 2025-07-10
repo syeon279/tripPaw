@@ -2,7 +2,7 @@ import React, {
     useEffect,
     useRef,
     forwardRef,
-    useImperativeHandle
+    useImperativeHandle,
 } from 'react';
 import html2canvas from 'html2canvas';
 
@@ -26,7 +26,7 @@ const RouteMap = forwardRef(
             );
             mapObj.current = new kakao.maps.Map(mapRef.current, {
                 center,
-                level: 6
+                level: 6,
             });
 
             setMapInstance?.(mapObj.current);
@@ -43,15 +43,17 @@ const RouteMap = forwardRef(
             markerRefs.current = [];
 
             const bounds = new kakao.maps.LatLngBounds();
+
+            // ✅ focusDay가 설정되어 있으면 해당 일차만 표시
             const visibleData = focusDay
-                ? routeData.filter(r => Number(r.day) === Number(focusDay))
+                ? routeData.filter(day => Number(day.day) === Number(focusDay))
                 : routeData;
 
             visibleData.forEach(dayPlan => {
                 const path = [];
                 const color = COLORS[dayPlan.day % COLORS.length];
 
-                dayPlan.places.forEach(place => {
+                dayPlan.places.forEach((place, idx) => {
                     const latlng = new kakao.maps.LatLng(
                         Number(place.latitude),
                         Number(place.longitude)
@@ -62,28 +64,31 @@ const RouteMap = forwardRef(
                     const marker = new kakao.maps.Marker({
                         map: mapObj.current,
                         position: latlng,
-                        title: `${dayPlan.day}일차 - ${place.name}`
+                        title: `${dayPlan.day}일차 - ${place.name}`,
                     });
                     markerRefs.current.push(marker);
                 });
 
-                const polyline = new kakao.maps.Polyline({
-                    map: mapObj.current,
-                    path,
-                    strokeWeight: 4,
-                    strokeColor: color,
-                    strokeOpacity: 0.8,
-                    strokeStyle: 'solid'
-                });
-                polylineRefs.current.push(polyline);
+                if (path.length >= 2) {
+                    const polyline = new kakao.maps.Polyline({
+                        map: mapObj.current,
+                        path,
+                        strokeWeight: 4,
+                        strokeColor: color,
+                        strokeOpacity: 0.8,
+                        strokeStyle: 'solid',
+                    });
+                    polylineRefs.current.push(polyline);
+                }
             });
 
+            // 전체 표시 시만 bounds 설정
             if (!focusDay) {
                 mapObj.current.setBounds(bounds);
             }
         }, [routeData, focusDay]);
 
-        // 클릭 시 focusDay 해제
+        // 💡 외부 클릭 시 focusDay 초기화
         useEffect(() => {
             const handleClickOutside = e => {
                 const clickedMap = mapRef.current?.contains(e.target);
@@ -100,10 +105,11 @@ const RouteMap = forwardRef(
             return () => window.removeEventListener('click', handleClickOutside);
         }, [setFocusDay]);
 
-        // focusDay 변경 시 중심 이동
+        // 📍 focusDay 변경 시 지도 중심 이동
         useEffect(() => {
             if (!mapObj.current || !focusDay) return;
-            const dayPlan = routeData.find(r => Number(r.day) === Number(focusDay));
+
+            const dayPlan = routeData.find(day => Number(day.day) === Number(focusDay));
             const firstPlace = dayPlan?.places?.[0];
             if (!firstPlace) return;
 
@@ -114,7 +120,7 @@ const RouteMap = forwardRef(
             mapObj.current.panTo(latlng);
         }, [focusDay]);
 
-        // 📸 외부에서 호출 가능한 캡처 메서드 등록
+        // 📸 외부에서 지도 캡처 호출 가능하게 함
         useImperativeHandle(ref, () => ({
             captureMap: async () => {
                 const mapDiv = document.getElementById('map-capture-target');
@@ -123,7 +129,7 @@ const RouteMap = forwardRef(
                 }
                 const canvas = await html2canvas(mapDiv);
                 return canvas.toDataURL('image/png');
-            }
+            },
         }));
 
         return (

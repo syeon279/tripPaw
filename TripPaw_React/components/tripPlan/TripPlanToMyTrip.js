@@ -64,8 +64,10 @@ const TripPlanToMyTrip = ({
             mapImage: mapImageBase64,
         };
 
-        await onSave(travelData);
-        onClose();
+        const result = await onSave(travelData);
+        if (result) {
+            onClose();  // ✅ 저장 성공 시에만 모달 닫기
+        }
     };
 
     return (

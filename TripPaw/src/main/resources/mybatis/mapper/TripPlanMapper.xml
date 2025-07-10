@@ -107,7 +107,7 @@
 		p.longitude
 
 		FROM trip_plan tp
-		JOIN
+		LEFT JOIN
 		member m ON tp.member_id = m.id
 		JOIN
 		trip_plan_course c ON tp.id =
@@ -142,7 +142,8 @@
 		FROM trip_plan tp
 		WHERE
 		tp.member_id = #{id}
-		AND tp.title NOT IN ('수정된 경로 저장', '추천된 여행 경로')
+		AND tp.title NOT IN ('TripPlanForEdit', '수정된 여행
+		경로')
 		ORDER BY tp.id DESC
 	</select>
 
@@ -159,5 +160,15 @@
 		FROM trip_plan
 		WHERE id = #{id}
 	</select>
+
+
+	<delete id="delete" parameterType="long">
+		DELETE FROM trip_plan WHERE id = #{id}
+	</delete>
+	<update id="update" parameterType="TripPlan">
+		UPDATE trip_plan
+		SET member_id = 1
+		WHERE id = #{id}
+	</update>
 
 </mapper>

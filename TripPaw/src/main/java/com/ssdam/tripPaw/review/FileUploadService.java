@@ -54,4 +54,5 @@ public class FileUploadService {
     public String extractFileNameFromUrl(String imageUrl) {
         return Paths.get(imageUrl).getFileName().toString();
     }
+
 }
