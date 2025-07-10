@@ -26,32 +26,32 @@ const Sidebar = () => {
   const isLoading = user === null && !isAdmin;
 
   useEffect(() => {
-  const checkUser = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/auth/check', {
-        withCredentials: true,
-      });
-
-      if (response.status === 200) {
-        const data = response.data;
-        console.log('auth:', data.auth); // 확인용
-
-        setUser({
-          nickname: data.nickname,
-          username: data.username,
-          memberId : data.memberId,
+    const checkUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/auth/check', {
+          withCredentials: true,
         });
 
-        setIsAdmin(data.auth === 'ADMIN');
-      }
-    } catch (error) {
-      console.error('사용자 정보 확인 실패:', error);
-      setIsAdmin(false);
-    }
-  };
+        if (response.status === 200) {
+          const data = response.data;
+          console.log('auth:', data.auth); // 확인용
 
-  checkUser();
-}, []);
+          setUser({
+            nickname: data.nickname,
+            username: data.username,
+            memberId: data.memberId,
+          });
+
+          setIsAdmin(data.auth === 'ADMIN');
+        }
+      } catch (error) {
+        console.error('사용자 정보 확인 실패:', error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkUser();
+  }, []);
 
 if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하지 않음
 
@@ -66,7 +66,7 @@ if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하�
           </SidebarSection>
 
           <SidebarItem text="반려동물 여권" href="/mypage/passport" />
-          <SidebarItem text="예약 내역 보기" href="/mypage/reservations" />
+          <SidebarItem text="예약 내역 보기" href="/mypage/reserv/reservlist" />
           <SidebarItem text="내 장소" href="/mypage/places" />
           <SidebarItem text="내 여행" href="/mypage/trips" />
 
@@ -100,13 +100,13 @@ if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하�
         </>
       )}
 
-      {!isAdmin && user &&(
+      {!isAdmin && user && (
         <Footer>
           <div style={{ cursor: 'pointer' }}>로그아웃</div>
           <div style={{ cursor: 'pointer' }}>탈퇴하기</div>
         </Footer>
       )}
-      {isAdmin &&(
+      {isAdmin && (
         <Footer>
           <div style={{ cursor: 'pointer' }}>로그아웃</div>
         </Footer>

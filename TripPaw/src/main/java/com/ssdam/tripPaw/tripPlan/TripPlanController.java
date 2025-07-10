@@ -204,7 +204,7 @@ public class TripPlanController {
     // 특정 유저의 모든 여행 가져오기(/tripPlan/{id}/trips)
     @GetMapping("/{id}/trips")
     public ResponseEntity<List<TripPlan>> getAllTripsByMemberId(@PathVariable Long id){
-    	List<TripPlan> plans = tripPlanService.findByMemberId(id);
+    	List<TripPlan> plans = tripPlanService.findByMemberIdWithReviews(id);
 		return ResponseEntity.ok(plans);
     }
     

@@ -4,6 +4,65 @@
 
 <mapper namespace="com.ssdam.tripPaw.tripPlan.TripPlanMapper">
 
+	<!-- 여행 + 리뷰 매핑 -->
+	<resultMap id="tripPlanWithReviewsMap"
+		type="com.ssdam.tripPaw.domain.TripPlan">
+		<id property="id" column="tp_id" />
+		<result property="title" column="title" />
+		<result property="days" column="days" />
+		<result property="publicVisible" column="is_public" />
+		<result property="createdAt" column="created_at" />
+		<result property="imageUrl" column="image_url" />
+
+		<collection property="reviews"
+			ofType="com.ssdam.tripPaw.domain.Review">
+			<id property="id" column="r_id" />
+			<result property="content" column="r_content" />
+			<result property="rating" column="r_rating" />
+			<result property="weatherCondition"
+				column="r_weather_condition" />
+			<result property="createdAt" column="r_created_at" />
+			<association property="member"
+				javaType="com.ssdam.tripPaw.domain.Member">
+				<id property="id" column="r_member_id" />
+			</association>
+		</collection>
+	</resultMap>
+
+	<!-- 특정 유저의 여행 + 리뷰 조회 -->
+	<select id="findByMemberIdWithReviews"
+		resultMap="tripPlanWithReviewsMap">
+		SELECT
+		tp.id AS tp_id,
+		tp.title,
+		tp.days,
+		tp.is_public,
+		tp.created_at,
+		tp.image_url,
+
+		r.id AS r_id,
+		r.content AS r_content,
+		r.rating AS r_rating,
+		r.weather_condition AS r_weather_condition,
+		r.created_at AS r_created_at,
+		r.member_id AS r_member_id
+
+		FROM trip_plan tp
+		LEFT JOIN review r
+		ON tp.id = r.target_id
+		AND r.review_type_id = 1
+		WHERE tp.member_id = #{id}
+		AND tp.title NOT IN ('TripPlanForEdit', '수정된 여행 경로')
+		ORDER BY tp.id DESC
+	</select>
+
+
+
+
+
+
+	<!-- -->
+	<!-- -->
 	<!-- 여행 경로 + 코스 + 장소 + 작성자 -->
 	<resultMap id="tripPlanWithCoursesMap"
 		type="com.ssdam.tripPaw.domain.TripPlan">
@@ -163,11 +222,13 @@
 
 
 	<delete id="delete" parameterType="long">
-		DELETE FROM trip_plan WHERE id = #{id}
+		DELETE FROM trip_plan WHERE id
+		= #{id}
 	</delete>
 	<update id="update" parameterType="TripPlan">
 		UPDATE trip_plan
-		SET member_id = 1
+		SET member_id
+		= 1
 		WHERE id = #{id}
 	</update>
 
