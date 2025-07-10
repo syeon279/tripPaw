@@ -166,7 +166,7 @@ public class ReviewService {
 	    // 6. 이미지 업로드
 	    if (images != null && !images.isEmpty()) {
 	        for (MultipartFile file : images) {
-	            String imageUrl = fileUploadService.upload(file); // 파일 저장 (로컬 or S3)
+	            String imageUrl = fileUploadService.upload(file, "reviews"); // 파일 저장 (로컬 or S3)
 
 	            ReviewImage reviewImage = new ReviewImage();
 	            reviewImage.setReview(review);
@@ -294,7 +294,7 @@ public class ReviewService {
 
             // 새 이미지 업로드
             for (MultipartFile file : images) {
-                String imageUrl = fileUploadService.upload(file);
+                String imageUrl = fileUploadService.upload(file,"reviews");
 
                 ReviewImage reviewImage = new ReviewImage();
                 reviewImage.setReview(review);
