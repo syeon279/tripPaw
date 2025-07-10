@@ -2,6 +2,7 @@ package com.ssdam.tripPaw.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,7 +13,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "nft_metadata")
@@ -43,6 +47,9 @@ public class NftMetadata {
         this.issuedAt = LocalDateTime.now();
     }
 
+    // 양방향 연관관계의 무한루프 방지
     @OneToMany(mappedBy = "nftMetadata", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @JsonIgnore
     private List<MemberNft> memberNfts;
 }

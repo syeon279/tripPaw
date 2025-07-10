@@ -43,5 +43,15 @@
   <delete id="delete" parameterType="long">
     DELETE FROM nft_metadata WHERE id = #{id}
   </delete>
+  
+  <!-- nft 발급 -->
+  <select id="findFirstUnused" resultType="com.ssdam.tripPaw.domain.NftMetadata">
+  SELECT id, token_id AS tokenId, title, image_url AS imageUrl, point_value AS pointValue, issued_at AS issuedAt
+  FROM nft_metadata
+  WHERE token_id IS NOT NULL
+    AND id NOT IN (SELECT nft_metadata_id FROM member_nft)
+  ORDER BY token_id ASC
+  LIMIT 1
+</select>
 
 </mapper>
