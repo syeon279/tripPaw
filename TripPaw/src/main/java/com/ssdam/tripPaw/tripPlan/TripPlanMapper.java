@@ -33,4 +33,11 @@ public interface TripPlanMapper {
 	int delete(Long id);
 
 	void update(TripPlan tripPlan);
+	
+	List<TripPlan> findByMemberIdWithReviews(Long id);
+	
+	// 기본정보만 가져옴
+	TripPlan findById(Long id);
+	
+	TripPlan findByIdWithMember(Long id);
 }

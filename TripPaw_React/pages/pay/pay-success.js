@@ -42,7 +42,7 @@ export default function SuccessSinglePage({ reserv, place, pay }) {
 
       <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center', gap: 20 }}>
         <Link href="/">메인으로</Link>
-        <Link href="/reserv/reservlist">예약 내역</Link>
+        <Link href="/mypage/reserv/reservlist">예약 내역</Link>
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ planData, onEdit }) => {
+const ActionButtons = ({ planData, onEdit , isNotMytrip}) => {
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState('');
@@ -100,13 +100,20 @@ const ActionButtons = ({ planData, onEdit }) => {
     
     return (
         <div style={bottonWrapperStyle}>
-            <button style={{ ...bottonStyle, background: 'blue' }} onClick={onEdit} >
-                경로 수정하기
+            <button style={{ ...bottonStyle, background: 'blue' }}
+                onClick={onEdit}>
+                이 여행으로 다시 여행하기
             </button>
             <button
                 style={{ ...bottonStyle, background: 'black' }} onClick={handleReservation}>
                 이대로 예약하기
             </button>
+            {isNotMytrip &&
+                <button style={{ ...bottonStyle, background: 'green' }}
+                >
+                    리뷰쓰기
+                </button>
+            }
         </div>
     );
 };

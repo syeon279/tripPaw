@@ -125,7 +125,7 @@ const ReviewForm = () => {
         withCredentials: true,
       });
       message.success('리뷰가 저장되었습니다!');
-      router.push('/');
+      router.push('/mypage');
     } catch (err) {
       console.error('리뷰 저장 실패', err);
       message.error('리뷰 저장 실패');

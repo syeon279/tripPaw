@@ -110,5 +110,8 @@ public class Member {
 	// 구독 리스트
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subscription> subscriptions = new ArrayList<>();
-	
+    
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+   	private List<MemberImage> memberImages = new ArrayList<>();
+   	
 }

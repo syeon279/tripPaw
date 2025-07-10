@@ -75,11 +75,11 @@ const TripPlanDetail = () => {
     const [reservationDates, setReservationDates] = useState([]);
     const [userId, setUserId] = useState(1);
     const { id } = router.query;
-    const {planData, setPlanData} = useState(null);
+    const [isNotMytrip, setIsNotMytrip] = useState('');
 
-const handleDatesChange = (dates) => {
-  setReservationDates(dates);
-};
+    // 리뷰쓰기
+    const [myId, setMyId] = useState('');
+    const [originMemberId, setOriginMemberId] = useState('');
 
     useEffect(() => {
         const fetchTripDetail = async () => {
@@ -94,6 +94,8 @@ const handleDatesChange = (dates) => {
                 setStartDate(data.startDate);
                 setEndDate(data.endDate);
                 setTitle(data.title);
+                setMyId(data.memberId);
+                setOriginMemberId(data.originalMemberId);
                 console.log('data:', res.data);
                 setPlanData(res.data);
                 console.log('setPlanData', planData);
@@ -132,6 +134,17 @@ const handleDatesChange = (dates) => {
         checkLoginStatus();
 
     }, [router.isReady, router.query]);
+
+    /// 리뷰쓰기 가능?
+    useEffect(() => {
+        if (userId && myId && originMemberId) {
+            if (myId != originMemberId) {
+                setIsNotMytrip(true);
+            } else {
+                setIsNotMytrip(false);
+            }
+        }
+    }, [userId, myId, originMemberId]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -235,6 +248,9 @@ const handleDatesChange = (dates) => {
                         <MypageActionButton
                             planData={planData}
                             onEdit={() => handleEdit()}
+                            // 리뷰쓰기 추가
+                            //onReview={}
+                            isNotMytrip={isNotMytrip}
                         />
                     </div>
                 </div>
