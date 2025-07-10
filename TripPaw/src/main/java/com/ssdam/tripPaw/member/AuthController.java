@@ -1,6 +1,5 @@
 package com.ssdam.tripPaw.member;
 
-import java.util.Collection;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,11 +15,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ssdam.tripPaw.chatting.chatroom.ChatRoomForm;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.member.config.MemberLoginForm;
+import com.ssdam.tripPaw.member.util.FileUploadUtil;
 import com.ssdam.tripPaw.member.util.JwtProvider;
 import com.ssdam.tripPaw.member.util.RedisUtil;
 
@@ -36,6 +37,9 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final RedisUtil redisUtil;
     private final MemberService memberService;
+    private final FileUploadUtil fileUpload;
+    //@Value("${file.upload-dir}")
+    private String uploadDir;
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody MemberLoginForm request, Model model, HttpServletResponse response) {
     	System.out.println("로그인 실행");
@@ -138,6 +142,33 @@ public class AuthController {
         );
 
         return ResponseEntity.ok(userInfo);
+    }
+    @PostMapping("/update")
+    public ResponseEntity<?> uploadFile(@RequestPart(value="profileImage", required = false) MultipartFile file,
+    		@RequestPart("username") String username,
+    		@RequestPart("useremail") String useremail,
+            @RequestPart("nickname") String nickname,
+            @RequestPart("password") String password,
+            @RequestPart("zonecode") String zonecode,
+            @RequestPart("roadAddress") String roadAddress,
+            @RequestPart("namujiAddress") String namujiAddress){
+    	System.out.println("file="+file.getOriginalFilename());
+    	System.out.println("username="+username);
+    	
+    	Member oldMember = memberService.findByUsername(username);
+    	String msg = fileUpload.fileUpload(file);
+    	Member newMember = Member.builder()
+    						  .id(oldMember.getId())
+    						  .username(username)
+    						  .nickname(nickname)
+    						  .password(password)
+    						  .zonecode(zonecode)
+    						  .roadAddress(roadAddress)
+    						  .namujiAddress(namujiAddress)
+    						  .build();
+    	memberService.updateMember(newMember);
+    	
+    	return ResponseEntity.ok(Map.of("이미지 업로드 성공",msg));
     }
     
 //    @GetMapping("/login/oauth2/code/kakao")

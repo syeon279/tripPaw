@@ -483,7 +483,21 @@ const ReservList = () => {
                         {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
                           <>
                             <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
-                            <Button style={{ backgroundColor: 'green' }} onClick={() => router.push('/review/write')}>리뷰쓰기</Button>
+                            <Button
+                              style={{ backgroundColor: 'green' }}
+                              onClick={() =>
+                                router.push({
+                                  pathname: '/review/write',
+                                  query: {
+                                    reservId: reserv.id,
+                                    reviewTypeId: 2,
+                                    placeName: reserv.place?.name || '',
+                                  },
+                                })
+                              }
+                            >
+                              리뷰쓰기
+                            </Button>
                           </>
                         )}
                       </PlaceInfoRight>
