@@ -242,7 +242,7 @@
   
 	<update id="softGroupDelete" parameterType="map">
 	    UPDATE reserv
-	    SET state = 'CANCELLED', updated_at = NOW()
+	    SET state = 'CANCELLED', delete_at = NOW()
 	    WHERE id IN
 	    <foreach item="id" collection="reservIds" open="(" close=")" separator=",">
 	        #{id}

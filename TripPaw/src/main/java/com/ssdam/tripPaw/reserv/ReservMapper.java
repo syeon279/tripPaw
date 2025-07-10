@@ -56,5 +56,5 @@ public interface ReservMapper {
 	
 	public List<Reserv> findByMemberTripPlanIdAndMember(@Param("memberTripPlanId") Long memberTripPlanId, @Param("memberId") Long memberId);
 	
-	public int softGroupDelete(@Param("idList") List<Long> idList, @Param("memberTripPlanId") Long memberTripPlanId);
+	public int softGroupDelete(@Param("reservIds") List<Long> reservIds, @Param("memberTripPlanId") Long memberTripPlanId);
 }
