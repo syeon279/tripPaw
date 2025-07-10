@@ -4,7 +4,7 @@ TripPaw_React/node_modules/
 TripPaw_React/.next/
 TripPaw/src/main/resources/static/
 *.class
-bin/
+TripPaw/bin/
 
 TripPaw/src/main/resources/application-oauth.properties
 TripPaw/src/main/resources/application-mail.properties
