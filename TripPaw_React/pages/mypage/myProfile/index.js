@@ -485,7 +485,7 @@ const onClickImageUpload = useCallback(() => {
                       xl: 80,
                       xxl: 100,
                     }}
-                    src={imgFile}
+                    src={imgFile && imgFile !== 'null' && imgFile !== 'undefined' ? imgFile : null}
                     icon={<AntDesignOutlined />}
                   />
               <input
