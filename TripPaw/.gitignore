@@ -8,11 +8,12 @@ target/
 .apt_generated
 .classpath
 .factorypath
-.project
 .settings
 .springBeans
 .sts4-cache
 .class
+bin/
+TripPaw/bin/
 
 ### IntelliJ IDEA ###
 .idea
