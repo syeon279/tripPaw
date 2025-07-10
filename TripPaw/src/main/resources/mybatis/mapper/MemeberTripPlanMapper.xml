@@ -180,7 +180,7 @@
 		count_people,
 		count_pet,
 		title_override,
-		is_public  
+		is_public
 		)
 		VALUES (
 		#{tripPlan.id},
@@ -190,7 +190,7 @@
 		#{countPeople},
 		#{countPet},
 		#{titleOverride},
-		false       
+		false
 		)
 	</insert>
 
@@ -223,12 +223,10 @@
 		= #{id}
 	</update>
 
-	<!-- soft delete -->
+	<!--delete -->
 	<delete id="delete" parameterType="long">
-		UPDATE member_trip_plan
-		SET
-		member_id = 1
-		WHERE member_id = #{id}
+		DELETE FROM member_trip_plan
+		WHERE id = #{id}
 	</delete>
 
 </mapper>

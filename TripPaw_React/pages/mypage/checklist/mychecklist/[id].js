@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Divider, message } from 'antd';
 import axios from 'axios';
 
-import MypageLayout from '@/components/layout/MyPageLayOut';
+import MypageLayout from '@/components/layout/MypageLayout';
 import UserChecklistRoutineList from '@/components/checkUser/UserChecklistRoutineList';
 
 const MyChecklistPage = () => {

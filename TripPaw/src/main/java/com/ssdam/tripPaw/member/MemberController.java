@@ -26,7 +26,7 @@ public class MemberController {
 	
 	@GetMapping("/")
 	public String home() {
-		return "/user/login";
+		return "/";
 	}
 	@GetMapping("/member/member") //사용자들의 권한
 	public String member( Authentication authentication, Model model) {

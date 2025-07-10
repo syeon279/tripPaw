@@ -161,6 +161,9 @@ function LoginForm({ onToggleForm }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const CLIENT_ID = process.env.NEXT_PUBLIC_REST_API_KEY;
+  const REDIRECT_URI = process.env.NEXT_PUBLIC_REDIRECT_URL;
+  
   // 비밀번호 보이기/숨기기 상태 관리
   const [showPassword, setShowPassword] = useState(false);
 
@@ -228,7 +231,8 @@ function LoginForm({ onToggleForm }) {
               <p>소셜 아이디로 로그인하기</p>
               <SocialIcons>
                 <SocialIcon><img src={googleIconPath} alt="구글" /></SocialIcon>
-                <SocialIcon><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
+                {/* <SocialIcon href={`https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon> */}
+                <SocialIcon href={`http://localhost:8080/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
                 <SocialIcon><img src={naverIconPath} alt="네이버" /></SocialIcon>
               </SocialIcons>
             </SocialLogin>

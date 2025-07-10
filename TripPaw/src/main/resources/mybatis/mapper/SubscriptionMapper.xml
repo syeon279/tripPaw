@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.ssdam.tripPaw.subscription.SubscriptionMapper">
+
+	<resultMap id="subscriptionResultMap"
+		type="com.ssdam.tripPaw.domain.Subscription">
+		<id property="id" column="id" />
+		<result property="startDate" column="start_date" />
+		<result property="endDate" column="end_date" />
+		<result property="isActive" column="is_active" />
+		<association property="member" column="member_id"
+			javaType="com.ssdam.tripPaw.domain.Member"
+			select="com.ssdam.tripPaw.member.MemberMapper.findById" />
+	</resultMap>
+
+	<!-- 구독 등록 -->
+	<insert id="insert"
+		parameterType="com.ssdam.tripPaw.domain.Subscription"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO subscription (member_id, start_date, end_date, is_active)
+		VALUES (#{member.id}, #{startDate}, #{endDate}, #{isActive})
+	</insert>
+
+	<!-- 최신 구독 조회 -->
+	<select id="findLatestByMemberId"
+		resultMap="subscriptionResultMap">
+		SELECT *
+		FROM subscription
+		WHERE member_id = #{memberId}
+		ORDER BY end_date DESC
+		LIMIT 1
+	</select>
+
+	<!-- 현재 구독 여부 확인 -->
+	<select id="hasActiveSubscription" resultType="boolean">
+		SELECT COUNT(*) > 0
+		FROM subscription
+		WHERE member_id = #{memberId}
+		AND is_active = true
+		AND end_date > CURRENT_DATE
+	</select>
+
+	<!-- 구독 취소 (is_active false로 변경 + 취소일 기록) -->
+	<update id="cancelSubscription" parameterType="long">
+		UPDATE subscription
+		SET is_active = false,
+		canceled_at = NOW()
+		WHERE member_id = #{memberId}
+		AND is_active = true
+		AND end_date > CURRENT_DATE
+	</update>
+
+</mapper>
