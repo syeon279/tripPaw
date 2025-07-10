@@ -86,4 +86,16 @@
   <delete id="delete">
     DELETE FROM member WHERE id = #{id}
   </delete>
+  
+  <update id="updateMember" parameterType="Member">
+  	update member
+  	set username = #{username}
+  		,nickname = #{nickname}
+  		,password = #{password}
+  		,zonecode = #{zonecode}
+  		,road_address = #{roadAddress}
+  		,namuji_address= #{namujiAddress}
+  		,provider = #{provider}
+  	where id = #{id}
+  </update>
 </mapper>
