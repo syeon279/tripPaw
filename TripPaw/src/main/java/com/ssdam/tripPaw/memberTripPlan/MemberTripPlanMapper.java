@@ -38,7 +38,7 @@ public interface MemberTripPlanMapper {
 	int update(MemberTripPlan memberTripPlan);
 
 	/*
-	 * 소프트 삭제 (member_id → 1로 설정)
+	 * 삭제
 	 */
 	int delete(@Param("id") Long memberId);
 }

@@ -1,19 +1,12 @@
 package com.ssdam.tripPaw.nft;
 
-import java.time.LocalDateTime;
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class MemberNftDto {
     private Long id;
-    private Long nftMetadataId;
-    private String tokenId;
-    private String memberId;
-    private String walletAddress;
-    private LocalDateTime issuedAt;
-    private String barcode;
-    private LocalDateTime dueAt;
-    private String issuedReason;
-    private String txHash;
+    private String title;
+    private String imageUrl;
 }

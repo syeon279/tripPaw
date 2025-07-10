@@ -16,9 +16,10 @@ const ReviewForm = () => {
   const router = useRouter();
   const { isReady, query } = router;
 
-  const { tripPlanId, title, startDate, endDate } = query;
-  const targetId = tripPlanId ? parseInt(tripPlanId) : null;
-
+  const { tripPlanId, reservId, title, startDate, endDate, placeImage, placeName } = query;
+  const [reviewTypeId, setReviewTypeId] = useState(null);
+  const [targetId, setTargetId] = useState(null);
+  const [memberId, setMemberId] = useState(null);
   const [rating, setRating] = useState(0);
   const [keywords, setKeywords] = useState([]);
   const [content, setContent] = useState('');
@@ -26,30 +27,56 @@ const ReviewForm = () => {
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState('');
 
-  const reviewTypeId = 1;
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/auth/check', {
+          withCredentials: true,
+        });
+        setMemberId(response.data.id);
+      } catch (err) {
+        console.error('로그인 정보 확인 실패:', err);
+        message.error('로그인이 필요합니다.');
+        router.push('/member/login');
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
 
   useEffect(() => {
-    if (!isReady || !tripPlanId) return;
+    if (!isReady) return;
+
+    const { tripPlanId, reservId, reviewTypeId, targetId } = query;
+
+    if (tripPlanId) {
+      setReviewTypeId(1);
+      setTargetId(Number(tripPlanId));
+    } else if (reservId) {
+      setReviewTypeId(2);
+      setTargetId(Number(reservId));
+    } else if (reviewTypeId && targetId) {
+      // fallback: targetId 직접 넘긴 경우
+      setReviewTypeId(Number(reviewTypeId));
+      setTargetId(Number(targetId));
+    }
+  }, [isReady, query]);
+
+
+  useEffect(() => {
+    if (!isReady || !reviewTypeId || !targetId) return;
+
+    const type = reviewTypeId === 1 ? 'PLAN' : 'PLACE';
 
     axios.get('http://localhost:8080/review/weather', {
-      params: {
-        type: 'PLAN',
-        targetId: Number(tripPlanId), // 꼭 숫자여야 해
-      },
+      params: { type, targetId },
     })
       .then((res) => setWeather(res.data))
       .catch((err) => {
         console.error('날씨 정보 불러오기 실패:', err);
         setWeather('알 수 없음');
       });
-
-  }, [isReady, tripPlanId]);
-
-  useEffect(() => {
-    console.log('[DEBUG] tripPlanId:', tripPlanId);
-    console.log('[DEBUG] targetId:', targetId);
-    console.log('[날씨 요청] type: PLAN, targetId:', tripPlanId, typeof tripPlanId);
-  }, [tripPlanId]);
+  }, [isReady, reviewTypeId, targetId]);
 
   const handleUploadChange = ({ fileList }) => setFileList(fileList);
 
@@ -60,12 +87,8 @@ const ReviewForm = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8080/review/generate", {
-        keywords,
-      });
-
-      const generated = res.data.content;
-      setContent(generated);
+      const res = await axios.post("http://localhost:8080/review/generate", { keywords });
+      setContent(res.data.content);
       message.success("AI 리뷰가 생성되었습니다.");
     } catch (err) {
       message.error("AI 리뷰 생성 실패");
@@ -74,15 +97,17 @@ const ReviewForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!targetId) {
-      message.error('유효하지 않은 여행 ID입니다.');
+    console.log('memberId:', memberId);
+    console.log('reviewTypeId:', reviewTypeId);
+    console.log('targetId:', targetId);
+    if (!targetId || !reviewTypeId || !memberId) {
+      message.error('리뷰 작성에 필요한 정보가 부족합니다.');
       return;
     }
 
     const formData = new FormData();
-
     const reviewDto = {
-      memberId: 1, // TODO: 로그인 유저로 교체 필요
+      memberId,
       reviewTypeId,
       targetId,
       content,
@@ -97,8 +122,10 @@ const ReviewForm = () => {
     try {
       await axios.post('http://localhost:8080/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
       });
-      message.success('리뷰가 성공적으로 저장되었습니다!');
+      message.success('리뷰가 저장되었습니다!');
+      router.push('/');
     } catch (err) {
       console.error('리뷰 저장 실패', err);
       message.error('리뷰 저장 실패');
@@ -113,59 +140,87 @@ const ReviewForm = () => {
       case '비': return 'rain.png';
       case '눈': return 'snow.png';
     }
-  }
+  };
+
+  const handleNextWithSave = async () => {
+    if (!memberId || !targetId || !reviewTypeId) {
+      message.error('필수 정보 누락');
+      return;
+    }
+
+    if (!rating || !content) {
+      message.warning('별점과 내용을 입력해주세요.');
+      return;
+    }
+
+    const reviewDto = {
+      memberId,
+      reviewTypeId: Number(reviewTypeId), // 1
+      targetId: Number(targetId),         // tripPlanId
+      rating,
+      content,
+    };
+
+    // ✅ formData 정의 추가
+    const formData = new FormData();
+    formData.append('review', new Blob([JSON.stringify(reviewDto)], { type: 'application/json' }));
+    fileList.forEach((file) => {
+      formData.append('images', file.originFileObj);
+    });
+
+    try {
+      await axios.post('http://localhost:8080/review/write', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
+      });
+
+      message.success('경로 리뷰가 저장되었습니다.');
+      router.push({
+        pathname: '/review/place/write',
+        query: { tripPlanId: targetId },
+      });
+    } catch (err) {
+      console.error('경로 리뷰 저장 실패:', err);
+      message.error('경로 리뷰 저장에 실패했습니다.');
+    }
+  };
+
+
 
   if (!isReady) return <div>로딩 중...</div>;
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      {/* 상단 여행 정보 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 24,
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 18, fontWeight: 'bold' }}>{title}</div>
+          <div style={{ fontSize: 18, fontWeight: 'bold' }}>{placeName || title}</div>
           <div style={{ fontSize: 14, color: '#777' }}>
             일정 | {startDate} ~ {endDate}
           </div>
         </div>
         <div style={{ width: 60, textAlign: 'right' }}>
           {['맑음', '흐림', '비', '눈', '구름많음'].includes(weather) ? (
-            <img
-              src={`/image/weather/${getWeatherImage(weather)}`}
-              alt={weather}
-              style={{ width: 40, height: 40 }}
-            />
+            <img src={`/image/weather/${getWeatherImage(weather)}`} alt={weather} style={{ width: 40, height: 40 }} />
           ) : (
             <QuestionOutlined style={{ fontSize: 24, color: '#ccc' }} />
           )}
         </div>
       </div>
 
-      {/* 별점 */}
       <h4>이 장소에서의 경험은 어떠셨나요?</h4>
       <Rate value={rating} onChange={setRating} style={{ fontSize: 24 }} />
 
-      {/* 키워드 */}
       <h4 style={{ marginTop: 30 }}>이 여행에 어울리는 키워드를 골라주세요.</h4>
       <Checkbox.Group value={keywords} onChange={setKeywords}>
         <Row gutter={[8, 8]} style={{ marginTop: 10 }}>
           {keywordOptions.map((keyword) => (
             <Col key={keyword}>
-              <Checkbox value={keyword} style={{ fontSize: 14 }}>
-                {keyword}
-              </Checkbox>
+              <Checkbox value={keyword} style={{ fontSize: 14 }}>{keyword}</Checkbox>
             </Col>
           ))}
         </Row>
       </Checkbox.Group>
 
-      {/* 텍스트 */}
       <TextArea
         rows={6}
         placeholder="리뷰를 작성해주세요"
@@ -174,17 +229,10 @@ const ReviewForm = () => {
         style={{ marginTop: 20 }}
       />
 
-      {/* AI 버튼 */}
-      <Button
-        loading={loading}
-        onClick={handleAIReview}
-        block
-        style={{ marginTop: 10, backgroundColor: '#000', color: '#fff' }}
-      >
+      <Button loading={loading} onClick={handleAIReview} block style={{ marginTop: 10, backgroundColor: '#000', color: '#fff' }}>
         AI 리뷰 작성
       </Button>
 
-      {/* 업로드 */}
       <div style={{ marginTop: 24 }}>
         <Upload
           multiple
@@ -197,22 +245,28 @@ const ReviewForm = () => {
         </Upload>
       </div>
 
-      {/* 하단 버튼 */}
       <Row justify="space-between" style={{ marginTop: 40 }}>
         <Col>
-          <Button style={{ backgroundColor: '#fff', color: '#000', border: '1px solid #000' }}>
+          <Button onClick={() => router.back()} style={{ backgroundColor: '#fff', color: '#000', border: '1px solid #000' }}>
             취소
           </Button>
         </Col>
         <Col>
           <Button
-            type="primary"
-            style={{ backgroundColor: '#000', color: '#fff', border: 'none' }}
-            size="large"
+            style={{ marginRight: 10, backgroundColor: '#000', color: '#fff', border: 'none' }}
             onClick={handleSubmit}
           >
-            다음으로 넘어가기
+            저장하기
           </Button>
+          {reviewTypeId === 1 && (
+            <Button
+              type="primary"
+              style={{ backgroundColor: '#1890ff', border: 'none' }}
+              onClick={handleNextWithSave}
+            >
+              다음으로 넘어가기
+            </Button>
+          )}
         </Col>
       </Row>
     </div>
