@@ -30,12 +30,21 @@ public class MemberNftController {
     public ResponseEntity<List<MemberNftDto>> getMemberNfts(@PathVariable Long memberId) {
         List<MemberNft> memberNfts = memberNftService.getMemberNfts(memberId);
 
-        // MemberNft 객체를 MemberNftDto로 변환
-        List<MemberNftDto> memberNftDtos = memberNfts.stream()
-            .map(nft -> new MemberNftDto(nft.getId(), nft.getNftMetadata().getTitle(), nft.getNftMetadata().getImageUrl()))
+        List<MemberNftDto> dtos = memberNfts.stream()
+            .map(nft -> new MemberNftDto(
+            		 nft.getId(),
+                     nft.getNftMetadata().getTitle(),
+                     nft.getTokenId(), 
+                     nft.getNftMetadata().getImageUrl(),
+                     nft.getNftMetadata().getPointValue(),
+                     nft.getUsedAt(),
+                     nft.getBarcode(),             
+                     nft.getIssuedAt(),             
+                     nft.getDueAt()                 
+            ))
             .collect(Collectors.toList());
 
-        return ResponseEntity.ok(memberNftDtos);
+        return ResponseEntity.ok(dtos);
     }
 
     // NFT 발급
