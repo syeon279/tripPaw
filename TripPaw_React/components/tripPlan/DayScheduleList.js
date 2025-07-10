@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import DayScheduleItem from './DayScheduleItem';
 import ActionButtons from './ActionButtons';
+import format from 'date-fns/format';
 
-const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, setFocusDay }) => {
+const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, setFocusDay, startDate }) => {
     const dayRefs = useRef([]);
 
     const handleDayClick = (dayIndex) => {
@@ -10,10 +11,17 @@ const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, set
         dayRefs.current[dayIndex - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
+    const addDaysToDate = (dateStr, daysToAdd) => {
+    const date = new Date(dateStr);
+    date.setDate(date.getDate() + daysToAdd);
+    return date.toISOString().slice(0, 10); // YYYY-MM-DD 포맷
+    };
+
     return (
         <div>
             {routeData.map((day, index) => (
                 <div key={day.day} ref={(el) => (dayRefs.current[index] = el)} style={{ marginBottom: '16px' }}>
+                    <div>{ addDaysToDate( startDate, day.day-1)  }   </div>
                     <DayScheduleItem
                         day={day}
                         isActive={day.day === currentDay}
