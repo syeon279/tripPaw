@@ -53,7 +53,7 @@ const Sidebar = () => {
     checkUser();
   }, []);
 
-if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하지 않음
+  if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하지 않음
 
   return (
     <Wrapper>
@@ -61,7 +61,7 @@ if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하�
       {!isAdmin && user && (
         <>
           <SidebarSection title={`안녕하세요, ${user.nickname}님`}>
-            <SidebarItem text="내 정보 관리" href="/mypage/profile" />
+            <SidebarItem text="내 정보 관리" href="/mypage/profile/myProfile" />
             <SidebarItem text="쿠폰함" href="/mypage/coupons" />
           </SidebarSection>
 
@@ -71,7 +71,7 @@ if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하�
           <SidebarItem text="내 여행" href="/mypage/trips" />
 
           <SidebarItem text="내 리뷰 관리" href={`/mypage/reviews/${user?.memberId}`} />
-           {/* ✅ memberId 없으면 렌더링 안 하도록 */}
+          {/* ✅ memberId 없으면 렌더링 안 하도록 */}
           {user.memberId && (
             <SidebarItem
               text="내 체크리스트"

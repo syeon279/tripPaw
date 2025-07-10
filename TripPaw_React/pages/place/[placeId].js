@@ -15,6 +15,7 @@ import {
   // ThunderboltOutlined,
   QuestionOutlined
 } from '@ant-design/icons';
+import LoginFormModal from '@/components/member/LoginFormModal';
 
 const { TabPane } = Tabs;
 
@@ -148,8 +149,25 @@ const PlaceReservCreatePage = () => {
   const [avgRating, setAvgRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [likeStates, setLikeStates] = useState({});
+  // 상태 변수
+  const [pendingAction, setPendingAction] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // 장소 이미지
+  const getFallbackImages = (items) => {
+    const map = {};
+    items.forEach(item => {
+      const randomNum = Math.floor(Math.random() * 10) + 1;
+      map[item.id] = `/image/other/randomImage/${randomNum}.jpg`;
+    });
+    return map;
+  };
+  const fallbackImages = useMemo(() => {
+    if (!place) return {};
+    return getFallbackImages([place, place]); // 배열로 감싸기
+  }, [place]);
 
+  // 장소 정보 불러오기
   useEffect(() => {
     const fetchPlaceAndMember = async () => {
       if (!router.isReady) return;
@@ -200,6 +218,7 @@ const PlaceReservCreatePage = () => {
     checkFavorite();
   }, [placeId, memberId]);
 
+  // 예약 날짜 불러오기
   useEffect(() => {
     if (!placeId) return;
     axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${placeId}`)
@@ -222,6 +241,7 @@ const PlaceReservCreatePage = () => {
       });
   }, [placeId]);
 
+  // 즐겨찾기
   const toggleFavorite = async () => {
     try {
       const payload = {
@@ -250,8 +270,8 @@ const PlaceReservCreatePage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // 예약하기
+  const executeReservation = async () => {
     const expireAtDate = addDays(new Date(), 5);
     const payload = {
       startDate: format(dateRange[0].startDate, 'yyyy-MM-dd'),
@@ -263,6 +283,7 @@ const PlaceReservCreatePage = () => {
       place: { id: placeId },
       tripPlan: tripPlanId ? { id: tripPlanId } : null,
     };
+
     try {
       const res = await axios.post('http://localhost:8080/reserv', payload);
       alert('예약 성공! 🎉');
@@ -285,12 +306,20 @@ const PlaceReservCreatePage = () => {
     }
   };
 
-  const fallbackImages = useMemo(() => {
-    if (!place) return {};
-    const randomNum = Math.floor(Math.random() * 10) + 1;
-    return { [place.id]: `/image/other/randomImage/${randomNum}.jpg` };
-  }, [place]);
+  // 예약 핸들러 수정
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
+    if (!isLoggedIn || !memberId) {
+      setPendingAction(() => executeReservation); // 예약 로직만 저장
+      setShowLoginModal(true);
+      return;
+    }
+
+    executeReservation(); // 바로 예약 실행
+  };
+
+  // 리뷰 날씨
   const getWeatherImageFileName = (condition) => {
     switch (condition) {
       case '흐림':
@@ -336,6 +365,8 @@ const PlaceReservCreatePage = () => {
       fetchAllData();
     }
   }, [placeId]);
+
+  // 리뷰
   const fetchReviews = async (placeId, memberId) => {
     setLoading(true);
     try {
@@ -373,6 +404,7 @@ const PlaceReservCreatePage = () => {
     setLoading(false);
   };
 
+  // 좋아요 
   const toggleLike = async (reviewId) => {
     if (!memberId) {
       message.warning('로그인 후 이용 가능합니다.');
@@ -409,6 +441,26 @@ const PlaceReservCreatePage = () => {
     } catch (err) {
       console.error('좋아요 처리 실패:', err);
       message.error('좋아요 처리에 실패했습니다.');
+    }
+  };
+
+  //로그인
+  const handleLoginSuccess = async () => {
+    setShowLoginModal(false);
+    try {
+      const res = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+      setMemberId(res.data.id);
+      setIsLoggedIn(true);
+
+      if (pendingAction) {
+        const action = pendingAction;
+        setPendingAction(null); // 먼저 초기화하고
+        setTimeout(() => {
+          action(); // 완전한 로그인 후 상태에서 실행
+        }, 0);
+      }
+    } catch (err) {
+      console.error('로그인 후 memberId 확인 실패:', err);
     }
   };
 
@@ -456,11 +508,11 @@ const PlaceReservCreatePage = () => {
                   <p><strong>🔗 홈페이지:</strong> <a href={place.homePage} target="_blank" rel="noopener noreferrer">{place.homePage}</a></p>
                 )}
               </ImageSection>
-              <TabsSection>
-                <Tabs defaultActiveKey="reserv" style={{ marginTop: 32 }}>
+              <TabsSection >
+                <Tabs defaultActiveKey="reserv" style={{ marginTop: 32, textAlign: 'center' }}>
                   <TabPane tab="예약" key="reserv">
                     <Form onSubmit={handleSubmit}>
-                      <div>
+                      <div style={{ textAlign: 'center' }}>
                         <Label>예약 날짜</Label>
                         <DateRange
                           editableDateInputs
@@ -472,13 +524,15 @@ const PlaceReservCreatePage = () => {
                         />
                       </div>
                       <ExpireText>⏳ 만료일: <strong>{format(addDays(new Date(), 5), 'yyyy-MM-dd')}</strong></ExpireText>
-                      <div>
-                        <Label>인원 수</Label>
-                        <Input type="number" min="1" value={countPeople} onChange={(e) => setCountPeople(e.target.value)} />
-                      </div>
-                      <div>
-                        <Label>반려동물 수</Label>
-                        <Input type="number" min="0" value={countPet} onChange={(e) => setCountPet(e.target.value)} />
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div style={{ marginLeft: '30px', marginRight: '30px' }}>
+                          <Label>인원 수</Label>
+                          <Input type="number" min="1" value={countPeople} onChange={(e) => setCountPeople(e.target.value)} />
+                        </div>
+                        <div style={{ marginLeft: '30px', marginRight: '30px' }}>
+                          <Label>반려동물 수</Label>
+                          <Input type="number" min="0" value={countPet} onChange={(e) => setCountPet(e.target.value)} />
+                        </div>
                       </div>
                       <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
                       {message && <ErrorMsg>{message}</ErrorMsg>}
@@ -564,6 +618,7 @@ const PlaceReservCreatePage = () => {
               </TabsSection>
             </Layout>
             <PetAssistant />
+            {showLoginModal && <LoginFormModal onSuccess={handleLoginSuccess} onCancel={() => setShowLoginModal(false)} />}
           </Container>
         )}
       </ScrollContainer>
