@@ -300,4 +300,17 @@
 		WHERE review_type_id = 2 AND target_id = #{id}
 	</select>
 
+	<!-- 추가 -->
+	<!-- Top5 추천순 리뷰 조회 -->
+	<select id="findTop5ByLikes" resultMap="reviewResultMap">
+	  SELECT
+	    r.*,
+	    COUNT(ml.member_id) AS likeCount
+	  FROM review r
+	  LEFT JOIN member_likes_review ml ON r.id = ml.review_id
+	  GROUP BY r.id
+	  ORDER BY likeCount DESC
+	  LIMIT 5
+	</select>
+
 </mapper>

@@ -23,6 +23,8 @@ const Sidebar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
+  const isLoading = user === null && !isAdmin;
+
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -51,6 +53,8 @@ const Sidebar = () => {
     checkUser();
   }, []);
 
+if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하지 않음
+
   return (
     <Wrapper>
       {/* 유저 전용 항목 */}
@@ -65,12 +69,19 @@ const Sidebar = () => {
           <SidebarItem text="예약 내역 보기" href="/mypage/reserv/reservlist" />
           <SidebarItem text="내 장소" href="/mypage/places" />
           <SidebarItem text="내 여행" href="/mypage/trips" />
+
           <SidebarItem text="내 리뷰 관리" href={`/mypage/reviews/${user?.memberId}`} />
-          <SidebarItem
-            text="내 체크리스트"
-            href={`/mypage/checklist/mychecklist/${user?.memberId}`}
-            active={router.asPath === `/mypage/checklist/mychecklist/${user?.memberId}`}
-          />
+           {/* ✅ memberId 없으면 렌더링 안 하도록 */}
+          {user.memberId && (
+            <SidebarItem
+              text="내 체크리스트"
+              href={`/mypage/checklist/mychecklist/${user.memberId}`}
+              active={
+                router.asPath ===
+                `/mypage/checklist/mychecklist/${user.memberId}`
+              }
+            />
+          )}
           <SidebarItem text="내 뱃지" href={`/mypage/badges/${user?.memberId}`} />
         </>
       )}

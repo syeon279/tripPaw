@@ -16,7 +16,7 @@ public class MemberNftService {
     private final MemberNftMapper memberNftMapper;
 
     // 특정 멤버의 NFT 조회
-    public List<MemberNft> getMemberNfts(String memberId) {
+    public List<MemberNft> getMemberNfts(Long memberId) {
         return memberNftMapper.findByMemberId(memberId);
     }
 

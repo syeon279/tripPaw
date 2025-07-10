@@ -72,7 +72,7 @@ public class ReviewService {
 	private final String apiKey = "sk-...";
 	
 	public List<Reserv> getReservListForTripPlanReview(Long tripPlanId, Long memberId) {
-        return reservMapper.findByTripPlanIdAndMember(tripPlanId, memberId);
+        return reservForReviewMapper.findByTripPlanIdAndMember(tripPlanId, memberId);
     }
 
 	public void saveReviewWithWeather(ReviewDto dto, List<MultipartFile> images) {
