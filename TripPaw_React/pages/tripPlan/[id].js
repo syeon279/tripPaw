@@ -206,7 +206,25 @@ const TripPlanDetail = () => {
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
                 <h1>{title || '여행 상세 보기'}</h1>
-                <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', gap: '6px' }}>
+                <div
+                    style={{ display: 'flex', alignItems: 'center', marginTop: '4px', gap: '6px', cursor: 'pointer' }}
+                    onClick={async () => {
+                        let mapImageBase64 = null;
+                        try {
+                            mapImageBase64 = await handleCaptureMap();
+                        } catch (err) {
+                            console.warn('지도 캡처 실패:', err);
+                        }
+
+                        router.push({
+                            pathname: `/review/tripPlan/${id}`,
+                            query: {
+                                title: title || '',
+                                mapImage: mapImageBase64 || '', // 지도 이미지도 query로 함께 전송
+                            },
+                        });
+                    }}
+                >
                     <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
                         {rating?.toFixed(1) || '0.0'}
                     </p>
@@ -217,6 +235,8 @@ const TripPlanDetail = () => {
                         | 리뷰 {reviewCount || 0}
                     </p>
                 </div>
+
+
 
                 {authorNickname && (
                     <p style={{ fontSize: '15px', color: '#666', marginBottom: '6px' }}>

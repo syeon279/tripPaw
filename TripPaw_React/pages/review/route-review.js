@@ -105,10 +105,15 @@ const ReviewList = () => {
           <List
             itemLayout="vertical"
             dataSource={reviews}
-            renderItem={(item) => (
+            renderItem={(item) => {
+              console.log('리뷰 아이템:', item);
+              return (
               <List.Item key={item.reviewId} style={{ borderBottom: "1px solid #eee", paddingBottom: 24 }}>
                 {/* 제목 & 태그 */}
-                <div style={{ fontWeight: 600, color: '#666', marginBottom: 4 }}>
+                <div 
+                  style={{ fontWeight: 600, color: '#666', marginBottom: 4, cursor:'pointer'}}
+                  onClick={() => router.push(`/review/tripPlan/${item.tripPlanId}`)}
+                >
                   📌 여행 플랜: {item.planTitle}
                 </div>
 
@@ -185,7 +190,8 @@ const ReviewList = () => {
                   </Button>
                 </div>
               </List.Item>
-            )}
+              );
+            }}
           />
         )}
       </div>

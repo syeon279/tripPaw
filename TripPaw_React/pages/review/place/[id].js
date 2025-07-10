@@ -112,8 +112,13 @@ const PlaceReviewPage = () => {
 
   return (
     <div style={{ maxWidth: 1200, margin: 'auto', padding: 24 }}>
-      <h2 style={{ fontSize: 24, fontWeight: 700 }}>장소명</h2>
-      <div style={{ color: '#888', marginBottom: 8 }}>장소 카테고리</div>
+      <h2 style={{ fontSize: 24, fontWeight: 700 }}>
+        {router.query.name || '장소명'} {/* 또는 이전 페이지에서 전달한 값 */}
+      </h2>
+      <div style={{ color: '#888', marginBottom: 8 }}>
+        {router.query.category || '장소 카테고리'}
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
         <Rate value={avgRating} disabled />
         <span style={{ marginLeft: 8 }}>{avgRating}</span>
@@ -167,36 +172,36 @@ const PlaceReviewPage = () => {
                       </div>
 
                       <div style={{ fontSize: 24, color: '#1890ff' }}>
-                        {r.weatherCondition === '맑음' && <SunOutlined style={{color:'orange'}}/>}
-                        {r.weatherCondition === '흐림' && 
+                        {r.weatherCondition === '맑음' && <SunOutlined style={{ color: 'orange' }} />}
+                        {r.weatherCondition === '흐림' &&
                           (<img
                             src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
                             alt={r.weatherCondition}
                             style={{ width: 50, height: 50 }}
                           />
-                        )}
-                        {r.weatherCondition === '비' && 
+                          )}
+                        {r.weatherCondition === '비' &&
                           (<img
                             src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
                             alt={r.weatherCondition}
                             style={{ width: 50, height: 50 }}
                           />
-                        )}
-                        {r.weatherCondition === '눈' && 
+                          )}
+                        {r.weatherCondition === '눈' &&
                           (<img
                             src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
                             alt={r.weatherCondition}
                             style={{ width: 50, height: 50 }}
                           />
-                        )}
-                        {r.weatherCondition === '구름많음' && 
+                          )}
+                        {r.weatherCondition === '구름많음' &&
                           (<img
                             src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
                             alt={r.weatherCondition}
                             style={{ width: 50, height: 50 }}
                           />
-                        )}
-                        {r.weatherCondition === '알 수 없음' && <QuestionOutlined style={{color:'#aaa'}}/>}
+                          )}
+                        {r.weatherCondition === '알 수 없음' && <QuestionOutlined style={{ color: '#aaa' }} />}
                       </div>
                     </div>
                     <div style={{ marginTop: 12 }}>{r.content}</div>
