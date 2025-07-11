@@ -300,10 +300,11 @@ const Profile = () => {
       const profileImageResponse = async () => {
         const response = await axios.get(`http://localhost:8080/api/auth/getProfileImage?id=${memberId}`
           , { withCredentials: true })
+        const imgname = response.data.src;
         console.log("profileImage=", response.data.src);
-        setProfileImageFile(response.data.src);
+        setProfileImageFile(`http://localhost:8080/upload/memberImg/${imgname}`);
+        profileImageResponse();
       }
-      profileImageResponse();
     }
   }, [memberId])
   useEffect(() => {
@@ -315,18 +316,19 @@ const Profile = () => {
       console.log('✅ 파일 이름:', profileImageFile.name);
     }
   }, [profileImageFile]); // <-- 의존성 배열에 감시할 state를 넣어줍니다.
+  const [uploadFile, setUploadFile] = useState(null);
   //////이미지 미리보기
   const saveImgFile = useCallback((e) => {
     console.log('.........saveImage', e.target.files[0]);
     console.log('.........saveImage', imageInput.current.files[0]);
     const file = e.target.files[0];
     console.log("file=", file)
-    setProfileImageFile(file);
+    setUploadFile(file);
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
-      setImgFile(reader.result);
+      setProfileImageFile(reader.result);
     };
   }, [imgFile]);
 
@@ -349,7 +351,6 @@ const Profile = () => {
   const onClickImageUpload = useCallback(() => {
     imageInput.current?.click();
   }, [imageInput.current]);
-
   const onSubmitForm = useCallback(async (e) => {
     //e.preventDefault();
     setPhoneNumLenError(false);
@@ -385,7 +386,7 @@ const Profile = () => {
     const formData = new FormData();
     alert('profileImageFile=', profileImageFile.name);
     if (profileImageFile) {
-      formData.append('profileImage', profileImageFile);
+      formData.append('profileImage', uploadFile);
     }
     //   [].forEach.call(e.target.files, (f)=>{
     //     console.log('filetext=',f)
@@ -495,8 +496,20 @@ const Profile = () => {
                 <div style={{ display: 'flex' }}>
                   <label htmlFor='phone'></label>
 
-                  {profileImageFile &&
-                    <Avatar
+                  <Avatar
+                    size={{
+                      xs: 24,
+                      sm: 32,
+                      md: 40,
+                      lg: 64,
+                      xl: 80,
+                      xxl: 100,
+                    }}
+                    src={profileImageFile}
+                    icon={<AntDesignOutlined />}
+                  />
+
+                  {/* <Avatar
                       size={{
                         xs: 24,
                         sm: 32,
@@ -508,21 +521,7 @@ const Profile = () => {
                       src={(profileImageFile) && profileImageFile !== 'null' && profileImageFile !== 'undefined' ? `http://localhost:8080/upload/memberImg/${profileImageFile}` : null}
                       icon={<AntDesignOutlined />}
                     />
-                  }
-                  {imgFile &&
-                    <Avatar
-                      size={{
-                        xs: 24,
-                        sm: 32,
-                        md: 40,
-                        lg: 64,
-                        xl: 80,
-                        xxl: 100,
-                      }}
-                      src={(imgFile) && imgFile !== 'null' && imgFile !== 'undefined' ? imgFile : null}
-                      icon={<AntDesignOutlined />}
-                    />
-                  }
+               */}
                   <input
                     type="file"
                     name="profileImage"
@@ -581,11 +580,11 @@ const Profile = () => {
                 </div>
 
               </Form.Item>
-            </Form>
-          </div>
-        </div>
-      </div>
-    </MypageLayout>
+            </Form >
+          </div >
+        </div >
+      </div >
+    </MypageLayout >
   );
 }
 

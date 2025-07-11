@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Tabs, Rate, Button, Image, Modal, message } from 'antd';
 import { CloseOutlined, QuestionOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 const { TabPane } = Tabs;
 
@@ -70,85 +71,120 @@ const MyReviewList = ({ memberId }) => {
     PLAN: reviews.filter((r) => r.reviewType?.toUpperCase() === 'PLAN'),
   };
 
-  const renderReviewCard = (review) => (
-    <div key={review.reviewId} style={{ background: '#fff', padding: 16, marginBottom: 24, position: 'relative' }}>
-      <div>
-        <div style={{ fontWeight: 600 }}>
-          {review.tripTitle || review.placeName || '(제목 없음)'}
-        </div>
-        <div style={{ color: '#888' }}>
-          {review.tripStartDate && review.tripEndDate
-            ? `${review.tripStartDate} ~ ${review.tripEndDate}`
-            : ''}
-        </div>
-      </div>
+  const renderReviewCard = (review) => {
+    const isPlace = review.reviewType === 'PLACE';
+    console.log('review:', review);
+    return (
+      
+      <div key={review.reviewId} style={{
+        background: '#fff',
+        padding: 16,
+        marginBottom: 32,
+        borderRadius: 8,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+        position: 'relative'
+      }}>
+        
+        {/* 상단 정보 */}
+        <div style={{ marginBottom: 12, borderBottom: '1px solid #ddd', paddingBottom: 8 }}>
+          {/* PLAN 리뷰: 여행 경로 제목 + 날짜 */}
+          {!isPlace && (
+            <>
+              <div style={{ 
+                fontWeight: 'bold', fontSize: 16, cursor:'pointer' }}
+                onClick={() => router.push(`/review/tripPlan/${review.targetId}`)}
+              >
+                {review.tripTitle || '제목 없음'}
+              </div>
+              <div style={{ color: '#888', fontSize: 14 }}>
+                {review.tripStartDate && review.tripEndDate && `${review.tripStartDate} ~ ${review.tripEndDate}`}
+              </div>
+            </>
+          )}
 
-      {/* 장소 리뷰일 경우 장소 이미지 + 이름 */}
-      {review.reviewType === 'PLACE' && review.placeImageUrl && (
-        <div style={{ marginTop: 12 }}>
-          <Image
-            src={review.placeImageUrl}
-            width={100}
-            height={100}
-            style={{ objectFit: 'cover', borderRadius: 8 }}
-          />
-        </div>
-      )}
-
-      <Rate disabled value={review.rating} style={{ fontSize: 14, marginTop: 8 }} />
-
-      <div style={{ position: 'absolute', top: 56, right: 16 }}>
-        {getWeatherImageFileName(review.weatherCondition) ? (
-          <img
-            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
-            alt={review.weatherCondition}
-            style={{ width: 40, height: 40 }}
-          />
-        ) : (
-          <QuestionOutlined style={{ color: '#aaa', fontSize: 24 }} />
-        )}
-      </div>
-
-      <div style={{ margin: '8px 0', color: '#555' }}>{review.createdAt}</div>
-      <p style={{ whiteSpace: 'pre-wrap' }}>{review.content}</p>
-
-      {review.imageUrl && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Image
-            src={review.imageUrl.startsWith('http')
-              ? review.imageUrl
-              : `http://localhost:8080/upload/reviews/${review.imageUrl}`}
-            width={100}
-            height={100}
-            style={{ objectFit: 'cover' }}
-          />
-          {review.imageCount > 1 && (
-            <div style={{
-              position: 'absolute',
-              bottom: 8,
-              left: 8,
-              color: '#fff',
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              padding: '2px 6px',
-              borderRadius: 4,
-              fontSize: 12,
-            }}>
-              {review.imageCount}
+          {/* PLACE 리뷰: 장소 이미지 + 이름 가로정렬 */}
+          {isPlace && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Image
+                src={review.placeImageUrl}
+                width={60}
+                height={60}
+                style={{ objectFit: 'cover', borderRadius: 8 }}
+              />
+              <div>
+                <div 
+                  style={{ fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+                  onClick={() => router.push(`/place/${review.targetId}`)}
+                >
+                  {review.placeName}
+                </div>
+                <div style={{ color: '#999', fontSize: 13 }}>장소 리뷰</div>
+              </div>
             </div>
           )}
         </div>
-      )}
 
-      <Button onClick={() => handleEdit(review.reviewId)} style={{ position: 'absolute', right: 16, bottom: 16 }}>
-        수정하기
-      </Button>
+        {/* 리뷰 본문 */}
+        <div style={{ marginTop: 8 }}>
+          <Rate disabled value={review.rating} style={{ fontSize: 16 }} />
+          <span style={{ marginLeft: 12, color: '#aaa', fontSize: 13 }}>{review.createdAt}</span>
+          <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>{review.content}</div>
 
-      <CloseOutlined
-        onClick={() => handleDelete(review.reviewId)}
-        style={{ position: 'absolute', top: 16, right: 16, cursor: 'pointer', fontSize: 16, color: '#888' }}
-      />
-    </div>
-  );
+          {/* 리뷰 이미지 */}
+          {review.imageUrl && (
+            <div style={{ marginTop: 12, position: 'relative' }}>
+              <Image
+                src={
+                  review.imageUrl.startsWith('http')
+                    ? review.imageUrl
+                    : `http://localhost:8080/upload/reviews/${review.imageUrl}`
+                }
+                width={100}
+                height={100}
+                style={{ objectFit: 'cover', borderRadius: 6 }}
+              />
+              {review.imageCount > 1 && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: 4,
+                  left: 4,
+                  backgroundColor: 'rgba(0,0,0,0.6)',
+                  color: '#fff',
+                  fontSize: 12,
+                  padding: '2px 6px',
+                  borderRadius: 4,
+                }}>
+                  {review.imageCount}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 날씨 아이콘 */}
+        <div style={{ position: 'absolute', top: 16, right: 16 }}>
+          {getWeatherImageFileName(review.weatherCondition) ? (
+            <img
+              src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
+              alt={review.weatherCondition}
+              style={{ width: 40, height: 40 }}
+            />
+          ) : (
+            <QuestionOutlined style={{ color: '#aaa', fontSize: 24 }} />
+          )}
+        </div>
+
+        {/* 수정/삭제 */}
+        <div style={{ position: 'absolute', right: 16, bottom: 16, display: 'flex', gap: 12 }}>
+          <Button size="small" onClick={() => handleEdit(review.reviewId)}>수정하기</Button>
+          <CloseOutlined
+            onClick={() => handleDelete(review.reviewId)}
+            style={{ cursor: 'pointer', fontSize: 16, color: '#888' }}
+          />
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Tabs defaultActiveKey="PLAN">

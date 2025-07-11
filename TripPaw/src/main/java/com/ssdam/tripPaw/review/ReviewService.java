@@ -120,7 +120,7 @@ public class ReviewService {
 	        System.out.println("[DEBUG] 예약 start_date: " + reserv.getStartDate());
 
 	        // 1. 경로 기반 장소 리뷰인지 확인
-	        if (reserv.getTripPlan() != null) {
+	        if (reserv.getMemberTripPlan().getTripPlan() != null) {
 	            System.out.println("[DEBUG] 경로 기반 장소 리뷰입니다.");
 	            // 필요시 추가 로직 삽입 가능
 	        } else {
@@ -166,7 +166,7 @@ public class ReviewService {
 	    // 6. 이미지 업로드
 	    if (images != null && !images.isEmpty()) {
 	        for (MultipartFile file : images) {
-	            String imageUrl = fileUploadService.upload(file, "reviews"); // 파일 저장 (로컬 or S3)
+	            String imageUrl = fileUploadService.upload(file); // 파일 저장 (로컬 or S3)
 
 	            ReviewImage reviewImage = new ReviewImage();
 	            reviewImage.setReview(review);
@@ -294,7 +294,7 @@ public class ReviewService {
 
             // 새 이미지 업로드
             for (MultipartFile file : images) {
-                String imageUrl = fileUploadService.upload(file,"reviews");
+                String imageUrl = fileUploadService.upload(file);
 
                 ReviewImage reviewImage = new ReviewImage();
                 reviewImage.setReview(review);
