@@ -14,3 +14,4 @@ TripPaw/src/main/resources/application-coolsms.properties
 
 *.class
 
+sh.exe.stackdump

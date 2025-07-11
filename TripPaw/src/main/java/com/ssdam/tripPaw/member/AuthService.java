@@ -176,6 +176,7 @@ public class AuthService {
         					  .roadAddress(request.getRoadAddress())
         					  //.jibunAddress(request.getJibunAddress())
         					  .namujiAddress(request.getNamujiAddress())
+        					  .status(true)
         					  //.role(MemberRole.MEMBER)
         					  .build();
         //member.getRole().add(MemberRole.MEMBER);

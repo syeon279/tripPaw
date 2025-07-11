@@ -19,6 +19,7 @@ const layoutStyle = {
         display: 'flex',
         justifyContent: 'center',
         width: '100%',
+        marginTop: '10px',
         marginBottom: '20px',
     },
     dividerLine: {
@@ -80,16 +81,24 @@ const RouteRecommendPage = () => {
                 const response = await axios.get('http://localhost:8080/api/auth/check', {
                     withCredentials: true,
                 });
+
                 if (response.status === 200) {
                     setIsLoggedIn(true);
                     setMemberId(response.data.id);
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
+                if (error.response && error.response.status === 401) {
+                    // 로그인 안 된 상태 → 아무것도 하지 않음 (정상 흐름)
+                    setIsLoggedIn(false); // 필요하면 false 명시
+                } else {
+                    console.error("⚠️ 로그인 상태 확인 중 에러:", error);
+                }
             }
         };
+
         checkLoginStatus();
     }, [router.isReady, router.query]);
+
 
     const requestData = useMemo(() => {
         if (!router.query.req) return null;
@@ -99,6 +108,24 @@ const RouteRecommendPage = () => {
             return null;
         }
     }, [router.query.req]);
+
+    useEffect(() => {
+        if (!router.query.data) {
+            alert("추천된 경로가 없습니다. 다시 시도해주세요.");
+            router.replace('/');
+            return;
+        }
+        try {
+            const parsed = JSON.parse(decodeURIComponent(router.query.data));
+            if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
+                alert("추천된 경로가 없습니다. 다른 조건으로 시도해주세요.");
+                router.replace('/');
+            }
+        } catch (e) {
+            alert("경로 데이터 파싱 실패. 다시 시도해주세요.");
+            router.replace('/');
+        }
+    }, [router.query.data]);
 
     useEffect(() => {
         if (requestData) {
@@ -248,14 +275,19 @@ const RouteRecommendPage = () => {
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
-                <h1>강아지와 함께! 에너지 넘치는 파워 여행 루틴</h1>
-
-                {requestData?.startDate && requestData?.endDate && (
-                    <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
-                        {format(new Date(requestData.startDate), 'yyyy.MM.dd')} ~{' '}
-                        {format(new Date(requestData.endDate), 'yyyy.MM.dd')}
-                    </p>
-                )}
+                <div style={{ display: 'flex', alignItems: 'end' }}>
+                    <div style={{ marginRight: '10px' }}>
+                        <h1>TripPaw가 추천하는 맞춤 여행</h1>
+                    </div>
+                    <div style={{ marginBottom: '3px' }}>
+                        {requestData?.startDate && requestData?.endDate && (
+                            <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
+                                {format(new Date(requestData.startDate), 'yyyy.MM.dd')} ~{' '}
+                                {format(new Date(requestData.endDate), 'yyyy.MM.dd')}
+                            </p>
+                        )}
+                    </div>
+                </div>
                 <div>{countPeople}명 {countPet}견</div>
 
                 <div style={layoutStyle.divider}>
