@@ -30,11 +30,11 @@
 		<association property="place"
 			javaType="com.ssdam.tripPaw.domain.Place" columnPrefix="p_">
 			<id property="id" column="id" />
-			<result property="name" column="name" />
-			<result property="latitude" column="latitude" />
-			<result property="longitude" column="longitude" />
-			<result property="region" column="region" />
-			<result property="imageUrl" column="image_url" />
+			<result property="name" column="p_name" />
+			<result property="latitude" column="p_latitude" />
+			<result property="longitude" column="p_longitude" />
+			<result property="region" column="p_region" />
+			<result property="imageUrl" column="p_image_url" />
 		</association>
 	</resultMap>
 
@@ -124,23 +124,45 @@
 		ORDER BY r.start_date DESC
 	</select>
 
-	<select id="findByTripPlanIdAndMemberJoinMTP" resultMap="ReservWithPlaceResultMap">
-	  SELECT
-	    r.*,
-	    p.id AS p_id,
-	    p.name AS p_name,
-	    p.latitude AS p_latitude,
-	    p.longitude AS p_longitude,
-	    p.region AS p_region,
-	    p.image_url AS p_image_url
-	  FROM reserv r
-	  JOIN member_trip_plan mtp ON r.member_trip_plan_id = mtp.id
-	  JOIN place p ON r.place_id = p.id
-	  WHERE mtp.trip_plan_id = #{tripPlanId}
-	    AND mtp.member_id = #{memberId}
-	    AND r.delete_at IS NULL
-	    AND r.state IN ('CONFIRMED', 'WAITING')
-	  ORDER BY r.start_date ASC
-	  LIMIT 1
+	<select id="findByTripPlanIdAndMemberJoinMTP"
+		resultMap="ReservWithPlaceResultMap">
+		SELECT
+		r.*,
+		p.id AS p_id,
+		p.name AS p_name,
+		p.latitude AS
+		p_latitude,
+		p.longitude AS p_longitude,
+		p.region AS p_region,
+		p.image_url AS p_image_url
+		FROM reserv r
+		JOIN member_trip_plan mtp ON
+		r.member_trip_plan_id = mtp.id
+		JOIN place p ON r.place_id = p.id
+		WHERE
+		mtp.trip_plan_id = #{tripPlanId}
+		AND mtp.member_id = #{memberId}
+		AND
+		r.delete_at IS NULL
+		AND r.state IN ('CONFIRMED', 'WAITING')
+		ORDER BY
+		r.start_date ASC
+		LIMIT 1
 	</select>
+
+	<select id="findReservByMemberAndTripPlan"
+		resultMap="ReservResultMap">
+		SELECT r.*
+		FROM reserv r
+		JOIN member_trip_plan mtp ON
+		r.member_id = mtp.member_id
+		WHERE mtp.trip_plan_id = #{tripPlanId}
+		AND
+		r.member_id = #{memberId}
+		ORDER BY r.start_date ASC
+		LIMIT 1
+	</select>
+
+	<!-- <select id="countByMemberAndPlace" resultType="int"> SELECT COUNT(*) 
+		FROM reserv WHERE member_id = #{memberId} AND place_id = #{placeId} </select> -->
 </mapper>

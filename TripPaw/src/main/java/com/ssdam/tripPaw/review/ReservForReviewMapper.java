@@ -18,8 +18,11 @@ public interface ReservForReviewMapper {
     
     List<Reserv> findByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
     
-    List<ReservWithReviewDto> findAllWithReviewStatus(Long memberId);
+//    List<ReservWithReviewDto> findAllWithReviewStatus(Long memberId);
 
-    Reserv findByTripPlanIdAndMemberJoinMTP(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
+    Reserv findReservByMemberAndTripPlan(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
+
+	int countByMemberAndPlace(@Param("memberId") Long memberId,
+	 @Param("placeId") Long placeId);
 
 }
