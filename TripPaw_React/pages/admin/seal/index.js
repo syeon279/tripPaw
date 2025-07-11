@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchAllSeals, deleteSeal } from '@/api/sealApi';
 import SealTable from '@/components/seal/SealTable';
 import SealEditorModal from '@/components/seal/SealEditorModal';
-import MypageLayout from '@/components/layout/MypageLayout';
+import MypageLayout from '@/components/layout/MyPageLayOut';
 
 const SealAdminPage = () => {
   const [seals, setSeals] = useState([]);

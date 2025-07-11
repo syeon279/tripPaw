@@ -1,15 +1,22 @@
 package com.ssdam.tripPaw.member;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.member.config.MemberJoinForm;
@@ -91,4 +98,44 @@ public class MemberController {
 		}
 	return "redirect:/member/login";
 	}
+	
+	// ✅ 포인트 업데이트 REST API 추가
+	@ResponseBody
+	@PostMapping("/api/member/update-points")
+	public void updatePoints(@RequestBody PointUpdateRequest request) {
+	    memberService.addPoints(request.getMemberId(), request.getPoints());
+	}
+	
+	// ✅ 포인트 총합 조회 API
+    @ResponseBody
+    @GetMapping("/api/member/total-points")
+    public ResponseEntity<Map<String, Integer>> getTotalPoints(@RequestParam Long memberId) {
+        int totalPoints = memberService.getTotalPoints(memberId);
+        Map<String, Integer> response = new HashMap<>();
+        response.put("totalPoints", totalPoints);
+        return ResponseEntity.ok(response);
+    }
+
+    public static class PointUpdateRequest {
+        private Long memberId;
+        private int points;
+
+        public Long getMemberId() {
+            return memberId;
+        }
+
+        public void setMemberId(Long memberId) {
+            this.memberId = memberId;
+        }
+
+        public int getPoints() {
+            return points;
+        }
+
+        public void setPoints(int points) {
+            this.points = points;
+        }
+    }
+	
+	
 }

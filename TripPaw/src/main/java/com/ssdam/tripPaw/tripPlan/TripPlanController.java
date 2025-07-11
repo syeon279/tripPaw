@@ -89,6 +89,7 @@ import java.util.stream.Collectors;
 public class TripPlanController {
 
     private final TripPlanService tripPlanService;
+    private final TripPlanMapper tripPlanMapper;
 
     //여행 경로 추천 받기
     @PostMapping("/recommend")
@@ -119,7 +120,7 @@ public class TripPlanController {
     // 특정 ID의 여행 경로 조회
     @GetMapping("/{id}")
     public ResponseEntity<?> getTripById(@PathVariable Long id) {
-        TripPlan plan = tripPlanService.findByIdWithCourses(id);
+    	TripPlan plan = tripPlanMapper.findByIdWithCoursesAndReviews(id);
         if (plan == null) return ResponseEntity.notFound().build();
 
         TripPlanSearchDto dto = new TripPlanSearchDto();

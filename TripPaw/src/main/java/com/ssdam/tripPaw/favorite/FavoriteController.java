@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import com.ssdam.tripPaw.domain.Favorite;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.dto.FavoritePlaceDto;
-import com.ssdam.tripPaw.dto.MyTripsDto;
-
 import lombok.RequiredArgsConstructor;
 
 @RestController
