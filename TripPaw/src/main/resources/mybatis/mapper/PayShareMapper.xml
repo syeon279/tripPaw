@@ -72,6 +72,14 @@
 	    AND ps.member_id = #{memberId}
 	</select>
 
+	<select id="findParticipantsByPayId" resultType="com.ssdam.tripPaw.domain.Member">
+      SELECT m.* 
+      FROM member m
+      JOIN pay_share ps ON m.id = ps.member_id
+      JOIN pay p ON ps.pay_id = p.id
+      WHERE p.reserv_id = #{reservId}
+    </select>
+
   <delete id="delete">
     DELETE FROM pay_share WHERE id = #{id}
   </delete>

@@ -138,8 +138,19 @@ const PayList = () => {
   if (error) return <p className={styles.error}>{error}</p>;
   if (payments.length === 0) return <p className={styles.empty}>결제 내역이 없습니다.</p>;
 
-  const groupedPayments = groupByGroupId(payments); // 그룹화된 결제 항목들
+  const groupByYearMonth = (payments) => {
+    return payments.reduce((acc, pay) => {
+      const date = new Date(pay.created_at);  // 결제 시간을 기준으로 년월 구분
+      const yearMonth = `${date.getFullYear()}년 ${date.getMonth() + 1}월`;  // 년/월 포맷
 
+      if (!acc[yearMonth]) acc[yearMonth] = [];
+      acc[yearMonth].push(pay);
+      return acc;
+    }, {});
+  };
+
+ const groupedPayments = groupByYearMonth(payments);
+  
   return (
     <>
       <ContentHeader theme="dark" />
@@ -153,18 +164,18 @@ const PayList = () => {
           />
         </div>
 
-        {Object.entries(groupedPayments).map(([groupId, pays]) => (
-          <section key={groupId}>
-            <YearMonthTitle onClick={() => toggleSection(groupId)}>
-              <span>{groupId === '' ? '단일 결제' : `그룹 결제 (그룹 ID: ${groupId})`}</span>
+        {Object.entries(groupedPayments).map(([yearMonth, pays]) => (
+          <section key={yearMonth}>
+            <YearMonthTitle onClick={() => toggleSection(yearMonth)}>
+              <span>{yearMonth}</span>
               <ArrowIcon
                 style={{
-                  transform: openedSections[groupId] ? 'rotate(90deg)' : 'rotate(0deg)',
+                  transform: openedSections[yearMonth] ? 'rotate(90deg)' : 'rotate(0deg)',
                 }}
               />
             </YearMonthTitle>
 
-            {openedSections[groupId] &&
+            {openedSections[yearMonth] &&
               pays.map((pay) => (
                 <div key={pay.id} className={styles.receipt}>
                   <div className={styles.receiptHeader}>
