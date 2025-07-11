@@ -34,6 +34,7 @@ const ReviewTripPlanDetail = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
   const [likeStates, setLikeStates] = useState({});
+  const [authorNickname, setAuthorNickname] = useState(null);
 
 
   useEffect(() => {
@@ -49,6 +50,8 @@ const ReviewTripPlanDetail = () => {
         const fetchedReviews = reviewRes.data || [];
         setReviews(fetchedReviews);
         setRouteData(planRes.data.routeData || []);
+        console.log('planRes: ', planRes);
+        setAuthorNickname(planRes.data.authorNickname);
 
         if (fetchedReviews.length > 0) {
           const sum = fetchedReviews.reduce((acc, r) => acc + r.rating, 0);
@@ -159,9 +162,10 @@ const ReviewTripPlanDetail = () => {
 
   return (
     <AppLayout>
-      <div style={{ display: 'flex', height: 'calc(100vh - 80px)', padding: '20px', paddingTop: '80px', }}>
+      <div style={{ height: '80px' }}> </div>
+      <div style={{ display: 'flex', height: 'calc(100vh - 120px)', margin: 'auto', padding: '0px', width: '80%' }}>
         {/* 좌측 지도 */}
-        <div style={{ flex: 1.5, height: '100%' }}>
+        <div style={{ flex: 1, height: '100%', padding: '15px' }}>
           <RouteMapNoSSR
             routeData={routeData}
             focusDay={null}
@@ -171,14 +175,23 @@ const ReviewTripPlanDetail = () => {
         </div>
 
         {/* 우측 리뷰 목록 */}
-        <div style={{ flex: 1, paddingLeft: '20px', overflowY: 'auto', height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ flex: 1, padding: '0px', overflowY: 'auto', height: '100%', border: '0px solid black', padding: '10px' }}>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid rgba(167, 167, 167, 0.6)'
+            , padding: '20px'
+          }}>
             <div>
-              <h2 style={{ marginBottom: 4 }}>{title}</h2>
-              <span style={{ color: '#f5222d', fontWeight: 600, fontSize: 16 }}>
-                {averageRating.toFixed(1)} <Rate disabled allowHalf value={averageRating} style={{ fontSize: 16 }} />
-              </span>
-              <span style={{ marginLeft: 8, color: '#888' }}>리뷰 {reviews.length}개</span>
+              <div style={{ display: 'flex' }}>
+                <h2 style={{ marginBottom: 4 }}>{title}</h2>
+                <div style={{ marginTop: '8px', marginLeft: '10px' }}> {authorNickname} </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: '#f5222d', fontWeight: 600, fontSize: 14, marginRight: '10px' }}>
+                  {averageRating.toFixed(1)} <Rate disabled allowHalf value={averageRating} style={{ fontSize: 16, marginLeft: '4px' }} />
+                </span>
+                <div style={{ margin: '0 10px' }}> | </div>
+                <span style={{ marginLeft: 8, color: '#888' }}>  {reviews.length}개</span>
+              </div>
             </div>
             {isLoggedIn && canWriteReview && (
               <Button
@@ -204,14 +217,18 @@ const ReviewTripPlanDetail = () => {
               <p>아직 작성된 리뷰가 없습니다.</p>
             ) : (
               reviews.map((review) => (
-                <Card key={review.id} style={{ marginBottom: 20 }}>
+                <Card key={review.id} style={{
+                  marginBottom: 20, borderTop: 'none', borderLeft: 'none', borderRight: 'none'
+                }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontWeight: 'bold' }}>{review.memberNickname}</div>
-                      <Rate disabled defaultValue={review.rating} style={{ fontSize: 16 }} />
-                      <div style={{ fontSize: 12, color: '#888' }}>
-                        {new Date(review.createdAt).toLocaleDateString()}
+                      <div style={{ display: 'flex' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '20px', marginRight: '10px' }}>{review.memberNickname}</div>
+                        <div style={{ fontSize: 12, color: '#888', marginTop: '10px' }}>
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
+                      <Rate disabled defaultValue={review.rating} style={{ fontSize: 16 }} />
                     </div>
                     <div>{weatherIcon(review.weather)}</div>
                   </div>
@@ -234,7 +251,8 @@ const ReviewTripPlanDetail = () => {
                     style={{
                       cursor: 'pointer',
                       marginTop: 12,
-                      border: '1px solid #ddd',
+                      //border: '1px solid #ddd',
+                      borderRadius: '10px'
                     }}
                     onClick={() => toggleLike(review.id)}
                   >

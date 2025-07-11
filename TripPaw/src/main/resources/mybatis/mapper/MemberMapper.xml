@@ -89,6 +89,22 @@
     DELETE FROM member WHERE id = #{id}
   </delete>
   
+
+  
+  <!-- 포인트 적립 내역 추가 (insert) -->
+  <insert id="insertPoints" parameterType="map">
+    INSERT INTO member_point (member_id, point)
+    VALUES (#{memberId}, #{points})
+  </insert>
+
+  <!-- 특정 회원의 전체 포인트 합산 조회 -->
+  <select id="getTotalPointsByMemberId" parameterType="long" resultType="int">
+    SELECT COALESCE(SUM(point), 0)
+    FROM member_point
+    WHERE member_id = #{memberId}
+  </select>
+  
+
   <update id="updateMember" parameterType="Member">
   	update member
   	set username = #{username}
@@ -100,7 +116,7 @@
   		,provider = #{provider}
   	where id = #{id}
   </update>
-  
+
   <select id="checkPassword" parameterType="Member">
   	select count(*)
   	from member
@@ -110,4 +126,5 @@
   	update member set status = #{status}
   		where id = #{id}
   </update>
+
 </mapper>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Router from 'next/router';
 import styled from 'styled-components';
 
-const logoPath = '/images/your-logo-image-path.png';
+const logoPath = '/image/logo/TripPaw-logo.png';
 const backgroundImagePath = '/images/background-image.jpg';
 const googleIconPath = '/image/member/google.png';
 const kakaoIconPath = '/image/member/kakao.png';
@@ -20,6 +20,7 @@ const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 50px;
 `;
 
 const ModalContent = styled.div`
@@ -50,7 +51,8 @@ const LoginBox = styled.div`
 
 const LoginFormTag = styled.form`
   .logo-login-section {
-    margin-bottom: 20px;
+    margin-top:30px;
+    margin-bottom: 30px;
     .logo-img {
       height: 50px;
     }
@@ -83,13 +85,14 @@ const InputGroup = styled.div`
     border-radius: 5px;
     font-size: 16px;
     box-sizing: border-box;
+    margin-bottom: 10px;
   }
 `;
 
 const PasswordToggle = styled.div`
   position: absolute;
   right: 10px;
-  top: 40px;
+  top: 15px;
   cursor: pointer;
   color: #999;
 `;
@@ -125,6 +128,7 @@ const LoginButton = styled.button`
   font-size: 18px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 20px;
 
   &:hover {
     background-color: #333;
@@ -216,27 +220,28 @@ const LoginFormModal = ({ onToggleForm, onLoginSuccess }) => {
             <div className="logo-login-section">
               <img src={logoPath} alt="로고" className="logo-img" />
             </div>
-            <p className="welcome-text">로그인하시고 사이트의 다양한 기능을 이용해보세요</p>
 
             <InputGroup>
-              <label htmlFor="username">아이디를 입력해주세요</label>
+              <label htmlFor="username"></label>
               <input
                 type="text"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                placeholder='아이디를 입력해주세요'
               />
             </InputGroup>
 
             <InputGroup>
-              <label htmlFor="password">비밀번호를 입력해주세요</label>
+              <label htmlFor="password"></label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                placeholder='비밀번호를 입력해주세요'
               />
               <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? '숨기기' : '보기'}

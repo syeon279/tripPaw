@@ -1,6 +1,9 @@
 package com.ssdam.tripPaw.petpassport;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Service;
 
@@ -14,6 +17,15 @@ public class PetPassportService  {
 
 	//여권생성
     public void createPassport(PetPassport passport) {
+    	String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        int randomNum = ThreadLocalRandom.current().nextInt(1000, 9999);
+        String passNum = "TRP-" + datePart + "-" + randomNum;
+        while (isPassNumDuplicate(passNum)) {
+            randomNum = ThreadLocalRandom.current().nextInt(1000, 9999);
+            passNum = "TRP-" + datePart + "-" + randomNum;
+        }
+        passport.setPassNum(passNum);
+        
         petPassportMapper.insertPetPassport(passport);
     }
 

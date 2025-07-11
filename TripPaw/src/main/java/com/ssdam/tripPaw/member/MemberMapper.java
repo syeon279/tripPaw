@@ -24,6 +24,19 @@ public interface MemberMapper {
 									,@Param("newPassword") String newPassword );
 
 	public int insertMemberRole(Long memberId, MemberRole memberRoleType);
+
+	
+	Member findByMemberIdString(@Param("memberId") String memberId);
+    
+	// 포인트 적립 내역 추가
+	int insertPoints(@Param("memberId") Long memberId, @Param("points") int points);
+
+	// 포인트 총합 조회
+	int getTotalPointsByMemberId(@Param("memberId") Long memberId);  
+   
+
 	public int updateMember(Member member);
+
 	public int softDeleteMember(Long id, boolean status);
+
 }

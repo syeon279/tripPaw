@@ -193,7 +193,7 @@ useEffect(()=>{
             <SidebarItem text="쿠폰함" href="/mypage/coupons" />
           </SidebarSection>
 
-          <SidebarItem text="반려동물 여권" href="/mypage/passport" />
+          <SidebarItem text="반려동물 여권" href={`/mypage/petpass/${user?.memberId}`} />
           <SidebarItem text="예약 내역 보기" href="/mypage/reserv/reservlist" />
           <SidebarItem text="내 장소" href="/mypage/places" />
           <SidebarItem text="내 여행" href="/mypage/trips" />
