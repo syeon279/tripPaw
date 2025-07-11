@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.member;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -186,10 +187,20 @@ public class AuthController {
     	System.out.println("requestId="+id);
     	Member member = memberService.findById(id);
     	MemberImage memberImage = memberImageService.selectMemberImage(id);
+    	Map<String, String> responseMap = new HashMap<>();
+
+        if (memberImage == null) {
+            // 이미지가 없는 경우, src에 null을 담아 응답
+            responseMap.put("src", null);
+        } else {
+            // 이미지가 있는 경우, src에 이미지 경로를 담아 응답
+            responseMap.put("src", memberImage.getSrc());
+        }
+        
     	
-    	Map<String, Object> mapMemberImage = Map.of("src",memberImage.getSrc());
+    	//Map<String, String> mapMemberImage = Map.of("src",memberImage.getSrc() != null ? memberImage.getSrc():"");
     	
-    	return ResponseEntity.ok(mapMemberImage);
+    	return ResponseEntity.ok(responseMap);
     }
 //    @GetMapping("/login/oauth2/code/kakao")
 //    public ResponseEntity<?> kakaoLogin(HttpServletRequest request){

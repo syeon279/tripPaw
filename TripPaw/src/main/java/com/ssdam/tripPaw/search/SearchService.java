@@ -62,7 +62,7 @@ public class SearchService {
 
             // ✅ reviewCount 계산
             int reviewCount = (p.getReviews() != null) ? p.getReviews().size() : 0;
-            dto.setReviewCount(reviewCount);
+            dto.setReviewCount((long) reviewCount);
 
             // ✅ avgRating 계산
             double avgRating = 0.0;
