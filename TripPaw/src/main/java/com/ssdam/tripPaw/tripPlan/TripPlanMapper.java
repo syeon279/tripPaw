@@ -40,4 +40,6 @@ public interface TripPlanMapper {
 	TripPlan findById(Long id);
 	
 	TripPlan findByIdWithMember(Long id);
+	
+	TripPlan findByIdWithCoursesAndReviews(Long id);
 }

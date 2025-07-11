@@ -1,12 +1,12 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import Router  from 'next/router';
+import Router from 'next/router';
 import styled from 'styled-components';
 // react-icons 라이브러리에서 아이콘을 가져옵니다.
 //import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 // 이미지 경로 (public 폴더에 이미지를 위치시키거나 import하여 사용)
-const logoPath = '/images/your-logo-image-path.png';
+const logoPath = '/images/logo/TripPaw-logo.png';
 const backgroundImagePath = '/images/background-image.jpg';
 const googleIconPath = '/image/member/google.png';
 const kakaoIconPath = '/image/member/kakao.png';
@@ -20,16 +20,21 @@ const LoginBox = styled.div`
 
 const LoginFormTag = styled.form`
   .logo-login-section {
+   margin-top: -30px;
     margin-bottom: 20px;
     .logo-img {
-      height: 50px;
-    }
+  height: 50px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid red;
+}
   }
 
   .welcome-text {
     font-size: 16px;
     color: #666;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
   }
 `;
 
@@ -163,87 +168,89 @@ function LoginForm({ onToggleForm }) {
 
   const CLIENT_ID = process.env.NEXT_PUBLIC_REST_API_KEY;
   const REDIRECT_URI = process.env.NEXT_PUBLIC_REDIRECT_URL;
-  
+
   // 비밀번호 보이기/숨기기 상태 관리
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async(event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault(); // 폼 기본 제출 동작 방지
     console.log('Login attempt with:', { username, password });
-    const loginSubmit = await axios.post(`http://localhost:8080/api/auth/login`,{
-      username:username,
-      password:password
-    },{
+    const loginSubmit = await axios.post(`http://localhost:8080/api/auth/login`, {
+      username: username,
+      password: password
+    }, {
       withCredentials: true,
     })
-    
+
     // 실제 로그인 로직을 여기에 구현합니다. (API 호출 등)
     Router.replace('/')
   };
   return (
     <div>
-      <h2>로그인</h2>
+      {/* <h2>로그인</h2> */}
       <LoginBox>
-            <LoginFormTag onSubmit={handleSubmit}>
-              <div className="logo-login-section">
-                <img src={logoPath} alt="로고" className="logo-img" />
-              </div>
-              <p className="welcome-text">로그인하시고 사이트의 다양한 기능을 이용해보세요</p>
+        <LoginFormTag onSubmit={handleSubmit}>
+          <div className="logo-login-section">
+            <img src={'/image/logo/TripPaw-logo.png'} alt="로고" width={'300px'} />
+          </div>
+          <p className="welcome-text">로그인하시고 사이트의 다양한 기능을 이용해보세요</p>
 
-              <InputGroup>
-                <label htmlFor="username">아이디를 입력해주세요</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </InputGroup>
+          <InputGroup>
+            <label htmlFor="username" style={{ display: 'none' }}>아이디를 입력해주세요</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder='아이디를 입력해주세요'
+            />
+          </InputGroup>
 
-              <InputGroup>
-                <label htmlFor="password">비밀번호를 입력해주세요</label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword}
-                   {/* ? <FaEyeSlash /> : <FaEye />} */}
-                </PasswordToggle>
-              </InputGroup>
+          <InputGroup>
+            <label htmlFor="password" style={{ display: 'none' }} >비밀번호를 입력해주세요</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder='비밀번호를 입력해주세요'
+            />
+            <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
+              {showPassword}
+              {/* ? <FaEyeSlash /> : <FaEye />} */}
+            </PasswordToggle>
+          </InputGroup>
 
-              <OptionsGroup>
-                <div className="remember-me">
-                  <input type="checkbox" id="rememberMe" />
-                  <label htmlFor="rememberMe">아이디 기억하기</label>
-                </div>
-                <a href="#" className="forgot-password">비밀번호를 잊으셨나요?</a>
-              </OptionsGroup>
+          <OptionsGroup>
+            <div className="remember-me">
+              <input type="checkbox" id="rememberMe" />
+              <label htmlFor="rememberMe">아이디 기억하기</label>
+            </div>
+            <a href="#" className="forgot-password">비밀번호를 잊으셨나요?</a>
+          </OptionsGroup>
 
-              <LoginButton type="submit">로그인</LoginButton>
-            </LoginFormTag>
-            
-            <SocialLogin>
-              <p>소셜 아이디로 로그인하기</p>
-              <SocialIcons>
-                <SocialIcon><img src={googleIconPath} alt="구글" /></SocialIcon>
-                {/* <SocialIcon href={`https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon> */}
-                <SocialIcon href={`http://localhost:8080/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
-                <SocialIcon><img src={naverIconPath} alt="네이버" /></SocialIcon>
-              </SocialIcons>
-            </SocialLogin>
+          <LoginButton type="submit">로그인</LoginButton>
+        </LoginFormTag>
 
-            <SignupLink>
-              <p>아직 회원이 아니신가요? <a href="#" className="signup-text" onClick={() => {
-                Router.push("/member/signup")
-              }}>회원가입하기</a></p>
-            </SignupLink>
-          </LoginBox>
-      
+        <SocialLogin>
+          <p>소셜 아이디로 로그인하기</p>
+          <SocialIcons>
+            <SocialIcon><img src={googleIconPath} alt="구글" /></SocialIcon>
+            {/* <SocialIcon href={`https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon> */}
+            <SocialIcon href={`http://localhost:8080/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
+            <SocialIcon><img src={naverIconPath} alt="네이버" /></SocialIcon>
+          </SocialIcons>
+        </SocialLogin>
+
+        <SignupLink style={{ marginTop: '50px' }}>
+          <p>아직 회원이 아니신가요? <a href="#" className="signup-text" onClick={() => {
+            Router.push("/member/signup")
+          }}>회원가입하기</a></p>
+        </SignupLink>
+      </LoginBox>
+
     </div>
   );
 }

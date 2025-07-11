@@ -32,7 +32,8 @@ const SpeechBubble = styled.div`
   padding: 14px 20px;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6);
   font-size: 1.1rem;
-  max-width: 240px;
+  width: 250px;
+  max-width: 300px;
   line-height: 1.5;
   position: relative;
   margin-left: 24px;
@@ -74,7 +75,7 @@ const messagesByState = {
   CONFIRMED: '잘했개! 즐거운 시간 보내개~',
   CANCELLED: '가지 말개!! 🐾',
   EXPIRED: '지나버린 예약이개... 다음에 다시 도전! 💨',
-  DEFAULT: '나랑 산책 갈 개~ 준비됐개? 🐶'
+  DEFAULT: '나랑 산책 갈개~ 준비됐개?'
 };
 
 const PetAssistant = ({ reservState }) => {

@@ -29,6 +29,63 @@
 		</collection>
 	</resultMap>
 
+	<!-- 여행 + 코스 + 리뷰 -->
+	<resultMap id="tripPlanWithCoursesAndReviewsMap"
+		type="com.ssdam.tripPaw.domain.TripPlan">
+		<!-- TripPlan 기본 정보 -->
+		<id property="id" column="tp_id" />
+		<result property="title" column="title" />
+		<result property="days" column="days" />
+		<result property="publicVisible" column="is_public" />
+		<result property="createdAt" column="created_at" />
+		<result property="imageUrl" column="image_url" />
+
+		<!-- 작성자 -->
+		<association property="member"
+			javaType="com.ssdam.tripPaw.domain.Member">
+			<id property="id" column="member_id" />
+			<result property="nickname" column="member_nickname" />
+		</association>
+
+		<!-- 코스 + 장소 -->
+		<collection property="tripPlanCourses"
+			ofType="com.ssdam.tripPaw.domain.TripPlanCourse">
+			<id property="id" column="c_id" />
+			<association property="route"
+				javaType="com.ssdam.tripPaw.domain.Route">
+				<id property="id" column="route_id" />
+				<collection property="routePlaces"
+					ofType="com.ssdam.tripPaw.domain.RoutePlace">
+					<id property="id" column="rp_id" />
+					<association property="place"
+						javaType="com.ssdam.tripPaw.domain.Place">
+						<id property="id" column="p_id" />
+						<result property="name" column="p_name" />
+						<result property="latitude" column="latitude" />
+						<result property="longitude" column="longitude" />
+						<result property="imageUrl" column="p_image_url" />
+					</association>
+				</collection>
+			</association>
+		</collection>
+
+		<!-- 리뷰 -->
+		<collection property="reviews"
+			ofType="com.ssdam.tripPaw.domain.Review">
+			<id property="id" column="r_id" />
+			<result property="content" column="r_content" />
+			<result property="rating" column="r_rating" />
+			<result property="weatherCondition"
+				column="r_weather_condition" />
+			<result property="createdAt" column="r_created_at" />
+			<association property="member"
+				javaType="com.ssdam.tripPaw.domain.Member">
+				<id property="id" column="r_member_id" />
+			</association>
+		</collection>
+	</resultMap>
+
+
 	<!-- 특정 유저의 여행 + 리뷰 조회 -->
 	<select id="findByMemberIdWithReviews"
 		resultMap="tripPlanWithReviewsMap">
@@ -59,7 +116,48 @@
 	</select>
 
 
+	<select id="findByIdWithCoursesAndReviews"
+		resultMap="tripPlanWithCoursesAndReviewsMap" parameterType="long">
+		SELECT
+		tp.id AS tp_id,
+		tp.title,
+		tp.days,
+		tp.is_public,
+		tp.created_at,
+		tp.image_url,
 
+		m.id AS member_id,
+		m.nickname AS member_nickname,
+
+		c.id AS c_id,
+		r.id AS route_id,
+		rp.id AS rp_id,
+
+		p.id AS p_id,
+		p.name AS p_name,
+		p.latitude,
+		p.longitude,
+		p.image_url AS p_image_url,
+
+		rv.id AS r_id,
+		rv.content AS r_content,
+		rv.rating AS r_rating,
+		rv.weather_condition AS r_weather_condition,
+		rv.created_at AS r_created_at,
+		rv.member_id AS r_member_id
+
+		FROM trip_plan tp
+		LEFT JOIN member m ON tp.member_id = m.id
+		LEFT JOIN trip_plan_course c ON tp.id = c.trip_plan_id
+		LEFT JOIN route r ON c.route_id = r.id
+		LEFT JOIN route_place rp ON r.id = rp.route_id
+		LEFT JOIN place p ON rp.place_id = p.id
+
+		LEFT JOIN review rv ON tp.id = rv.target_id AND rv.review_type_id = 1
+
+		WHERE tp.id = #{id}
+		ORDER BY c.id ASC, rp.id ASC
+	</select>
 
 
 
@@ -226,9 +324,11 @@
 		tp.created_at,
 		tp.image_url,
 		m.id AS member_id,
-		m.nickname AS member_nickname
+		m.nickname AS
+		member_nickname
 		FROM trip_plan tp
-		LEFT JOIN member m ON tp.member_id = m.id
+		LEFT JOIN member m ON tp.member_id =
+		m.id
 		WHERE tp.id = #{id}
 	</select>
 
