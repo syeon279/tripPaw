@@ -83,6 +83,21 @@
     DELETE FROM member_nft
     WHERE id = #{id} AND member_id = #{memberId}
   </delete>
+  
+  <!-- 관리자용: 사용 완료된 NFT만 삭제 -->
+  <delete id="deleteUsedByNftMetadataId" parameterType="long">
+    DELETE FROM member_nft
+    WHERE nft_metadata_id = #{nftMetadataId}
+      AND used_at IS NOT NULL
+  </delete>
+  
+  <!-- 사용하지 않은 쿠폰 존재 여부 확인 -->
+  <select id="countUnusedByMetadataId" resultType="int" parameterType="long">
+    SELECT COUNT(*) 
+    FROM member_nft 
+    WHERE nft_metadata_id = #{nftMetadataId}
+      AND used_at IS NULL
+  </select>
 
   <!-- NFT 소유자 변경 (선물 기능) -->
   <update id="giftNft" parameterType="map">

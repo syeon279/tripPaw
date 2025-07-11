@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -83,6 +85,9 @@ public class NFTService {
             String uriHex = uriCall.getValue();
             byte[] bytes = Numeric.hexStringToByteArray(uriHex);
             String rawUri = new String(bytes, StandardCharsets.UTF_8).trim().replaceAll("\u0000", "");
+            if (rawUri.startsWith("I")) {
+                rawUri = rawUri.substring(1);
+            }
 
             // IPFS to HTTPS 변환
             String metadataUrl = rawUri.replace("ipfs://", "https://ipfs.io/ipfs/");
@@ -193,7 +198,18 @@ public class NFTService {
     }
 
     // NFT 메타데이터 삭제
-    public void deleteNftMetadata(Long id) {
-        nftMetadataMapper.delete(id);
+    @Transactional
+    public void deleteNftMetadataAndUsedCoupons(Long nftMetadataId) {
+        int unusedCount = memberNftMapper.countUnusedByMetadataId(nftMetadataId);
+
+        if (unusedCount > 0) {
+            throw new IllegalStateException("사용하지 않은 쿠폰이 존재하므로 삭제할 수 없습니다.");
+        }
+
+        // 1. 사용 완료된 member_nft 먼저 삭제
+        memberNftMapper.deleteUsedByNftMetadataId(nftMetadataId);
+
+        // 2. 이후 nft_metadata 삭제
+        nftMetadataMapper.delete(nftMetadataId);
     }
 }

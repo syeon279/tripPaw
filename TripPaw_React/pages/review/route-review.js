@@ -3,8 +3,15 @@ import { Tabs, List, Avatar, Rate, Tag, Button, Image, Spin, Tooltip } from "ant
 import { EllipsisOutlined, MoreOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useRouter } from "next/router";
+import styled from 'styled-components';
 import AppLayout from "@/components/AppLayout";
 
+const ScrollContainer = styled.div`
+  width: 100%;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  //border: 2px solid red;
+`;
 const MAX_CONTENT_LENGTH = 100;
 
 const ReviewList = () => {
@@ -84,6 +91,7 @@ const ReviewList = () => {
   return (
     <AppLayout>
       <div style={{ maxWidth: 900, margin: "auto", padding: 24 }}>
+        <ScrollContainer>
         <h2 style={{ fontSize: "22px", fontWeight: 700 }}>사용자 리뷰</h2>
 
         <Tabs
@@ -194,6 +202,7 @@ const ReviewList = () => {
             }}
           />
         )}
+        </ScrollContainer>
       </div>
     </AppLayout>
   );
