@@ -180,7 +180,7 @@ const ReviewTripPlanDetail = () => {
               </span>
               <span style={{ marginLeft: 8, color: '#888' }}>리뷰 {reviews.length}개</span>
             </div>
-            {isLoggedIn && canWriteReview && (
+            {isLoggedIn && (
               <Button
                 type="primary"
                 onClick={() =>
