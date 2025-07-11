@@ -90,7 +90,8 @@ const CouponsManage = () => {
       message.success("삭제 성공");
       fetchNfts();
     } catch (error) {
-      message.error("삭제 실패: " + error.message);
+      // message.error("삭제 실패: " + error.message);
+      message.error("nft 사용 전입니다." );
     }
   };
 
