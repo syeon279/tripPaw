@@ -29,10 +29,10 @@ public class CheckRoutine {
 	@ManyToOne @JoinColumn(name="member_id")
 	private Member member;
 	
-	//여행경로 아이디 연결
+	//memberTripPlan 아이디 연결
 	@ManyToOne
-	@JoinColumn(name = "route_id")
-	private Route route;
+    @JoinColumn(name = "member_trip_plan_id") 
+    private MemberTripPlan memberTripPlan;
 	
 	//membercheck
 	@OneToMany(mappedBy = "checkRoutine", cascade = CascadeType.ALL)
@@ -45,13 +45,14 @@ public class CheckRoutine {
         this.member.setId(memberId);
     }
 
-    // routeId
-    public void setRouteId(Long routeId) {
-        if (this.route == null) {
-            this.route = new Route();
+    // memberTripPlan
+	public void setMemberTripPlanId(Long memberTripPlanId) {
+        if (this.memberTripPlan == null) {
+            this.memberTripPlan = new MemberTripPlan();
         }
-        this.route.setId(routeId);
+        this.memberTripPlan.setId(memberTripPlanId);
     }
+
 
     // isSaved 
     public void setIsSaved(boolean isSaved) { this.isSaved = isSaved; }

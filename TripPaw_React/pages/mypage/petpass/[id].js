@@ -1,5 +1,5 @@
 import PassportCardList from '@/components/passport/PassportCardList';
-import MypageLayout from '@/components/layout/MyPageLayOut';
+import MypageLayout from '@/components/layout/MyPageLayout';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';

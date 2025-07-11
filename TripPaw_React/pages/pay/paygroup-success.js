@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { CheckCircleFilled } from '@ant-design/icons';
 import Link from 'next/link';
+import CheckRoutineModal from '@/components/checklist/CheckRoutineModal';
+import { useState } from 'react';
 
 export async function getServerSideProps(context) {
   const { memberTripPlanId } = context.query; 
@@ -17,6 +19,10 @@ export async function getServerSideProps(context) {
 }
 
 export default function SuccessBatchPage({ reservList }) {
+  const memberTripPlanId = reservList[0]?.memberTripPlan?.id;
+  const memberId = reservList[0]?.member?.id;
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <div style={{ maxWidth: 600, margin: '80px auto', textAlign: 'center', fontFamily: 'Arial' }}>
       <CheckCircleFilled style={{ fontSize: 48, color: '#4BB543' }} />
@@ -39,6 +45,17 @@ export default function SuccessBatchPage({ reservList }) {
       <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center', gap: 20 }}>
         <Link href="/">메인으로</Link>
         <Link href="/mypage/reserv/reservlist">예약 내역</Link>
+        <div style={{ marginTop: 40 }}>
+        <button onClick={() => setModalOpen(true)}>여행 준비하기</button>
+
+        <CheckRoutineModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          memberTripPlanId={memberTripPlanId}
+          memberId={memberId}
+        />
+      </div>
+
       </div>
     </div>
   );
