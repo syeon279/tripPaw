@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Flow.Subscription;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -108,10 +109,10 @@ public class Member {
 	private List<Review> reviews = new ArrayList<>();
 	
 	// 구독 리스트
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Subscription> subscriptions = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-   	private List<MemberImage> memberImages = new ArrayList<>();
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Subscription> subscriptions = new ArrayList<>();
+//    
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+//   	private List<MemberImage> memberImages = new ArrayList<>();
    	
 }
