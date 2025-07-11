@@ -83,6 +83,9 @@ public class NFTService {
             String uriHex = uriCall.getValue();
             byte[] bytes = Numeric.hexStringToByteArray(uriHex);
             String rawUri = new String(bytes, StandardCharsets.UTF_8).trim().replaceAll("\u0000", "");
+            if (rawUri.startsWith("I")) {
+                rawUri = rawUri.substring(1);
+            }
 
             // IPFS to HTTPS 변환
             String metadataUrl = rawUri.replace("ipfs://", "https://ipfs.io/ipfs/");

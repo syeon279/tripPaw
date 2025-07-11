@@ -76,9 +76,16 @@ public class MemberNftController {
         return ResponseEntity.ok("NFT deleted");
     }
     
+    // 관리자: 사용 완료된 NFT만 삭제 가능
+    @DeleteMapping("/metadata/{nftMetadataId}/used-nfts")
+    public ResponseEntity<String> deleteUsedNftsByMetadata(@PathVariable Long nftMetadataId) {
+        memberNftService.deleteUsedByNftMetadataId(nftMetadataId);
+        return ResponseEntity.ok("사용 완료된 NFT만 삭제 완료");
+    }
+    
     // NFT 선물 기능
     @PostMapping("/gift/{nftId}")
-    public ResponseEntity<String> giftNft(@PathVariable Long nftId, @RequestParam String fromMemberId, @RequestParam String toMemberId) {
+    public ResponseEntity<String> giftNft(@PathVariable Long nftId, @RequestParam Long fromMemberId, @RequestParam Long toMemberId) {
         try {
             memberNftService.giftNft(nftId, fromMemberId, toMemberId);
             return ResponseEntity.ok("NFT gifted successfully");
