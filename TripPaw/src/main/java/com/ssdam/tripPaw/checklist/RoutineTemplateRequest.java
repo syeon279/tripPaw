@@ -11,5 +11,7 @@ public class RoutineTemplateRequest {
     private List<Long> templateIds;
     private String title;
     private boolean isSaved; 
-    
+    public boolean getIsSaved() {
+        return isSaved;
+    }
 }

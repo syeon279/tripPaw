@@ -32,7 +32,7 @@ public class MemberCheckController {
 	        request.getMemberTripPlanId(),
 	        request.getTemplateIds(),
 	        request.getTitle(),
-	        request.isSaved() // ✅ boolean flag 전달
+	        request.getIsSaved() // ✅ boolean flag 전달
 	    );
 	    return ResponseEntity.status(HttpStatus.CREATED).body(created);
 	}
