@@ -26,18 +26,25 @@
 	</resultMap>
 
 	<resultMap id="ReservWithPlaceResultMap"
-	           type="com.ssdam.tripPaw.domain.Reserv"
-	           extends="ReservResultMap">
-	  <association property="place"
-	               javaType="com.ssdam.tripPaw.domain.Place"
-	               columnPrefix="p_">
-	    <id property="id" column="id"/>
-	    <result property="name" column="name"/>
-	    <result property="latitude" column="latitude"/>
-	    <result property="longitude" column="longitude"/>
-	    <result property="region" column="region"/>
-	    <result property="imageUrl" column="image_url"/>
-	  </association>
+		type="com.ssdam.tripPaw.domain.Reserv" extends="ReservResultMap">
+		<association property="place"
+			javaType="com.ssdam.tripPaw.domain.Place" columnPrefix="p_">
+			<id property="id" column="id" />
+			<result property="name" column="name" />
+			<result property="latitude" column="latitude" />
+			<result property="longitude" column="longitude" />
+			<result property="region" column="region" />
+			<result property="imageUrl" column="image_url" />
+		</association>
+	</resultMap>
+
+	<resultMap id="ReservWithReviewResultMap"
+		type="com.ssdam.tripPaw.review.ReservWithReviewDto">
+		<id property="id" column="id" />
+		<result property="startDate" column="start_date" />
+		<result property="endDate" column="end_date" />
+		<result property="state" column="state" />
+		<result property="isReviewed" column="is_reviewed" />
 	</resultMap>
 
 
@@ -80,7 +87,44 @@
 		AND state = 'CONFIRMED'
 	</select>
 
-	<select id="findByTripPlanIdAndMember" resultMap="ReservWithPlaceResultMap">
+	<select id="findByTripPlanIdAndMember"
+		resultMap="ReservWithPlaceResultMap">
+		SELECT
+		r.*,
+		p.id AS p_id,
+		p.name AS p_name,
+		p.latitude AS
+		p_latitude,
+		p.longitude AS p_longitude,
+		p.region AS p_region,
+		p.image_url AS p_image_url
+		FROM reserv r
+		JOIN place p ON r.place_id =
+		p.id
+		WHERE r.trip_plan_id = #{tripPlanId}
+		AND r.member_id = #{memberId}
+		AND r.delete_at IS NULL
+		ORDER BY r.start_date ASC
+	</select>
+
+	<select id="findAllWithReviewStatus"
+		resultMap="ReservWithReviewResultMap">
+		SELECT
+		r.id,
+		r.start_date,
+		r.end_date,
+		r.state,
+		EXISTS (
+		SELECT 1
+		FROM review rv
+		WHERE rv.reserv_id = r.id
+		) AS is_reviewed
+		FROM reserv r
+		WHERE r.member_id = #{memberId}
+		ORDER BY r.start_date DESC
+	</select>
+
+	<select id="findByTripPlanIdAndMemberJoinMTP" resultMap="ReservWithPlaceResultMap">
 	  SELECT
 	    r.*,
 	    p.id AS p_id,
@@ -90,12 +134,13 @@
 	    p.region AS p_region,
 	    p.image_url AS p_image_url
 	  FROM reserv r
+	  JOIN member_trip_plan mtp ON r.member_trip_plan_id = mtp.id
 	  JOIN place p ON r.place_id = p.id
-	  WHERE r.trip_plan_id = #{tripPlanId}
-	    AND r.member_id = #{memberId}
+	  WHERE mtp.trip_plan_id = #{tripPlanId}
+	    AND mtp.member_id = #{memberId}
 	    AND r.delete_at IS NULL
+	    AND r.state IN ('CONFIRMED', 'WAITING')
 	  ORDER BY r.start_date ASC
+	  LIMIT 1
 	</select>
-
-
 </mapper>
