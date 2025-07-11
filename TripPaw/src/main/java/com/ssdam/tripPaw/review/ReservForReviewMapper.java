@@ -22,7 +22,6 @@ public interface ReservForReviewMapper {
 
     Reserv findReservByMemberAndTripPlan(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
 
-	int countByMemberAndPlace(@Param("memberId") Long memberId,
-	 @Param("placeId") Long placeId);
+	
 
 }

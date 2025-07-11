@@ -45,6 +45,8 @@ const Coupons = () => {
   const [giftModalVisible, setGiftModalVisible] = useState(false);
   const [giftTargetNft, setGiftTargetNft] = useState(null);
   const [giftNickname, setGiftNickname] = useState("");
+  const [detailModalVisible, setDetailModalVisible] = useState(false);  // 상세보기 모달 상태
+  const [selectedNft, setSelectedNft] = useState(null);  // 선택된 NFT
 
   const fetchNfts = async () => {
     if (!memberId) return;
@@ -89,11 +91,8 @@ const Coupons = () => {
     try {
       await axios.post(`/api/member-nft/use/${pendingUseNft.id}`);
       message.success(`${pendingUseNft.pointValue} 포인트 사용 완료`);
-
-    // 사용한 NFT는 즉시 리스트에서 제거
-    setNfts((prev) =>
-      prev.filter((nft) => nft.id !== pendingUseNft.id)
-    );
+      // 사용한 NFT는 즉시 리스트에서 제거
+      setNfts((prev) => prev.filter((nft) => nft.id !== pendingUseNft.id));
       setIsScratched(true);
     } catch (error) {
       message.error("사용 실패: " + error.message);
@@ -110,6 +109,11 @@ const Coupons = () => {
     } catch (error) {
       message.error("삭제 실패: " + error.message);
     }
+  };
+
+  const showDetailModal = (nft) => {
+    setSelectedNft(nft);  // 선택된 NFT 저장
+    setDetailModalVisible(true);  // 상세 모달 열기
   };
 
   return (
@@ -162,6 +166,13 @@ const Coupons = () => {
                     >
                       {isUsed(nft.usedAt) ? "사용 완료" : "사용"}
                     </Button>,
+                    <Button
+                      key="details"
+                      type="link"
+                      onClick={() => showDetailModal(nft)}  // 클릭 시 상세보기 모달 표시
+                    >
+                      상세
+                    </Button>,
                     <Popconfirm
                       key="delete"
                       title="정말 삭제하시겠습니까?"
@@ -181,6 +192,33 @@ const Coupons = () => {
         ) : (
           <div>표시할 NFT가 없습니다.</div>
         )}
+
+        {/* 상세 정보 모달 */}
+        <Modal
+          title="NFT 상세 정보"
+          open={detailModalVisible}
+          onCancel={() => setDetailModalVisible(false)}
+          footer={null}
+        >
+          <div>
+            <h3>{selectedNft?.title}</h3>
+            <img
+              src={getValidImageUrl(selectedNft?.imageUrl)}
+              alt={selectedNft?.title || "NFT 이미지"}
+              style={{
+                width: "100%",
+                height: 200,
+                objectFit: "contain",
+              }}
+            />
+            {/* 발급 이유 추가 */}
+            <p><strong>발급 이유:</strong> {selectedNft?.issuedReason || "정보 없음"}</p>
+            <p><strong>발급일:</strong> {selectedNft?.issuedAt ? new Date(selectedNft?.issuedAt).toLocaleDateString() : "정보 없음"}</p>
+            <p><strong>만료일:</strong> {selectedNft?.dueAt ? new Date(selectedNft?.dueAt).toLocaleDateString() : "정보 없음"}</p>
+            <p><strong>포인트:</strong> {selectedNft?.pointValue} P</p>
+            <p><strong>바코드:</strong> {selectedNft?.barcode}</p>
+          </div>
+        </Modal>
 
         {/* 스크래치 모달 */}
         <Modal
@@ -212,7 +250,6 @@ const Coupons = () => {
                       alt="바코드 이미지"
                       style={{ width: "80%", maxWidth: 250, marginBottom: 16 }}
                     />
-                    {/* <p><strong>바코드:</strong> {pendingUseNft.barcode || "없음"}</p> */}
                     <p><strong>발급일:</strong> {pendingUseNft.issuedAt ? new Date(pendingUseNft.issuedAt).toLocaleDateString() : "정보 없음"}</p>
                     <p><strong>만료일:</strong> {pendingUseNft.dueAt ? new Date(pendingUseNft.dueAt).toLocaleDateString() : "정보 없음"}</p>
                   </div>
@@ -230,6 +267,8 @@ const Coupons = () => {
             </Button>
           </div>
         </Modal>
+
+        {/* NFT 선물하기 모달 */}
         <Modal
           title="NFT 선물하기"
           open={giftModalVisible}
@@ -270,7 +309,7 @@ const Coupons = () => {
             onChange={(e) => setGiftNickname(e.target.value)}
             style={{ width: "100%", padding: 8 }}
             placeholder="받는 사람 닉네임을 입력하세요"
-        />
+          />
         </Modal>
       </div>
     </MypageLayout>
