@@ -85,16 +85,12 @@ const Coupons = () => {
     if (!pendingUseNft) return;
     try {
       await axios.post(`/api/member-nft/use/${pendingUseNft.id}`);
-      // await axios.post(`/api/member/update-points`, {
-      //   memberId,
-      //   points: pendingUseNft.pointValue,
-      // });
       message.success(`${pendingUseNft.pointValue} 포인트 사용 완료`);
-      setNfts((prev) =>
-        prev.map((nft) =>
-          nft.id === pendingUseNft.id ? { ...nft, usedAt: new Date().toISOString() } : nft
-        )
-      );
+
+    // 사용한 NFT는 즉시 리스트에서 제거
+    setNfts((prev) =>
+      prev.filter((nft) => nft.id !== pendingUseNft.id)
+    );
       setIsScratched(true);
     } catch (error) {
       message.error("사용 실패: " + error.message);
