@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.member.config.MemberJoinForm;
@@ -91,4 +93,34 @@ public class MemberController {
 		}
 	return "redirect:/member/login";
 	}
+	
+	// ✅ 포인트 업데이트 REST API 추가
+	@ResponseBody
+	@PostMapping("/api/member/update-points")
+	public void updatePoints(@RequestBody PointUpdateRequest request) {
+	    memberService.addPoints(request.getMemberId(), request.getPoints());
+	}
+
+    public static class PointUpdateRequest {
+        private Long memberId;
+        private int points;
+
+        public Long getMemberId() {
+            return memberId;
+        }
+
+        public void setMemberId(Long memberId) {
+            this.memberId = memberId;
+        }
+
+        public int getPoints() {
+            return points;
+        }
+
+        public void setPoints(int points) {
+            this.points = points;
+        }
+    }
+	
+	
 }

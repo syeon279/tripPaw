@@ -1,5 +1,7 @@
 package com.ssdam.tripPaw.nft;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,5 +10,12 @@ import lombok.Data;
 public class MemberNftDto {
     private Long id;
     private String title;
+    private Long tokenId;
     private String imageUrl;
+    private Integer pointValue;
+    private LocalDateTime usedAt;
+    private String barcode;               
+    private LocalDateTime issuedAt;       
+    private LocalDateTime dueAt;          
+    
 }

@@ -52,4 +52,6 @@ public class NftMetadata {
     @ToString.Exclude
     @JsonIgnore
     private List<MemberNft> memberNfts;
+
+	
 }
