@@ -11,11 +11,15 @@ const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, set
         dayRefs.current[dayIndex - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-    const addDaysToDate = (dateStr, daysToAdd) => {
-    const date = new Date(dateStr);
-    date.setDate(date.getDate() + daysToAdd);
-    return date.toISOString().slice(0, 10); // YYYY-MM-DD 포맷
-    };
+const addDaysToDate = (dateStr, daysToAdd) => {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) {
+    console.error("❌ Invalid date passed to addDaysToDate:", dateStr);
+    return "Invalid Date";
+  }
+  date.setDate(date.getDate() + daysToAdd);
+  return date.toISOString().slice(0, 10); // YYYY-MM-DD
+};
 
     return (
         <div>

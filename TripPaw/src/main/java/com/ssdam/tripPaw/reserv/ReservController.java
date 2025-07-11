@@ -104,9 +104,9 @@ public class ReservController {
     public ResponseEntity<?> createAutoReservations(@RequestBody Map<String, Object> body) {
     	System.out.println("[controller] body " + body);
         try {
-            Long userId = Long.valueOf(body.get("userId").toString());
-            Long memberTripPlanId = Long.valueOf(body.get("memberTripPlanId").toString());
-            List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(memberTripPlanId, userId);
+        	Long userId = Long.valueOf(body.get("userId").toString());
+        	Long memberTripPlanId = Long.valueOf(body.get("memberTripPlanId").toString());
+        	List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(userId, memberTripPlanId);
             return ResponseEntity.ok(savedList);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("잘못된 요청: " + e.getMessage());
@@ -167,21 +167,34 @@ public class ReservController {
     
     /** 일괄 취소 */
     @PostMapping("/batch/cancel")
-    public ResponseEntity<?> cancelBatchReservations(@RequestBody List<PayResponseDto> request) {
+    public ResponseEntity<String> cancelBatchReservations(@RequestBody List<PayResponseDto> request) {
+        if (request == null || request.isEmpty()) {
+            return ResponseEntity.badRequest().body("취소할 예약 목록이 비어있습니다.");
+        }
+
         try {
-            // 요청에서 reservIds와 memberTripPlanId 추출
+            // 모든 예약에 같은 memberTripPlanId가 포함되어 있는지 확인
+            Long memberTripPlanId = request.get(0).getMemberTripPlanId();
+            boolean allSamePlanId = request.stream()
+                    .allMatch(r -> r.getMemberTripPlanId().equals(memberTripPlanId));
+
+            if (!allSamePlanId) {
+                return ResponseEntity.badRequest().body("모든 예약의 memberTripPlanId가 같아야 합니다.");
+            }
+
             List<Long> reservIds = request.stream()
                                           .map(PayResponseDto::getReservId)
                                           .collect(Collectors.toList());
-            Long memberTripPlanId = request.get(0).getMemberTripPlanId(); // 모든 예약에 같은 tripPlanId가 포함된다고 가정
 
-            // 일괄 취소 서비스 호출
             reservService.softGroupDelete(reservIds, memberTripPlanId);
 
-            // 성공 시 응답
             return ResponseEntity.ok("예약이 일괄 취소되었습니다.");
+        } catch (IllegalArgumentException e) {
+            // 클라이언트 요청 오류
+            return ResponseEntity.badRequest().body("잘못된 요청: " + e.getMessage());
         } catch (Exception e) {
-            // 실패 시 응답
+            // 서버 오류 로그 기록 (예: Logger 사용 권장)
+            e.printStackTrace();
             return ResponseEntity.status(500).body("예약 취소 중 오류 발생: " + e.getMessage());
         }
     }

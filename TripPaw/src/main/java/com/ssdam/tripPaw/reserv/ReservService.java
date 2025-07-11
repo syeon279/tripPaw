@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -89,7 +91,7 @@ public class ReservService {
         }
 
         // 사용자의 여행 코스 목록 조회
-        List<TripPlanCoursePlaceDto> courseList = reservMapper.findCoursesByMemberId(member.getId());
+        List<TripPlanCoursePlaceDto> courseList = reservMapper.findCoursesByMemberTripPlanId(memberTripPlanId);
 
         List<Reserv> savedList = new ArrayList<>();
         LocalDate baseDate = LocalDate.now();
@@ -132,11 +134,11 @@ public class ReservService {
 
             	System.out.println("Inserting Reserv: " + reserv);
             	int result = reservMapper.insert(reserv);
-            	System.out.println("Insert Result: " + result);	
-            	
-                // 예약이 겹치지 않으면 저장
-                reservMapper.insert(reserv);
-                savedList.add(reserv);
+            	System.out.println("Insert Result: " + result);
+
+            	if (result > 0) {
+            	    savedList.add(reserv);
+            	}
             }
         }
 
@@ -167,16 +169,27 @@ public class ReservService {
     }
     
     /** 일괄 취소 */
+    @Transactional
     public void softGroupDelete(List<Long> reservIds, Long memberTripPlanId) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        if (reservIds == null || reservIds.isEmpty()) {
+            throw new IllegalArgumentException("취소할 예약 ID 목록이 비어있습니다.");
+        }
+        if (memberTripPlanId == null) {
+            throw new IllegalArgumentException("memberTripPlanId는 필수값입니다.");
+        }
+
         try {
-            // 일괄 취소 쿼리 호출
             int rowsAffected = reservMapper.softGroupDelete(reservIds, memberTripPlanId);
 
-            // 만약 영향을 미친 행이 없다면 예외 발생
             if (rowsAffected <= 0) {
                 throw new RuntimeException("예약 취소 실패: 영향을 미친 예약이 없습니다.");
             }
+
+            logger.info("예약 취소 완료: 취소된 예약 건수 = {}", rowsAffected);
         } catch (Exception e) {
+            logger.error("예약 취소 처리 중 오류 발생", e);
             throw new RuntimeException("예약 취소 처리 중 오류 발생: " + e.getMessage(), e);
         }
     }
