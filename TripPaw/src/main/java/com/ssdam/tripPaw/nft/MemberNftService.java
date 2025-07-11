@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.MemberNft;
+import com.ssdam.tripPaw.member.MemberMapper;
 import com.ssdam.tripPaw.member.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ public class MemberNftService {
 
     private final MemberNftMapper memberNftMapper;
     private final MemberService memberService;
+    private final MemberMapper memberMapper;
 
     // 특정 멤버의 NFT 조회
     public List<MemberNft> getMemberNfts(Long memberId) {
@@ -76,7 +79,7 @@ public class MemberNftService {
     }
 
     // NFT 선물 기능
-    public void giftNft(Long nftId, Long fromMemberId, Long toMemberId) {
+    public void giftNftByNickname(Long nftId, Long fromMemberId, String toNickname) {
         MemberNft nft = memberNftMapper.findById(nftId);
         if (nft == null) {
             throw new IllegalArgumentException("해당 NFT가 존재하지 않습니다.");
@@ -87,6 +90,18 @@ public class MemberNftService {
         if (nft.getUsedAt() != null) {
             throw new IllegalArgumentException("이미 사용된 NFT는 선물할 수 없습니다.");
         }
-        memberNftMapper.giftNft(nftId, fromMemberId, toMemberId);
+
+        // 닉네임으로 받는 사람 ID 조회
+        Member toMember = memberMapper.findByNickname(toNickname);
+        if (toMember == null) {
+            throw new IllegalArgumentException("선물받을 사용자가 존재하지 않습니다.");
+        }
+        
+        // 🔒 본인에게 선물 방지
+        if (toMember.getId().equals(fromMemberId)) {
+            throw new IllegalArgumentException("본인에게는 NFT를 선물할 수 없습니다.");
+        }
+
+        memberNftMapper.giftNft(nftId, fromMemberId, toMember.getId());
     }
 }

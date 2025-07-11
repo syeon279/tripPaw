@@ -42,6 +42,13 @@
     on m.id = r.member_id 
     where m.username = #{username}
   </select>
+  
+  <select id="findByNickname" resultMap="memberResultMap">
+    SELECT m.*, r.role_name
+    FROM member m
+    LEFT JOIN member_roles r ON m.id = r.member_id
+    WHERE m.nickname = #{nickname}
+  </select>
 
 <select id="findById" resultMap="memberResultMap">
   SELECT m.*, r.role_name
