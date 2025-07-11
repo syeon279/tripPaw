@@ -407,7 +407,7 @@ public class ReviewService {
  		for (Reserv r : list) {
  		    System.out.println("Reserv ID..........: " + r.getId());
  		    System.out.println("Trip Title..........: " + 
- 		        (r.getTripPlan() != null ? r.getTripPlan().getTitle() : "null"));
+ 		        (r.getMemberTripPlan() != null ? r.getMemberTripPlan().getTitleOverride() : "null"));
  		}
  		return reviewMapper.findReservWithoutReview(memberId);
  	}
