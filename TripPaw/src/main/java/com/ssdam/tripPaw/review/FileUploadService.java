@@ -13,35 +13,28 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileUploadService {
 
-    private final String uploadDir = "C:/upload/reviews";
+    private final String uploadDir = "C:/upload/reviews"; // ✅ 고정 경로
 
     public FileUploadService() {
         try {
-            Files.createDirectories(Paths.get(uploadDir)); // 디렉토리 자동 생성
+            Files.createDirectories(Paths.get(uploadDir)); // ✅ 디렉토리 자동 생성
         } catch (Exception e) {
             throw new RuntimeException("업로드 폴더 생성 실패", e);
         }
     }
 
-    public String upload(MultipartFile file, String subFolder) {
+    public String upload(MultipartFile file) {
         try {
             File dir = new File(uploadDir);
             if (!dir.exists()) dir.mkdirs();
 
             String originalFilename = Objects.requireNonNull(file.getOriginalFilename(), "파일명이 없습니다.");
-            String safeFilename = UUID.randomUUID() + "_" + Paths.get(originalFilename).getFileName().toString();
-            
-            Path targetDir = this.rootLocation.resolve(subFolder).normalize();
-            Files.createDirectories(targetDir); // 하위 디렉토리까지 생성
-            
-            Path destinationFile = this.rootLocation.resolve(safeFilename).normalize();
             String safeFilename = UUID.randomUUID() + "_" + originalFilename;
 
             Path path = Paths.get(uploadDir, safeFilename);
             file.transferTo(path.toFile());
 
-            return subFolder + "/" + destinationFile.getFileName().toString();
-            return safeFilename; // DB에 저장될 경로
+            return safeFilename; // DB에는 이 파일명만 저장
         } catch (Exception e) {
             throw new RuntimeException("리뷰 이미지 저장 실패", e);
         }
