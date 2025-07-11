@@ -20,5 +20,6 @@ public interface MemberNftMapper {
     boolean existsByNftMetadataId(Long metadataId);
     void markAsUsed(@Param("id") Long id, @Param("usedAt") LocalDateTime usedAt);
     MemberNft findById(@Param("id") Long id);
+	int countUnusedByMetadataId(Long nftMetadataId);
     
 }

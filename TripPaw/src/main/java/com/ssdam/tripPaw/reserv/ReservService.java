@@ -74,6 +74,10 @@ public class ReservService {
         return reservMapper.findAll();
     }
 
+    public List<Reserv> findByMemberId(Long memberId) {
+        return reservMapper.findByMemberId(memberId);
+    }
+    
     public List<Reserv> findByTripPlansId(Long tripPlanId) {
         return reservMapper.findByTripPlansId(tripPlanId);  // MyBatis 매퍼 호출
     }

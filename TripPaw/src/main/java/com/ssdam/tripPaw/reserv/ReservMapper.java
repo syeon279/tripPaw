@@ -48,6 +48,8 @@ public interface ReservMapper {
 	
 	public Member findMemberById(Long userId);
 	
+	public List<Reserv> findByMemberId(Long memberId);
+	
 	public Place findPlaceById(Long id);
 	
 	public MemberTripPlan findMemberTripPlanById(Long id);

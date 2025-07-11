@@ -85,9 +85,11 @@ public class MemberNftController {
     
     // NFT 선물 기능
     @PostMapping("/gift/{nftId}")
-    public ResponseEntity<String> giftNft(@PathVariable Long nftId, @RequestParam Long fromMemberId, @RequestParam Long toMemberId) {
+    public ResponseEntity<String> giftNft(@PathVariable Long nftId,
+                                          @RequestParam Long fromMemberId,
+                                          @RequestParam String toNickname) {
         try {
-            memberNftService.giftNft(nftId, fromMemberId, toMemberId);
+            memberNftService.giftNftByNickname(nftId, fromMemberId, toNickname);
             return ResponseEntity.ok("NFT gifted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("NFT gift failed: " + e.getMessage());
