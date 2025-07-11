@@ -19,6 +19,6 @@ public class MyReviewDto {
     private String weatherCondition;
     private String placeName;
     private String placeImageUrl;
-
+    private Long targetId;
 }
 
