@@ -247,7 +247,7 @@ function LoginForm({ onToggleForm }) {
         <SocialLogin>
           <p>소셜 아이디로 로그인하기</p>
           <SocialIcons>
-            <SocialIcon><img src={googleIconPath} alt="구글" /></SocialIcon>
+            <SocialIcon href={`http://localhost:8080/oauth2/authorization/google`}><img src={googleIconPath} alt="구글" /></SocialIcon>
             {/* <SocialIcon href={`https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon> */}
             <SocialIcon href={`http://localhost:8080/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
             <SocialIcon><img src={naverIconPath} alt="네이버" /></SocialIcon>
