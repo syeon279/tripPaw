@@ -15,7 +15,8 @@ public interface MemberNftMapper {
     void insert(MemberNft memberNft);
     void update(MemberNft memberNft);
     void deleteByIdAndMemberId(Long id, String memberId);
-    void giftNft(Long nftId, String fromMemberId, String toMemberId);
+    void deleteUsedByNftMetadataId(@Param("nftMetadataId") Long nftMetadataId);
+    void giftNft(Long nftId, Long fromMemberId, Long toMemberId);
     boolean existsByNftMetadataId(Long metadataId);
     void markAsUsed(@Param("id") Long id, @Param("usedAt") LocalDateTime usedAt);
     MemberNft findById(@Param("id") Long id);
