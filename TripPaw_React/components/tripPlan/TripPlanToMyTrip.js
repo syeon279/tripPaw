@@ -1,25 +1,8 @@
 import React, { useState } from 'react';
-
-const overlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 1000,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-};
-
-const modalStyle = {
-    backgroundColor: 'white',
-    padding: '24px',
-    borderRadius: '12px',
-    width: '400px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-};
+import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; // 기본 스타일
+import 'react-date-range/dist/theme/default.css'; // 테마 스타일
+import { addDays } from 'date-fns';
 
 const TripPlanToMyTrip = ({
     onClose,
@@ -29,10 +12,16 @@ const TripPlanToMyTrip = ({
     defaultCountPeople,
     defaultCountPet,
     onCaptureMap,
+    disabledDates = [],
 }) => {
     const [title, setTitle] = useState('');
-    const [startDate, setStartDate] = useState(defaultStartDate || '');
-    const [endDate, setEndDate] = useState(defaultEndDate || '');
+    const [dateRange, setDateRange] = useState([
+        {
+            startDate: defaultStartDate ? new Date(defaultStartDate) : new Date(),
+            endDate: defaultEndDate ? new Date(defaultEndDate) : addDays(new Date(), 1),
+            key: 'selection',
+        },
+    ]);
     const [countPeople, setCountPeople] = useState(defaultCountPeople || 1);
     const [countPet, setCountPet] = useState(defaultCountPet || 0);
 
@@ -42,13 +31,13 @@ const TripPlanToMyTrip = ({
             return;
         }
 
+        const { startDate, endDate } = dateRange[0];
         if (!startDate || !endDate) {
-            alert('여행 일정을 입력해주세요.');
+            alert('여행 일정을 선택해주세요.');
             return;
         }
 
         let mapImageBase64 = null;
-
         try {
             mapImageBase64 = await onCaptureMap?.();
         } catch (err) {
@@ -57,84 +46,112 @@ const TripPlanToMyTrip = ({
 
         const travelData = {
             title,
-            startDate,
-            endDate,
+            startDate: startDate.toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0],
             countPeople,
             countPet,
             mapImage: mapImageBase64,
         };
 
         const result = await onSave(travelData);
-        if (result) {
-            onClose();  // ✅ 저장 성공 시에만 모달 닫기
-        }
+        if (result) onClose();
     };
 
     return (
-        <div style={overlayStyle} onClick={onClose}>
-            <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-                <h2 style={{ marginBottom: '16px' }}>내 여행으로 저장하기</h2>
-
-                <label style={{ display: 'block', marginBottom: '8px' }}>제목</label>
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="예: 제주도 힐링 여행"
-                    style={{
-                        width: '100%',
-                        padding: '8px',
-                        marginBottom: '16px',
-                        border: '1px solid #ccc',
-                        borderRadius: '6px',
-                    }}
-                />
-
-                <label>시작일</label>
-                <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    style={{ width: '100%', marginBottom: '12px', padding: '6px' }}
-                />
-
-                <label>종료일</label>
-                <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    style={{ width: '100%', marginBottom: '12px', padding: '6px' }}
-                />
-
-                <label>동행 인원</label>
-                <input
-                    type="number"
-                    value={countPeople}
-                    min={1}
-                    onChange={(e) => setCountPeople(Number(e.target.value))}
-                    style={{ width: '100%', marginBottom: '12px', padding: '6px' }}
-                />
-
-                <label>반려동물 수</label>
-                <input
-                    type="number"
-                    value={countPet}
-                    min={0}
-                    onChange={(e) => setCountPet(Number(e.target.value))}
-                    style={{ width: '100%', marginBottom: '16px', padding: '6px' }}
-                />
-
-                <div style={{ textAlign: 'right' }}>
-                    <button onClick={onClose} style={{ marginRight: '8px' }}>취소</button>
+        <div style={{
+            position: 'fixed',
+            top: 0, left: 0,
+            width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+        }} onClick={onClose}>
+            <div style={{
+                backgroundColor: 'white',
+                padding: '24px',
+                //borderRadius: '12px',
+                width: '450px',
+            }} onClick={(e) => e.stopPropagation()}>
+                <div style={{ textAlign: 'center' }}>
+                    <h2 style={{ marginBottom: '30px' }}>내 여행으로 저장하기</h2>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                    <label style={{ display: 'block', marginBottom: '8px' }}></label>
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="여행 제목을 입력해주세요"
+                        style={{
+                            width: '80%',
+                            padding: '8px',
+                            marginBottom: '16px',
+                            border: 'none',
+                            //borderRadius: '6px',
+                        }}
+                    />
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                    <label style={{ display: 'block', marginBottom: '8px' }}></label>
+                    <DateRange
+                        editableDateInputs={true}
+                        onChange={(item) => setDateRange([item.selection])}
+                        moveRangeOnFirstSelection={false}
+                        ranges={dateRange}
+                        disabledDates={disabledDates.map(d => new Date(d))}
+                        minDate={new Date()}
+                        rangeColors={['#0077ff']}
+                    />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <label>동행 인원 : </label>
+                        <input
+                            type="number"
+                            value={countPeople}
+                            min={1}
+                            onChange={(e) => setCountPeople(Number(e.target.value))}
+                            style={{ width: '20%', marginBottom: '12px', padding: '6px', border: 'none', marginLeft: '10px' }}
+                        />
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <label>반려동물 수 : </label>
+                        <input
+                            type="number"
+                            value={countPet}
+                            min={0}
+                            onChange={(e) => setCountPet(Number(e.target.value))}
+                            style={{ width: '20%', marginBottom: '12px', padding: '6px', border: 'none', marginLeft: '10px' }}
+                        />
+                    </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: "center", marginTop: '30px' }}>
+                    <button onClick={onClose}
+                        style={{
+                            backgroundColor: 'white',
+                            width: '20%',
+                            cursor: 'pointer',
+                            borderRadius: '5px',
+                            marginLeft: '10px',
+                            marginRight: '20px',
+                        }}
+                    >
+                        취소
+                    </button>
                     <button
                         onClick={handleSave}
                         style={{
-                            backgroundColor: '#0077ff',
+                            backgroundColor: 'black',
                             color: 'white',
                             padding: '6px 12px',
                             border: 'none',
-                            borderRadius: '6px',
+                            borderRadius: '5px',
                             cursor: 'pointer',
+                            width: '20%',
+                            marginLeft: '20px',
+                            marginRight: '10px',
                         }}
                     >
                         저장

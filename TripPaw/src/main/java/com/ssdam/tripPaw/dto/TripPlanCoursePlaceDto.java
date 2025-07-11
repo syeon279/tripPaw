@@ -7,8 +7,10 @@ import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 import com.ssdam.tripPaw.reserv.ReservState;
+import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
 
 import lombok.Data;
 
@@ -16,6 +18,7 @@ import lombok.Data;
 public class TripPlanCoursePlaceDto {
     private Long memberTripPlanId;
     private Long tripPlanId;
+    private Long originTripPlanId;
     private Long placeId;
     private String placeName;
     private Double latitude;
@@ -27,9 +30,10 @@ public class TripPlanCoursePlaceDto {
     private int countPet;
     private int day;
 
-    public Reserv toReserv(Member member, Place place, ReservMapper reservMapper) {
+    public Reserv toReserv(Member member, Place place, ReservMapper reservMapper, TripPlanMapper tripPlanMapper) {
         // memberTripPlanId를 통해 실제 MemberTripPlan을 조회
         MemberTripPlan memberTripPlan = reservMapper.findMemberTripPlanById(this.memberTripPlanId);
+        TripPlan tripPlan = tripPlanMapper.findById(this.originTripPlanId);
         
         if (memberTripPlan == null) {
         	System.out.println("No MemberTripPlan found for ID: " + this.memberTripPlanId);
@@ -47,6 +51,8 @@ public class TripPlanCoursePlaceDto {
         reserv.setPlace(place);
         reserv.setMemberTripPlan(memberTripPlan);
         reserv.setCreatedAt(LocalDateTime.now());
+        reserv.setTripPlan(tripPlan != null ? tripPlan : memberTripPlan.getTripPlan());
+        
 
         return reserv;
     }

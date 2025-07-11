@@ -34,7 +34,7 @@ public interface ReservMapper {
 	
 	public  List<Reserv> findByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
 
-	public Reserv findByTripPlanId(@Param("tripPlanId") Long tripPlanId);
+	public List<Reserv> findByTripPlanId(@Param("tripPlanId") Long tripPlanId);
 	
 	public int updateWithPay(Reserv reserv);
 	
@@ -59,4 +59,7 @@ public interface ReservMapper {
 	public List<Reserv> findByMemberTripPlanIdAndMember(@Param("memberTripPlanId") Long memberTripPlanId, @Param("memberId") Long memberId);
 	
 	public int softGroupDelete(@Param("reservIds") List<Long> reservIds, @Param("memberTripPlanId") Long memberTripPlanId);
+	
+	// 해당 tripPlanId의 예약 날짜 가져오기
+	List<Map<String, Object>> findReservedRangesByTripPlanId(Long tripPlanId);
 }
