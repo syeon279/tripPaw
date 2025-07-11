@@ -253,7 +253,8 @@ function ReservCreatePage() {
           <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
 
           {message && <ErrorMsg>{message}</ErrorMsg>}
-{/* 더미 테스트 */}
+          
+{/* 더미 테스트
         <DummyButton type="button" onClick={async () => {
           try {
             const res = await axios.post('http://localhost:8080/pay/dummy?memberId=1', null, {
@@ -273,7 +274,7 @@ function ReservCreatePage() {
           }
         }}>
           🚀 더미 트립플랜으로 결제 테스트하기
-        </DummyButton>
+        </DummyButton> */}
 
         </Form>
       </Layout>

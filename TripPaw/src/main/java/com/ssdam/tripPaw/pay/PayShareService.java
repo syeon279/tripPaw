@@ -36,6 +36,10 @@ public class PayShareService {
         return payShareMapper.findByReservIdAndMember(reservId, member.getId());
     }
     
+    public List<Member> getParticipantsByReservId(Long reservId) {
+        return payShareMapper.findParticipantsByPayId(reservId); // PayShareMapper에서 참가자 조회
+    }
+    
     @Transactional
     public void joinDutchPay(Long reservId, Member member) {
         Pay pay = payMapper.findByReservId(reservId);
