@@ -207,7 +207,7 @@ const ReviewTripPlanDetail = () => {
                 <Card key={review.id} style={{ marginBottom: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontWeight: 'bold' }}>사용자 닉네임</div>
+                      <div style={{ fontWeight: 'bold' }}>{review.memberNickname}</div>
                       <Rate disabled defaultValue={review.rating} style={{ fontSize: 16 }} />
                       <div style={{ fontSize: 12, color: '#888' }}>
                         {new Date(review.createdAt).toLocaleDateString()}
@@ -216,6 +216,19 @@ const ReviewTripPlanDetail = () => {
                     <div>{weatherIcon(review.weather)}</div>
                   </div>
                   <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>{review.content}</p>
+                  {review.imageUrls && review.imageUrls.length > 0 && (
+                    <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                      {review.imageUrls.split(',').map((url, idx) => (
+                        <img
+                          key={idx}
+                          src={`http://localhost:8080/upload/reviews/${url.trim()}`}
+                          alt={`review-${idx}`}
+                          style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }}
+                          onError={(e) => { e.target.src = '/image/other/tempImage.jpg'; }}
+                        />
+                      ))}
+                    </div>
+                  )}
                   <div
                     block
                     style={{

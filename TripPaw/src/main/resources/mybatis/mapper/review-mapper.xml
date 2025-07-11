@@ -84,6 +84,7 @@
 		resultType="com.ssdam.tripPaw.review.MyReviewDto">
 		SELECT
 		r.id AS reviewId,
+		r.target_id AS targetId,
 		r.content,
 		r.rating,
 		r.weather_condition AS weatherCondition,
@@ -151,12 +152,21 @@
 	</select>
 
 	<!-- 여행플랜 리뷰 목록 -->
-	<select id="findByPlanId" resultMap="reviewResultMap"
-		parameterType="long">
-		SELECT * FROM review
-		WHERE review_type_id = 1 AND
-		target_id = #{planId}
-		ORDER BY created_at DESC
+	<select id="findByPlanId" resultType="com.ssdam.tripPaw.review.ReviewOnePlanDto">
+	    SELECT 
+	        r.id,
+	        r.content,
+	        r.rating,
+	        r.weather_condition AS weatherCondition,
+	        DATE_FORMAT(r.created_at, '%Y-%m-%d') AS createdAt,
+	        m.nickname AS memberNickname,
+	        -- 콤마로 이어진 이미지 리스트
+	        (SELECT GROUP_CONCAT(image_url) FROM review_image ri WHERE ri.review_id = r.id) AS imageUrls
+	    FROM review r
+	    JOIN member m ON r.member_id = m.id
+	    WHERE r.review_type_id = 1
+	      AND r.target_id = #{planId}
+	    ORDER BY r.created_at DESC
 	</select>
 
 	<!-- 모든 여행플랜 리뷰 목록 -->
