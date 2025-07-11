@@ -10,11 +10,13 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.dto.PayResponseDto;
+import com.ssdam.tripPaw.member.MemberService;
+import com.ssdam.tripPaw.member.util.JwtProvider;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,8 +44,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReservController {
     private final ReservService reservService;
-    private final ReservMapper reservMapper;
-
+    private final ReservMapper reservMapper;    
+    private final JwtProvider jwtProvider;
+    private final MemberService memberService;
+    
     /** 예약 생성 */
     @PostMapping
     public ResponseEntity<Reserv> createReserv(@RequestBody Reserv reserv) {
@@ -72,9 +78,16 @@ public class ReservController {
 
     /** 전체 예약 조회 */
     @GetMapping
-    public ResponseEntity<List<Reserv>> getAllReserv(@RequestParam(required = false) Long tripPlanId) {
-        // 모든 예약 가져오기
-        List<Reserv> reservList = reservService.findAll();
+    public ResponseEntity<List<Reserv>> getAllReserv(@RequestParam(required = false) Long tripPlanId,@CookieValue(value = "jwt", required = false) String token) {
+        if (token == null || jwtProvider.isExpired(token)) {
+            // 토큰이 없거나 만료되었으면 401 Unauthorized 응답
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        String username = jwtProvider.getUsername(token);
+        Member member = memberService.findByUsername(username);
+    	// 모든 예약 가져오기
+        List<Reserv> reservList = reservService.findByMemberId(member.getId());
 
         // 예약 상태를 변경
         reservList.forEach(r -> {

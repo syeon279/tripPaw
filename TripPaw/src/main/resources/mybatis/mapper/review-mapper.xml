@@ -446,7 +446,7 @@
 		</association>
 	</resultMap>
 
-	<select id="findReservWithoutReview"
+	<!-- <select id="findReservWithoutReview"
 					parameterType="long"
 					resultMap="reservWithTripMap">
 		SELECT
@@ -483,5 +483,5 @@
 			JOIN place p ON res.place_id = p.id
 			JOIN place_type pt ON p.place_type_id = pt.id
 			WHERE r.member_id = #{memberId}
-	</select>
+	</select> -->
 </mapper>
