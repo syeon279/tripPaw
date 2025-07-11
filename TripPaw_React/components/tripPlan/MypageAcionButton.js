@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect,useState } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const bottonWrapperStyle = {
     //border: '2px solid purple',
@@ -25,7 +27,79 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ onReserv, onEdit, isNotMytrip }) => {
+const ActionButtons = ({ planData, onEdit , isNotMytrip, routeData, memberTripPlanId}) => {
+    const router = useRouter();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userId, setUserId] = useState('');
+    const [userName, setUserName] = useState('');
+   // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
+
+    console.log('ActionButtons memberTripPlanId:', memberTripPlanId);
+
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                    withCredentials: true,
+                });
+
+                if (response.status === 200) {
+                    setIsLoggedIn(true);
+                    setUserId(response.data.id);
+                    setUserName(response.data.username);
+                }
+            } catch (error) {
+                console.error("로그인 상태 확인 실패:", error);
+                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+                router.push('/member/login');
+            }
+        };
+
+        checkLoginStatus();
+    },[])
+
+    // useEffect(() => {
+    // if (router.query.memberTripPlanId) {
+    //     setMemberTripPlanId(router.query.memberTripPlanId);
+    // }
+    // }, [router.query.memberTripPlanId]);
+
+    const handleReservation = async () => {
+    try {
+        const response = await axios.post('http://localhost:8080/reserv/auto/plan', { 
+            userId: userId,
+            memberTripPlanId: memberTripPlanId,
+            routeData: routeData,
+         });
+        
+        const reservations = response.data; 
+
+        console.log("reservations:", reservations);
+        console.log("firstMemberTripPlanId:", reservations[0]?.memberTripPlan?.id);
+
+        if (!reservations || reservations.length === 0) {
+        alert('예약이 생성되지 않았습니다.');
+        return;
+        }
+        
+
+        const firstMemberTripPlanId = reservations[0]?.memberTripPlan?.id;
+        const allSame = reservations.every(r => r.memberTripPlan?.id === firstMemberTripPlanId);
+
+        if (!allSame) {
+        alert('예약들의 memberTripPlanId가 서로 다릅니다. 일괄결제가 불가능합니다.');
+        return;
+        }
+        
+        router.push({
+        pathname: '/pay/paybatch',
+        query: { memberTripPlanId: firstMemberTripPlanId }
+        });
+    } catch (error) {
+        console.error('예약 생성 실패', error);
+    }
+    };
+    
     return (
         <div style={bottonWrapperStyle}>
             <button style={{ ...bottonStyle, background: 'blue' }}
@@ -33,10 +107,8 @@ const ActionButtons = ({ onReserv, onEdit, isNotMytrip }) => {
                 이 여행으로 다시 여행하기
             </button>
             <button
-                style={{ ...bottonStyle, background: 'black' }}
-                onClick={onReserv}
-            >
-                이대로 다시 예약하기
+                style={{ ...bottonStyle, background: 'black' }} onClick={handleReservation}>
+                이대로 예약하기
             </button>
             {isNotMytrip &&
                 <button style={{ ...bottonStyle, background: 'green' }}

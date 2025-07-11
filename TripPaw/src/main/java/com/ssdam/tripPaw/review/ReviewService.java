@@ -120,7 +120,7 @@ public class ReviewService {
 	        System.out.println("[DEBUG] 예약 start_date: " + reserv.getStartDate());
 
 	        // 1. 경로 기반 장소 리뷰인지 확인
-	        if (reserv.getTripPlan() != null) {
+	        if (reserv.getMemberTripPlan().getTripPlan() != null) {
 	            System.out.println("[DEBUG] 경로 기반 장소 리뷰입니다.");
 	            // 필요시 추가 로직 삽입 가능
 	        } else {

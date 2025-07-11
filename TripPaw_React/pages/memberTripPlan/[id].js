@@ -72,9 +72,11 @@ const TripPlanDetail = () => {
     const [endDate, setEndDate] = useState(null);
     const [title, setTitle] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+    const [reservationDates, setReservationDates] = useState([]);
     const [userId, setUserId] = useState(1);
     const { id } = router.query;
     const [isNotMytrip, setIsNotMytrip] = useState('');
+    const [memberTripPlanId, setMemberTripPlanId] = useState(null);
 
     // 리뷰쓰기
     const [myId, setMyId] = useState('');
@@ -95,7 +97,10 @@ const TripPlanDetail = () => {
                 setTitle(data.title);
                 setMyId(data.memberId);
                 setOriginMemberId(data.originalMemberId);
+                setMemberTripPlanId(id);
                 console.log('data:', res.data);
+                //setPlanData(res.data);
+                //console.log('setPlanData', planData);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
             }
@@ -239,14 +244,16 @@ const TripPlanDetail = () => {
                             onSelectDay={setCurrentDay}
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
+                            startDate={startDate}
                         />
                         <MypageActionButton
-                            // 예약하기 추가
-                            //onReserv={() => }
+                            //planData={planData}
+                            routeData={routeData}
                             onEdit={() => handleEdit()}
                             // 리뷰쓰기 추가
                             //onReview={}
                             isNotMytrip={isNotMytrip}
+                            memberTripPlanId={Number(id)}
                         />
                     </div>
                 </div>

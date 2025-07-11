@@ -170,7 +170,9 @@ function reservdutch() {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/reserv/disabled-dates')
+    if (!placeId) return;
+
+    axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${placeId}`)
       .then(res => {
         const allDisabled = [];
         const today = new Date();
@@ -190,7 +192,7 @@ function reservdutch() {
       .catch(err => {
         console.error('예약 불가 날짜 불러오기 실패', err);
       });
-  }, []);
+  }, [placeId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

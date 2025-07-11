@@ -331,24 +331,63 @@ const ReservList = () => {
       await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
       setReservations(prev =>
-        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
+        prev.map(r => (String(r.memberTripPlan?.id || r.memberTripPlan?.id) === String(memberTripPlan) ? { ...r, state: 'CANCELLED' } : r))
       );
     } catch (err) {
       alert('예약 취소에 실패했습니다.');
     }
   };
 
-  const cancelTripPlanReservs = async (tripPlanId) => {
+  const cancelTripPlanReservs = async (memberTripPlanIdObj) => {
     if (!window.confirm('일괄 예약 전체를 취소하시겠습니까?')) return;
 
+    const memberTripPlanId = memberTripPlanIdObj?.id ?? memberTripPlanIdObj;
+
+    console.log("memberTripPlanId:", memberTripPlanId);
+    console.log("전체 reservations:", reservations);
+
+    // 조건: memberTripPlanId가 number로 존재한다고 가정
+    const selected = reservations.filter(r => {
+      return (
+        r.memberTripPlan?.id === memberTripPlanId || r.memberTripPlanId === memberTripPlanId
+      );
+    });
+
+    console.log("선택된 예약:", selected);
+
+    const requestBody = selected.map(r => ({
+      reservId: r.id,
+      memberTripPlanId: memberTripPlanId,
+      payId: r.payId || null,
+      amount: r.finalPrice || 0,
+      placeName: r.place?.name || '',
+      startDate: r.startDate,
+      endDate: r.endDate
+    }));
+
+    console.log("보내는 requestBody:", requestBody);
+
+    if (requestBody.length === 0) {
+      alert('보낼 예약 데이터가 없습니다.');
+      return;
+    }
+
     try {
-      await axios.post(`http://localhost:8080/reserv/tripplan/${tripPlanId}/delete`, null, { withCredentials: true });
+      await axios.post(`http://localhost:8080/reserv/batch/cancel`, requestBody, {
+        withCredentials: true
+      });
+
       alert('일괄 예약 전체가 취소되었습니다.');
       setReservations(prev =>
-        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
+        prev.map(r =>
+          r.memberTripPlan?.id === memberTripPlanId || r.memberTripPlanId === memberTripPlanId
+            ? { ...r, state: 'CANCELLED' }
+            : r
+        )
       );
     } catch (err) {
       alert('일괄 예약 취소에 실패했습니다.');
+      console.error(err);
     }
   };
 
@@ -381,23 +420,6 @@ const ReservList = () => {
   const closeDetailModal = () => {
     setSelectedReserv(null);
     setIsDetailModalOpen(false);
-  };
-
-  const cancelReservInModal = async (reservId) => {
-    if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
-
-    try {
-      await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, {
-        withCredentials: true,
-      });
-      alert('예약이 취소되었습니다.');
-      setReservations(prev =>
-        prev.map(r => (String(r.tripPlan?.id || r.tripPlan?.id) === String(tripPlanId) ? { ...r, state: 'CANCELLED' } : r))
-      );
-      closeDetailModal();
-    } catch (err) {
-      alert('예약 취소에 실패했습니다.');
-    }
   };
 
   if (loading) return <Message>불러오는 중...</Message>;
@@ -469,8 +491,8 @@ const ReservList = () => {
                             <Button
                               danger
                               onClick={() => {
-                                if (reserv.tripPlanId) {
-                                  cancelTripPlanReservs(reserv.tripPlanId);
+                                if (reserv.memberTripPlan) {
+                                  cancelTripPlanReservs(reserv.memberTripPlan);
                                 } else {
                                   cancelSingleReserv(reserv.id);
                                 }
@@ -529,8 +551,8 @@ const ReservList = () => {
                     <Button
                       danger
                       onClick={() => {
-                        if (selectedReserv.tripPlanId) {
-                          cancelTripPlanReservs(selectedReserv.tripPlanId);
+                        if (selectedReserv.memberTripPlan) {
+                          cancelTripPlanReservs(selectedReserv.memberTripPlan);
                         } else {
                           cancelSingleReserv(selectedReserv.id);
                         }

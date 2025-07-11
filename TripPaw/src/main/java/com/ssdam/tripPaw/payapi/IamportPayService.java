@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -84,7 +85,8 @@ public class IamportPayService {
         return result;
     }
     
-    public int verifyAndSaveTotalPayment(String impUid, Set<Long> reservIds, Long memberId) throws IamportResponseException, IOException {
+    @Transactional
+    public int verifyAndSaveTotalPayment(String impUid, Set<Long> reservIds, Long memberId, Long memberTripPlanId) throws IamportResponseException, IOException {
         // 1. 아임포트 결제 검증
     	IamportResponse<Payment> response = iamportClient.paymentByImpUid(impUid);
     	Payment payment = response.getResponse();
@@ -94,8 +96,9 @@ public class IamportPayService {
     	int totalReservedAmount = reservIds.stream()
     	    .mapToInt(id -> {
     	        Reserv r = reservMapper.findById(id);
+    	        int finalPrice = r.getFinalPrice() == 0 ? 10000 : r.getFinalPrice();
     	        System.out.println("예약 ID: " + id + ", finalPrice: " + r.getFinalPrice());
-    	        return r.getFinalPrice();
+    	        return finalPrice;
     	    })
     	    .sum();
 
@@ -115,6 +118,8 @@ public class IamportPayService {
         pay.setImpUid(payment.getImpUid());
         pay.setMerchantUid(payment.getMerchantUid());
         pay.setAmount(payment.getAmount().intValue());
+        pay.setIsGroup(true);
+        pay.setGroupId(memberTripPlanId);
         pay.setPayMethod(payment.getPayMethod());
         pay.setPgProvider(payment.getPgProvider());
         pay.setPaidAt(payment.getPaidAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
@@ -133,6 +138,9 @@ public class IamportPayService {
         // 6. 예약별로 결제(pay) 연결 및 상태 변경
         for (Long reservId : reservIds) {
             Reserv reserv = reservMapper.findById(reservId);
+            if (reserv.getFinalPrice() == 0) {
+                reserv.setFinalPrice(10000);
+            }
             reserv.setPay(pay);  // 예약에 총합 결제 pay 연결
             reserv.setState(ReservState.CONFIRMED);
             reservMapper.updateWithPay(reserv);
