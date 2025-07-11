@@ -32,7 +32,7 @@ public interface MemberMapper {
 	int insertPoints(@Param("memberId") Long memberId, @Param("points") int points);
 
 	// 포인트 총합 조회
-	int getTotalPointsByMemberId(@Param("memberId") String memberId);
+	int getTotalPointsByMemberId(@Param("memberId") Long memberId);  
    
 
 	public int updateMember(Member member);

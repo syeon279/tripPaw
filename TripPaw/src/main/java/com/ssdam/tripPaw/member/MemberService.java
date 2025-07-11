@@ -74,7 +74,7 @@ public class MemberService {
 	}
 
     // 회원 포인트 총합 조회
-    public int getTotalPoints(String memberId) {
+    public int getTotalPoints(Long memberId) {
         return memberMapper.getTotalPointsByMemberId(memberId);
     }
     
