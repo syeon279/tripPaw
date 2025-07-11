@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import Router  from 'next/router';
+import Router from 'next/router';
 import styled from 'styled-components';
 import AuthContainer from '@/components/member/AuthContainer';
 // react-icons 라이브러리에서 아이콘을 가져옵니다.
 //import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 // 이미지 경로 (public 폴더에 이미지를 위치시키거나 import하여 사용)
-const logoPath = '/images/your-logo-image-path.png';
-const backgroundImagePath = '/images/background-image.jpg';
+const logoPath = '/image/logo/TripPaw-logo-white.png';
+const backgroundImagePath = '/image/logo/main.png';
 const googleIconPath = '/image/member/google.png';
 const kakaoIconPath = '/image/member/kakao.png';
 const naverIconPath = '/image/member/naver.png';
@@ -19,41 +19,47 @@ const naverIconPath = '/image/member/naver.png';
 const PageWrapper = styled.div`
   margin: 0;
   font-family: Arial, sans-serif;
-  display: flex;
+  //display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  //background-color: #f0f2f5;
+  //border:2px solid red;
+  width:100%;
 `;
 
 const Container = styled.div`
   display: flex;
   width: 100%;
-  max-width: 1200px;
-  height: 80vh;
+  //max-width: 1200px;
+   height: 100vh;
   min-height: 600px;
-  border-radius: 15px;
+  border-radius: 0 ;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  //border:2px solid blue;
 `;
 
 const ImageSection = styled.div`
-  flex: 1;
+  flex: 2;
   position: relative;
   overflow: hidden;
+  //border:2px solid red;
+
 
   .background-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: 0 20px 20px 0 ;
   }
 `;
 
 const LogoTopLeft = styled.div`
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 30px;
+  left: 40px;
   z-index: 10;
 
   .logo-img {
@@ -213,7 +219,7 @@ const SignupLink = styled.div`
 
 // --- React 컴포넌트 --- //
 
-function LoginPage({children}) {
+function LoginPage({ children }) {
   // 폼 입력 값을 관리하기 위한 state
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -221,16 +227,16 @@ function LoginPage({children}) {
   // 비밀번호 보이기/숨기기 상태 관리
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async(event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault(); // 폼 기본 제출 동작 방지
     console.log('Login attempt with:', { username, password });
-    const loginSubmit = await axios.post(`http://localhost:8080/api/auth/login`,{
-      username:username,
-      password:password
-    },{
+    const loginSubmit = await axios.post(`http://localhost:8080/api/auth/login`, {
+      username: username,
+      password: password
+    }, {
       withCredentials: true,
     })
-    
+
     // 실제 로그인 로직을 여기에 구현합니다. (API 호출 등)
     Router.replace('/')
   };
@@ -240,7 +246,12 @@ function LoginPage({children}) {
       <Container>
         <ImageSection>
           <LogoTopLeft>
-            <img src={logoPath} alt="로고" className="logo-img" />
+            <div
+              style={{ cursor: 'pointer', marginBottom: '20px', marginTop: '0px' }}
+              onClick={() => Router.push('/')}
+            >
+              <img src={logoPath} alt="로고" className="logo-img" />
+            </div>
           </LogoTopLeft>
           <img src={backgroundImagePath} alt="배경 이미지" className="background-image" />
         </ImageSection>

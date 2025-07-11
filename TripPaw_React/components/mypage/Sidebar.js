@@ -61,7 +61,7 @@ const Sidebar = () => {
       {!isAdmin && user && (
         <>
           <SidebarSection title={`안녕하세요, ${user.nickname}님`}>
-            <SidebarItem text="내 정보 관리" href="/mypage/profile/myProfile" />
+            <SidebarItem text="내 정보 관리" href="/mypage/myProfile" />
             <SidebarItem text="쿠폰함" href="/mypage/coupons" />
           </SidebarSection>
 
