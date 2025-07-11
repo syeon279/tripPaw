@@ -33,6 +33,9 @@ public interface MemberMapper {
 
 	// 포인트 총합 조회
 	int getTotalPointsByMemberId(@Param("memberId") Long memberId);  
+	
+	// 닉네임으로 회원 조회
+	Member findByNickname(@Param("nickname") String nickname);
    
 
 	public int updateMember(Member member);

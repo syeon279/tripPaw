@@ -79,12 +79,14 @@ public class NFTController {
     @DeleteMapping("/metadata/{id}")
     public ResponseEntity<?> deleteNftMetadata(@PathVariable Long id) {
         try {
-            nftService.deleteNftMetadata(id);
+            nftService.deleteNftMetadataAndUsedCoupons(id);
             return ResponseEntity.ok(Map.of("result", "삭제 완료"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", e.getMessage()));  // 사용자 친화적 메시지 반환
         } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "삭제 실패: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "삭제 중 오류 발생: " + e.getMessage()));
         }
     }
 }

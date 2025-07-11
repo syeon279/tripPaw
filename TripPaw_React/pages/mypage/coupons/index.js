@@ -42,6 +42,9 @@ const Coupons = () => {
   const [useModalVisible, setUseModalVisible] = useState(false);
   const [pendingUseNft, setPendingUseNft] = useState(null);
   const [isScratched, setIsScratched] = useState(false);
+  const [giftModalVisible, setGiftModalVisible] = useState(false);
+  const [giftTargetNft, setGiftTargetNft] = useState(null);
+  const [giftNickname, setGiftNickname] = useState("");
 
   const fetchNfts = async () => {
     if (!memberId) return;
@@ -85,16 +88,12 @@ const Coupons = () => {
     if (!pendingUseNft) return;
     try {
       await axios.post(`/api/member-nft/use/${pendingUseNft.id}`);
-      // await axios.post(`/api/member/update-points`, {
-      //   memberId,
-      //   points: pendingUseNft.pointValue,
-      // });
       message.success(`${pendingUseNft.pointValue} 포인트 사용 완료`);
-      setNfts((prev) =>
-        prev.map((nft) =>
-          nft.id === pendingUseNft.id ? { ...nft, usedAt: new Date().toISOString() } : nft
-        )
-      );
+
+    // 사용한 NFT는 즉시 리스트에서 제거
+    setNfts((prev) =>
+      prev.filter((nft) => nft.id !== pendingUseNft.id)
+    );
       setIsScratched(true);
     } catch (error) {
       message.error("사용 실패: " + error.message);
@@ -143,6 +142,18 @@ const Coupons = () => {
                     />
                   }
                   actions={[
+                    <Button
+                      key="gift"
+                      type="link"
+                      disabled={isUsed(nft.usedAt)}
+                      onClick={() => {
+                        setGiftTargetNft(nft);
+                        setGiftNickname("");
+                        setGiftModalVisible(true);
+                      }}
+                    >
+                      선물
+                    </Button>,
                     <Button
                       key="use"
                       type="link"
@@ -218,6 +229,48 @@ const Coupons = () => {
               닫기
             </Button>
           </div>
+        </Modal>
+        <Modal
+          title="NFT 선물하기"
+          open={giftModalVisible}
+          onCancel={() => {
+            setGiftModalVisible(false);
+            setGiftTargetNft(null);
+          }}
+          onOk={async () => {
+            if (!giftNickname || !giftTargetNft) {
+              message.warning("받는 사람 닉네임을 입력해주세요.");
+              return;
+            }
+            try {
+              await axios.post(
+                `/api/member-nft/gift/${giftTargetNft.id}`,
+                null,
+                {
+                  params: {
+                    fromMemberId: memberId,
+                    toNickname: giftNickname,
+                  },
+                }
+              );
+              message.success("NFT 선물 완료!");
+              setGiftModalVisible(false);
+              fetchNfts(); // 선물한 NFT는 내 목록에서 제거됨
+            } catch (err) {
+              message.error("선물 실패: " + err.response?.data || err.message);
+            }
+          }}
+          okText="선물하기"
+          cancelText="취소"
+        >
+          <p>받는 사람 닉네임:</p>
+          <input
+            type="text"
+            value={giftNickname}
+            onChange={(e) => setGiftNickname(e.target.value)}
+            style={{ width: "100%", padding: 8 }}
+            placeholder="받는 사람 닉네임을 입력하세요"
+        />
         </Modal>
       </div>
     </MypageLayout>

@@ -112,16 +112,16 @@ const PayButton = styled.button`
 
 function PayBatchPage() {
   const router = useRouter();
-  const { tripPlanId } = router.query;
+  const { memberTripPlanId } = router.query;
 
   const [totalAmount, setTotalAmount] = useState(0);
   const [payList, setPayList] = useState([]);
   const [selectedPg, setSelectedPg] = useState('html5_inicis');
 
   useEffect(() => {
-    if (!tripPlanId) return;
+    if (!memberTripPlanId) return;
 
-    axios.post(`http://localhost:8080/pay/batch/${tripPlanId}`, null, {
+    axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}`, null, {
       withCredentials: true,
     }).then(res => {
       setTotalAmount(res.data.totalAmount);
@@ -129,7 +129,7 @@ function PayBatchPage() {
     }).catch(() => {
       alert('일괄 결제 정보 불러오기 실패');
     });
-  }, [tripPlanId]);
+  }, [memberTripPlanId]);
 
   const loadIamportScript = () => {
     return new Promise((resolve, reject) => {
@@ -160,14 +160,14 @@ function PayBatchPage() {
       async (rsp) => {
         if (rsp.success) {
           try {
-            await axios.post(`http://localhost:8080/pay/batch/${tripPlanId}/verify`, 
+            await axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}/verify`, 
             { impUid: rsp.imp_uid }, 
             { withCredentials: true });
 
             alert('일괄 결제가 완료되었습니다!');
             router.push({
               pathname:'/pay/paygroup-success',
-              query: { tripPlanId: tripPlanId }
+              query: { memberTripPlanId: memberTripPlanId }
             });
           } catch (err) {
             alert('검증 중 오류가 발생했습니다.');
