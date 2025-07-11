@@ -285,7 +285,10 @@ const ReservList = () => {
   const router = useRouter();
   const [openedSections, setOpenedSections] = useState({});
   const [latestState, setLatestState] = useState(null);
-
+  const [userId, setUserId] = useState('');
+  const [memberTripPlanId, setMemberTripPlanId] = useState('');
+  const [routeData, setRouteData] = useState('');
+  
   // 각 연월별 상태 필터 관리
   const [sectionStatusFilters, setSectionStatusFilters] = useState({});
 
@@ -339,11 +342,10 @@ const ReservList = () => {
     }
   };
 
-  const cancelTripPlanReservs = async (memberTripPlanIdObj) => {
+  const cancelTripPlanReservs = async (memberTripPlan) => {
     if (!window.confirm('일괄 예약 전체를 취소하시겠습니까?')) return;
 
-    const memberTripPlanId = memberTripPlanIdObj?.id ?? memberTripPlanIdObj;
-
+    const memberTripPlanId = memberTripPlan?.id ?? memberTripPlan;
     console.log("memberTripPlanId:", memberTripPlanId);
     console.log("전체 reservations:", reservations);
 
@@ -488,15 +490,28 @@ const ReservList = () => {
                       <PlaceInfoRight>
                         {reserv.state === 'WAITING' && (
                           <>
-                            <Button onClick={() => goToPayPage(reserv)}>결제하기</Button>
+                            <Button onClick={async () => {
+                                if (reserv.memberTripPlan.id !== null) {
+                                  try {
+                                    router.push({
+                                    pathname: '/pay/paybatch',
+                                    query: { memberTripPlanId: reserv.memberTripPlan.id }
+                                    });
+                                  } catch (err) {
+                                    alert('자동 예약 처리 중 오류가 발생했습니다.');
+                                    console.error(err);
+                                  }
+                                } else {
+                                  goToPayPage(reserv);
+                                }
+                              }}>결제하기</Button>
                             <Button
                               danger
                               onClick={() => {
                                 if (
-                                    reserv.memberTripPlan?.id &&
-                                    Object.keys(reserv.memberTripPlan?.id).length > 0
+                                    reserv.memberTripPlan.id !== null
                                 ) {
-                                  cancelTripPlanReservs(reserv.memberTripPlan);
+                                  cancelTripPlanReservs(reserv.memberTripPlan.id);
                                 } else {
                                   cancelSingleReserv(reserv.id);
                                 }
@@ -556,10 +571,9 @@ const ReservList = () => {
                       danger
                       onClick={() => {
                         if (
-                            selectedReserv.memberTripPlan?.id &&
-                            Object.keys(selectedReserv.memberTripPlan?.id).length > 0
+                            selectedReserv.memberTripPlan.id !== null
                         ) {
-                          cancelTripPlanReservs(selectedReserv.memberTripPlan);
+                          cancelTripPlanReservs(selectedReserv.memberTripPlan.id);
                         } else {
                           cancelSingleReserv(selectedReserv.id);
                         }
