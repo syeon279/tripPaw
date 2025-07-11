@@ -260,7 +260,6 @@ function LoginForm({ onToggleForm }) {
           }}>회원가입하기</a></p>
         </SignupLink>
       </LoginBox>
-
     </div>
   );
 }
