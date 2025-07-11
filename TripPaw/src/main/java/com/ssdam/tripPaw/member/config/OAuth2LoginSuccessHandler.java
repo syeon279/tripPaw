@@ -41,9 +41,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 	       // redisUtil.saveRefreshToken(refreshToken, refreshToken, 1209600000L);
 	        // 2. 프론트엔드로 리다이렉트할 URL을 만듭니다. 토큰을 쿼리 파라미터에 담아 보냅니다.
 	        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/")
-	                .queryParam("token", accessToken)
+	                //.queryParam("token", accessToken)
 	                //.queryParam("refreshToken", refreshToken)
-	                .build().toUriString();
+	                .build().toUriString(); 
 	        
 	        ResponseCookie cookie = ResponseCookie.from("jwt", accessToken)
 	                .httpOnly(true)
