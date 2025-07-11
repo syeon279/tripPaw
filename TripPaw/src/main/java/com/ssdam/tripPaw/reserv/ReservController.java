@@ -100,13 +100,15 @@ public class ReservController {
         return ResponseEntity.ok(reservList);
     }
     
+    // 일괄 예약
     @PostMapping("/auto/plan")
     public ResponseEntity<?> createAutoReservations(@RequestBody Map<String, Object> body) {
     	System.out.println("[controller] body " + body);
         try {
         	Long userId = Long.valueOf(body.get("userId").toString());
         	Long memberTripPlanId = Long.valueOf(body.get("memberTripPlanId").toString());
-        	List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(userId, memberTripPlanId);
+        	Long originTripPlanId = Long.valueOf(body.get("originTripPlanId").toString());
+        	List<Reserv> savedList = reservService.createReservationsFromTripPlanByUserId(userId, memberTripPlanId, originTripPlanId);
             return ResponseEntity.ok(savedList);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("잘못된 요청: " + e.getMessage());
@@ -151,6 +153,23 @@ public class ReservController {
         return ResponseEntity.ok(result);
     }
 
+    // tripPlanId 예약 확인
+    @GetMapping("/disabled-dates/tripPlan")
+    public ResponseEntity<List<Map<String, String>>> getDisabledDatesByTripPlan(@RequestParam Long tripPlanId) {
+        List<Reserv> reservList = reservMapper.findByTripPlanId(tripPlanId);
+
+        List<Map<String, String>> result = reservList.stream()
+            .filter(r -> r.getStartDate() != null && r.getEndDate() != null)
+            .map(r -> {
+                Map<String, String> map = new HashMap<>();
+                map.put("startDate", r.getStartDate().toString());
+                map.put("endDate", r.getEndDate().toString());
+                return map;
+            })
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
+    }
 
     /** 예약 삭제 */
     @PostMapping("/{id}/delete")

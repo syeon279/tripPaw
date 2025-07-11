@@ -16,8 +16,10 @@ import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.dto.TripPlanCoursePlaceDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
+import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class ReservService {
     private final ReservMapper reservMapper;
     private final PlaceMapper placeMapper;
+    private final TripPlanMapper tripPlanMapper;
 
     /** 예약 생성 */
     @Transactional
@@ -84,7 +87,7 @@ public class ReservService {
     }
     
     @Transactional
-    public List<Reserv> createReservationsFromTripPlanByUserId(Long userId, Long memberTripPlanId) {
+    public List<Reserv> createReservationsFromTripPlanByUserId(Long userId, Long memberTripPlanId, Long originTripPlanId) {
         Member member = reservMapper.findMemberById(userId);
         if (member == null) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
@@ -117,9 +120,16 @@ public class ReservService {
             dto.setEndDate(memberTripPlan.getEndDate());
             dto.setCountPeople(memberTripPlan.getCountPeople());
             dto.setCountPet(memberTripPlan.getCountPet());
+            dto.setOriginTripPlanId(originTripPlanId);
+            TripPlan tripPlan = tripPlanMapper.findById(dto.getOriginTripPlanId());
+            if (tripPlan == null) {
+                System.out.println("TripPlan을 찾을 수 없음: " + dto.getOriginTripPlanId());
+            }
 
             // 예약 객체 생성
-            Reserv reserv = dto.toReserv(member, place, reservMapper);
+            Reserv reserv = dto.toReserv(member, place, reservMapper, tripPlanMapper);
+            System.out.println("Reserv에 세팅된 TripPlan ID: " + 
+            	    (reserv.getTripPlan() != null ? reserv.getTripPlan().getId() : "null"));
 
 //            if (reserv != null) {
 //                System.out.println("Created Reserv: " + reserv);
