@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Button, Checkbox, Form, Input, Space, Card, Avatar } from "antd";
+import { Button, Checkbox, Form, Input, Space, Card, Avatar, Spin, Typography } from "antd";
 import { AntDesignOutlined } from '@ant-design/icons';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -8,6 +8,8 @@ import { useDaumPostcodePopup } from 'react-daum-postcode';
 import axios from "axios";
 import MypageLayout from "@/components/layout/MyPageLayout";
 import Router from "next/router";
+
+const { Title } = Typography;
 
 
 const ErrorMessage = styled.div`color:red;`;   //style.div( color:red; )
@@ -40,6 +42,28 @@ const Profile = () => {
   const [username, setUsername] = useState('');
   const [phoneNum, setPhoneNum] = useState('');
   const [memberId, setMemberId] = useState('');
+  const [totalPoints, setTotalPoints] = useState(null);  // 추가
+  
+  // 추가  
+  useEffect(() => {
+    const fetchTotalPoints = async () => {
+      if (!memberId) return;
+
+      try {
+        const response = await axios.get('http://localhost:8080/api/member/total-points', {
+          params: { memberId },
+          withCredentials: true,
+        });
+        console.log("총 포인트 조회 결과:", response.data.totalPoints);
+        setTotalPoints(response.data.totalPoints);
+      } catch (error) {
+        console.error("포인트 조회 실패:", error);
+      }
+    };
+
+    fetchTotalPoints();
+  }, [memberId]);
+
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
@@ -414,6 +438,7 @@ const Profile = () => {
     alert(response.data);
 
     router.push('/');
+
     // return dispatch({
     //   type: SIGN_UP_REQUEST, 
     //   data:{ username, phoneNum, email, password, nickname  }
@@ -491,6 +516,17 @@ const Profile = () => {
                   <UnderlineInput placeholder='' id='namujiAddress'
                     value={namujiAddress} onChange={onChangeNamujiAddress} name='namujiAddress' />
                 </div>
+              </Form.Item>
+              {/* 총 포인트 추가 */}
+              <Form.Item>
+                <Card style={{ width: '100%', marginBottom: 20 }}>
+                  <Title level={4}>나의 포인트</Title>
+                  {totalPoints !== null ? (
+                    <p style={{ fontSize: '16px' }}>총 포인트: <strong>{totalPoints}</strong> P</p>
+                  ) : (
+                    <Spin size="small" />
+                  )}
+                </Card>
               </Form.Item>
               <Form.Item>
                 <div style={{ display: 'flex' }}>

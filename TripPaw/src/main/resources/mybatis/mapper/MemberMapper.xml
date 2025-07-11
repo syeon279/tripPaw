@@ -96,10 +96,10 @@
   </insert>
 
   <!-- 특정 회원의 전체 포인트 합산 조회 -->
-  <select id="getTotalPointsByMemberId" parameterType="string" resultType="int">
+  <select id="getTotalPointsByMemberId" parameterType="long" resultType="int">
     SELECT COALESCE(SUM(point), 0)
     FROM member_point
-    WHERE member_id = (SELECT id FROM member WHERE username = #{memberId})
+    WHERE member_id = #{memberId}
   </select>
   
 
