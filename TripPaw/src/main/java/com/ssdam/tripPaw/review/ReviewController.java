@@ -201,5 +201,18 @@ public class ReviewController {
     public ResponseEntity<Boolean> hasLiked(@PathVariable Long reviewId, @RequestParam Long memberId) {
         return ResponseEntity.ok(reviewService.hasLikedReview(memberId, reviewId));
     }
+    
+    //도장 선택용 코드 추가
+    //리뷰작성가능한거 조회
+    @GetMapping("/reservs-no-review/{memberId}")
+    public ResponseEntity<List<Reserv>> getReservsWithoutReview(@PathVariable Long memberId) {
+        List<Reserv> reservs = reviewService.getReservsWithoutReview(memberId);
+        return ResponseEntity.ok(reservs);
+    }
+    
+    @GetMapping("/member/{memberId}/place-type")
+    public List<MyReviewDto> getReviewsWithPlaceType(@PathVariable Long memberId) {
+        return reviewService.getReviewsWithPlaceTypeByMemberId(memberId);
+    }
 
 }

@@ -80,5 +80,8 @@ public interface ReviewMapper {
 
 	List<Reserv> findWithPlaceByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId,
             										@Param("memberId") Long memberId);
+	//여권 도장용 추가코드
+  List<Reserv> findReservWithoutReview(@Param("memberId") Long memberId);
+  List<MyReviewDto> findReviewsWithPlaceTypeByMemberId(Long memberId);
 
 }

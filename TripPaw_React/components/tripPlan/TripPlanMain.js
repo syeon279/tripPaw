@@ -153,6 +153,23 @@ const tripPlanMain = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // ✅ 유효성 검사: 지역 선택 확인
+        if (!region) {
+            alert('여행 지역을 선택해주세요.');
+            return;
+        }
+        if (!region) {
+            return alert("지역을 선택해주세요");
+        }
+        if (!startDate || !endDate) {
+            return alert("여행 일정을 입력해주세요");
+        }
+        if (countPeople <= 0) {
+            return alert("동행 인원 수는 1명 이상이어야 합니다");
+        }
+        if (!selectedCategories || selectedCategories.length === 0) {
+            return alert("카테고리를 하나 이상 입력해주세요");
+        }
 
         const requestData = {
             region,
@@ -167,8 +184,6 @@ const tripPlanMain = () => {
             const response = await axios.post('http://localhost:8080/tripPlan/recommend', requestData, {
                 withCredentials: true,
             });
-
-            console.log('추천 경로:', response.data);
 
             // 데이터 보내기
             router.push({
@@ -288,7 +303,7 @@ const tripPlanMain = () => {
                                             margin: '10px',
                                             //marginRight: '15px'
                                         }}></div>
-                                        <input style={inputStyle} type="number" value={countPet} min="1" onChange={(e) => setCountPet(Number(e.target.value))} /> 견
+                                        <input style={inputStyle} type="number" value={countPet} min="0" onChange={(e) => setCountPet(Number(e.target.value))} /> 견
                                     </div>
                                     <div>
                                     </div>

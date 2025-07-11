@@ -15,4 +15,5 @@ public class ReviewPlanDto {
     private String imageUrls;
     private int likeCount;
     private Long tripPlanId;
+    private Long targetId;
 }

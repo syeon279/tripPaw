@@ -30,12 +30,21 @@ public class MemberNftController {
     public ResponseEntity<List<MemberNftDto>> getMemberNfts(@PathVariable Long memberId) {
         List<MemberNft> memberNfts = memberNftService.getMemberNfts(memberId);
 
-        // MemberNft 객체를 MemberNftDto로 변환
-        List<MemberNftDto> memberNftDtos = memberNfts.stream()
-            .map(nft -> new MemberNftDto(nft.getId(), nft.getNftMetadata().getTitle(), nft.getNftMetadata().getImageUrl()))
+        List<MemberNftDto> dtos = memberNfts.stream()
+            .map(nft -> new MemberNftDto(
+            		 nft.getId(),
+                     nft.getNftMetadata().getTitle(),
+                     nft.getTokenId(), 
+                     nft.getNftMetadata().getImageUrl(),
+                     nft.getNftMetadata().getPointValue(),
+                     nft.getUsedAt(),
+                     nft.getBarcode(),             
+                     nft.getIssuedAt(),             
+                     nft.getDueAt()                 
+            ))
             .collect(Collectors.toList());
 
-        return ResponseEntity.ok(memberNftDtos);
+        return ResponseEntity.ok(dtos);
     }
 
     // NFT 발급
@@ -67,11 +76,20 @@ public class MemberNftController {
         return ResponseEntity.ok("NFT deleted");
     }
     
+    // 관리자: 사용 완료된 NFT만 삭제 가능
+    @DeleteMapping("/metadata/{nftMetadataId}/used-nfts")
+    public ResponseEntity<String> deleteUsedNftsByMetadata(@PathVariable Long nftMetadataId) {
+        memberNftService.deleteUsedByNftMetadataId(nftMetadataId);
+        return ResponseEntity.ok("사용 완료된 NFT만 삭제 완료");
+    }
+    
     // NFT 선물 기능
     @PostMapping("/gift/{nftId}")
-    public ResponseEntity<String> giftNft(@PathVariable Long nftId, @RequestParam String fromMemberId, @RequestParam String toMemberId) {
+    public ResponseEntity<String> giftNft(@PathVariable Long nftId,
+                                          @RequestParam Long fromMemberId,
+                                          @RequestParam String toNickname) {
         try {
-            memberNftService.giftNft(nftId, fromMemberId, toMemberId);
+            memberNftService.giftNftByNickname(nftId, fromMemberId, toNickname);
             return ResponseEntity.ok("NFT gifted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("NFT gift failed: " + e.getMessage());

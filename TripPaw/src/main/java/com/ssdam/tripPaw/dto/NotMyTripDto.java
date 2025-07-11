@@ -14,6 +14,7 @@ public class NotMyTripDto {
     private String mapImage;
     private Long memberId;
     private Long originalMemberId;
+    private Long originalTripPlanId;
 
     @Data
     public static class RouteDayDto {

@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.member;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,7 +51,11 @@ public class AuthController {
     	System.out.println("request="+request.getUsername());
     	Member member = memberService.findByUsername(request.getUsername());
         String token = authService.login(request).get("accessToken");
-        
+        System.out.println("isStatus="+member.isStatus());
+        if(!member.isStatus()) {
+        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        						//.body(Map.of("message","아이디와 비밀번호를 확인해주세요!"));
+        }
         //String tokenInfo = jwtProvider.getAuthentication(token).toString();
         
 //        Collection<? extends GrantedAuthority> authorities  = jwtProvider.getAuthentication(token).getAuthorities();
@@ -186,12 +191,46 @@ public class AuthController {
     	System.out.println("requestId="+id);
     	Member member = memberService.findById(id);
     	MemberImage memberImage = memberImageService.selectMemberImage(id);
+    	Map<String, String> responseMap = new HashMap<>();
+
+        if (memberImage == null) {
+            // 이미지가 없는 경우, src에 null을 담아 응답
+            responseMap.put("src", null);
+        } else {
+            // 이미지가 있는 경우, src에 이미지 경로를 담아 응답
+            responseMap.put("src", memberImage.getSrc());
+        }
+        
     	
-    	Map<String, Object> mapMemberImage = Map.of("src",memberImage.getSrc());
+    	//Map<String, String> mapMemberImage = Map.of("src",memberImage.getSrc() != null ? memberImage.getSrc():"");
     	
-    	return ResponseEntity.ok(mapMemberImage);
+    	return ResponseEntity.ok(responseMap);
     }
-//    @GetMapping("/login/oauth2/code/kakao")
+    
+    @PostMapping("/memberDelete")
+    public ResponseEntity<?> memberDelete(@RequestBody Member member, @CookieValue(value = "jwt", required = false) String token){
+    	 
+    	if (token == null || jwtProvider.isExpired(token)) {
+          // 토큰이 없거나 만료되었으면 401 Unauthorized 응답
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    	}
+    	
+    	String username = jwtProvider.getUsername(token);
+    	Member currntMember = memberService.findByUsername(username);
+    	
+    	Long currentMemeberId = currntMember.getId();
+    	if(memberService.checkPassword(currntMember.getPassword(), member.getPassword())) {
+    		memberService.softDeleteMember(currentMemeberId);
+    		
+    		return ResponseEntity.ok(Map.of("message","회원 탈퇴가 되었습니다."));
+    	}else {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    							.body(Map.of("error","비밀번호가 일치하지 않습니다."));
+    	}
+    	
+    	
+    }
+//    @GetMapping("/kakao")
 //    public ResponseEntity<?> kakaoLogin(HttpServletRequest request){
 //    	
 //    	System.out.println("카카오테스트");
