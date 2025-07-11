@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Tabs, Rate, Button, Image, Modal, message } from 'antd';
-import { CloseOutlined, QuestionOutlined, SunOutlined } from '@ant-design/icons';
+import { CloseOutlined, QuestionOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 
 const { TabPane } = Tabs;
@@ -39,7 +39,7 @@ const MyReviewList = ({ memberId }) => {
         try {
           await axios.delete(`/review/${reviewId}`);
           message.success('리뷰가 삭제되었습니다.');
-          fetchReviews(); // 삭제 후 목록 갱신
+          fetchReviews();
         } catch (err) {
           console.error('삭제 실패', err);
           message.error('리뷰 삭제에 실패했습니다.');
@@ -60,8 +60,8 @@ const MyReviewList = ({ memberId }) => {
         return 'snow.png';
       case '구름많음':
         return 'mostly-cloudy.png';
-      // default:
-      //   return 'unknown.png'; // fallback (optional)
+      default:
+        return null;
     }
   };
 
@@ -71,52 +71,40 @@ const MyReviewList = ({ memberId }) => {
   };
 
   const renderReviewCard = (review) => (
-    <div key={review.id} style={{ background: '#fff', padding: 16, marginBottom: 24, position:    'relative' }}>
+    <div key={review.reviewId} style={{ background: '#fff', padding: 16, marginBottom: 24, position: 'relative' }}>
       <div>
-        <div style={{ fontWeight: 600 }}>{review.tripTitle}</div>
-        <div style={{ color: '#888' }}>{review.tripStartDate} ~ {review.tripEndDate}</div>
+        <div style={{ fontWeight: 600 }}>
+          {review.tripTitle || review.placeName || '(제목 없음)'}
+        </div>
+        <div style={{ color: '#888' }}>
+          {review.tripStartDate && review.tripEndDate
+            ? `${review.tripStartDate} ~ ${review.tripEndDate}`
+            : ''}
+        </div>
       </div>
+
+      {/* 장소 리뷰일 경우 장소 이미지 + 이름 */}
+      {review.reviewType === 'PLACE' && review.placeImageUrl && (
+        <div style={{ marginTop: 12 }}>
+          <Image
+            src={review.placeImageUrl}
+            width={100}
+            height={100}
+            style={{ objectFit: 'cover', borderRadius: 8 }}
+          />
+        </div>
+      )}
 
       <Rate disabled value={review.rating} style={{ fontSize: 14, marginTop: 8 }} />
 
-      {/* 👇 날씨 아이콘 위치 조정 */}
       <div style={{ position: 'absolute', top: 56, right: 16 }}>
-        {review.weatherCondition === '맑음' && (
+        {getWeatherImageFileName(review.weatherCondition) ? (
           <img
             src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
             alt={review.weatherCondition}
             style={{ width: 40, height: 40 }}
           />
-        )}
-        {review.weatherCondition === '흐림' && 
-          (<img
-            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
-            alt={review.weatherCondition}
-            style={{ width: 40, height: 40 }}
-            />
-          )}
-        {review.weatherCondition === '비' && 
-          (<img
-            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
-            alt={review.weatherCondition}
-            style={{ width: 40, height: 40 }}
-            />
-          )}
-        {review.weatherCondition === '눈' && 
-          (<img
-            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
-            alt={review.weatherCondition}
-            style={{ width: 40, height: 40 }}
-            />
-          )}
-        {review.weatherCondition === '구름많음' && 
-          (<img
-            src={`/image/weather/${getWeatherImageFileName(review.weatherCondition)}`}
-            alt={review.weatherCondition}
-            style={{ width: 40, height: 40 }}
-            />
-          )}
-        {review.weatherCondition === '알 수 없음' && (
+        ) : (
           <QuestionOutlined style={{ color: '#aaa', fontSize: 24 }} />
         )}
       </div>

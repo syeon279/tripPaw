@@ -17,5 +17,8 @@ public class MyReviewDto {
     private String imageUrl;
     private int imageCount;
     private String weatherCondition;
+    private String placeName;
+    private String placeImageUrl;
+
 }
 
