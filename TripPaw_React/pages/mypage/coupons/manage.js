@@ -85,14 +85,19 @@ const CouponsManage = () => {
   };
 
   const onDelete = async (metadataId) => {
-    try {
-      await axios.delete(`/api/member-nft/metadata/${metadataId}/used-nfts`);
-      message.success("사용 완료된 NFT만 삭제 완료");
-      fetchNfts();
-    } catch (error) {
-      message.error("삭제 실패: " + (error.response?.data || error.message));
-    }
-  };
+  try {
+    // 1) 사용된 NFT 삭제
+    await axios.delete(`/api/member-nft/metadata/${metadataId}/used-nfts`);
+
+    // 2) 템플릿 자체 삭제
+    await axios.delete(`/api/nft/metadata/${metadataId}`);
+
+    message.success("NFT 템플릿과 사용된 쿠폰 모두 삭제 완료");
+    fetchNfts();
+  } catch (error) {
+    message.error("사용하지 않은 쿠폰이 있어 삭제할 수 없습니다.");
+  }
+};
 
 
   const syncNftsFromBlockchain = async () => {
