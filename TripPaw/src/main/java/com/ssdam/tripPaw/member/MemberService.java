@@ -66,4 +66,12 @@ public class MemberService {
 		return memberMapper.updateMember(member);
 	}
 	
+	public boolean checkPassword(String currentPass, String newPass) {
+		
+		return passwordEncoder.matches(newPass, currentPass);
+	}
+	
+	public int softDeleteMember(Long id) {
+		return memberMapper.softDeleteMember(id,false);
+	}
 }

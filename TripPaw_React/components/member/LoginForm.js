@@ -175,18 +175,28 @@ function LoginForm({ onToggleForm }) {
       password:password
     },{
       withCredentials: true,
+    }).then(function (response){
+      console.log('상태확인=',response.status);
+
+      Router.replace('/')
+    }).catch(function(error){
+      if (error.response && error.response.status === 401) {
+        const errorMessage = error.response.data?.message || '아이디 또는 비밀번호가 일치하지 않습니다.';
+        alert(errorMessage);
+        return;
+    }
+     
+      console.log('탈퇴에러',error.response.data.message);
     })
-    
     // 실제 로그인 로직을 여기에 구현합니다. (API 호출 등)
-    Router.replace('/')
   };
   return (
     <div>
-      <h2>로그인</h2>
+      <h2></h2>
       <LoginBox>
             <LoginFormTag onSubmit={handleSubmit}>
               <div className="logo-login-section">
-                <img src={logoPath} alt="로고" className="logo-img" />
+                <img src="/image/logo/TripPaw-logo.png" alt="로고" className="logo-img" />
               </div>
               <p className="welcome-text">로그인하시고 사이트의 다양한 기능을 이용해보세요</p>
 

@@ -25,4 +25,5 @@ public interface MemberMapper {
 
 	public int insertMemberRole(Long memberId, MemberRole memberRoleType);
 	public int updateMember(Member member);
+	public int softDeleteMember(Long id, boolean status);
 }
