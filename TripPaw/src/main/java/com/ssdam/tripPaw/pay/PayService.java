@@ -108,6 +108,7 @@ public class PayService {
         if (isGroup != null && isGroup) {
             pay.setIsGroup(true);  // 그룹 결제
             pay.setGroupId(tripPlanId);  // 그룹 ID 설정
+            
         } else {
             pay.setIsGroup(false);  // 기본값은 단일 결제
             pay.setGroupId(null);  // 그룹 ID는 null
