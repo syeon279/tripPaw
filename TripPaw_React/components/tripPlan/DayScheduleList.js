@@ -11,21 +11,21 @@ const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, set
         dayRefs.current[dayIndex - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-const addDaysToDate = (dateStr, daysToAdd) => {
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) {
-    console.error("❌ Invalid date passed to addDaysToDate:", dateStr);
-    return "Invalid Date";
-  }
-  date.setDate(date.getDate() + daysToAdd);
-  return date.toISOString().slice(0, 10); // YYYY-MM-DD
-};
+    const addDaysToDate = (dateStr, daysToAdd) => {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+            console.error("❌ Invalid date passed to addDaysToDate:", dateStr);
+            return "Invalid Date";
+        }
+        date.setDate(date.getDate() + daysToAdd);
+        return date.toISOString().slice(0, 10); // YYYY-MM-DD
+    };
 
     return (
         <div>
             {routeData.map((day, index) => (
                 <div key={day.day} ref={(el) => (dayRefs.current[index] = el)} style={{ marginBottom: '16px' }}>
-                    <div>{ addDaysToDate( startDate, day.day-1)  }   </div>
+                    <div style={{ display: 'none' }}>{addDaysToDate(startDate, day.day - 1)}   </div>
                     <DayScheduleItem
                         day={day}
                         isActive={day.day === currentDay}
