@@ -17,6 +17,7 @@ const layoutStyle = {
         display: 'flex',
         justifyContent: 'center',
         width: '100%',
+        marginTop: '10px',
         marginBottom: '20px',
     },
     dividerLine: {
@@ -205,7 +206,14 @@ const TripPlanDetail = () => {
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
-                <h1>{title || '여행 상세 보기'}</h1>
+                <div style={{ display: 'flex', alignItems: 'end' }}>
+                    <h1>{title || '여행 상세 보기'}</h1>
+                    {authorNickname && (
+                        <p style={{ fontSize: '15px', color: '#666', marginLeft: '10px' }}>
+                            {authorNickname}
+                        </p>
+                    )}
+                </div>
                 <div
                     style={{ display: 'flex', alignItems: 'center', marginTop: '4px', gap: '6px', cursor: 'pointer' }}
                     onClick={async () => {
@@ -235,15 +243,6 @@ const TripPlanDetail = () => {
                         | 리뷰 {reviewCount || 0}
                     </p>
                 </div>
-
-
-
-                {authorNickname && (
-                    <p style={{ fontSize: '15px', color: '#666', marginBottom: '6px' }}>
-                        이 여행 경로를 만든 사람: {authorNickname}
-                    </p>
-                )}
-
                 <div style={layoutStyle.divider}>
                     <div style={layoutStyle.dividerLine} />
                 </div>

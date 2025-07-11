@@ -18,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -58,7 +59,7 @@ public class Review {
 	@ManyToMany(mappedBy = "likedReviews")
 	private Set<Member> likedByMembers = new HashSet<>();
 	
-	//reserv 연결 코드 추가
+	//reserv 연결 코드 추가--------------------------------------
 	@ManyToOne
 	@JoinColumn(name = "reserv_id")
 	private Reserv reserv;

@@ -1,9 +1,7 @@
 package com.ssdam.tripPaw.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.Data;
 
 @Entity
@@ -12,9 +10,17 @@ import lombok.Data;
 public class MemberPoint {
 
     @Id
-    @Column(name = "member_id")
-    private Long memberId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동증가
+    private Long id;  // 새로 추가한 PK 컬럼
+
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;  // FK용
 
     @Column(nullable = false)
     private Integer point;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", insertable = false, updatable = false)
+    private Member member;
+
 }

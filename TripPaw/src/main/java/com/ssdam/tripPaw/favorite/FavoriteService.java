@@ -15,7 +15,6 @@ import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.dto.FavoritePlaceDto;
-import com.ssdam.tripPaw.dto.MyTripsDto;
 import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.review.ReviewMapper;

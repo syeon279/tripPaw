@@ -180,10 +180,20 @@ function LoginForm({ onToggleForm }) {
       password: password
     }, {
       withCredentials: true,
-    })
+    }).then(function (response){
+      console.log('상태확인=',response.status);
 
+      Router.replace('/')
+    }).catch(function(error){
+      if (error.response && error.response.status === 401) {
+        const errorMessage = error.response.data?.message || '아이디 또는 비밀번호가 일치하지 않습니다.';
+        alert(errorMessage);
+        return;
+    }
+     
+      console.log('탈퇴에러',error.response.data.message);
+    })
     // 실제 로그인 로직을 여기에 구현합니다. (API 호출 등)
-    Router.replace('/')
   };
   return (
     <div>
@@ -250,7 +260,6 @@ function LoginForm({ onToggleForm }) {
           }}>회원가입하기</a></p>
         </SignupLink>
       </LoginBox>
-
     </div>
   );
 }

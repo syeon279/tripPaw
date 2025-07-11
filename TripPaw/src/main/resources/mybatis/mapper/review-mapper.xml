@@ -302,10 +302,6 @@
 		ORDER BY likeCount DESC
 	</select>
 
-
-
-
-
 	<insert id="likeReview" parameterType="map">
 		INSERT IGNORE INTO
 		member_likes_review (member_id, review_id)
@@ -375,5 +371,61 @@
 		likeCount DESC
 		LIMIT 5
 	</select>
+	
+	<!-- 추가 도장 추가 시 사용할 작성안한 리뷰 조회 -->
+<resultMap id="reservWithTripMap" type="Reserv">
+  <id property="id" column="reserv_id"/>
+  <result property="startDate" column="start_date"/>
+  <result property="endDate" column="end_date"/>
+  
+  <association property="place" javaType="Place">
+    <id property="id" column="place_id"/>
+    <result property="name" column="place_name"/>
+  </association>
 
+  <association property="tripPlan" javaType="TripPlan">
+    <id property="id" column="trip_plan_id"/>
+    <result property="title" column="trip_title"/>
+  </association>
+</resultMap>
+
+<select id="findReservWithoutReview"
+        parameterType="long"
+        resultMap="reservWithTripMap">
+  SELECT
+    r.id AS reserv_id,
+    r.start_date,
+    r.end_date,
+    p.id AS place_id,
+    p.name AS place_name,
+    tp.id AS trip_plan_id,
+    tp.title AS trip_title
+  FROM reserv r
+  JOIN place p ON r.place_id = p.id
+  LEFT JOIN trip_plan tp ON r.trip_plan_id = tp.id
+  WHERE r.member_id = #{memberId}
+    AND r.delete_at IS NULL
+    AND NOT EXISTS (
+      SELECT 1 FROM review rv WHERE rv.reserv_id = r.id
+    )
+</select>
+	
+
+<select id="findReviewsWithPlaceTypeByMemberId" resultType="com.ssdam.tripPaw.review.MyReviewDto"  parameterType="long">
+	SELECT r.id AS review_id,
+       r.content,
+       r.rating,
+       r.weather_condition,
+       r.created_at,
+       res.id AS reserv_id,
+       p.id AS place_id,
+       pt.id AS place_type_id,
+       pt.name AS place_type_name
+	FROM review r
+	JOIN reserv res ON r.reserv_id = res.id
+	JOIN place p ON res.place_id = p.id
+	JOIN place_type pt ON p.place_type_id = pt.id
+	WHERE r.member_id = #{memberId}
+</select>
+	
 </mapper>
