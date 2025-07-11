@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 
@@ -27,12 +27,12 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ planData, onEdit , isNotMytrip, routeData, memberTripPlanId}) => {
+const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPlanId }) => {
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState('');
     const [userName, setUserName] = useState('');
-   // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
+    // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
 
     console.log('ActionButtons memberTripPlanId:', memberTripPlanId);
 
@@ -56,7 +56,7 @@ const ActionButtons = ({ planData, onEdit , isNotMytrip, routeData, memberTripPl
         };
 
         checkLoginStatus();
-    },[])
+    }, [])
 
     // useEffect(() => {
     // if (router.query.memberTripPlanId) {
@@ -65,54 +65,53 @@ const ActionButtons = ({ planData, onEdit , isNotMytrip, routeData, memberTripPl
     // }, [router.query.memberTripPlanId]);
 
     const handleReservation = async () => {
-    try {
-        const response = await axios.post('http://localhost:8080/reserv/auto/plan', { 
-            userId: userId,
-            memberTripPlanId: memberTripPlanId,
-            routeData: routeData,
-         });
-        
-        const reservations = response.data; 
+        try {
+            const response = await axios.post('http://localhost:8080/reserv/auto/plan', {
+                userId: userId,
+                memberTripPlanId: memberTripPlanId,
+                routeData: routeData,
+            });
 
-        console.log("reservations:", reservations);
-        console.log("firstMemberTripPlanId:", reservations[0]?.memberTripPlan?.id);
+            const reservations = response.data;
 
-        if (!reservations || reservations.length === 0) {
-        alert('예약이 생성되지 않았습니다.');
-        return;
+            console.log("reservations:", reservations);
+            console.log("firstMemberTripPlanId:", reservations[0]?.memberTripPlan?.id);
+
+            if (!reservations || reservations.length === 0) {
+                alert('예약이 생성되지 않았습니다.');
+                return;
+            }
+
+
+            const firstMemberTripPlanId = reservations[0]?.memberTripPlan?.id;
+            const allSame = reservations.every(r => r.memberTripPlan?.id === firstMemberTripPlanId);
+
+            if (!allSame) {
+                alert('예약들의 memberTripPlanId가 서로 다릅니다. 일괄결제가 불가능합니다.');
+                return;
+            }
+
+            router.push({
+                pathname: '/pay/paybatch',
+                query: { memberTripPlanId: firstMemberTripPlanId }
+            });
+        } catch (error) {
+            console.error('예약 생성 실패', error);
         }
-        
-
-        const firstMemberTripPlanId = reservations[0]?.memberTripPlan?.id;
-        const allSame = reservations.every(r => r.memberTripPlan?.id === firstMemberTripPlanId);
-
-        if (!allSame) {
-        alert('예약들의 memberTripPlanId가 서로 다릅니다. 일괄결제가 불가능합니다.');
-        return;
-        }
-        
-        router.push({
-        pathname: '/pay/paybatch',
-        query: { memberTripPlanId: firstMemberTripPlanId }
-        });
-    } catch (error) {
-        console.error('예약 생성 실패', error);
-    }
     };
-    
+
     return (
         <div style={bottonWrapperStyle}>
             <button style={{ ...bottonStyle, background: 'blue' }}
                 onClick={onEdit}>
-                이 여행으로 다시 여행하기
+                이 여행으로 다시 만들기
             </button>
             <button
                 style={{ ...bottonStyle, background: 'black' }} onClick={handleReservation}>
                 이대로 예약하기
             </button>
             {isNotMytrip &&
-                <button style={{ ...bottonStyle, background: 'green' }}
-                >
+                <button style={{ ...bottonStyle, background: 'green' }} >
                     리뷰쓰기
                 </button>
             }

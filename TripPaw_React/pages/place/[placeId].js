@@ -401,6 +401,7 @@ const PlaceReservCreatePage = () => {
       const res = await axios.get(`http://localhost:8080/review/place/${placeId}`);
       const reviews = res.data;
       setReviews(reviews);
+      console.log("review : ", reviews);
 
       if (reviews.length > 0) {
         const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;

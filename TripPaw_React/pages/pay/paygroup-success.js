@@ -3,7 +3,7 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import Link from 'next/link';
 
 export async function getServerSideProps(context) {
-  const { memberTripPlanId } = context.query; 
+  const { memberTripPlanId } = context.query;
 
   try {
     const res = await axios.get(`http://localhost:8080/reserv/membertripplan/${memberTripPlanId}`);
