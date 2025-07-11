@@ -68,6 +68,15 @@ public class MemberService {
 		return memberMapper.updateMember(member);
 	}
 	
+
+	public boolean checkPassword(String currentPass, String newPass) {
+		
+		return passwordEncoder.matches(newPass, currentPass);
+	}
+	
+	public int softDeleteMember(Long id) {
+		return memberMapper.softDeleteMember(id,false);
+	}
 	// 포인트 적립 내역 추가
 	public void addPoints(Long memberId, int points) {
 	    memberMapper.insertPoints(memberId, points);
@@ -84,5 +93,5 @@ public class MemberService {
     public Member getMember(String memberId) {
         return memberMapper.findByMemberIdString(memberId);
     }
-	
+
 }
