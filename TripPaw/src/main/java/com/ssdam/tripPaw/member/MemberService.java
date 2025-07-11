@@ -1,6 +1,8 @@
 package com.ssdam.tripPaw.member;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,5 +67,22 @@ public class MemberService {
 	public int updateMember(Member member) {
 		return memberMapper.updateMember(member);
 	}
+	
+	// 포인트 적립 내역 추가
+	public void addPoints(Long memberId, int points) {
+	    memberMapper.insertPoints(memberId, points);
+	}
+
+    // 회원 포인트 총합 조회
+    public int getTotalPoints(Long memberId) {
+        return memberMapper.getTotalPointsByMemberId(memberId);
+    }
+    
+
+
+    // 멤버 정보 조회
+    public Member getMember(String memberId) {
+        return memberMapper.findByMemberIdString(memberId);
+    }
 	
 }

@@ -8,7 +8,7 @@ const SealTable = ({ seals, onEdit, onDelete }) => (
       {seals.map(seal =>(
         <Col span={4}>
           <div>{seal.placeType.name}</div>
-          <div style={{border:'1px solid red', height:'10em'}}><img src={`http://localhost:8080${seal.imageUrl}`} alt={seal.name} width="60" crossOrigin="anonymous" /></div>
+          <div style={{border:'1px solid red', height:'10em'}}><img src={`http://localhost:8080${seal.imageUrl}`} alt={seal.name} width="60" crossOrigin="anonymous" style={{width:'100%', height:'100%', objectFit:'cover'}}/></div>
           <Card title={seal.name} bordered={false}>
             <div>
               <button onClick={() => onEdit(seal)}>수정</button>

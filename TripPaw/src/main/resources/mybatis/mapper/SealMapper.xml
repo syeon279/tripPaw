@@ -56,4 +56,5 @@
     <delete id="delete" parameterType="long">
         DELETE FROM seal WHERE id = #{id}
     </delete>
+    
 </mapper>

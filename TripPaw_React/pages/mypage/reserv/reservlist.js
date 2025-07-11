@@ -325,13 +325,14 @@ const ReservList = () => {
   }, [reservations]);
 
   const cancelSingleReserv = async (reservId) => {
+    console.log("넘어온 예약 ID:", reservId);
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
       await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
       setReservations(prev =>
-        prev.map(r => (String(r.memberTripPlan?.id || r.memberTripPlan?.id) === String(memberTripPlan) ? { ...r, state: 'CANCELLED' } : r))
+        prev.map(r => (r.id === reservId ? { ...r, state: 'CANCELLED' } : r))
       );
     } catch (err) {
       alert('예약 취소에 실패했습니다.');
@@ -491,7 +492,10 @@ const ReservList = () => {
                             <Button
                               danger
                               onClick={() => {
-                                if (reserv.memberTripPlan) {
+                                if (
+                                    reserv.memberTripPlan?.id &&
+                                    Object.keys(reserv.memberTripPlan?.id).length > 0
+                                ) {
                                   cancelTripPlanReservs(reserv.memberTripPlan);
                                 } else {
                                   cancelSingleReserv(reserv.id);
@@ -551,7 +555,10 @@ const ReservList = () => {
                     <Button
                       danger
                       onClick={() => {
-                        if (selectedReserv.memberTripPlan) {
+                        if (
+                            selectedReserv.memberTripPlan?.id &&
+                            Object.keys(selectedReserv.memberTripPlan?.id).length > 0
+                        ) {
                           cancelTripPlanReservs(selectedReserv.memberTripPlan);
                         } else {
                           cancelSingleReserv(selectedReserv.id);

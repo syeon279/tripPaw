@@ -7,7 +7,6 @@
   <!-- resultMap 정의: id → result → association 순서 지킴 -->
   <resultMap id="MemberNftResultMap" type="com.ssdam.tripPaw.domain.MemberNft">
     <id property="id" column="id" />
-
     <result property="tokenId" column="token_id" />
     <result property="walletAddress" column="wallet_address" />
     <result property="barcode" column="barcode" />
@@ -19,6 +18,9 @@
 
     <association property="nftMetadata" javaType="com.ssdam.tripPaw.domain.NftMetadata">
       <id property="id" column="nft_metadata_id" />
+      <result property="title" column="title" />
+      <result property="imageUrl" column="image_url" />
+      <result property="pointValue" column="point_value" />
     </association>
 
     <association property="member" javaType="com.ssdam.tripPaw.domain.Member">
@@ -28,12 +30,21 @@
 
   <!-- 멤버 ID로 NFT 리스트 조회 -->
   <select id="findByMemberId" resultMap="MemberNftResultMap" parameterType="long">
-	  SELECT 
-	    mn.*, nm.title, nm.image_url, nm.point_value
-	  FROM member_nft mn
-	  JOIN nft_metadata nm ON mn.nft_metadata_id = nm.id
-	  WHERE mn.member_id = #{memberId}
- </select>
+    SELECT 
+      mn.*, nm.title, nm.image_url, nm.point_value
+    FROM member_nft mn
+    JOIN nft_metadata nm ON mn.nft_metadata_id = nm.id
+    WHERE mn.member_id = #{memberId}
+  </select>
+
+  <!-- NFT 단건 조회 (사용 시 필요한 정보) -->
+  <select id="findById" resultMap="MemberNftResultMap" parameterType="long">
+    SELECT 
+      mn.*, nm.title, nm.image_url, nm.point_value
+    FROM member_nft mn
+    JOIN nft_metadata nm ON mn.nft_metadata_id = nm.id
+    WHERE mn.id = #{id}
+  </select>
 
   <!-- NFT 삽입 -->
   <insert id="insert" parameterType="com.ssdam.tripPaw.domain.MemberNft">
@@ -42,9 +53,9 @@
       due_at, issued_reason, tx_hash, issued_at
     ) VALUES (
       #{nftMetadata.id}, #{member.id}, #{tokenId}, #{walletAddress}, #{barcode},
-      #{dueAt}, #{issuedReason}, #{txHash}, NOW()
+      #{dueAt}, #{issuedReason}, #{txHash}, #{issuedAt}
     )
-  </insert>
+ </insert>
 
   <!-- NFT 수정 -->
   <update id="update" parameterType="com.ssdam.tripPaw.domain.MemberNft">
@@ -61,7 +72,7 @@
   </update>
 
   <!-- 사용 처리 -->
-  <update id="markAsUsed" parameterType="com.ssdam.tripPaw.domain.MemberNft">
+  <update id="markAsUsed" parameterType="map">
     UPDATE member_nft
     SET used_at = #{usedAt}
     WHERE id = #{id}
@@ -80,7 +91,7 @@
     WHERE id = #{nftId} AND member_id = #{fromMemberId}
   </update>
 
-  <!-- ✅ 특정 NFT 메타데이터 ID에 해당하는 발급 여부 확인 -->
+  <!-- 특정 NFT 메타데이터 ID에 해당하는 발급 여부 확인 -->
   <select id="existsByNftMetadataId" parameterType="long" resultType="boolean">
     SELECT COUNT(*) > 0 FROM member_nft WHERE nft_metadata_id = #{metadataId}
   </select>
