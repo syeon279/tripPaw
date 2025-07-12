@@ -7,7 +7,11 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberTripPlan;
+import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.dto.TripPlanCoursePlaceDto;
 
 @Mapper
 public interface ReservMapper {
@@ -36,4 +40,23 @@ public interface ReservMapper {
 	
 	public List<Map<String, Object>> findReservedRangesByPlace(@Param("placeId") Long placeId);
 
+	public List<Reserv> findByTripPlansId(Long tripPlanId);
+	
+	public List<TripPlanCoursePlaceDto> findCoursesByMemberId(Long memberId);
+	
+	public List<TripPlanCoursePlaceDto> findCoursesByMemberTripPlanId(@Param("memberTripPlanId") Long memberTripPlanId);
+	
+	public Member findMemberById(Long userId);
+	
+	public List<Reserv> findByMemberId(Long memberId);
+	
+	public Place findPlaceById(Long id);
+	
+	public MemberTripPlan findMemberTripPlanById(Long id);
+	
+	public List<Reserv> findByMemberTripPlanId(Long memberTripPlanId);
+	
+	public List<Reserv> findByMemberTripPlanIdAndMember(@Param("memberTripPlanId") Long memberTripPlanId, @Param("memberId") Long memberId);
+	
+	public int softGroupDelete(@Param("reservIds") List<Long> reservIds, @Param("memberTripPlanId") Long memberTripPlanId);
 }

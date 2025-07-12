@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import DayScheduleList from '../../../components/tripPlanEdit/DayScheduleList';
@@ -60,27 +60,52 @@ const layoutStyle = {
 const tripEdit = () => {
     const router = useRouter();
     const mapRef = useRef(null);
+    const TripPlanId = router.query.id;
 
-    const [routeData, setRouteData] = useState(null);
+    const [routeData, setRouteData] = useState([]);
     const [currentDay, setCurrentDay] = useState(1);
     const [kakaoReady, setKakaoReady] = useState(false);
     const [mapInstance, setMapInstance] = useState(null);
     const [focusDay, setFocusDay] = useState(null);
     const [showModal, setShowModal] = useState(false);
-
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [countPeople, setCountPeople] = useState(null);
     const [countPet, setCountPet] = useState(null);
+    const [isPlaceSearchOpen, setIsPlaceSearchOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+    const [memberId, setMemberId] = useState(1);
 
-    const [isPlaceSearchOpen, setIsPlaceSearchOpen] = useState(false); // ✅ 추가
+    // 로그인 한 유저 id가져오기
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                    withCredentials: true,
+                });
+
+                console.log('user : ', response.data);
+
+                if (response.status === 200) {
+                    setIsLoggedIn(true);
+                    // 백엔드에서 받은 username으로 상태 업데이트
+                    setMemberId(response.data.id);
+                    return true; // 성공 시 true 반환
+                }
+            } catch (error) {
+                console.error("로그인 상태 확인 실패:", error);
+                return false; // 실패 시 false 반환
+            }
+        };
+        checkLoginStatus();
+    }, [router.isReady, router.query]);
+
 
     useEffect(() => {
-        const fetchTripById = async (id) => {
+        const fetchTripById = async (TripPlanId) => {
             try {
-                const response = await axios.get(`http://localhost:8080/tripPlan/${id}`);
+                const response = await axios.get(`http://localhost:8080/tripPlan/${TripPlanId}`);
                 const trip = response.data;
-                console.log('🚀 받은 trip 데이터:', trip);
 
                 if (!trip.tripPlanCourses || !Array.isArray(trip.tripPlanCourses)) {
                     throw new Error('잘못된 여행 데이터 형식입니다.');
@@ -89,15 +114,21 @@ const tripEdit = () => {
                 const convertedRouteData = trip.tripPlanCourses.map((course, idx) => ({
                     day: idx + 1,
                     places: course.route.routePlaces
-                        .filter((rp) => rp.place && rp.place.latitude && rp.place.longitude)
-                        .map((rp) => ({
-                            placeId: rp.place.id,
-                            name: rp.place.name,
-                            description: rp.place.description,
-                            latitude: parseFloat(rp.place.latitude),
-                            longitude: parseFloat(rp.place.longitude),
-                            imageUrl: rp.place.imageUrl,
-                        })),
+                        .map((rp) => {
+                            const place = rp.place;
+                            if (!place || !place.id || !place.latitude || !place.longitude) return null;
+
+                            return {
+                                placeId: place.id,
+                                draggableId: `day-${idx + 1}-place-${place.id}`,
+                                name: place.name,
+                                description: place.description,
+                                latitude: parseFloat(place.latitude),
+                                longitude: parseFloat(place.longitude),
+                                imageUrl: place.imageUrl,
+                            };
+                        })
+                        .filter(Boolean),
                 }));
 
                 setRouteData(convertedRouteData);
@@ -110,12 +141,19 @@ const tripEdit = () => {
             }
         };
 
-        if (router.query.id) {
-            fetchTripById(router.query.id);
+        if (TripPlanId) {
+            fetchTripById(TripPlanId);
         } else if (router.query.data) {
             try {
                 const parsed = JSON.parse(decodeURIComponent(router.query.data));
-                setRouteData(parsed);
+                const parsedRouteData = parsed.map((day) => ({
+                    ...day,
+                    places: day.places.map((p) => ({
+                        ...p,
+                        draggableId: `day-${day.day}-place-${p.placeId}`,
+                    })),
+                }));
+                setRouteData(parsedRouteData);
                 setStartDate(router.query.startDate);
                 setEndDate(router.query.endDate);
                 setCountPeople(router.query.countPeople);
@@ -124,7 +162,7 @@ const tripEdit = () => {
                 console.error('데이터 파싱 오류', e);
             }
         }
-    }, [router.query]);
+    }, [TripPlanId]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -135,15 +173,6 @@ const tripEdit = () => {
         }, 200);
         return () => clearInterval(interval);
     }, []);
-
-    if (!routeData || !Array.isArray(routeData)) {
-        return <div>경로 데이터를 불러오는 중입니다...</div>;
-    }
-
-    const currentPlan = routeData.find((r) => r.day === currentDay);
-    if (!currentPlan || !kakaoReady) {
-        return <div>지도를 불러오는 중입니다...</div>;
-    }
 
     const handlePlaceClick = (place, day) => {
         setFocusDay(day);
@@ -175,9 +204,10 @@ const tripEdit = () => {
                 countPet,
                 routeData,
                 mapImage,
+                memberId
             };
 
-            await axios.post('http://localhost:8080/tripPlan/save', tripData);
+            await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
         } catch (error) {
             console.error('저장 실패:', error);
@@ -205,6 +235,7 @@ const tripEdit = () => {
                             ...dayPlan.places,
                             {
                                 placeId: place.id,
+                                draggableId: `day-${dayPlan.day}-place-${place.id}`,
                                 name: place.name,
                                 latitude: parseFloat(place.latitude),
                                 longitude: parseFloat(place.longitude),
@@ -218,6 +249,10 @@ const tripEdit = () => {
         );
         setIsPlaceSearchOpen(false);
     };
+
+    if (!routeData.length || !kakaoReady) {
+        return <div>지도를 불러오는 중입니다...</div>;
+    }
 
     return (
         <AppLayout>
@@ -252,16 +287,19 @@ const tripEdit = () => {
                             id="scheduleContainer"
                             routeData={routeData}
                             currentDay={currentDay}
-                            onSelectDay={setCurrentDay}
+                            onSelectDay={(day) => {
+                                setCurrentDay(day);
+                                setFocusDay(day);
+                            }}
                             onPlaceClick={handlePlaceClick}
                             onDeletePlace={handleDeletePlace}
                             setFocusDay={setFocusDay}
                             setRouteData={setRouteData}
                         />
-                        {router.query.id && (
+                        {TripPlanId && (
                             <EditActionButtons
                                 onSave={() => setShowModal(true)}
-                                onEditPlace={() => setIsPlaceSearchOpen(true)} // ✅ 수정
+                                onEditPlace={() => setIsPlaceSearchOpen(true)}
                             />
                         )}
                     </div>
@@ -269,7 +307,7 @@ const tripEdit = () => {
                     {isPlaceSearchOpen && (
                         <PlaceSearchModal
                             onClose={() => setIsPlaceSearchOpen(false)}
-                            onSelectPlace={handleAddPlace} // ✅ 직접 연결
+                            onSelectPlace={handleAddPlace}
                         />
                     )}
 

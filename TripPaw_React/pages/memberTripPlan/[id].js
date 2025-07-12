@@ -72,11 +72,18 @@ const TripPlanDetail = () => {
     const [endDate, setEndDate] = useState(null);
     const [title, setTitle] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
+    const [reservationDates, setReservationDates] = useState([]);
     const [userId, setUserId] = useState(1);
+    const { id } = router.query;
+    const [isNotMytrip, setIsNotMytrip] = useState('');
+    const [memberTripPlanId, setMemberTripPlanId] = useState(null);
+
+    // 리뷰쓰기
+    const [myId, setMyId] = useState('');
+    const [originMemberId, setOriginMemberId] = useState('');
 
     useEffect(() => {
         const fetchTripDetail = async () => {
-            const { id } = router.query;
             if (!router.isReady || !id) return;
 
             try {
@@ -88,7 +95,12 @@ const TripPlanDetail = () => {
                 setStartDate(data.startDate);
                 setEndDate(data.endDate);
                 setTitle(data.title);
+                setMyId(data.memberId);
+                setOriginMemberId(data.originalMemberId);
+                setMemberTripPlanId(id);
                 console.log('data:', res.data);
+                //setPlanData(res.data);
+                //console.log('setPlanData', planData);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
             }
@@ -124,6 +136,17 @@ const TripPlanDetail = () => {
         checkLoginStatus();
 
     }, [router.isReady, router.query]);
+
+    /// 리뷰쓰기 가능?
+    useEffect(() => {
+        if (userId && myId && originMemberId) {
+            if (myId != originMemberId) {
+                setIsNotMytrip(true);
+            } else {
+                setIsNotMytrip(false);
+            }
+        }
+    }, [userId, myId, originMemberId]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -164,50 +187,24 @@ const TripPlanDetail = () => {
         }
     };
 
-    const handleEditAndSave = async () => {
-        let mapImageBase64 = null;
+    const handleEdit = async () => {
 
         try {
-            mapImageBase64 = await handleCaptureMap();
+            router.push({
+                pathname: `/memberTripPlan/memberTripPlanEdit/${id}`,
+                query: {
+                    id: id,
+                    startDate,
+                    endDate,
+                    countPeople,
+                    countPet,
+                },
+            });
         } catch (err) {
-            console.warn('지도 캡처 실패:', err);
-        }
-
-        const travelData = {
-            title,
-            startDate,
-            endDate,
-            countPeople,
-            countPet,
-            mapImage: mapImageBase64,
-            routeData,
-        };
-
-        try {
-            const res = await axios.post('http://localhost:8080/tripPlan/edit', travelData);
-            const tripId = res.data?.tripId;
-            if (tripId) {
-                router.push({
-                    pathname: `/tripPlan/tripPlanEdit/${tripId}`,
-                    query: {
-                        id: tripId,
-                        startDate,
-                        endDate,
-                        countPeople,
-                        countPet,
-                    },
-                });
-            } else {
-                alert('여행 저장 후 이동 실패');
-            }
-        } catch (err) {
-            console.error('수정용 저장 실패:', err);
-            alert('저장 실패');
+            console.error('MemberTripPlan 수정용 저장 실패:', err);
+            alert('수정 실패');
         }
     };
-
-    // ✅ isMyTrip 조건: 여행을 만든 사람이 로그인 유저일 때
-    const isMyTrip = true;
 
     //이대로 예약하기 : 추가
 
@@ -247,12 +244,16 @@ const TripPlanDetail = () => {
                             onSelectDay={setCurrentDay}
                             onPlaceClick={handlePlaceClick}
                             setFocusDay={setFocusDay}
+                            startDate={startDate}
                         />
                         <MypageActionButton
-                            // 예약하기 추가
-                            //onReserv={() => }
-                            onEdit={() => handleEditAndSave()}
-                            isMyTrip={isMyTrip}
+                            //planData={planData}
+                            routeData={routeData}
+                            onEdit={() => handleEdit()}
+                            // 리뷰쓰기 추가
+                            //onReview={}
+                            isNotMytrip={isNotMytrip}
+                            memberTripPlanId={Number(id)}
                         />
                     </div>
                 </div>

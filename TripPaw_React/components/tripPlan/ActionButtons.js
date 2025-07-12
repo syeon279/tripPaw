@@ -25,11 +25,11 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ onSave, onEdit }) => {
+const ActionButtons = ({ onSave, onEditforSave }) => {
     return (
         <div style={bottonWrapperStyle}>
             <button style={{ ...bottonStyle, background: 'blue' }}
-            onClick={onEdit}>
+                onClick={onEditforSave}>
                 경로 수정하기
             </button>
             <button

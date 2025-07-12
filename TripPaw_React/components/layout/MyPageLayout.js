@@ -1,4 +1,5 @@
 // components/mypage/MypageLayout.js
+import React from "react"
 import { Layout } from 'antd';
 import dynamic from 'next/dynamic';
 import ContentHeader from '../ContentHeader';

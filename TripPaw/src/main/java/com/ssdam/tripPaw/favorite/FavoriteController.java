@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import com.ssdam.tripPaw.domain.Favorite;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.dto.FavoritePlaceDto;
-import com.ssdam.tripPaw.dto.MyTripsDto;
-
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -64,12 +62,5 @@ public class FavoriteController {
         return ResponseEntity.ok(dtos);
     }
     
-    // 특정 유저의 내 여행  목록
-    @GetMapping("/member/trips/{memberId}")
-    public ResponseEntity<List<MyTripsDto>> getMyTrips(@PathVariable Long memberId) {
-    	List<MyTripsDto> dtos = favoriteService.getMyTripsByMember(memberId);
-    	System.out.println("MyTripsDto : " + dtos);
-    	return ResponseEntity.ok(dtos);
-    }
 
 }

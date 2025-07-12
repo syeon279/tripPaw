@@ -25,6 +25,7 @@ import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.reserv.ReservMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +37,8 @@ public class ReviewController {
 	private final ReviewService reviewService;
 	private final FileUploadService fileUploadService;
 	private final ReviewImageMapper reviewImageMapper;
+	private final ReservMapper reservMapper;
+	private final ReservForReviewMapper reservForReviewMapper;
 
 	/* 경로(tripPlan)에 포함된 예약(장소) 목록 조회 GET /review/trip/3/places?memberId=1 */
     @GetMapping("/trip/{tripPlanId}/places")
@@ -62,6 +65,36 @@ public class ReviewController {
             e.printStackTrace(); // 에러 로그
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("리뷰 작성 중 오류 발생");
         }
+    }
+    
+    @GetMapping("/reserv/check")
+    public ResponseEntity<Boolean> hasReservation(
+        @RequestParam Long memberId,
+        @RequestParam Long placeId) {
+
+        boolean exists = reviewService.existsReservationForMemberAndPlace(memberId, placeId);
+        return ResponseEntity.ok(exists);
+    }
+    
+    @GetMapping("/reserv/place")
+    public ResponseEntity<Long> getReservIdByMemberAndPlace(
+        @RequestParam Long memberId,
+        @RequestParam Long placeId
+    ) {
+        Reserv reserv = reservForReviewMapper.findOneByMemberAndPlace(memberId, placeId);
+        if (reserv == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(reserv.getId());
+    }
+
+    @GetMapping("/reserv/check-tripPlan")
+    public ResponseEntity<Boolean> checkTripPlanReservation(
+        @RequestParam Long memberId,
+        @RequestParam Long tripPlanId
+    ) {
+        int count = reservForReviewMapper.countByMemberAndTripPlan(memberId, tripPlanId);
+        return ResponseEntity.ok(count > 0);
     }
 
     
@@ -123,6 +156,10 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
     
+//    @GetMapping("/place/{placeId}")
+//    public ResponseEntity<List<Review>> getReviewsByPlace(@PathVariable Long placeId) {
+//        return ResponseEntity.ok(reviewService.getReviewsByPlaceId(placeId));
+//    }
     @GetMapping("/place/{placeId}")
     public ResponseEntity<List<Review>> getReviewsByPlace(@PathVariable Long placeId) {
         return ResponseEntity.ok(reviewService.getReviewsByPlaceId(placeId));
@@ -163,6 +200,19 @@ public class ReviewController {
     @GetMapping("/{reviewId}/like/marked")
     public ResponseEntity<Boolean> hasLiked(@PathVariable Long reviewId, @RequestParam Long memberId) {
         return ResponseEntity.ok(reviewService.hasLikedReview(memberId, reviewId));
+    }
+    
+    //도장 선택용 코드 추가
+    //리뷰작성가능한거 조회
+    @GetMapping("/reservs-no-review/{memberId}")
+    public ResponseEntity<List<Reserv>> getReservsWithoutReview(@PathVariable Long memberId) {
+        List<Reserv> reservs = reviewService.getReservsWithoutReview(memberId);
+        return ResponseEntity.ok(reservs);
+    }
+    
+    @GetMapping("/member/{memberId}/place-type")
+    public List<MyReviewDto> getReviewsWithPlaceType(@PathVariable Long memberId) {
+        return reviewService.getReviewsWithPlaceTypeByMemberId(memberId);
     }
 
 }

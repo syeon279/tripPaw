@@ -13,30 +13,29 @@ const ChecklistPage = () => {
   const [isAdmin, setIsAdmin] = useState(false); // 관리자 여부
   const router = useRouter();
 
-  useEffect(() => {
   const checkUser = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true,});
+  try {
+    const response = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
 
-      if (response.status === 200) {
-        const data = response.data;
-        console.log('auth:', data.auth);
+    if (response.status === 200) {
+      const data = response.data;
 
-        setUser(data);
-        setIsAdmin(data.auth === 'ADMIN');
-
-        if(!isAdmin){router.push('/mypage');}
+      if (data.auth !== 'ADMIN') {
+        router.push('/mypage');
+        return; 
       }
-    } catch (error) {
-      console.error('사용자 정보 확인 실패:', error);
-      setIsAdmin(false);
-      router.push('/login');
-    }
-  };
 
+      setUser(data);
+      setIsAdmin(true);
+    }
+  } catch (error) {
+    console.error('사용자 정보 확인 실패:', error);
+    router.push('/login');
+  }
+};
+useEffect(() => {
   checkUser();
 }, []);
-
   if (!isAdmin) return <div>관리자 전용 페이지입니다.</div>; 
 
   return (

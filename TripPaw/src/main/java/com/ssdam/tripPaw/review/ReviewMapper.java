@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.ReviewType;
 
@@ -31,6 +32,8 @@ public interface ReviewMapper {
 //	Member findMemberById(Long memberId);
 	
 	ReviewType findReviewTypeById(@Param("id") Long id);
+	
+	List<Review> findByPlaceIdWithPlaceName(Long placeId);
 	
 	List<Review> findByPlaceId(Long placeId);
 	
@@ -68,5 +71,17 @@ public interface ReviewMapper {
 	Double getAverageRatingByPlaceId(Long id);
 	// 해장 당소의 리뷰 개수 가져오기
 	Integer getReviewCountByPlaceId(Long id);
+	
+
+	// 추가
+	// 평점/추천순으로 리뷰 Top 5
+	List<Review> findTop5ByLikes();
+
+
+	List<Reserv> findWithPlaceByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId,
+            										@Param("memberId") Long memberId);
+	//여권 도장용 추가코드
+  List<Reserv> findReservWithoutReview(@Param("memberId") Long memberId);
+  List<MyReviewDto> findReviewsWithPlaceTypeByMemberId(Long memberId);
 
 }

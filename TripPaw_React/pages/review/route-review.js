@@ -3,8 +3,15 @@ import { Tabs, List, Avatar, Rate, Tag, Button, Image, Spin, Tooltip } from "ant
 import { EllipsisOutlined, MoreOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useRouter } from "next/router";
+import styled from 'styled-components';
 import AppLayout from "@/components/AppLayout";
 
+const ScrollContainer = styled.div`
+  width: 100%;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  //border: 2px solid red;
+`;
 const MAX_CONTENT_LENGTH = 100;
 
 const ReviewList = () => {
@@ -84,6 +91,7 @@ const ReviewList = () => {
   return (
     <AppLayout>
       <div style={{ maxWidth: 900, margin: "auto", padding: 24 }}>
+        <ScrollContainer>
         <h2 style={{ fontSize: "22px", fontWeight: 700 }}>사용자 리뷰</h2>
 
         <Tabs
@@ -105,10 +113,15 @@ const ReviewList = () => {
           <List
             itemLayout="vertical"
             dataSource={reviews}
-            renderItem={(item) => (
+            renderItem={(item) => {
+              console.log('리뷰 아이템:', item);
+              return (
               <List.Item key={item.reviewId} style={{ borderBottom: "1px solid #eee", paddingBottom: 24 }}>
                 {/* 제목 & 태그 */}
-                <div style={{ fontWeight: 600, color: '#666', marginBottom: 4 }}>
+                <div 
+                  style={{ fontWeight: 600, color: '#666', marginBottom: 4, cursor:'pointer'}}
+                  onClick={() => router.push(`/review/tripPlan/${item.tripPlanId}`)}
+                >
                   📌 여행 플랜: {item.planTitle}
                 </div>
 
@@ -185,9 +198,11 @@ const ReviewList = () => {
                   </Button>
                 </div>
               </List.Item>
-            )}
+              );
+            }}
           />
         )}
+        </ScrollContainer>
       </div>
     </AppLayout>
   );

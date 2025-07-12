@@ -14,4 +14,6 @@ public class ReviewPlanDto {
     private Double avgRating;      // 🔸 평균 별점
     private String imageUrls;
     private int likeCount;
+    private Long tripPlanId;
+    private Long targetId;
 }

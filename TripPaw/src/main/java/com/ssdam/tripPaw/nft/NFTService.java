@@ -4,8 +4,11 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.transaction.Transactional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class NFTService {
 
     private final Web3j web3j;
     private final NftMetadataMapper nftMetadataMapper;
+    private final MemberNftMapper memberNftMapper;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -81,11 +85,11 @@ public class NFTService {
             String uriHex = uriCall.getValue();
             byte[] bytes = Numeric.hexStringToByteArray(uriHex);
             String rawUri = new String(bytes, StandardCharsets.UTF_8).trim().replaceAll("\u0000", "");
+            if (rawUri.startsWith("I")) {
+                rawUri = rawUri.substring(1);
+            }
 
             // IPFS to HTTPS 변환
-            if (rawUri.contains("ipfs://")) {
-                rawUri = rawUri.substring(rawUri.indexOf("ipfs://"));
-            }
             String metadataUrl = rawUri.replace("ipfs://", "https://ipfs.io/ipfs/");
 
             // ** 메타데이터 JSON 가져와서 image 필드 파싱 **
@@ -158,9 +162,28 @@ public class NFTService {
         return savedList;
     }
 
-    // DB에서 모든 NFT 템플릿 조회
-    public List<NftMetadata> getAllNftMetadata() {
-        return nftMetadataMapper.findAll();
+    // ✅ NFT 템플릿 + 발급 여부 반환
+    public List<Map<String, Object>> getAllNftMetadata() {
+        List<NftMetadata> metadataList = nftMetadataMapper.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (NftMetadata meta : metadataList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", meta.getId());
+            map.put("title", meta.getTitle());
+            map.put("imageUrl", meta.getImageUrl());
+            map.put("tokenId", meta.getTokenId());
+            map.put("pointValue", meta.getPointValue());
+            map.put("issuedAt", meta.getIssuedAt());
+
+            // 발급 여부 조회 (member_nft 테이블에 존재 여부)
+            boolean isIssued = memberNftMapper.existsByNftMetadataId(meta.getId());
+            map.put("issued", isIssued);
+
+            result.add(map);
+        }
+
+        return result;
     }
 
     // NFT 메타데이터 수정
@@ -175,7 +198,18 @@ public class NFTService {
     }
 
     // NFT 메타데이터 삭제
-    public void deleteNftMetadata(Long id) {
-        nftMetadataMapper.delete(id);
+    @Transactional
+    public void deleteNftMetadataAndUsedCoupons(Long nftMetadataId) {
+        int unusedCount = memberNftMapper.countUnusedByMetadataId(nftMetadataId);
+
+        if (unusedCount > 0) {
+            throw new IllegalStateException("사용하지 않은 쿠폰이 존재하므로 삭제할 수 없습니다.");
+        }
+
+        // 1. 사용 완료된 member_nft 먼저 삭제
+        memberNftMapper.deleteUsedByNftMetadataId(nftMetadataId);
+
+        // 2. 이후 nft_metadata 삭제
+        nftMetadataMapper.delete(nftMetadataId);
     }
 }

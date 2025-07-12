@@ -2,15 +2,21 @@ package com.ssdam.tripPaw.reserv;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
+import com.ssdam.tripPaw.dto.TripPlanCoursePlaceDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -65,6 +71,84 @@ public class ReservService {
         return reservMapper.findAll();
     }
 
+    public List<Reserv> findByMemberId(Long memberId) {
+        return reservMapper.findByMemberId(memberId);
+    }
+    
+    public List<Reserv> findByTripPlansId(Long tripPlanId) {
+        return reservMapper.findByTripPlansId(tripPlanId);  // MyBatis 매퍼 호출
+    }
+    
+    public List<Reserv> findByMemberTripPlanIdAndMember(Long memberTripPlanId, Long memberId) {
+        return reservMapper.findByMemberTripPlanIdAndMember(memberTripPlanId, memberId);
+    }
+    
+    public MemberTripPlan findMemberTripPlanById(Long id) {
+        return reservMapper.findMemberTripPlanById(id);
+    }
+    
+    @Transactional
+    public List<Reserv> createReservationsFromTripPlanByUserId(Long userId, Long memberTripPlanId) {
+        Member member = reservMapper.findMemberById(userId);
+        if (member == null) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        // 사용자의 여행 코스 목록 조회
+        List<TripPlanCoursePlaceDto> courseList = reservMapper.findCoursesByMemberTripPlanId(memberTripPlanId);
+
+        List<Reserv> savedList = new ArrayList<>();
+        LocalDate baseDate = LocalDate.now();
+
+        for (int i = 0; i < courseList.size(); i++) {
+            TripPlanCoursePlaceDto dto = courseList.get(i);
+
+            // 장소와 여행 계획 정보 조회
+            Place place = placeMapper.findById(dto.getPlaceId());
+            MemberTripPlan memberTripPlan = reservMapper.findMemberTripPlanById(dto.getMemberTripPlanId());
+            
+//            if (memberTripPlan == null) {
+//                System.out.println("No MemberTripPlan found for ID: " + dto.getMemberTripPlanId());
+//            } else {
+//                System.out.println("MemberTripPlan found: " + memberTripPlan);
+//            }
+            
+            // 장소나 여행 계획이 없으면 건너뜀
+            if (place == null || memberTripPlan == null) continue;
+
+            // DTO에 여행 계획 정보 설정 (여기서 memberTripPlan을 가져와서 설정)
+            dto.setStartDate(memberTripPlan.getStartDate());
+            dto.setEndDate(memberTripPlan.getEndDate());
+            dto.setCountPeople(memberTripPlan.getCountPeople());
+            dto.setCountPet(memberTripPlan.getCountPet());
+
+            // 예약 객체 생성
+            Reserv reserv = dto.toReserv(member, place, reservMapper);
+
+//            if (reserv != null) {
+//                System.out.println("Created Reserv: " + reserv);
+//                System.out.println("MemberTripPlan ID: " + reserv.getMemberTripPlan().getId());
+//            } else {
+//                System.out.println("Failed to create Reserv object.");
+//            }
+            
+            // 예약이 겹치는지 확인
+            if (!reservMapper.existsOverlappingReservation(
+                    member.getId(), place.getId(), reserv.getStartDate(), reserv.getEndDate())) {
+
+            	System.out.println("Inserting Reserv: " + reserv);
+            	int result = reservMapper.insert(reserv);
+            	System.out.println("Insert Result: " + result);
+
+            	if (result > 0) {
+            	    savedList.add(reserv);
+            	}
+            }
+        }
+
+        return savedList;
+    }
+    
     /** 예약 상태 업데이트 */
     @Transactional
     public int updateReservState(Long reservId, ReservState newState) {
@@ -86,5 +170,31 @@ public class ReservService {
         }
 
         return reservMapper.softDelete(id);
+    }
+    
+    /** 일괄 취소 */
+    @Transactional
+    public void softGroupDelete(List<Long> reservIds, Long memberTripPlanId) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        if (reservIds == null || reservIds.isEmpty()) {
+            throw new IllegalArgumentException("취소할 예약 ID 목록이 비어있습니다.");
+        }
+        if (memberTripPlanId == null) {
+            throw new IllegalArgumentException("memberTripPlanId는 필수값입니다.");
+        }
+
+        try {
+            int rowsAffected = reservMapper.softGroupDelete(reservIds, memberTripPlanId);
+
+            if (rowsAffected <= 0) {
+                throw new RuntimeException("예약 취소 실패: 영향을 미친 예약이 없습니다.");
+            }
+
+            logger.info("예약 취소 완료: 취소된 예약 건수 = {}", rowsAffected);
+        } catch (Exception e) {
+            logger.error("예약 취소 처리 중 오류 발생", e);
+            throw new RuntimeException("예약 취소 처리 중 오류 발생: " + e.getMessage(), e);
+        }
     }
 }

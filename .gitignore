@@ -2,8 +2,16 @@
 Servers/
 TripPaw_React/node_modules/
 TripPaw_React/.next/
-<<<<<<< HEAD
 TripPaw/src/main/resources/static/
-=======
 
->>>>>>> 325d960dde3d3d72b41ecd6001ec66d4e4a272c1
+TripPaw/bin/
+
+
+TripPaw/src/main/resources/application-oauth.properties
+TripPaw/src/main/resources/application-mail.properties
+TripPaw/src/main/resources/application-coolsms.properties
+
+
+*.class
+
+sh.exe.stackdump

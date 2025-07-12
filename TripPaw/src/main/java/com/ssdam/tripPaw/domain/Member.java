@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Flow.Subscription;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -46,13 +47,13 @@ public class Member {
 	private String nickname;
 	@Column(nullable = false, length = 255)
 	private String email;
-	@Column(nullable = false, length = 255)
+	@Column(nullable = true, length = 255)
 	private String zonecode;
-	@Column(nullable = false, length = 255)
+	@Column(name = "road_address", nullable = true, length = 255)
 	private String roadAddress;
 //	@Column(nullable = false, length = 255)
 //	private String jibunAddress;
-	@Column(nullable = false, length = 255)
+	@Column(name = "namuji_address", nullable = true, length = 255)
 	private String namujiAddress;
 	 // JPA에서 Set<Enum>을 매핑하는 올바른 방법
     @ElementCollection(targetClass = MemberRole.class) // 컬렉션 요소의 타입 지정
@@ -62,12 +63,16 @@ public class Member {
     @Enumerated(EnumType.STRING) // Enum을 문자열로 저장하도록 지정 (ORDINAL도 가능)
     @Builder.Default // @Builder 사용 시 필드 초기값 설정
     private Set<MemberRole> role = new HashSet<>(); // 초기화는 필수
+    @Column(name="status")
+    private boolean status;
 //	@Enumerated
 //	private Set<MemberRole> role; //ROLE_ADMIN = 0, ROLE_SYSTEM 1~1000, ROLE_MEMBER = 1001~
 	@Column(nullable = false, length = 20)
 	private String provider; // thejoa, kakao, naver, google 회원가입한 경로 저장
 	 @Column(name = "created_at")
 	private LocalDateTime createdAt = LocalDateTime.now();
+	 @Column(name = "deleted_at")
+	 private LocalDateTime deletedAt;
 	
 	//private List<Board> board; //연관된 게시물 목록 (Mybatis에서 직접매핑)
 	
@@ -107,4 +112,11 @@ public class Member {
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Review> reviews = new ArrayList<>();
 	
+	// 구독 리스트
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Subscription> subscriptions = new ArrayList<>();
+//    
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+//   	private List<MemberImage> memberImages = new ArrayList<>();
+   	
 }

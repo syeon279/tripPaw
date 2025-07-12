@@ -18,14 +18,34 @@ import axios from "axios";
 
 const { Title } = Typography;
 
-const couponsmanage = () => {
+// IPFS URL을 적절한 게이트웨이 URL로 바꿔주는 함수
+const getValidImageUrl = (url) => {
+  if (!url)
+    return "https://dummyimage.com/300x200/cccccc/000000&text=No+Image"; // 기본 대체 이미지
+  if (url.startsWith("ipfs://")) {
+    return url.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
+  }
+  if (url.includes("ipfs.io")) {
+    return url.replace(
+      "https://ipfs.io/ipfs/",
+      "https://gateway.pinata.cloud/ipfs/"
+    );
+  }
+  return url;
+};
+
+const CouponsManage = () => {
   const [nfts, setNfts] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [editingNft, setEditingNft] = useState(null);
-  const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
 
-  // NFT 조회
+  const [isIssueModalVisible, setIssueModalVisible] = useState(false);
+  const [issueForm] = Form.useForm();
+  const [issueNftMetadataId, setIssueNftMetadataId] = useState(null);
+
   const fetchNfts = async () => {
     setLoading(true);
     try {
@@ -42,10 +62,9 @@ const couponsmanage = () => {
     fetchNfts();
   }, []);
 
-  // 수정 모달 열기
   const openEditModal = (nft) => {
     setEditingNft(nft);
-    form.setFieldsValue({
+    editForm.setFieldsValue({
       title: nft.title,
       imageUrl: nft.imageUrl,
       pointValue: nft.pointValue,
@@ -53,7 +72,6 @@ const couponsmanage = () => {
     setEditModalVisible(true);
   };
 
-  // 수정 완료
   const onEditFinish = async (values) => {
     try {
       await axios.put(`/api/nft/metadata/${editingNft.id}`, values);
@@ -66,21 +84,25 @@ const couponsmanage = () => {
     }
   };
 
-  // 삭제
-  const onDelete = async (id) => {
-    try {
-      await axios.delete(`/api/nft/metadata/${id}`);
-      message.success("삭제 성공");
-      fetchNfts();
-    } catch (error) {
-      message.error("삭제 실패: " + error.message);
-    }
-  };
+  const onDelete = async (metadataId) => {
+  try {
+    // 1) 사용된 NFT 삭제
+    await axios.delete(`/api/member-nft/metadata/${metadataId}/used-nfts`);
 
-  // NFT 동기화 버튼
+    // 2) 템플릿 자체 삭제
+    await axios.delete(`/api/nft/metadata/${metadataId}`);
+
+    message.success("NFT 템플릿과 사용된 쿠폰 모두 삭제 완료");
+    fetchNfts();
+  } catch (error) {
+    message.error("사용하지 않은 쿠폰이 있어 삭제할 수 없습니다.");
+  }
+};
+
+
   const syncNftsFromBlockchain = async () => {
-    const contractAddress = "0x3c1011554E887c1a0CFD5e93535958b03b140c09"; // 실제 주소로 교체
-    const walletAddress = "0x59ae01d894f9B0a73EDA9427E5499Ee80De329Cf"; // 실제 주소로 교체
+    const contractAddress = "0x3c1011554E887c1a0CFD5e93535958b03b140c09";
+    const walletAddress = "0x59ae01d894f9B0a73EDA9427E5499Ee80De329Cf";
     try {
       await axios.post(
         `/api/nft/sync-tokens?contractAddress=${contractAddress}&walletAddress=${walletAddress}`
@@ -92,14 +114,56 @@ const couponsmanage = () => {
     }
   };
 
+  const openIssueModal = (nftId) => {
+    setIssueNftMetadataId(nftId);
+    issueForm.resetFields();
+    setIssueModalVisible(true);
+  };
+
+  const onIssueFinish = async (values) => {
+    const { issuedReason, userId } = values;
+    if (!userId) {
+      message.error("받는 사용자 ID를 입력하세요");
+      return;
+    }
+    try {
+      await axios.post(`/api/admin/nft/issue-to-member`, null, {
+        params: {
+          nftMetadataId: issueNftMetadataId,
+          issuedReason,
+          id: userId, // 백엔드의 Long id 파라미터에 맞게
+        },
+      });
+
+      // 상태 업데이트: 발급된 NFT의 issued = true 처리
+      setNfts((prevNfts) =>
+        prevNfts.map((nft) =>
+          nft.id === issueNftMetadataId ? { ...nft, issued: true } : nft
+        )
+      );
+
+      message.success("NFT 발급 완료");
+      setIssueModalVisible(false);
+      setIssueNftMetadataId(null);
+    } catch (error) {
+      message.error("NFT 발급 실패: " + error.message);
+    }
+  };
+
   return (
     <MypageLayout>
       <div style={{ padding: 24 }}>
         <Title level={2}>NFT 쿠폰 리스트</Title>
 
-        <Button type="primary" onClick={syncNftsFromBlockchain} style={{ marginBottom: 16 }}>
-          NFT 동기화
-        </Button>
+        {/* 버튼을 오른쪽 끝에 정렬 */}
+        <div style={{ textAlign: "right", marginBottom: 16 }}>
+          <Button
+            type="primary"
+            onClick={syncNftsFromBlockchain}
+          >
+            NFT 동기화
+          </Button>
+        </div>
 
         {loading ? (
           <Spin size="large" />
@@ -112,11 +176,25 @@ const couponsmanage = () => {
                   cover={
                     <img
                       alt={nft.title}
-                      src={nft.imageUrl}
+                      src={getValidImageUrl(nft.imageUrl)}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src =
+                          "https://dummyimage.com/300x200/cccccc/000000&text=No+Image";
+                      }}
                       style={{ width: "100%", height: 200, objectFit: "contain" }}
                     />
                   }
                   actions={[
+                    nft.issued ? (
+                      <Button type="primary" disabled>
+                        발급완료
+                      </Button>
+                    ) : (
+                      <Button type="link" onClick={() => openIssueModal(nft.id)}>
+                        NFT 발급
+                      </Button>
+                    ),
                     <Button type="link" onClick={() => openEditModal(nft)}>
                       수정
                     </Button>,
@@ -131,9 +209,7 @@ const couponsmanage = () => {
                       </Button>
                     </Popconfirm>,
                   ]}
-                >
-                  
-                </Card>
+                />
               </Col>
             ))}
           </Row>
@@ -144,16 +220,16 @@ const couponsmanage = () => {
         {/* 수정 모달 */}
         <Modal
           title="NFT 쿠폰 수정"
-          open={isEditModalVisible}
+          visible={isEditModalVisible}
           onCancel={() => {
             setEditModalVisible(false);
             setEditingNft(null);
-            form.resetFields();
+            editForm.resetFields();
           }}
-          onOk={() => form.submit()}
+          onOk={() => editForm.submit()}
           okText="수정"
         >
-          <Form form={form} layout="vertical" onFinish={onEditFinish}>
+          <Form form={editForm} layout="vertical" onFinish={onEditFinish}>
             <Form.Item label="제목" name="title">
               <Input disabled />
             </Form.Item>
@@ -169,9 +245,39 @@ const couponsmanage = () => {
             </Form.Item>
           </Form>
         </Modal>
+
+        {/* 발급 모달 */}
+        <Modal
+          title="NFT 발급"
+          visible={isIssueModalVisible}
+          onCancel={() => {
+            setIssueModalVisible(false);
+            setIssueNftMetadataId(null);
+            issueForm.resetFields();
+          }}
+          onOk={() => issueForm.submit()}
+          okText="발급하기"
+        >
+          <Form form={issueForm} layout="vertical" onFinish={onIssueFinish}>
+            <Form.Item
+              label="발급 이유"
+              name="issuedReason"
+              rules={[{ required: true, message: "발급 이유를 입력하세요" }]}
+            >
+              <Input.TextArea placeholder="예: 리뷰 감사 선물" />
+            </Form.Item>
+            <Form.Item
+              label="받는 사용자 ID (숫자형)"
+              name="userId"
+              rules={[{ required: true, message: "사용자 ID를 입력하세요" }]}
+            >
+              <InputNumber style={{ width: "100%" }} placeholder="예: 1" />
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
     </MypageLayout>
   );
 };
 
-export default couponsmanage;
+export default CouponsManage;
