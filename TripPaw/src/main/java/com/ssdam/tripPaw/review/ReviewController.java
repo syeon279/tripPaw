@@ -25,6 +25,7 @@ import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -204,10 +205,10 @@ public class ReviewController {
     
     //도장 선택용 코드 추가
     //리뷰작성가능한거 조회
-    @GetMapping("/reservs-no-review/{memberId}")
-    public ResponseEntity<List<Reserv>> getReservsWithoutReview(@PathVariable Long memberId) {
-        List<Reserv> reservs = reviewService.getReservsWithoutReview(memberId);
-        return ResponseEntity.ok(reservs);
+    @GetMapping("/tripplans-no-review/{memberId}")
+    public ResponseEntity<List<MemberTripPlanReviewDto>> getTripPlansWithoutReview(@PathVariable Long memberId) {
+        List<MemberTripPlanReviewDto> result = reviewService.getTripPlansWithoutReview(memberId);
+        return ResponseEntity.ok(result);
     }
     
     @GetMapping("/member/{memberId}/place-type")

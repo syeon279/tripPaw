@@ -12,14 +12,39 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
       .then((res) => setReviews(res.data))
       .catch((err) => console.error('작성된 리뷰 조회 실패:', err));
 
-    axios.get(`/review/reservs-no-review/${memberId}`)
+    axios.get(`/review/tripplans-no-review/${memberId}`)
       .then((res) => setReservsNoReview(res.data))
-      .catch((err) => console.error('작성 안한 예약 조회 실패:', err));
+      .catch((err) => console.error('작성 안한 여행 조회 실패:', err));
   }, [memberId]);
 
-  const handleReviewSelect = (review) => {
-    setSelectedReview(review);
-  };
+const handleReviewSelect = (item) => {
+  let memberTripPlanId;
+
+  if (item.isUnwritten) {
+    // 작성 안 된 예약 기반 → 예약 객체에서 추출
+    memberTripPlanId = item?.reserv?.memberTripPlan?.id;
+
+    setSelectedReview({
+      ...item,
+      memberTripPlanId,
+    });
+  } else {
+    // 작성된 리뷰 → 예약 안에 memberTripPlan 없는 경우 fallback 필요
+    memberTripPlanId = item?.reserv?.memberTripPlan?.id ?? item?.targetId;
+    const reviewId = item?.reviewId || item?.id;
+
+    setSelectedReview({
+      ...item,
+      id: reviewId, // ✅ reviewId를 실제 id로 재정의해줍니다
+      memberTripPlanId,
+    });
+  }
+};
+
+useEffect(() => {
+  console.log('선택된 리뷰:', selectedReview);
+  console.log('추출된 memberTripPlanId:', selectedReview?.memberTripPlanId);
+}, [selectedReview]);
 
   return (
     <>
@@ -64,7 +89,7 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
             <div key={index} className="review-card">
               {item.isUnwritten ? (
                 <>
-                  <p><strong>{item.reserv.tripPlan?.title || '제목 없음'}</strong> ({item.reserv.startDate} ~ {item.reserv.endDate})</p>
+                  <p><strong>{item.reserv.titleOverride || '제목 없음'}</strong> ({item.reserv.startDate} ~ {item.reserv.endDate})</p>
                   <small>아직 리뷰가 작성되지 않았습니다</small><br />
                   <button onClick={() => window.location.href = `/write-review?reservId=${item.reserv.id}`}>
                     리뷰 작성하러 가기
@@ -85,6 +110,7 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
             <SealSelectorModal
               passportId={passportId}
               review={selectedReview}
+              memberTripPlanId={selectedReview?.memberTripPlanId}
               onClose={() => setSelectedReview(null)}
               onSaved={onSaved}
             />

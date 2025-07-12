@@ -23,6 +23,10 @@ public class PassportSealController {
     // 도장 등록
     @PostMapping
     public ResponseEntity<?> addPassportSeal(@RequestBody PassportSeal passportSeal) {
+        System.out.println("📦 passportSeal = " + passportSeal);
+        System.out.println("📌 passportSeal.review = " + passportSeal.getReview());
+        System.out.println("🆔 review.id = " + (passportSeal.getReview() != null ? passportSeal.getReview().getId() : "null"));
+
         passportSealService.addPassportSeal(passportSeal);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

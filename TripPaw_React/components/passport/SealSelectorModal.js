@@ -2,28 +2,34 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { submitPassportSeal } from '@/api/passportSealApi';
 
-const SealSelectorModal = ({ passportId, review, onClose, onSaved }) => {
+const SealSelectorModal = ({ passportId, review, memberTripPlanId, onClose, onSaved }) => {
   const [seals, setSeals] = useState([]);
   const [selectedSealId, setSelectedSealId] = useState(null);
 
-  const placeTypeId = review?.reserv?.place?.placeType?.id;
-
   useEffect(() => {
-    if (placeTypeId) {
-      axios.get(`/api/seals/place-type/${placeTypeId}`).then((res) => setSeals(res.data));
+    console.log('memberTripPlanId...:', memberTripPlanId, 'passportId...:', passportId);
+    if (memberTripPlanId && passportId) {
+      axios.get(`/api/seals/tripplan/${memberTripPlanId}/passport/${passportId}`)
+        .then((res) => setSeals(res.data))
+        .catch((err) => console.error('도장 조회 실패:', err));
     }
-  }, [placeTypeId]);
+  }, [memberTripPlanId, passportId]);
 
-  const handleSubmit = async () => {
-    if (!selectedSealId) {
-      alert('도장을 선택해주세요.');
-      return;
-    }
+const handleSubmit = async () => {
+  if (!selectedSealId) {
+    alert('도장을 선택해주세요.');
+    return;
+  }
 
-    await submitPassportSeal(passportId, selectedSealId, review.id);
+  try {
+    await submitPassportSeal(passportId, selectedSealId, review.id); // ✅ API 함수 사용
     onSaved();
     onClose();
-  };
+  } catch (error) {
+    console.error('도장 등록 실패:', error);
+    alert('도장 등록 중 오류가 발생했습니다.');
+  }
+};
 
   return (
     <div className="modal-overlay">

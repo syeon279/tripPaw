@@ -3,6 +3,7 @@ package com.ssdam.tripPaw.petpass.seal;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.data.repository.query.Param;
 
 import com.ssdam.tripPaw.domain.Seal;
 
@@ -25,4 +26,11 @@ public interface SealMapper {
 
     // 도장 삭제
     void delete(Long id);
+    
+    //placeType로 도장 조회
+    List<Seal> findSealsByTripPlanId(@Param("memberTripPlanId") Long memberTripPlanId);
+    
+    //등록한 도장 제외
+    List<Seal> findUnacquiredSealsByTripPlan(@Param("memberTripPlanId") Long memberTripPlanId,  @Param("passportId") Long passportId);
+    
 }
