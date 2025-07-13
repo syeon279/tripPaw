@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Divider, message } from 'antd';
 import axios from 'axios';
 
-import MypageLayout from '@/components/layout/MyPageLayOut';
+import MypageLayout from '@/components/layout/MyPageLayout';
 import UserChecklistRoutineList from '@/components/checkUser/UserChecklistRoutineList';
 
 const MyChecklistPage = () => {
@@ -26,7 +26,7 @@ const MyChecklistPage = () => {
         }
       } catch (err) {
         message.error('로그인이 필요합니다.');
-        router.push('/login');
+        router.push('/member/login');
       }
     };
 

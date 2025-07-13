@@ -18,4 +18,5 @@ public class PlaceType {
 	@Column(unique = true)
 	private String name;
 	
+	
 }

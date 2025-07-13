@@ -24,7 +24,7 @@ public class CheckRoutine {
 	private Long id;
 	private String title;
 	@Column(name = "is_saved")
-	private boolean isSaved;
+	private Boolean isSaved;
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
 	//유저아이디 연결

@@ -5,7 +5,7 @@ import { getRoutineWithItems } from '@/api/memberCheck';
 import ChecklistItemRow from './ChecklistItemRow';
 import ChecklistItemAdder from './ChecklistItemAdder';
 
-const UserChecklistItemList = ({ routineId }) => {
+const UserChecklistItemList = ({ routineId, hideCheckbox = false }) => {
   const [items, setItems] = useState([]);
   const [routineTitle, setRoutineTitle] = useState('');
 
@@ -14,32 +14,20 @@ const UserChecklistItemList = ({ routineId }) => {
       const routine = await getRoutineWithItems(routineId);
       setRoutineTitle(routine.title || '');
       setItems(routine.memberChecks || []);
-    } catch (err) {
-      message.error('루틴 항목을 불러오지 못했습니다.');
-    }
+    } catch (err) { message.error('루틴 항목을 불러오지 못했습니다.'); }
   };
 
-  useEffect(() => {
-    if (routineId) fetchRoutineItems();
-  }, [routineId]);
+  useEffect(() => { if (routineId) fetchRoutineItems(); }, [routineId]);
 
   return (
     <>
-      <h4 style={{ marginBottom: 12 }}>{routineTitle} 루틴 항목</h4>
-
-      <List
-        itemLayout="horizontal"
-        dataSource={items}
-        locale={{ emptyText: '항목이 없습니다' }}
+      <List itemLayout="horizontal" dataSource={items} locale={{ emptyText: '항목이 없습니다' }} 
         renderItem={(item) => (
-          <ChecklistItemRow
-            item={item}
-            onRefresh={fetchRoutineItems}
-          />
+          <ChecklistItemRow item={item} onRefresh={fetchRoutineItems} showCheckbox={!hideCheckbox}/>
         )}
       />
-
       <ChecklistItemAdder routineId={routineId} onRefresh={fetchRoutineItems} />
+
     </>
   );
 };

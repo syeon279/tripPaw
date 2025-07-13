@@ -33,39 +33,33 @@ const PassportCardList = ({ memberId }) => {
   };
 
   return (
-    <div>
-      <h2>내 반려동물 여권</h2>
-      <button
-        onClick={() => {
-          setSelectedPassport(null);
-          setShowEditorModal(true);
-        }}
-      >
-        여권 생성
-      </button>
+    <div style={{padding:'10px'}}>
+      <h2  style={{ marginBottom: 16, fontSize:'24px', fontWeight:'bold', color:'#653131', borderBottom:'2px solid #653131', paddingBottom:'12px', marginBottom:'12px' }}>내 반려동물 여권</h2>
+      <div style={{textAlign:'end'}}><button style={{fontWeight:'bold', border:'2px solid #1a2f69', borderRadius:'5px', padding:'5px 12px', backgroundColor:'#fff', cursor:'pointer'}}
+      onClick={() => { setSelectedPassport(null); setShowEditorModal(true);}}> 여권 생성</button></div>
 
       <div className="passport-grid">
         {passports.map((passport) => (
-          <div
-            key={passport.id}
-            className="passport-card"
-            onClick={() => handleCardClick(passport)}
-          >
+          <div key={passport.id} className="passport-card" onClick={() => handleCardClick(passport)} >
+          <div style={{textAlign:'end', width:'200px', height:'260px'}}>
+            
             <img
-              src={
-                passport.imageUrl?.startsWith('http')
-                  ? passport.imageUrl
-                  : `http://localhost:8080${passport.imageUrl}`
-              }
-              alt={passport.petName}
-            />
-            <h3>{passport.petName}</h3>
-            <p>{passport.species} · {passport.petAge}살 · {passport.petGender}</p>
-            <p>여권번호: {passport.passNum}</p>
+              src={ passport.imageUrl?.startsWith('http') ? passport.imageUrl : `http://localhost:8080${passport.imageUrl}` }
+              alt={passport.petName}/>
+            <h1 style={{color:'#fff', fontSize:'24px', margin:'20px 0 4px'}}>동물왕국 여권</h1>
+            <div style={{display:'flex', justifyContent:'flex-end', gap:'10px', marginBottom:'32px'}}>
+              <p style={{color:'#fff'}}>{passport.species} · {passport.petAge}살 · {passport.petGender}</p>
+              <p style={{color:'#fff', fontWeight:'bold'}}>{passport.petName}</p>
+            </div>
+            {/* <p>여권번호: {passport.passNum}</p> */}
 
-            <div className="card-actions">
-              <button onClick={(e) => { e.stopPropagation(); handleEdit(passport); }}>수정</button>
-              <button onClick={(e) => { e.stopPropagation(); handleDelete(passport.id); }}>삭제</button>
+          </div>
+
+            <div style={{display:'flex', justifyContent:'space-between', gap:'8px'}}>
+              <button style={{fontWeight:'bold', fontSize:'16px', width:'100%', backgroundColor:'#1A2E69', border:'2px solid #fff', color:'#fff', borderRadius:'3px', cursor:'pointer'}}
+              onClick={(e) => { e.stopPropagation(); handleEdit(passport); }}>수정</button>
+              <button  style={{fontWeight:'bold', fontSize:'16px', width:'100%', backgroundColor:'#fff', border:'none', color:'#ff0000', borderRadius:'3px', cursor:'pointer'}}
+              onClick={(e) => { e.stopPropagation(); handleDelete(passport.id); }}>삭제</button>
             </div>
           </div>
         ))}
@@ -90,50 +84,30 @@ const PassportCardList = ({ memberId }) => {
 
       <style jsx>{`
         .passport-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          display: flex;
+          flex-wrap: wrap;
           gap: 20px;
-          margin-top: 24px;
+          margin-top: 36px;
+          width:100%;
         }
 
         .passport-card {
           border: 1px solid #ccc;
-          border-radius: 8px;
-          padding: 16px;
+          border-radius: 6px;
+          padding: 36px 32px;
           cursor: pointer;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
           transition: box-shadow 0.2s ease;
-        }
-
-        .passport-card:hover {
-          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          background-color: #1A2E69;
         }
 
         .passport-card img {
-          width: 100%;
-          height: 140px;
+          width: 100px;
+          height: 100px;
           object-fit: cover;
-          border-radius: 6px;
+          border-radius: 100%;
         }
 
-        .card-actions {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 12px;
-        }
 
-        button {
-          background: #0078D4;
-          color: white;
-          border: none;
-          padding: 6px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        button:hover {
-          background: #005fa3;
-        }
       `}</style>
     </div>
   );

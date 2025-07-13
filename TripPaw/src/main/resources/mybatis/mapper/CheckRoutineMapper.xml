@@ -28,7 +28,7 @@
 	<!-- 루틴업데이트 -->
 	<update id="updateCheckRoutine">
 	    UPDATE check_routine
-	    SET title = #{title}, is_saved = #{isSaved}, member_id = #{member.id}, member_trip_plan_id = #{memberTripPlan.id}
+	    SET title = #{title}, is_saved = COALESCE(#{isSaved}, is_saved), member_id = #{member.id}, member_trip_plan_id = #{memberTripPlan.id}
 	    WHERE id = #{id}
 	</update>
 
@@ -53,6 +53,14 @@
 	    LEFT JOIN check_template_item cti ON mc.checktemplateitem_id = cti.id
 	    WHERE cr.id = #{id}
 	</select>
+
+	<select id="selectRoutinesByTripPlanId" resultMap="CheckRoutineMap">
+	  SELECT * FROM check_routine
+	  WHERE member_id = #{memberId}
+	    AND member_trip_plan_id = #{tripPlanId}
+	    AND is_saved = false
+	  ORDER BY created_at DESC
+	</select>	
 
 	<!-- ResultMap -->
 	<resultMap id="CheckRoutineWithItemsMap" type="CheckRoutine">

@@ -91,5 +91,9 @@
     <delete id="delete" parameterType="long">
         DELETE FROM seal WHERE id = #{id}
     </delete>
+
+<select id="countSealsByName" resultType="int">
+  SELECT COUNT(*) FROM seal WHERE name = #{name}
+</select>    
     
 </mapper>

@@ -13,8 +13,7 @@ const ChecklistItemAdder = ({ routineId, onRefresh }) => {
 
       const newMemberCheck = {
         customContent: values.customContent,
-        isChecked: false,
-        checkRoutine: { id: routineId },
+        isChecked: false, checkRoutine: { id: routineId },
       };
 
       await addMemberCheck(newMemberCheck);
@@ -29,24 +28,16 @@ const ChecklistItemAdder = ({ routineId, onRefresh }) => {
 
   return (
     <>
-      <div style={{ marginTop: 24 }}>
-        <Button type="primary" onClick={() => setVisible(true)}>
-          항목 추가
-        </Button>
+      <div style={{ marginTop: 12, display:'flex' }}>
+        <Button onClick={() => setVisible(true)}
+          style={{width:'100%', fontWeight:'bold', color:'#0004FF', border:'none', textAlign:'right'}}
+        >항목 추가</Button>
       </div>
 
-      <Modal
-        open={visible}
-        title="새 항목 추가"
-        onOk={handleAdd}
-        onCancel={() => setVisible(false)}
-      >
+      <Modal open={visible} title="새 항목 추가" onOk={handleAdd}  onCancel={() => setVisible(false)} >
         <Form form={form} layout="vertical">
-          <Form.Item
-            label="내용"
-            name="customContent"
-            rules={[{ required: true, message: '내용을 입력하세요' }]}
-          >
+          <Form.Item  label="내용" name="customContent"
+            rules={[{ required: true, message: '내용을 입력하세요' }]}>
             <Input />
           </Form.Item>
         </Form>

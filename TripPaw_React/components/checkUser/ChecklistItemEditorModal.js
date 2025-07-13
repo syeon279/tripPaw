@@ -10,7 +10,7 @@ const ChecklistItemEditorModal = ({ item, visible, onClose }) => {
     if (visible && item) {
       form.setFieldsValue({
         customContent: item.customContent || '',
-      });
+      }); 
     }
   }, [visible, item, form]);
 
@@ -21,23 +21,13 @@ const ChecklistItemEditorModal = ({ item, visible, onClose }) => {
       await updateMemberCheck(item.id, updatedItem);
       message.success('항목이 수정되었습니다.');
       onClose();
-    } catch (err) {
-      message.error('수정 실패');
-    }
+    } catch (err) { message.error('수정 실패');  }
   };
 
   return (
-    <Modal
-      open={visible}
-      title="항목 수정"
-      onOk={handleSubmit}
-      onCancel={onClose}
-    >
+    <Modal open={visible} title="항목 수정"  onOk={handleSubmit}  onCancel={onClose} >
       <Form form={form} layout="vertical">
-        <Form.Item
-          label="내용"
-          name="customContent"
-          rules={[{ required: true, message: '내용을 입력해주세요' }]}
+        <Form.Item label="내용" name="customContent" rules={[{ required: true, message: '내용을 입력해주세요' }]}
         >
           <Input />
         </Form.Item>

@@ -1,6 +1,7 @@
 import { Modal, Collapse, List, Input, Checkbox, Button, message } from 'antd';
 import { useEffect, useState } from 'react';
 import {  getTemplates,  getTemplateWithItems,} from '@/api/checkTemplate';
+import { useRouter } from 'next/router';
 import {  getRoutinesByMember,  getMemberChecksByRoutineId,  createRoutineFromTemplates,} from '@/api/memberCheck';
 
 export default function CheckRoutineModal({ open, onClose, memberId, memberTripPlanId }) {
@@ -15,6 +16,7 @@ export default function CheckRoutineModal({ open, onClose, memberId, memberTripP
   const [tripEndDate, setTripEndDate] = useState('');
   const [countPeople, setCountPeople] = useState(0);
   const [countPet, setCountPet] = useState(0);
+  const router = useRouter();
 
  useEffect(() => {
     if (open) {
@@ -75,6 +77,7 @@ export default function CheckRoutineModal({ open, onClose, memberId, memberTripP
         memberId, memberTripPlanId, templateIds: selectedTemplateIds, title: routineTitle, isSaved: savePersonalRoutine,      });
       message.success('체크리스트가 생성되었습니다');
       onClose();
+      router.push(`/mypage/checklist/mychecklist/${memberId}`)
     } catch (err) { console.error(err); message.error('체크리스트 생성 실패'); 
     } finally { setCreating(false); }
   };
@@ -82,14 +85,12 @@ export default function CheckRoutineModal({ open, onClose, memberId, memberTripP
 
   return (
     <Modal open={open} onCancel={onClose} footer={null} width={720}>
-      <div>
-        <h2 style={{fontSize:'1.8em', fontWeight:'bold'}}> {tripPlanTitle}</h2>
-        <div style={{display:'flex', color:'#a9a9a9'}}>
+      <div style={{padding:'28px 48px'}}>
+        <h2 style={{fontSize:'1.8em', fontWeight:'bold', color:'#653131'}}> {tripPlanTitle}</h2>
+        <div style={{display:'flex', color:'#6d6d6d'}}>
           <p style={{paddingRight:'10px', borderRight:'1px solid #a9a9a9'}}>{countPeople}인 {countPet}마리</p>
           <p style={{paddingLeft:'10px'}}>{tripStartDate} ~ {tripEndDate}</p>
         </div>    
-      </div>
-
       <Input value={routineTitle} onChange={(e) => setRoutineTitle(e.target.value)}
         placeholder="체크리스트 제목을 입력해주세요" style={{ margin: '12px 10px 25px 0',borderWidth: '0 0 2px', padding:'0.5em' }}
       />
@@ -153,7 +154,7 @@ export default function CheckRoutineModal({ open, onClose, memberId, memberTripP
           onClick={handleCreate}
         >체크리스트 생성</Button>
         <Button style={{fontSize:'18px', fontWeight:'bold', border: '2px solid #a9a9a9', backgroundColor:'none', padding: '20px', lineHeight:0, marginTop:'8px'}} onClick={onClose}>취소</Button>
-
+      </div>
       </div>
     </Modal>
   );

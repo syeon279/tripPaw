@@ -388,26 +388,30 @@
 
 
 <select id="findTripPlansWithoutReview" parameterType="long" resultMap="tripPlanReviewDtoMap">
-	SELECT DISTINCT
-	  tp.id AS member_trip_plan_id,
-	  tp.title_override,
-	  tp.start_date,
-	  tp.end_date,
-	  tp.image_url,
-	  tp.status,
-	  tp.count_people,
-	  tp.count_pet,
-	  tp.is_public
-	FROM member_trip_plan tp
-	JOIN reserv r ON r.member_trip_plan_id = tp.id
-	WHERE r.member_id = #{memberId}
-	  AND r.delete_at IS NULL
-	  AND NOT EXISTS (
-	    SELECT 1 FROM review rv
-	    WHERE rv.review_type_id = 1
-	      AND rv.target_id = tp.id
-	      AND rv.member_id = #{memberId}
-	  )
+    SELECT DISTINCT
+      tp.id AS member_trip_plan_id,
+      tp.title_override,
+      tp.start_date,
+      tp.end_date,
+      tp.image_url,
+      tp.status,
+      tp.count_people,
+      tp.count_pet,
+      tp.is_public
+    FROM member_trip_plan tp
+    WHERE tp.id IN (
+        SELECT r.member_trip_plan_id
+        FROM reserv r
+        WHERE r.member_id = #{memberId}
+          AND r.delete_at IS NULL
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM review rv
+        WHERE rv.review_type_id = 1
+          AND rv.target_id = tp.id
+          AND rv.member_id = #{memberId}
+    )
 </select>
 
 <select id="findReviewsWithPlaceTypeByMemberId" resultType="com.ssdam.tripPaw.review.MyReviewDto"  parameterType="long">
