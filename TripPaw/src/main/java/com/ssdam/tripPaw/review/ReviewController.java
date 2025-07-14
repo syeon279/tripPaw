@@ -25,6 +25,7 @@ import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
+//import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,14 @@ public class ReviewController {
 
         boolean exists = reviewService.existsReservationForMemberAndPlace(memberId, placeId);
         return ResponseEntity.ok(exists);
+    }
+    
+    @GetMapping("/reserv/review-check")
+    public ResponseEntity<Boolean> canWriteReview(
+            @RequestParam Long memberId,
+            @RequestParam Long reservId) {
+        boolean exists = reviewService.hasReviewForReserv(memberId, reservId);
+        return ResponseEntity.ok(!exists); // 작성 안했으면 true 반환
     }
     
     @GetMapping("/reserv/place")
@@ -138,6 +147,17 @@ public class ReviewController {
         return ResponseEntity.ok("리뷰가 수정되었습니다.");
     }
 
+    //관리자페이지 리뷰
+    @GetMapping("/admin/plan")
+    public ResponseEntity<List<ReviewPlanDto>> getPlanReviews() {
+        return ResponseEntity.ok(reviewService.getRecommendedPlanReviews());
+    }
+
+    @GetMapping("/admin/place")
+    public ResponseEntity<List<ReviewPlaceDto>> getPlaceReviews() {
+        return ResponseEntity.ok(reviewService.getRecommendedPlaceReviews());
+    }
+    
     
     // 단일리뷰조회
     @GetMapping("/{id}")
@@ -204,15 +224,15 @@ public class ReviewController {
     
     //도장 선택용 코드 추가
     //리뷰작성가능한거 조회
-    @GetMapping("/reservs-no-review/{memberId}")
-    public ResponseEntity<List<Reserv>> getReservsWithoutReview(@PathVariable Long memberId) {
-        List<Reserv> reservs = reviewService.getReservsWithoutReview(memberId);
-        return ResponseEntity.ok(reservs);
-    }
-    
-    @GetMapping("/member/{memberId}/place-type")
-    public List<MyReviewDto> getReviewsWithPlaceType(@PathVariable Long memberId) {
-        return reviewService.getReviewsWithPlaceTypeByMemberId(memberId);
-    }
+//    @GetMapping("/tripplans-no-review/{memberId}")
+//    public ResponseEntity<List<MemberTripPlanReviewDto>> getTripPlansWithoutReview(@PathVariable Long memberId) {
+//        List<MemberTripPlanReviewDto> result = reviewService.getTripPlansWithoutReview(memberId);
+//        return ResponseEntity.ok(result);
+//    }
+//    
+//    @GetMapping("/member/{memberId}/place-type")
+//    public List<MyReviewDto> getReviewsWithPlaceType(@PathVariable Long memberId) {
+//        return reviewService.getReviewsWithPlaceTypeByMemberId(memberId);
+//    }
 
 }

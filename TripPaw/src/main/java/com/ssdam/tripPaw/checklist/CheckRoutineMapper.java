@@ -19,6 +19,9 @@ public interface CheckRoutineMapper {
 	//유저 개인 목록 전체조회
 	List<CheckRoutine> selectRoutinesByMemberId(@Param("memberId") Long memberId);
 	
+	//여행용 루틴조회
+	List<CheckRoutine> selectRoutinesByTripPlanId(@Param("memberId") Long memberId, @Param("tripPlanId") Long tripPlanId);
+	
 	//루틴단일조회
 	CheckRoutine selectCheckRoutineById(@Param("id") Long id);
     

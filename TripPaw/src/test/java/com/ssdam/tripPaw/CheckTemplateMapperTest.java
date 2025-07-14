@@ -161,7 +161,7 @@ public class CheckTemplateMapperTest {
 
         Route route = new Route();
         route.setId(2L);
-        routine.setRoute(route);
+//        routine.setRoute(route);
 
         routineMapper.insertCheckRoutine(routine);
         assertNotNull(routine.getId());
@@ -212,7 +212,7 @@ public class CheckTemplateMapperTest {
 
         Route route = new Route();
         route.setId(1L);
-        routine.setRoute(route);
+//        routine.setRoute(route);
 
         int updatedRows = routineMapper.updateCheckRoutine(routine);
         assertEquals(1, updatedRows);

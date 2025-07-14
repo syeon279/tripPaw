@@ -97,7 +97,6 @@ const MyReviewList = ({ memberId }) => {
                 {review.tripTitle || '제목 없음'}
               </div>
               <div style={{ color: '#888', fontSize: 14 }}>
-                {review.tripStartDate && review.tripEndDate && `${review.tripStartDate} ~ ${review.tripEndDate}`}
               </div>
             </>
           )}

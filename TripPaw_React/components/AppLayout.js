@@ -6,7 +6,6 @@ import ContentHeader from './ContentHeader';
 
 const AppLayoutWrapper = styled.div`
   height: 100vh;
-  overflow: hidden;
   box-sizing: border-box;
 `;
 

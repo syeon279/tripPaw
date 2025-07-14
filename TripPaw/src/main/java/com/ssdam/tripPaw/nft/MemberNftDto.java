@@ -16,6 +16,8 @@ public class MemberNftDto {
     private LocalDateTime usedAt;
     private String barcode;               
     private LocalDateTime issuedAt;       
-    private LocalDateTime dueAt;          
+    private LocalDateTime dueAt;      
+    private String issuedReason;
+    private LocalDateTime deletedAt; 
     
 }

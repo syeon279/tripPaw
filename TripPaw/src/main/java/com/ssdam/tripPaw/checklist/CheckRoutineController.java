@@ -40,6 +40,16 @@ public class CheckRoutineController {
         List<CheckRoutine> routines = checkRoutineService.getRoutinesByMemberId(memberId);
         return ResponseEntity.ok(routines);
     }
+    
+    //여행용 루틴조회
+    @GetMapping("/member/{memberId}/trip/{tripPlanId}")
+    public ResponseEntity<List<CheckRoutine>> getRoutinesByTripPlan(
+        @PathVariable Long memberId,
+        @PathVariable Long tripPlanId
+    ) {
+        List<CheckRoutine> routines = checkRoutineService.getRoutinesByTripPlan(memberId, tripPlanId);
+        return ResponseEntity.ok(routines);
+    }
 
     //루틴 수정
     @PutMapping("/{id}")

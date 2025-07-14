@@ -15,7 +15,6 @@ const keywordOptions = [
 const ReviewForm = () => {
   const router = useRouter();
   const { isReady, query } = router;
-
   const { tripPlanId, reservId, title, startDate, endDate, placeImage, placeName } = query;
   const [reviewTypeId, setReviewTypeId] = useState(null);
   const [targetId, setTargetId] = useState(null);
@@ -26,6 +25,7 @@ const ReviewForm = () => {
   const [fileList, setFileList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState('');
+  const [days, setDays] = useState(null);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -96,6 +96,19 @@ const ReviewForm = () => {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (reviewTypeId === 1 && targetId) {
+      axios.get(`http://localhost:8080/tripPlan/${targetId}`)
+        .then((res) => {
+          setDays(res.data.days);  // days 값 가져오기
+        })
+        .catch((err) => {
+          console.error('트립플랜 정보 조회 실패:', err);
+        });
+    }
+  }, [reviewTypeId, targetId]);
+
+
   const handleSubmit = async () => {
     console.log('memberId:', memberId);
     console.log('reviewTypeId:', reviewTypeId);
@@ -112,6 +125,7 @@ const ReviewForm = () => {
       targetId,
       content,
       rating,
+      reservId
     };
 
     formData.append('review', JSON.stringify(reviewDto));
@@ -163,7 +177,7 @@ const ReviewForm = () => {
 
     // ✅ formData 정의 추가
     const formData = new FormData();
-    formData.append('review', new Blob([JSON.stringify(reviewDto)], { type: 'application/json' }));
+    formData.append('review', JSON.stringify(reviewDto));
     fileList.forEach((file) => {
       formData.append('images', file.originFileObj);
     });
@@ -191,14 +205,25 @@ const ReviewForm = () => {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 18, fontWeight: 'bold' }}>{placeName || title}</div>
-          <div style={{ fontSize: 14, color: '#777' }}>
-            일정 | {startDate} ~ {endDate}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {reviewTypeId === 2 && placeImage && (
+            <img
+              src={placeImage.startsWith("http") ? placeImage : `http://localhost:8080${placeImage}`}
+              alt="장소 이미지"
+              style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, marginRight: 12 }}
+            />
+          )}
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 'bold' }}>{placeName || title}</div>
+            {reviewTypeId === 1 && (
+              <div style={{ fontSize: 14, color: '#777' }}>
+                일정 | {days ? `${days}일 플랜` : '일정 정보 없음'}
+              </div>
+            )}
           </div>
         </div>
-        <div style={{ width: 60, textAlign: 'right' }}>
+        <div style={{ marginLeft: 'auto', width: 60, textAlign: 'right' }}>
           {['맑음', '흐림', '비', '눈', '구름많음'].includes(weather) ? (
             <img src={`/image/weather/${getWeatherImage(weather)}`} alt={weather} style={{ width: 40, height: 40 }} />
           ) : (
@@ -229,7 +254,12 @@ const ReviewForm = () => {
         style={{ marginTop: 20 }}
       />
 
-      <Button loading={loading} onClick={handleAIReview} block style={{ marginTop: 10, backgroundColor: '#000', color: '#fff' }}>
+      <Button
+        loading={loading}
+        onClick={handleAIReview}
+        block
+        style={{ marginTop: 10, backgroundColor: '#000', color: '#fff' }}
+      >
         AI 리뷰 작성
       </Button>
 

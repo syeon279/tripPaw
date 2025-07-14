@@ -60,5 +60,20 @@ public class SealController {
         sealService.deleteSeal(id);
         return ResponseEntity.ok("도장이 삭제되었습니다.");
     }
+    
+    //placeType로 도장 조회
+    @GetMapping("/tripplan/{memberTripPlanId}")
+    public ResponseEntity<List<Seal>> getSealsByTripPlanId(@PathVariable Long memberTripPlanId) {
+        List<Seal> seals = sealService.getSealsByTripPlan(memberTripPlanId);
+        return ResponseEntity.ok(seals);
+    }
+    
+    //등록도장제외
+    @GetMapping("/tripplan/{memberTripPlanId}/passport/{passportId}")
+    public ResponseEntity<List<Seal>> getUnacquiredSeals(@PathVariable Long memberTripPlanId,
+                                                          @PathVariable Long passportId) {
+        List<Seal> seals = sealService.getUnacquiredSeals(memberTripPlanId, passportId);
+        return ResponseEntity.ok(seals);
+    }
 
 }

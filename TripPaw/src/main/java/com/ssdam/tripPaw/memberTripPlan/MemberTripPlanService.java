@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +30,7 @@ import com.ssdam.tripPaw.dto.MemberTripPlanSaveRequest;
 import com.ssdam.tripPaw.dto.MyTripsDto;
 import com.ssdam.tripPaw.dto.TripSaveRequest;
 import com.ssdam.tripPaw.place.PlaceMapper;
+import com.ssdam.tripPaw.reserv.ReservMapper;
 import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ public class MemberTripPlanService {
 	private final MemberTripPlanMapper memberTripPlanMapper;
 	private final PlaceMapper placeMapper;
 	private final TripPlanMapper tripPlanMapper;
+	private final ReservMapper reservMapper;
 	
 	@Value("${upload.directory:C:/upload/tripThumbnails/}")
 	private String uploadDir;
@@ -54,15 +57,25 @@ public class MemberTripPlanService {
     }
 	
 	// 다른 유저의 TripPlan을 memberTripPlan으로 저장
-	public void saveMemberTripPlan(MemberTripPlanSaveRequest request) {
+    public void saveMemberTripPlan(MemberTripPlanSaveRequest request) {
+        // 1. 기존 저장 여부 확인
         boolean alreadyExists = memberTripPlanMapper.existsByMemberIdAndTripPlanId(
             request.getMemberId(), request.getTripPlanId()
         );
-
         if (alreadyExists) {
             throw new IllegalStateException("이미 저장한 여행입니다.");
         }
 
+        // 2. 예약 날짜 겹침 확인
+        if (isOverlappingWithReservedDates(
+                request.getTripPlanId(),
+                LocalDate.parse(request.getStartDate()),
+                LocalDate.parse(request.getEndDate()))
+        ) {
+            throw new IllegalStateException("해당 여행은 일부 날짜가 예약되어 저장할 수 없습니다.");
+        }
+
+        // 3. 저장 로직
         Member member = new Member();
         member.setId(request.getMemberId());
 
@@ -77,10 +90,30 @@ public class MemberTripPlanService {
             .countPeople(request.getCountPeople())
             .countPet(request.getCountPet())
             .titleOverride(request.getTitleOverride())
+            .createdAt(LocalDateTime.now())
             .build();
 
         memberTripPlanMapper.insertMemberTripPlan(entity);
     }
+
+    private boolean isOverlappingWithReservedDates(Long tripPlanId, LocalDate newStart, LocalDate newEnd) {
+    	List<Map<String, Object>> reservedRanges = reservMapper.findReservedRangesByTripPlanId(tripPlanId);
+
+    	for (Map<String, Object> range : reservedRanges) {
+    	    java.sql.Date sqlStart = (java.sql.Date) range.get("start_date");
+    	    java.sql.Date sqlEnd = (java.sql.Date) range.get("end_date");
+
+    	    LocalDate start = sqlStart.toLocalDate();
+    	    LocalDate end = sqlEnd.toLocalDate();
+
+    	    if (!(newEnd.isBefore(start) || newStart.isAfter(end))) {
+    	        return true;
+    	    }
+    	}
+
+        return false;
+    }
+
 
 	// 특정 유저의 내 여행(TripPlan) 목록 조회
 	@Transactional(readOnly = true)

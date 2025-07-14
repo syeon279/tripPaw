@@ -11,24 +11,18 @@ const RoutineActionButtons = ({ routine, onRefresh }) => {
       await deleteRoutine(routine.id);
       message.success('루틴이 삭제되었습니다.');
       onRefresh();
-    } catch (err) {
-      message.error('루틴 삭제 실패');
-    }
+    } catch (err) {message.error('루틴 삭제 실패');}
   };
 
   return (
     <Space>
-      <Button size="small" onClick={() => setVisible(true)}>수정</Button>
-      <Button size="small" danger onClick={handleDelete}>삭제</Button>
+      <Button onClick={() => setVisible(true)}
+       style={{border:'none', fontSize:'14px', color:'#0004FF', fontWeight:'bold', padding:'0 8px'}}  >수정</Button>
+      <Button danger onClick={handleDelete}
+        style={{border:'none', fontSize:'14px', color:'#ff0000', fontWeight:'bold', padding:'0 8px'}} >삭제</Button>
 
       {/* 수정 모달 */}
-      <RoutineEditorModal
-        routine={routine}
-        visible={visible}
-        onClose={() => {
-          setVisible(false);
-          onRefresh();
-        }}
+      <RoutineEditorModal  routine={routine} visible={visible} onClose={() => { setVisible(false); onRefresh(); }}
       />
     </Space>
   );

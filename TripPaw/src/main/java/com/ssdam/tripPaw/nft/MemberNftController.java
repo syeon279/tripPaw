@@ -1,6 +1,7 @@
 package com.ssdam.tripPaw.nft;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -32,15 +33,17 @@ public class MemberNftController {
 
         List<MemberNftDto> dtos = memberNfts.stream()
             .map(nft -> new MemberNftDto(
-            		 nft.getId(),
-                     nft.getNftMetadata().getTitle(),
-                     nft.getTokenId(), 
-                     nft.getNftMetadata().getImageUrl(),
-                     nft.getNftMetadata().getPointValue(),
-                     nft.getUsedAt(),
-                     nft.getBarcode(),             
-                     nft.getIssuedAt(),             
-                     nft.getDueAt()                 
+                 nft.getId(),
+                 nft.getNftMetadata().getTitle(),
+                 nft.getTokenId(), 
+                 nft.getNftMetadata().getImageUrl(),
+                 nft.getNftMetadata().getPointValue(),
+                 nft.getUsedAt(),
+                 nft.getBarcode(),             
+                 nft.getIssuedAt(),             
+                 nft.getDueAt(),
+                 nft.getIssuedReason(),
+                 nft.getDeletedAt() // soft delete 컬럼 추가
             ))
             .collect(Collectors.toList());
 
@@ -48,10 +51,10 @@ public class MemberNftController {
     }
 
     // NFT 발급
-    @PostMapping
-    public ResponseEntity<String> issueNft(@RequestBody MemberNft memberNft) {
-        memberNftService.issueNft(memberNft);
-        return ResponseEntity.ok("NFT issued successfully");
+    @PostMapping("/issue-or-reuse")
+    public ResponseEntity<String> issueOrReuseNft(@RequestBody MemberNft memberNft) {
+        memberNftService.issueOrReuseNft(memberNft);
+        return ResponseEntity.ok("NFT issued or reused successfully");
     }
 
     // NFT 수정
@@ -69,27 +72,29 @@ public class MemberNftController {
         return ResponseEntity.ok("NFT marked as used");
     }
     
-    // 유저가 자신의 NFT 삭제
+    // 유저가 자신의 NFT soft delete 처리 (삭제)
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteNft(@PathVariable Long id, @RequestParam String memberId) {
-        memberNftService.deleteMemberNft(id, memberId);
-        return ResponseEntity.ok("NFT deleted");
+        memberNftService.softDeleteMemberNft(id, memberId);
+        return ResponseEntity.ok("NFT soft deleted");
     }
     
-    // 관리자: 사용 완료된 NFT만 삭제 가능
+    // 관리자: 사용 완료된 NFT만 soft delete 처리
     @DeleteMapping("/metadata/{nftMetadataId}/used-nfts")
     public ResponseEntity<String> deleteUsedNftsByMetadata(@PathVariable Long nftMetadataId) {
-        memberNftService.deleteUsedByNftMetadataId(nftMetadataId);
-        return ResponseEntity.ok("사용 완료된 NFT만 삭제 완료");
+        memberNftService.softDeleteUsedByNftMetadataId(nftMetadataId);
+        return ResponseEntity.ok("사용 완료된 NFT soft delete 완료");
     }
     
     // NFT 선물 기능
     @PostMapping("/gift/{nftId}")
     public ResponseEntity<String> giftNft(@PathVariable Long nftId,
                                           @RequestParam Long fromMemberId,
-                                          @RequestParam String toNickname) {
+                                          @RequestParam String toNickname,
+                                          @RequestBody(required = false) Map<String, String> requestBody) {
         try {
-            memberNftService.giftNftByNickname(nftId, fromMemberId, toNickname);
+            String message = requestBody != null ? requestBody.get("message") : null;
+            memberNftService.giftNftByNickname(nftId, fromMemberId, toNickname, message);
             return ResponseEntity.ok("NFT gifted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("NFT gift failed: " + e.getMessage());

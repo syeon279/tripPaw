@@ -12,13 +12,17 @@ public class MyReviewDto {
     private String createdAt;
     private String reviewType; // PLAN or PLACE
     private String tripTitle;
-    private Date tripStartDate;
-    private Date tripEndDate;
+//    private Date tripStartDate;
+//    private Date tripEndDate;
     private String imageUrl;
     private int imageCount;
     private String weatherCondition;
     private String placeName;
     private String placeImageUrl;
     private Long targetId;
+    
+    private Long reservId;              // PLACE 리뷰용
+    private Long memberTripPlanId;      // 여행 경로 추출용
+
 }
 
