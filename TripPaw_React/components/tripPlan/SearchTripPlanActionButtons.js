@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PublicConfirmModal from './PublicConfirmModal';
 import TripPlanToMyTrip from './TripPlanToMyTrip'; // ⭐ 추가
@@ -38,6 +38,7 @@ const SearchTripPlanActionButton = ({
 }) => {
     const [showModal, setShowModal] = useState(false);
     const [showMyTripModal, setShowMyTripModal] = useState(false); // ⭐ 추가
+    const [disabledDates, setDisabledDates] = useState([]);
 
     const handleOpenModal = () => {
         setShowModal(true);
@@ -69,6 +70,39 @@ const SearchTripPlanActionButton = ({
         setShowMyTripModal(false);
     };
 
+    // 저장 불가능한 날짜
+    useEffect(() => {
+        const fetchDisabledDates = async () => {
+            try {
+                const response = await axios.get(
+                    `http://localhost:8080/reserv/disabled-dates/tripPlan`,
+                    {
+                        params: { tripPlanId },
+                    }
+                );
+                const ranges = response.data;
+
+                const allDates = ranges.flatMap(range => {
+                    const start = new Date(range.startDate);
+                    const end = new Date(range.endDate);
+                    const days = [];
+                    for (let day = new Date(start); day <= end; day.setDate(day.getDate() + 1)) {
+                        days.push(new Date(day));
+                    }
+                    return days;
+                });
+
+                setDisabledDates(allDates);
+            } catch (error) {
+                console.error('예약된 날짜 조회 실패:', error);
+            }
+        };
+
+        if (!myTrip) {
+            fetchDisabledDates();
+        }
+    }, [tripPlanId, myTrip]);
+
     // 내 여행으로 저장하기
     const handleConfirmSave = async (travelData) => {
         try {
@@ -85,6 +119,7 @@ const SearchTripPlanActionButton = ({
                 }
             );
             alert('저장되었습니다.');
+            return true;
         } catch (err) {
             console.error('저장 실패:', err);
             const msg = err.response?.data || '서버 오류로 저장 실패';
@@ -126,6 +161,7 @@ const SearchTripPlanActionButton = ({
                             defaultCountPeople={countPeople}
                             defaultCountPet={countPet}
                             onCaptureMap={onCaptureMap}
+                            disabledDates={disabledDates}
                         />
                     )}
                 </>

@@ -40,7 +40,8 @@ public class MemberNftController {
                      nft.getUsedAt(),
                      nft.getBarcode(),             
                      nft.getIssuedAt(),             
-                     nft.getDueAt()                 
+                     nft.getDueAt(),
+                     nft.getIssuedReason()
             ))
             .collect(Collectors.toList());
 

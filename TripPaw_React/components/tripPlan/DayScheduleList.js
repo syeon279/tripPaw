@@ -23,17 +23,18 @@ const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, set
 
     return (
         <div>
-            {routeData.map((day, index) => (
-                <div key={day.day} ref={(el) => (dayRefs.current[index] = el)} style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'none' }}>{addDaysToDate(startDate, day.day - 1)}   </div>
-                    <DayScheduleItem
-                        day={day}
-                        isActive={day.day === currentDay}
-                        onClick={() => handleDayClick(day.day)}
-                        onPlaceClick={(place) => { setFocusDay(day.day); onPlaceClick(place, day.day) }}
-                    />
-                </div>
-            ))}
+            {Array.isArray(routeData) &&
+                routeData.map((day, index) => (
+                    <div key={day.day} ref={(el) => (dayRefs.current[index] = el)} style={{ marginBottom: '16px' }}>
+                        <div style={{ display: 'none' }}>{addDaysToDate(startDate, day.day - 1)}   </div>
+                        <DayScheduleItem
+                            day={day}
+                            isActive={day.day === currentDay}
+                            onClick={() => handleDayClick(day.day)}
+                            onPlaceClick={(place) => { setFocusDay(day.day); onPlaceClick(place, day.day) }}
+                        />
+                    </div>
+                ))}
         </div>
     );
 };

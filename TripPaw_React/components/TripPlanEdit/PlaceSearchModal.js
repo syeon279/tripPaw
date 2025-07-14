@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import axios from 'axios';
+import PlaceDetailModal from './PlaceDetailModal';
 
 const modalStyle = {
     position: 'fixed',
@@ -10,7 +11,7 @@ const modalStyle = {
     backgroundColor: 'white',
     padding: '40px',
     borderRadius: '10px',
-    width: '500px',
+    width: '700px',
     maxHeight: '80vh',
     overflowY: 'auto',
     boxShadow: '0 0 20px rgba(0,0,0,0.3)',
@@ -29,15 +30,12 @@ const overlayStyle = {
 const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
     const [keyword, setKeyword] = useState('');
     const [results, setResults] = useState([]);
+    const [selectedPlace, setSelectedPlace] = useState(null); // ⭐ 자세히 보기용
 
     const handleSearch = async () => {
         try {
             const response = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
-            console.log('검색 결과:', response.data);
-
-            // ✅ `places` 배열로부터 추출
             const places = Array.isArray(response.data.places) ? response.data.places : [];
-
             setResults(places);
         } catch (err) {
             console.error('검색 실패:', err);
@@ -60,9 +58,8 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
         <>
             <div style={overlayStyle} onClick={onClose} />
             <div style={modalStyle}>
-                {/* <h3>장소 검색</h3> */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ borderBottom: '2px solid rgba(155, 155, 155, 0.36)', width: '60%' }}>
+                    <div style={{ borderBottom: '2px solid rgba(155, 155, 155, 0.36)', width: '60%', padding: '10px' }}>
                         <input
                             type="text"
                             value={keyword}
@@ -97,9 +94,9 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
                                         }}
                                     />
                                 </div>
-                                <div>
-                                    <div style={{ margin: '10px' }}>{place.name}</div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ width: '60%' }}>
+                                    <div style={{ margin: '0px 0px', border: '0px solid red', width: '100%' }}>{place.name}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', border: '0px solid red' }}>
                                         <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
                                             {place.avgRating?.toFixed(1) || '0.0'}
                                         </p>
@@ -112,14 +109,27 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
                                     </div>
                                     <p style={{ fontSize: '12px', color: '#666' }}>{place.region}</p>
                                 </div>
-                                <button
-                                    onClick={() => onSelectPlace(place)}
-                                    style={{ backgroundColor: 'black', color: 'white', height: '30px' }}
-                                >추가</button>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                                    <button
+                                        onClick={() => onSelectPlace(place)}
+                                        style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
+                                    >추가</button>
+                                    <button
+                                        onClick={() => setSelectedPlace(place)} // ⭐ 자세히 보기
+                                        style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
+                                    >자세히</button>
+                                </div>
                             </div>
                         </li>
                     ))}
                 </ul>
+
+                {selectedPlace && (
+                    <PlaceDetailModal
+                        place={selectedPlace}
+                        onClose={() => setSelectedPlace(null)}
+                    />
+                )}
             </div>
         </>
     );
