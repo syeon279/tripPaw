@@ -224,6 +224,7 @@ useEffect(()=>{
             <SidebarItem text="도장 관리" href="/admin/seal" />
             <SidebarItem text="신고 관리" href="/mypage/reports" />
             <SidebarItem text="뱃지 관리" href="/admin/badge" />
+            <SidebarItem text="리뷰 관리" href="/admin/review" />
           </SidebarSection>
         </>
       )}

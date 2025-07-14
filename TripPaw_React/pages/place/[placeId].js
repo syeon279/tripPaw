@@ -602,6 +602,7 @@ const PlaceReservCreatePage = () => {
                                       reservId,
                                       reviewTypeId: 2,       // 장소 리뷰
                                       placeName: place.name,
+                                      placeImage: place.imageUrl,
                                     },
                                   });
                                 } catch (err) {
