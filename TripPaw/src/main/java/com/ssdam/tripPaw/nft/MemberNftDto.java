@@ -18,5 +18,6 @@ public class MemberNftDto {
     private LocalDateTime issuedAt;       
     private LocalDateTime dueAt;      
     private String issuedReason;
+    private LocalDateTime deletedAt; 
     
 }
