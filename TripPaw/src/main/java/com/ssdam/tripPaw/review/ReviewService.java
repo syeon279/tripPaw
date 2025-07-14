@@ -43,6 +43,7 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.member.MemberMapper;
 import com.ssdam.tripPaw.member.MemberService;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
@@ -381,19 +382,13 @@ public class ReviewService {
  	public List<Badge> getBadgesByMemberId(Long memberId) {
         return badgeMapper.findBadgesByMemberId(memberId);
     }
- 	/*
+ 	
  	//여권 도장용 추가코드
- 	public List<Reserv> getReservsWithoutReview(Long memberId){
- 		List<Reserv> list = reviewMapper.findReservWithoutReview(memberId);
- 		for (Reserv r : list) {
- 		    System.out.println("Reserv ID..........: " + r.getId());
- 		    System.out.println("Trip Title..........: " + 
- 		        (r.getMemberTripPlan() != null ? r.getMemberTripPlan().getTitleOverride() : "null"));
- 		}
- 		return reviewMapper.findReservWithoutReview(memberId);
+ 	public List<MemberTripPlanReviewDto> getTripPlansWithoutReview(Long memberId){
+ 		return reviewMapper.findTripPlansWithoutReview(memberId);
  	}
+ 	
  	public List<MyReviewDto> getReviewsWithPlaceTypeByMemberId(Long memberId){
  	    return reviewMapper.findReviewsWithPlaceTypeByMemberId(memberId);
  	}
-	*/
 }

@@ -90,22 +90,14 @@ const PassportEditorModal = ({ passport, onClose, onSaved, memberId  }) => {
 
         .passport-modal {
           background: white;
-          padding: 24px;
-          border-radius: 10px;
-          width: 400px;
-          max-width: 90vw;
+          padding: 54px;
+          border-radius: 4px;
+          width: 65%;
+          max-width: 60vw;
+          min-width: 500px;
           box-shadow: 0 4px 12px rgba(0,0,0,0.2);
           position: relative;
-        }
-
-        .passport-close {
-          position: absolute;
-          top: 12px;
-          right: 16px;
-          background: none;
-          border: none;
-          font-size: 20px;
-          cursor: pointer;
+          animation: fadeIn 0.3s ease-out;
         }
 
         .passport-modal label {
@@ -119,73 +111,54 @@ const PassportEditorModal = ({ passport, onClose, onSaved, memberId  }) => {
           width: 100%;
           padding: 6px;
           margin-top: 4px;
-          border-radius: 4px;
-          border: 1px solid #ccc;
-        }
-
-        .passport-modal button {
-          margin-top: 16px;
-          margin-right: 8px;
-          padding: 8px 16px;
-          border: none;
-          border-radius: 4px;
-          background-color: #0078D4;
-          color: white;
-          cursor: pointer;
-        }
-
-        .passport-modal button:last-child {
-          background-color: #666;
-        }
-
-        .passport-modal img {
-          margin-top: 8px;
-          max-width: 100px;
-          border: 1px solid #eee;
-        }
-
-        .invalid {
-          color: red;
-          font-size: 12px;
+          border-width: 0 0 1px;
+          border-color: #ccc;
+          outline: none;
         }
       `}</style>
 
       <div className="passport-overlay">
         <div className="passport-modal">
-          <button className="passport-close" onClick={onClose}>×</button>
+          {/* <button className="passport-close" onClick={onClose}>×</button> */}
+          <h3 style={{fontWeight:'bold', fontSize:'22px'}}>{passport ? '여권 수정' : '여권 등록'}</h3>
 
-          <h3>{passport ? '여권 수정' : '여권 등록'}</h3>
+          <div style={{display:'flex', justifyContent:'space-between', height:'22em'}}>
 
-          <label>반려동물 이름</label>
-          <input name="petName" value={form.petName} onChange={handleChange} />
+          <div style={{width:'200px', marginRight:'15px'}}>
+            <label></label>
+            <div style={{display:'flex', flexDirection:'column', justifyContent:'space-between', height:'18em'}}>
+              <div style={{height:'100%', backgroundColor:'#eee', width:'100%' }}>{previewUrl && ( <img src={previewUrl} alt="미리보기" style={{ width:'100%', height:'100%', objectFit:'cover'}} /> )}</div>
+              <label htmlFor="file-upload" style={{display: 'inline-block', padding: '10px 20px',  backgroundColor: '#000', color: 'white', borderRadius: '2px',  cursor: 'pointer',  fontWeight: 'bold',textAlign:'center'}}> 이미지 업로드</label>
+              <input  id="file-upload"  type="file"  accept="image/*"  onChange={handleFileChange}  style={{ display: 'none' }}/>
+            </div>            
+          </div>
 
-          <label>종(species)</label>
-          <input name="species" value={form.species} onChange={handleChange} />
+          <div style={{flexGrow:1}}>
+            <label>반려동물 이름</label>
+            <input name="petName" value={form.petName} onChange={handleChange} />
 
-          <label>나이</label>
-          <input name="petAge" type="number" value={form.petAge} onChange={handleChange} />
+            <label>종(species)</label>
+            <input name="species" value={form.species} onChange={handleChange} />
 
-          <label>성별</label>
-          <select name="petGender" value={form.petGender} onChange={handleChange}>
-            <option value="">선택</option>
-            <option value="암컷">암컷</option>
-            <option value="수컷">수컷</option>
-          </select>
+            <label>나이</label>
+            <input name="petAge" type="number" value={form.petAge} onChange={handleChange} />
 
-          {/* <label>여권번호</label>
-          <input name="passNum" value={form.passNum} onChange={handleChange} />
-          {!isPassNumValid && !passport && (
-            <div className="invalid">이미 사용 중인 여권번호입니다.</div>
-          )} */}
+            <label>성별</label>
+            <select name="petGender" value={form.petGender} onChange={handleChange}>
+              <option value="">선택</option>
+              <option value="암컷">암컷</option>
+              <option value="수컷">수컷</option>
+            </select>
+          </div>
+          </div>
 
-          <label>이미지 업로드</label>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
-          {previewUrl && (
-            <img src={previewUrl} alt="미리보기" />
-          )}
+        <div style={{display:'flex', flexDirection:'column', gap:'10px', marginTop:'32px'}}>
+          <button style={{fontSize:'16px', fontWeight:'bold', padding:'10px', backgroundColor:'#000', color:'#fff', border:'none', borderRadius:'5px',cursor:'pointer'}}
+          onClick={handleSubmit}>저장</button>
+          <button style={{fontSize:'16px', fontWeight:'bold', padding:'10px', backgroundColor:'#fff', border:'2px solid #000',borderRadius:'5px', cursor:'pointer'}}
+          onClick={onClose}>취소</button>
+        </div>
 
-          <button onClick={handleSubmit}>저장</button>
-          <button onClick={onClose}>취소</button>
         </div>
       </div>
     </>

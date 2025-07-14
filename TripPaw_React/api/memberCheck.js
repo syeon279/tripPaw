@@ -1,3 +1,4 @@
+///api/memberCheck
 import axios from 'axios';
 const BASE_URL = '/api/member-checks';
 
@@ -24,3 +25,6 @@ export const updateMemberCheck = async (id, memberCheck) =>
 
 export const deleteMemberCheck = async (id) =>
   axios.delete(`${BASE_URL}/${id}`).then(res => res.status);
+
+export const createRoutineFromTemplates = async (payload) =>
+  axios.post(`${BASE_URL}/routine/from-templates`, payload).then(res => res.data);

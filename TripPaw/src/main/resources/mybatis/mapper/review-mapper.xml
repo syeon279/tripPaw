@@ -19,6 +19,7 @@
 		<association property="reviewType"
 			javaType="com.ssdam.tripPaw.domain.ReviewType">
 			<id property="id" column="review_type_id" />
+			<result property="targetType" column="target_type"/>
 		</association>
 		<collection property="reviewImages"
 			ofType="com.ssdam.tripPaw.domain.ReviewImage"
@@ -461,32 +462,72 @@
 
 
 	<!-- 추가 도장 추가 시 사용할 작성안한 리뷰 조회 -->
-	<resultMap id="reservWithTripMap" type="Reserv">
-		<id property="id" column="reserv_id" />
-		<result property="startDate" column="start_date" />
-		<result property="endDate" column="end_date" />
+<resultMap id="tripPlanReviewDtoMap" type="com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto">
+  <result property="memberTripPlanId" column="member_trip_plan_id"/>
+  <result property="titleOverride" column="title_override"/>
+  <result property="startDate" column="start_date"/>
+  <result property="endDate" column="end_date"/>
+  <result property="imageUrl" column="image_url"/>
+  <result property="status" column="status"/>
+  <result property="countPeople" column="count_people"/>
+  <result property="countPet" column="count_pet"/>
+  <result property="publicVisible" column="is_public"/>
+</resultMap>
 
-		<association property="place" javaType="Place">
-			<id property="id" column="place_id" />
-			<result property="name" column="place_name" />
-		</association>
 
-		<association property="tripPlan" javaType="TripPlan">
-			<id property="id" column="trip_plan_id" />
-			<result property="title" column="trip_title" />
-		</association>
-	</resultMap>
+<select id="findTripPlansWithoutReview" parameterType="long" resultMap="tripPlanReviewDtoMap">
+    SELECT DISTINCT
+      tp.id AS member_trip_plan_id,
+      tp.title_override,
+      tp.start_date,
+      tp.end_date,
+      tp.image_url,
+      tp.status,
+      tp.count_people,
+      tp.count_pet,
+      tp.is_public
+    FROM member_trip_plan tp
+    WHERE tp.id IN (
+        SELECT r.member_trip_plan_id
+        FROM reserv r
+        WHERE r.member_id = #{memberId}
+          AND r.delete_at IS NULL
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM review rv
+        WHERE rv.review_type_id = 1
+          AND rv.target_id = tp.id
+          AND rv.member_id = #{memberId}
+    )
+</select>
 
-	<!-- <select id="findReservWithoutReview" parameterType="long" resultMap="reservWithTripMap"> 
-		SELECT r.id AS reserv_id, r.start_date, r.end_date, p.id AS place_id, p.name 
-		AS place_name, tp.id AS trip_plan_id, tp.title AS trip_title FROM reserv 
-		r JOIN place p ON r.place_id = p.id LEFT JOIN trip_plan tp ON r.trip_plan_id 
-		= tp.id WHERE r.member_id = #{memberId} AND r.delete_at IS NULL AND NOT EXISTS 
-		( SELECT 1 FROM review rv WHERE rv.reserv_id = r.id ) </select> <select id="findReviewsWithPlaceTypeByMemberId" 
-		resultType="com.ssdam.tripPaw.review.MyReviewDto" parameterType="long"> SELECT 
-		r.id AS review_id, r.content, r.rating, r.weather_condition, r.created_at, 
-		res.id AS reserv_id, p.id AS place_id, pt.id AS place_type_id, pt.name AS 
-		place_type_name FROM review r JOIN reserv res ON r.reserv_id = res.id JOIN 
-		place p ON res.place_id = p.id JOIN place_type pt ON p.place_type_id = pt.id 
-		WHERE r.member_id = #{memberId} </select> -->
+<select id="findReviewsWithPlaceTypeByMemberId" resultType="com.ssdam.tripPaw.review.MyReviewDto"  parameterType="long">
+  SELECT r.id AS review_id,
+         r.content,
+         r.rating,
+         r.weather_condition,
+         r.created_at,
+         r.target_id,
+         rt.target_type AS review_type,
+         res.id AS reserv_id,
+         tp.id AS member_trip_plan_id,
+         tp.title_override AS trip_title,
+         tp.start_date AS trip_start_date,
+         tp.end_date AS trip_end_date,
+         p.name AS place_name,
+         p.image_url AS place_image_url,
+         pt.id AS place_type_id,
+         pt.name AS place_type_name
+  FROM review r
+  JOIN reserv res ON r.reserv_id = res.id
+  JOIN member_trip_plan tp ON res.member_trip_plan_id = tp.id
+  JOIN place p ON res.place_id = p.id
+  JOIN place_type pt ON p.place_type_id = pt.id
+  JOIN review_type rt ON r.review_type_id = rt.id
+  WHERE r.member_id = #{memberId}
+    AND NOT EXISTS (
+    SELECT 1 FROM passport_seal ps WHERE ps.review_id = r.id
+  )
+</select>
 </mapper>

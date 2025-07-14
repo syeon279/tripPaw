@@ -1,5 +1,6 @@
 package com.ssdam.tripPaw.checklist;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -7,6 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.ssdam.tripPaw.domain.CheckRoutine;
+import com.ssdam.tripPaw.domain.CheckTemplateItem;
 import com.ssdam.tripPaw.domain.MemberCheck;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,63 @@ public class MemberCheckService {
 	
 	private final MemberCheckMapper memberCheckMapper;
     private final CheckRoutineMapper checkRoutineMapper;
+    private final CheckTemplateItemMapper checkTemplateItemMapper;
+    
+    //복수선택 템플릿 하나의 루틴으로 묶고 일괄삽입
+    @Transactional
+    public List<CheckRoutine> createRoutineForBothScopes(
+        Long memberId,
+        Long tripPlanId,
+        List<Long> templateIds,
+        String title,
+        boolean includePersonalRoutine // ✅ 개인 루틴 생성 여부
+    ) {
+        List<CheckRoutine> routines = new ArrayList<>();
 
+        // 여행 루틴 생성 (isSaved = false)
+        CheckRoutine tripRoutine = new CheckRoutine();
+        tripRoutine.setTitle(title + " (여행용)");
+        tripRoutine.setMemberId(memberId);
+        tripRoutine.setIsSaved(false);
+        tripRoutine.setMemberTripPlanId(tripPlanId);
+        checkRoutineMapper.insertCheckRoutine(tripRoutine);
+        routines.add(tripRoutine);
+
+        // 템플릿 항목 불러오기
+        List<CheckTemplateItem> items = checkTemplateItemMapper.selectItemsByIds(templateIds);
+
+        for (CheckTemplateItem item : items) {
+            MemberCheck tripCheck = new MemberCheck();
+            tripCheck.setCheckRoutine(tripRoutine);
+            tripCheck.setCheckTemplateItem(item);
+            tripCheck.setCustomContent(null);
+            tripCheck.setIsChecked(false);
+            memberCheckMapper.insertMemberCheck(tripCheck);
+        }
+
+        // ✅ 개인 루틴 생성 조건부 처리
+        if (includePersonalRoutine) {
+            CheckRoutine personalRoutine = new CheckRoutine();
+            personalRoutine.setTitle(title + " (내 루틴)");
+            personalRoutine.setMemberId(memberId);
+            personalRoutine.setIsSaved(true);
+            personalRoutine.setMemberTripPlanId(null);
+            checkRoutineMapper.insertCheckRoutine(personalRoutine);
+            routines.add(personalRoutine);
+
+            for (CheckTemplateItem item : items) {
+                MemberCheck personalCheck = new MemberCheck();
+                personalCheck.setCheckRoutine(personalRoutine);
+                personalCheck.setCheckTemplateItem(item);
+                personalCheck.setCustomContent(null);
+                personalCheck.setIsChecked(false);
+                memberCheckMapper.insertMemberCheck(personalCheck);
+            }
+        }
+
+        return routines;
+    }
+    
     // 체크리스트 항목 추가
     @Transactional
     public void addMemberCheck(MemberCheck memberCheck) {

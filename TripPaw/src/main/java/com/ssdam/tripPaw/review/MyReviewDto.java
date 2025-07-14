@@ -20,5 +20,9 @@ public class MyReviewDto {
     private String placeName;
     private String placeImageUrl;
     private Long targetId;
+    
+    private Long reservId;              // PLACE 리뷰용
+    private Long memberTripPlanId;      // 여행 경로 추출용
+
 }
 
