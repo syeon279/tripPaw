@@ -27,7 +27,7 @@ const bottonStyle = {
 
 }
 
-const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPlanId }) => {
+const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPlanId, originTripPlanId }) => {
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState('');
@@ -35,6 +35,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
     // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
 
     console.log('ActionButtons memberTripPlanId:', memberTripPlanId);
+    console.log('ActionButtons originTripPlanId:', originTripPlanId);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -69,6 +70,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
             const response = await axios.post('http://localhost:8080/reserv/auto/plan', {
                 userId: userId,
                 memberTripPlanId: memberTripPlanId,
+                originTripPlanId: originTripPlanId,
                 routeData: routeData,
             });
 

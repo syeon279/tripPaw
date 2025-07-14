@@ -1,31 +1,26 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import PlaceDetailModal from '../TripPlanEdit/PlaceDetailModal';
 
 const itemWrapper = {
-    //border: '2px solid black',
     display: 'flex',
     padding: '10px',
     margin: '20px',
     cursor: 'pointer',
-}
+    alignItems: 'center'
+};
+
 const dayWrapper = {
-    //border: '2px solid red',
     backgroundColor: 'rgba(189, 189, 189, 0.29)',
     width: '90px',
     padding: '20px',
     borderRadius: '30px',
     marginRight: '10px',
     display: 'flex',
-    justifyContent: 'center', // 수평 가운데
-    alignItems: 'center',     // 수직 가운데
-    height: '15px',          // 높이 있어야 수직 정렬 가능
-    coler: 'rgba(90, 90, 90, 0.65)',
-}
-
-const items = {
-    //border: '2px solid purple',
+    justifyContent: 'center',
     alignItems: 'center',
-    fontSize: 'bold',
-}
+    height: '15px',
+    color: 'rgba(90, 90, 90, 0.65)',
+};
 
 const dividerLine = {
     width: '90%',
@@ -34,28 +29,67 @@ const dividerLine = {
     margin: 'auto',
 };
 
-const DayScheduleItem = ({ day, isActive, onPlaceClick }) => (
-    <div>
-        {day.places.map((place) => (
-            <div
-                key={place.placeId}
-                style={itemWrapper}
-                onClick={(e) => { onPlaceClick(place); e.stopPropagation(); }}
-            >
-                {/* 일자 표시를 매 카드마다 */}
-                <div style={dayWrapper}>{day.day}일차</div>
+const DayScheduleItem = ({ day, isActive, onPlaceClick }) => {
+    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
 
-                {/* 장소 */}
-                <div>
-                    <div>
-                        <div>{place.name}</div>
+    const handleMoreInfoClick = (place, event) => {
+        event.stopPropagation();
+        setSelectedPlace(place);
+        setAnchorEl({ current: event.currentTarget });
+    };
+
+    const closeModal = () => {
+        setSelectedPlace(null);
+        setAnchorEl(null);
+    };
+
+    return (
+        <div>
+            {day.places.map((place) => (
+                <div
+                    key={place.placeId}
+                    style={itemWrapper}
+                    onClick={(e) => {
+                        onPlaceClick(place);
+                        e.stopPropagation();
+                    }}
+                >
+                    {/* 일자 표시를 매 카드마다 */}
+                    <div style={dayWrapper}>{day.day}일차</div>
+
+                    {/* 장소 */}
+                    <div style={{ width: '100%' }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                        }}>
+                            <div>{place.name}</div>
+                            <img
+                                src='/image/other/moreInfo.png'
+                                alt='장소'
+                                style={{ width: '15px', height: '15px', cursor: 'pointer' }}
+                                onClick={(e) => handleMoreInfoClick(place, e)}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
-        ))}
-        <div style={dividerLine} />
-    </div>
-);
+            ))}
 
+            {/* 모달 렌더링 */}
+            {selectedPlace && (
+                <PlaceDetailModal
+                    place={selectedPlace}
+                    onClose={closeModal}
+                    anchorRef={anchorEl}
+                />
+            )}
+
+            <div style={dividerLine} />
+        </div>
+    );
+};
 
 export default DayScheduleItem;

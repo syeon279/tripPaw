@@ -125,7 +125,9 @@ function PayBatchPage() {
       withCredentials: true,
     }).then(res => {
       setTotalAmount(res.data.totalAmount);
+      console.log('res.data.totalAmount ', res.data.totalAmount);
       setPayList(res.data.payList);
+      console.log('res.data.payList : ', res.data.payList);
     }).catch(() => {
       alert('일괄 결제 정보 불러오기 실패');
     });
@@ -160,13 +162,13 @@ function PayBatchPage() {
       async (rsp) => {
         if (rsp.success) {
           try {
-            await axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}/verify`, 
-            { impUid: rsp.imp_uid }, 
-            { withCredentials: true });
+            await axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}/verify`,
+              { impUid: rsp.imp_uid },
+              { withCredentials: true });
 
             alert('일괄 결제가 완료되었습니다!');
             router.push({
-              pathname:'/pay/paygroup-success',
+              pathname: '/pay/paygroup-success',
               query: { memberTripPlanId: memberTripPlanId }
             });
           } catch (err) {
