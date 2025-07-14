@@ -5,7 +5,7 @@
 <mapper	namespace="com.ssdam.tripPaw.petpass.seal.SealMapper">
 	<!-- resultMap: PlaceType까지 포함 -->
     <resultMap id="SealWithPlaceTypeMap" type="Seal">
-        <id property="id" column="id"/>
+        <id property="id" column="seal_id"/>
         <result property="name" column="name"/>
         <result property="imageUrl" column="image_url"/>
         <association property="placeType" javaType="PlaceType">
@@ -13,6 +13,41 @@
             <result property="name" column="place_type_name"/>
         </association>
     </resultMap>
+    
+    <!-- tripPlanId 일치하는 seal 조회 -->
+    <select id="findSealsByTripPlanId" parameterType="long" resultMap="SealWithPlaceTypeMap">
+	    SELECT DISTINCT 
+	    	s.id AS seal_id,
+	        s.name,
+	        s.image_url,
+	        pt.id AS place_type_id,
+	        pt.name AS place_type_name
+	    FROM member_trip_plan tp
+	    JOIN reserv r ON r.member_trip_plan_id = tp.id
+	    JOIN place p ON r.place_id = p.id
+	    JOIN place_type pt ON p.place_type_id = pt.id
+	    JOIN seal s ON s.placetype_id = pt.id
+	    WHERE tp.id = #{memberTripPlanId}
+	</select>
+	
+	<!-- 이미 등록한 도장 제외 -->
+	<select id="findUnacquiredSealsByTripPlan"
+	        parameterType="map"
+	        resultMap="SealWithPlaceTypeMap">
+	    SELECT DISTINCT s.id AS seal_id,
+	                    s.name,
+	                    s.image_url,
+	                    pt.id AS place_type_id,
+	                    pt.name AS place_type_name
+	    FROM member_trip_plan tp
+	    JOIN reserv r ON r.member_trip_plan_id = tp.id
+	    JOIN place p ON r.place_id = p.id
+	    JOIN place_type pt ON p.place_type_id = pt.id
+	    JOIN seal s ON s.placetype_id = pt.id
+	    LEFT JOIN passport_seal ps ON ps.seal_id = s.id AND ps.passport_id = #{passportId}
+	    WHERE tp.id = #{memberTripPlanId}
+	      AND ps.seal_id IS NULL
+	</select>	
 
     <!-- 전체 도장 조회 -->
     <select id="findAll" resultMap="SealWithPlaceTypeMap">
@@ -56,5 +91,9 @@
     <delete id="delete" parameterType="long">
         DELETE FROM seal WHERE id = #{id}
     </delete>
+
+<select id="countSealsByName" resultType="int">
+  SELECT COUNT(*) FROM seal WHERE name = #{name}
+</select>    
     
 </mapper>

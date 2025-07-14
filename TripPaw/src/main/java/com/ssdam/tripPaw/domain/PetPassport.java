@@ -16,9 +16,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity @Getter @Setter @Table(name = "pet_passport")
+@Entity @Getter @Setter @Table(name = "pet_passport") @NoArgsConstructor
 public class PetPassport {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
