@@ -5,7 +5,7 @@ import CheckRoutineModal from '@/components/checklist/CheckRoutineModal';
 import { useState } from 'react';
 
 export async function getServerSideProps(context) {
-  const { memberTripPlanId } = context.query; 
+  const { memberTripPlanId } = context.query;
 
   try {
     const res = await axios.get(`http://localhost:8080/reserv/membertripplan/${memberTripPlanId}`);

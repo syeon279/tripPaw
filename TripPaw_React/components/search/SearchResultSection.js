@@ -114,7 +114,7 @@ const SearchResultSection = ({
 
             {/* 장소 결과 */}
             <div style={{ color: 'white', fontSize: '1.5em', marginTop: '20px' }}>
-                <h3>이런 장소는 어떠세요?</h3>
+                <h3 style={{ color: 'white' }}>이런 장소는 어떠세요?</h3>
                 <div>검색하신 키워드에 맞는 장소를 찾아왔어요!</div>
             </div>
 
@@ -188,7 +188,7 @@ const SearchResultSection = ({
 
             {/* 여행 결과 */}
             <div style={{ color: 'white', fontSize: '1.5em', marginTop: '20px' }}>
-                <h3>내 취향에 맞는 특별한 여행을 떠나봐요!</h3>
+                <h3 style={{ color: 'white' }}>내 취향에 맞는 특별한 여행을 떠나봐요!</h3>
                 <div>트립포우가 당신에게 딱 맞는 여행경로를 추천해 줄게요</div>
             </div>
 
@@ -252,7 +252,7 @@ const SearchResultSection = ({
                                         </p>
                                     </div>
                                     <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>
-                                        ✨ 트립포우 추천 여행 코스
+                                        {plan.authorNickname}의 추천 코스 ✨
                                     </p>
                                 </div>
                             </div>

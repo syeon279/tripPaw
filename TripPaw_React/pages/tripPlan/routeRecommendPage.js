@@ -6,6 +6,7 @@ import AppLayout from '../../components/AppLayout';
 import ActionButtons from '../../components/tripPlan/ActionButtons';
 import TitleModal from '../../components/tripPlan/TitleModal';
 import LoginFormModal from '../../components/member/LoginFormModal';
+import PetAssistantLoading from '../../components/pet/PetassistantLoading';
 import axios from 'axios';
 import { format } from 'date-fns';
 
@@ -19,6 +20,7 @@ const layoutStyle = {
         display: 'flex',
         justifyContent: 'center',
         width: '100%',
+        marginTop: '10px',
         marginBottom: '20px',
     },
     dividerLine: {
@@ -30,6 +32,8 @@ const layoutStyle = {
         height: '80%',
         justifyContent: 'center',
         margin: 'auto',
+        opacity: 0,
+        animation: 'fadeIn 0.6s ease forwards',
     },
     contentBox: {
         display: 'flex',
@@ -57,6 +61,14 @@ const layoutStyle = {
     },
 };
 
+// 💡 페이드인 애니메이션을 위한 CSS
+const fadeStyle = `
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+`;
+
 const RouteRecommendPage = () => {
     const router = useRouter();
     const mapRef = useRef(null);
@@ -73,6 +85,7 @@ const RouteRecommendPage = () => {
     const [memberId, setMemberId] = useState(null);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [pendingAction, setPendingAction] = useState(null);
+    const [isPageReady, setIsPageReady] = useState(false);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -85,9 +98,14 @@ const RouteRecommendPage = () => {
                     setMemberId(response.data.id);
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
+                if (error.response?.status === 401) {
+                    setIsLoggedIn(false);
+                } else {
+                    console.error("⚠️ 로그인 상태 확인 중 에러:", error);
+                }
             }
         };
+
         checkLoginStatus();
     }, [router.isReady, router.query]);
 
@@ -99,6 +117,24 @@ const RouteRecommendPage = () => {
             return null;
         }
     }, [router.query.req]);
+
+    useEffect(() => {
+        if (!router.query.data) {
+            alert("추천된 경로가 없습니다. 다시 시도해주세요.");
+            router.replace('/');
+            return;
+        }
+        try {
+            const parsed = JSON.parse(decodeURIComponent(router.query.data));
+            if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
+                alert("추천된 경로가 없습니다. 다른 조건으로 시도해주세요.");
+                router.replace('/');
+            }
+        } catch (e) {
+            alert("경로 데이터 파싱 실패. 다시 시도해주세요.");
+            router.replace('/');
+        }
+    }, [router.query.data]);
 
     useEffect(() => {
         if (requestData) {
@@ -128,13 +164,29 @@ const RouteRecommendPage = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (!routeData || !Array.isArray(routeData)) {
-        return <div>경로 데이터를 불러오는 중입니다...</div>;
-    }
+    useEffect(() => {
+        if (routeData && kakaoReady) {
+            setTimeout(() => setIsPageReady(true), 100);
+        }
+    }, [routeData, kakaoReady]);
 
-    const currentPlan = routeData.find((r) => r.day === currentDay);
-    if (!currentPlan || !kakaoReady) {
-        return <div>지도를 불러오는 중입니다...</div>;
+    const currentPlan = routeData?.find((r) => r.day === currentDay);
+
+    if (!isPageReady || !routeData || !currentPlan) {
+        return (
+            <>
+                <style>{fadeStyle}</style>
+                <div style={{
+                    position: 'fixed',
+                    bottom: '25%',      // 원하는 여백
+                    left: '40%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 9999
+                }}>
+                    <PetAssistantLoading reservState={!routeData ? 'FETCHING_DATA' : 'MAP_LOADING'} />
+                </div>
+            </>
+        );
     }
 
     const handlePlaceClick = (place, day) => {
@@ -160,7 +212,6 @@ const RouteRecommendPage = () => {
     const handleTripSave = async ({ title, startDate, endDate, countPeople, countPet, mapImage }, overrideMemberId) => {
         const effectiveMemberId = overrideMemberId || memberId;
         if (!effectiveMemberId) {
-            console.error('❌ memberId 누락: 저장 중단');
             alert('로그인 정보가 유실되었습니다. 다시 시도해주세요.');
             return;
         }
@@ -175,13 +226,11 @@ const RouteRecommendPage = () => {
                 mapImage,
                 memberId: effectiveMemberId,
             };
-            console.log('[저장 요청 데이터]', tripData);
             await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
             setShowModal(false);
             await router.push('/mypage/trips');
         } catch (error) {
-            console.error('저장 실패:', error);
             alert('저장 중 오류 발생');
         }
     };
@@ -207,7 +256,7 @@ const RouteRecommendPage = () => {
             const tripId = res.data?.tripId;
             if (tripId) {
                 router.push({
-                    pathname: `http://localhost:3000/tripPlan/tripPlanEdit/${tripId}`,
+                    pathname: `/tripPlan/tripPlanEdit/${tripId}`,
                     query: {
                         id: tripId,
                         startDate: requestData?.startDate,
@@ -220,7 +269,6 @@ const RouteRecommendPage = () => {
                 alert('여행 저장 후 이동 실패');
             }
         } catch (err) {
-            console.error('수정용 저장 실패:', err);
             alert('저장 실패');
         }
     };
@@ -246,16 +294,22 @@ const RouteRecommendPage = () => {
 
     return (
         <AppLayout>
+            <style>{fadeStyle}</style>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
-                <h1>강아지와 함께! 에너지 넘치는 파워 여행 루틴</h1>
-
-                {requestData?.startDate && requestData?.endDate && (
-                    <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
-                        {format(new Date(requestData.startDate), 'yyyy.MM.dd')} ~{' '}
-                        {format(new Date(requestData.endDate), 'yyyy.MM.dd')}
-                    </p>
-                )}
+                <div style={{ display: 'flex', alignItems: 'end' }}>
+                    <div style={{ marginRight: '10px' }}>
+                        <h1>TripPaw가 추천하는 맞춤 여행</h1>
+                    </div>
+                    <div style={{ marginBottom: '3px' }}>
+                        {requestData?.startDate && requestData?.endDate && (
+                            <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
+                                {format(new Date(requestData.startDate), 'yyyy.MM.dd')} ~{' '}
+                                {format(new Date(requestData.endDate), 'yyyy.MM.dd')}
+                            </p>
+                        )}
+                    </div>
+                </div>
                 <div>{countPeople}명 {countPet}견</div>
 
                 <div style={layoutStyle.divider}>
@@ -274,14 +328,15 @@ const RouteRecommendPage = () => {
                     </div>
 
                     <div style={layoutStyle.scheduleContainer}>
-                        <DayScheduleList
-                            id="scheduleContainer"
-                            routeData={routeData}
-                            currentDay={currentDay}
-                            onSelectDay={setCurrentDay}
-                            onPlaceClick={handlePlaceClick}
-                            setFocusDay={setFocusDay}
-                        />
+                        {routeData && (
+                            <DayScheduleList
+                                routeData={routeData}
+                                currentDay={currentDay}
+                                onSelectDay={setCurrentDay}
+                                onPlaceClick={handlePlaceClick}
+                                setFocusDay={setFocusDay}
+                            />
+                        )}
                         <ActionButtons
                             onSave={() => checkLoginAndProceed((id) => setShowModal(true))}
                             onEditforSave={() => checkLoginAndProceed(() => handleEditforSave())}

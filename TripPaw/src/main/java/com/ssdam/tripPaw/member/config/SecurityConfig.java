@@ -111,14 +111,14 @@ public class SecurityConfig {
 		//.defaultSuccessUrl("/member/login")
 		//.userInfoEndpoint()
 		//.userService(principalOauth2UserService)
-//		.oauth2Login(oauth2 -> oauth2
-//		            .successHandler(auth2LoginSuccessHandler) // 성공 핸들러 등록
-//		            .failureHandler(auth2LoginFailureHandler) // 실패 핸들러 등록
-//		            .userInfoEndpoint(
-//		            		userInfo -> userInfo
-//		            		.userService(principalOauth2UserService)
-//		            )
-//		            )
+		.oauth2Login(oauth2 -> oauth2
+		            .successHandler(auth2LoginSuccessHandler) // 성공 핸들러 등록
+		            .failureHandler(auth2LoginFailureHandler) // 실패 핸들러 등록
+		            .userInfoEndpoint(
+		            		userInfo -> userInfo
+		            		.userService(principalOauth2UserService)
+		            )
+		            )
 		//.loginPage("/api/auth/login/oauth2/code/kakao")
 		//.failureUrl("/member/login?error=true")
 			//.and()

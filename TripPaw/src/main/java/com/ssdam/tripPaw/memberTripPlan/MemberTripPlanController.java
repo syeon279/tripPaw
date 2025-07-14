@@ -98,6 +98,7 @@ public class MemberTripPlanController {
         dto.setCountPet(plan.getCountPet());
         dto.setMemberId(plan.getMember().getId());
         dto.setOriginalMemberId(originPlan.getMember().getId());
+        dto.setOriginalTripPlanId(plan.getTripPlan().getId());
         
 
         List<RouteDayDto> routeData = new ArrayList<>();

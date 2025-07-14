@@ -32,9 +32,14 @@ public interface MemberMapper {
 	int insertPoints(@Param("memberId") Long memberId, @Param("points") int points);
 
 	// 포인트 총합 조회
-	int getTotalPointsByMemberId(@Param("memberId") String memberId);
+	int getTotalPointsByMemberId(@Param("memberId") Long memberId);  
+	
+	// 닉네임으로 회원 조회
+	Member findByNickname(@Param("nickname") String nickname);
    
 
 	public int updateMember(Member member);
+
+	public int softDeleteMember(Long id, boolean status);
 
 }

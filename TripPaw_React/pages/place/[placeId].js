@@ -631,7 +631,6 @@ const PlaceReservCreatePage = () => {
                                 </div>
                               </div>
                               <div style={{ fontSize: 24 }}>
-                                {r.weatherCondition === '맑음' && <SunOutlined style={{ color: 'orange' }} />}
                                 {['흐림', '비', '눈', '구름많음', '맑음'].includes(r.weatherCondition) && (
                                   <img
                                     src={`/image/weather/${getWeatherImageFileName(r.weatherCondition)}`}
@@ -644,6 +643,22 @@ const PlaceReservCreatePage = () => {
                             </div>
 
                             <div style={{ marginTop: 12 }}>{r.content}</div>
+                            {r.reviewImages?.length > 0 && (
+                              <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                {r.reviewImages.map((img) => (
+                                  <img
+                                    key={img.id}
+                                    src={`http://localhost:8080/upload/reviews/${img.imageUrl}`}
+                                    alt={img.originalFileName}
+                                    style={{ width: 120, height: 120, borderRadius: 8, objectFit: 'cover', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = '/image/other/tempImage.jpg';
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )}
                             <Button
                               block
                               type={likeStates[r.id]?.liked ? 'primary' : 'default'}

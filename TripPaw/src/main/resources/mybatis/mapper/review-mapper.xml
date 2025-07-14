@@ -14,12 +14,22 @@
 		<association property="member"
 			javaType="com.ssdam.tripPaw.domain.Member">
 			<id property="id" column="member_id" />
+			<result property="nickname" column="nickname" />
 		</association>
 		<association property="reviewType"
 			javaType="com.ssdam.tripPaw.domain.ReviewType">
 			<id property="id" column="review_type_id" />
 			<result property="targetType" column="target_type"/>
 		</association>
+		<collection property="reviewImages"
+			ofType="com.ssdam.tripPaw.domain.ReviewImage"
+			javaType="java.util.ArrayList">
+			<id property="id" column="image_id" />
+			<result property="imageUrl" column="image_url" />
+			<result property="originalFileName"
+				column="original_file_name" />
+			<result property="uploadedAt" column="uploaded_at" />
+		</collection>
 	</resultMap>
 	<resultMap id="reviewWithPlaceMap"
 		type="com.ssdam.tripPaw.domain.Review">
@@ -90,43 +100,55 @@
 		r.rating,
 		r.weather_condition AS weatherCondition,
 		DATE_FORMAT(r.created_at, '%Y.%m.%d') AS createdAt,
-		rt.target_type AS reviewType,
+		rt.target_type AS
+		reviewType,
 
-		-- 제목
+		/* 제목 */
 		CASE
 		WHEN rt.target_type = 'PLAN' THEN tp.title
-		WHEN rt.target_type = 'PLACE' THEN p.name
+		WHEN
+		rt.target_type = 'PLACE' THEN p.name
 		ELSE NULL
 		END AS tripTitle,
 
-		-- PLAN 리뷰인 경우 여행 시작/종료일 가져오기
+		/* PLAN
+		리뷰인 경우 여행 시작/종료일 가져오기*/
 		CASE
-		WHEN rt.target_type = 'PLAN' THEN (SELECT MIN(res.start_date) FROM reserv
+		WHEN rt.target_type = 'PLAN' THEN (SELECT
+		MIN(res.start_date) FROM reserv
 		res WHERE res.trip_plan_id = tp.id)
 		ELSE NULL
 		END AS tripStartDate,
 
 		CASE
-		WHEN rt.target_type = 'PLAN' THEN (SELECT MAX(res.end_date) FROM reserv
-		res WHERE res.trip_plan_id = tp.id)
+		WHEN rt.target_type = 'PLAN' THEN
+		(SELECT MAX(res.end_date) FROM reserv
+		res WHERE res.trip_plan_id =
+		tp.id)
 		ELSE NULL
 		END AS tripEndDate,
 
-		-- 대표 이미지 1장
-		(SELECT ri.image_url FROM review_image ri WHERE ri.review_id = r.id LIMIT 1)
+		/* 대표 이미지 1장 */
+		(SELECT ri.image_url
+		FROM review_image ri WHERE ri.review_id = r.id LIMIT 1)
 		AS imageUrl,
 		(SELECT COUNT(*) FROM review_image ri WHERE ri.review_id = r.id) AS
 		imageCount,
 
-		-- 장소 정보 (PLACE일 경우만 유효)
+		/* 장소 정보 (PLACE일 경우만 유효)*/
 		p.name AS placeName,
-		p.image_url AS placeImageUrl
+		p.image_url
+		AS
+		placeImageUrl
 
 		FROM review r
-		JOIN review_type rt ON r.review_type_id = rt.id
-		LEFT JOIN trip_plan tp ON (rt.target_type = 'PLAN' AND r.target_id =
+		JOIN review_type rt ON r.review_type_id =
+		rt.id
+		LEFT JOIN trip_plan tp ON (rt.target_type = 'PLAN' AND
+		r.target_id =
 		tp.id)
-		LEFT JOIN place p ON (rt.target_type = 'PLACE' AND r.target_id = p.id)
+		LEFT JOIN place p ON (rt.target_type = 'PLACE' AND
+		r.target_id = p.id)
 		WHERE r.member_id = #{memberId}
 	</select>
 
@@ -143,31 +165,62 @@
 		DESC
 	</select>
 
-	<!-- 장소 리뷰 목록 -->
+	<!-- 장소 리뷰 목록 <select id="findByPlaceId" resultMap="reviewResultMap" parameterType="long"> 
+		SELECT r.*, m.nickname, ri.id AS image_id, ri.image_url, ri.original_file_name, 
+		ri.uploaded_at FROM review r JOIN member m ON r.member_id = m.id LEFT JOIN 
+		review_image ri ON ri.review_id = r.id WHERE r.review_type_id = 2 AND r.target_id 
+		= #{placeId} ORDER BY r.created_at DESC </select> -->
+
 	<select id="findByPlaceId" resultMap="reviewResultMap"
 		parameterType="long">
-		SELECT * FROM review
-		WHERE review_type_id = 2 AND
-		target_id = #{placeId}
-		ORDER BY created_at DESC
+		SELECT
+		r.id,
+		r.content,
+		r.rating,
+		r.weather_condition,
+		r.target_id,
+		r.created_at,
+		r.updated_at,
+		r.member_id,
+		r.review_type_id,
+
+		m.nickname AS nickname,
+
+		ri.id AS image_id,
+		ri.image_url,
+		ri.original_file_name,
+		ri.uploaded_at
+
+		FROM review r
+		JOIN member m ON r.member_id = m.id
+		LEFT JOIN review_image ri ON ri.review_id = r.id
+		WHERE r.review_type_id = 2 AND r.target_id = #{placeId}
+		ORDER BY r.id, ri.id
 	</select>
 
+
+
 	<!-- 여행플랜 리뷰 목록 -->
-	<select id="findByPlanId" resultType="com.ssdam.tripPaw.review.ReviewOnePlanDto">
-	    SELECT 
-	        r.id,
-	        r.content,
-	        r.rating,
-	        r.weather_condition AS weatherCondition,
-	        DATE_FORMAT(r.created_at, '%Y-%m-%d') AS createdAt,
-	        m.nickname AS memberNickname,
-	        -- 콤마로 이어진 이미지 리스트
-	        (SELECT GROUP_CONCAT(image_url) FROM review_image ri WHERE ri.review_id = r.id) AS imageUrls
-	    FROM review r
-	    JOIN member m ON r.member_id = m.id
-	    WHERE r.review_type_id = 1
-	      AND r.target_id = #{planId}
-	    ORDER BY r.created_at DESC
+	<select id="findByPlanId"
+		resultType="com.ssdam.tripPaw.review.ReviewOnePlanDto">
+		SELECT
+		r.id,
+		r.content,
+		r.rating,
+		r.weather_condition AS
+		weatherCondition,
+		DATE_FORMAT(r.created_at, '%Y-%m-%d') AS createdAt,
+		m.nickname AS memberNickname,
+		/* 콤마로 이어진 이미지 리스트 */
+		(SELECT
+		GROUP_CONCAT(image_url) FROM review_image ri WHERE ri.review_id =
+		r.id) AS imageUrls
+		FROM review r
+		JOIN member m ON r.member_id = m.id
+		WHERE r.review_type_id = 1
+		AND r.target_id = #{planId}
+		ORDER BY
+		r.created_at DESC
 	</select>
 
 	<!-- 모든 여행플랜 리뷰 목록 -->
@@ -302,6 +355,10 @@
 		GROUP BY r.id
 		ORDER BY likeCount DESC
 	</select>
+
+
+
+
 
 	<insert id="likeReview" parameterType="map">
 		INSERT IGNORE INTO
@@ -442,5 +499,4 @@
     SELECT 1 FROM passport_seal ps WHERE ps.review_id = r.id
   )
 </select>
-	
 </mapper>

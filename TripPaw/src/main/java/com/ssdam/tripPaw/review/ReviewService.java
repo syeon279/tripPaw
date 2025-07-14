@@ -70,19 +70,16 @@ public class ReviewService {
     private static final ObjectMapper mapper = new ObjectMapper();
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
 
-	private final String apiKey = "sk-...";
+	private final String apiKey = "sk-..";
 	
 	public List<Reserv> getReservListForTripPlanReview(Long tripPlanId, Long memberId) {
         return reservForReviewMapper.findByTripPlanIdAndMember(tripPlanId, memberId);
     }
 
 	public void saveReviewWithWeather(ReviewDto dto, List<MultipartFile> images) {
-	    // 1. 회원 객체 준비
 	    Member member = memberMapper.findById(dto.getMemberId());
 	    if (member == null) throw new RuntimeException("회원 정보를 찾을 수 없습니다.");
-	    //member.setId(dto.getMemberId());
 
-	    // 2. 리뷰타입 조회
 	    ReviewType reviewType = reviewTypeMapper.findById(dto.getReviewTypeId());
 	    if (reviewType == null) throw new RuntimeException("리뷰 타입 없음");
 
@@ -91,60 +88,52 @@ public class ReviewService {
 	    double lat, lon;
 
 	    if ("PLAN".equalsIgnoreCase(reviewType.getTargetType())) {
-	        TripPlan tripPlan = tripPlanMapper.findByIdWithCourses(targetId);
-	        if (tripPlan == null || tripPlan.getTripPlanCourses() == null || tripPlan.getTripPlanCourses().isEmpty()) {
+	        // PLAN 리뷰 처리
+	        Long tripPlanId = dto.getTargetId();
+	        Long memberId = dto.getMemberId();
+
+	        TripPlan tripPlan = tripPlanMapper.findByIdWithCourses(tripPlanId);
+	        if (tripPlan == null || tripPlan.getTripPlanCourses().isEmpty()) {
 	            throw new RuntimeException("트립플랜 정보 없음");
 	        }
 
 	        TripPlanCourse course = tripPlan.getTripPlanCourses().get(0);
-	        if (course.getRoute() == null || course.getRoute().getRoutePlaces() == null ||
-	            course.getRoute().getRoutePlaces().isEmpty()) {
-	            throw new RuntimeException("경로 정보 없음");
-	        }
-
 	        Place place = course.getRoute().getRoutePlaces().get(0).getPlace();
+
 	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
-	            throw new RuntimeException("경로에 연결된 장소 정보 부족 (위도/경도)");
+	            throw new RuntimeException("위치 정보 부족");
 	        }
 
 	        lat = parseCoordinate(place.getLatitude(), "위도");
 	        lon = parseCoordinate(place.getLongitude(), "경도");
-	        
-	        Reserv reserv = reservMapper.findByTripPlanId(targetId);
+
+	        // 예약 조회 (JOIN member_trip_plan)
+	        Reserv reserv = reservForReviewMapper.findReservByMemberAndTripPlan(tripPlanId, memberId);
 	        if (reserv == null) throw new RuntimeException("트립플랜에 연결된 예약 없음");
-	        date = reserv.getStartDate(); 
+
+	        date = reserv.getStartDate();
 
 	    } else if ("PLACE".equalsIgnoreCase(reviewType.getTargetType())) {
+	        // PLACE 리뷰 처리
 	        Reserv reserv = reservMapper.findByIdWithPlace(targetId);
 	        if (reserv == null) throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
 
-	        System.out.println("[DEBUG] 예약 start_date: " + reserv.getStartDate());
-
-	        // 1. 경로 기반 장소 리뷰인지 확인
-	        if (reserv.getMemberTripPlan().getTripPlan() != null) {
-	            System.out.println("[DEBUG] 경로 기반 장소 리뷰입니다.");
-	            // 필요시 추가 로직 삽입 가능
-	        } else {
-	            System.out.println("[DEBUG] 단독 장소 예약 리뷰입니다.");
-	        }
-
-	        // 2. 장소 정보 확인
 	        Place place = reserv.getPlace();
 	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
-	            throw new RuntimeException("예약에 연결된 장소 정보 부족");
-	        }
-	        
-	        int count = reservForReviewMapper.countByMemberAndPlace(member.getId(), place.getId());
-	        if (count == 0) {
-	            throw new RuntimeException("해당 장소에 대한 예약 이력이 없어 리뷰를 작성할 수 없습니다.");
+	            throw new RuntimeException("장소 정보 부족");
 	        }
 
-	        // 3. 좌표 및 날짜 추출
+	        // 예약 이력 확인
+	        int count = reservForReviewMapper.countByMemberAndPlace(member.getId(), place.getId());
+	        if (count == 0) {
+	            throw new RuntimeException("예약 이력이 없어 리뷰 작성 불가");
+	        }
+
 	        lat = parseCoordinate(place.getLatitude(), "위도");
 	        lon = parseCoordinate(place.getLongitude(), "경도");
 	        date = reserv.getStartDate();
 
-	        // 4. 리뷰 저장 시 장소 ID로 저장
+	        // 장소 ID를 최종 targetId로 사용
 	        targetId = place.getId();
 	    } else {
 	        throw new RuntimeException("알 수 없는 리뷰 타입입니다.");
@@ -152,7 +141,7 @@ public class ReviewService {
 
 	    String weather = weatherService.getWeather(date, lat, lon);
 
-	    // 5. Review 객체 생성 및 저장
+	    // 리뷰 저장
 	    Review review = new Review();
 	    review.setMember(member);
 	    review.setReviewType(reviewType);
@@ -163,11 +152,11 @@ public class ReviewService {
 	    review.setWeatherCondition(weather);
 
 	    reviewMapper.insertReview(review);
-	    
-	    // 6. 이미지 업로드
+
+	    // 이미지 저장
 	    if (images != null && !images.isEmpty()) {
 	        for (MultipartFile file : images) {
-	            String imageUrl = fileUploadService.upload(file); // 파일 저장 (로컬 or S3)
+	            String imageUrl = fileUploadService.upload(file);
 
 	            ReviewImage reviewImage = new ReviewImage();
 	            reviewImage.setReview(review);
@@ -178,9 +167,11 @@ public class ReviewService {
 	            reviewImageMapper.insertReviewImage(reviewImage);
 	        }
 	    }
-	    // 7. 뱃지 부여
+
+	    // 뱃지 처리
 	    this.evaluateAndGrantBadges(member.getId());
 	}
+
 	
 	public boolean existsReservationForMemberAndPlace(Long memberId, Long placeId) {
 	    return reservForReviewMapper.countByMemberAndPlace(memberId, placeId) > 0;
@@ -410,5 +401,4 @@ public class ReviewService {
  	public List<MyReviewDto> getReviewsWithPlaceTypeByMemberId(Long memberId){
  	    return reviewMapper.findReviewsWithPlaceTypeByMemberId(memberId);
  	}
-
 }
