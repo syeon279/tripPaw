@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 @Mapper
 public interface PlaceMapper {
@@ -23,16 +24,20 @@ public interface PlaceMapper {
     	    @Param("region") String region,
     	    @Param("categoryIds") List<Long> categoryIds
     	);
-
-    Place findFirstRandomPlace(@Param("region") String region, @Param("categoryIds") List<Long> categoryIds);
-
-    List<Place> findPlacesByTypeAndDistance(
+    
+    // 중복 제거
+    Place findFirstRandomPlaceExcluding(
+    	    @Param("region") String region,
+    	    @Param("excludedIds") List<Long> excludedIds
+    	);
+    
+    List<Place> findPlacesByTypeAndDistanceExcluding(
     	    @Param("placeType") int placeType,
     	    @Param("region") String region,
-    	    @Param("categoryIds") List<Long> categoryIds,
     	    @Param("baseLat") String baseLat,
     	    @Param("baseLng") String baseLng,
-    	    @Param("limit") int limit
+    	    @Param("limit") int limit,
+    	    @Param("excludedIds") List<Long> excludedIds
     	);
     
     // 업데이트
