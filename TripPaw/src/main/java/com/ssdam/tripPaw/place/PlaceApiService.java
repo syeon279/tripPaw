@@ -76,7 +76,7 @@ public class PlaceApiService {
 	}
 
 	public void fetchAndSavePetFriendlyPlaces() throws InterruptedException {
-		int[] areaCodes = { 1 };
+		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
 		// int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
 		String[] contentTypeIds = {"12", "14", "15", "25", "28", "32", "38", "39"};
 
@@ -104,7 +104,7 @@ public class PlaceApiService {
 					ResponseEntity<String> response = fetchWithRetry(uri, entity, 3);
 					String responseBody = response.getBody();
 
-					Thread.sleep(5000);
+					Thread.sleep(7000);
 
 					if (!isValidJson(responseBody)) {
 						System.out.println("⚠️ JSON 응답이 유효하지 않음");
@@ -174,7 +174,7 @@ public class PlaceApiService {
 		
 		
 		// detailCommon
-		Thread.sleep(2000);
+		Thread.sleep(5000);
 		try {
 			String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailCommon" 
 		+ "?serviceKey=" + key
@@ -215,7 +215,7 @@ public class PlaceApiService {
 		}
 
 		// detailIntro
-		Thread.sleep(3000);
+		Thread.sleep(5000);
 		try {
 			String introUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailIntro" 
 		+ "?serviceKey=" + key
@@ -437,7 +437,7 @@ public class PlaceApiService {
 		placeCategoryService.insertPlaceAndMapCategories(place);
 
 		// 이미지 처리
-		Thread.sleep(2000);
+		Thread.sleep(5000);
 		try {
 			String imageUrl = "https://apis.data.go.kr/B551011/KorService2/detailImage2" 
 								+ "?serviceKey=" + key

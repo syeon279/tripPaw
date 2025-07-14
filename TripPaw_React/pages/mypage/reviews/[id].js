@@ -12,20 +12,20 @@ const MyReviewPage = () => {
   if (!router.isReady) return null;
 
   return (
-    
-      <div style={{ display: 'flex', minHeight: '100vh' ,overflow: 'hidden' }}>
-        <Sidebar />
-        <div style={{ 
-            flex: 1, 
-            overflowY: 'auto',
-            padding: '24px',
-            background: '#f9f9f9', 
-            }}>
+    <MyPageLayout>
+      <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '24px',
+          //background: '#f9f9f9',
+        }}>
           <h2>내 리뷰 목록</h2>
           <MyReviewList memberId={id} />
         </div>
       </div>
-    
+    </MyPageLayout>
+
   );
 };
 

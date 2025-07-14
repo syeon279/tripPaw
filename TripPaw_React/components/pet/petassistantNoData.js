@@ -13,10 +13,9 @@ const waggleRotate = keyframes`
 `;
 
 const PetAssistantWrapper = styled.div`
-  //border: 2px solid red;
   position: fixed;
-  bottom: 50px; // 위치 조정 가능
-  left: 10%;
+  bottom: 200px;
+  left: 50%;
   transform: translateX(-50%);
   z-index: 999;
   display: flex;
@@ -24,7 +23,7 @@ const PetAssistantWrapper = styled.div`
   align-items: center;
   animation: ${({ animate }) =>
     animate ? css`${fadeInUp} 0.6s ease forwards` : 'none'};
-  gap: 15px;
+  gap: 12px;  // 너무 벌어지면 중앙 안 맞아보일 수 있어서 살짝 줄임
 `;
 
 const SpeechBubble = styled.div`

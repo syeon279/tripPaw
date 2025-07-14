@@ -1,6 +1,8 @@
 package com.ssdam.tripPaw.search;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -23,17 +25,22 @@ public class SearchService {
 
 	private final SearchMapper searchMapper;
 
-	public SearchResultDto search(String keyword) {
-		System.out.println("🔍 keyword: " + keyword);
+	public SearchResultDto search(String keyword, String region) {
+	    System.out.println("🔍 keyword: " + keyword + ", region: " + region);
 
-		List<Place> places = searchMapper.searchPlacesByKeyword(keyword);
-		List<TripPlan> tripPlans = searchMapper.searchTripPlansByKeyword(keyword);
+	    Map<String, Object> paramMap = new HashMap<>();
+	    paramMap.put("keyword", keyword);
+	    paramMap.put("region", region);
 
-		List<PlaceSearchDto> placeDtos = mapPlaceList(places);
-		List<TripPlanSearchDto> tripPlanDtos = mapTripPlanList(tripPlans);
+	    List<Place> places = searchMapper.searchPlacesByKeyword(paramMap);
+	    List<TripPlan> tripPlans = searchMapper.searchTripPlansByKeyword(keyword); // 여행은 keyword만
 
-		return new SearchResultDto(placeDtos, tripPlanDtos);
+	    List<PlaceSearchDto> placeDtos = mapPlaceList(places);
+	    List<TripPlanSearchDto> tripPlanDtos = mapTripPlanList(tripPlans);
+
+	    return new SearchResultDto(placeDtos, tripPlanDtos);
 	}
+
 
 	// 장소 검색
 	private List<PlaceSearchDto> mapPlaceList(List<Place> places) {
