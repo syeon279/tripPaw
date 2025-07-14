@@ -59,6 +59,13 @@ public interface ReviewMapper {
 
 	// 추천순
 	List<ReviewPlanDto> findAllPlanReviewsOrderByLikesDesc();
+	
+	// 장소리뷰 추천순
+	List<ReviewPlaceDto> findAllPlaceReviewsOrderByLikesDesc();
+	
+	// 특정 예약에 대한 리뷰 작성여부 확인
+	int countByMemberIdAndReservId(@Param("memberId") Long memberId, @Param("reservId") Long reservId);
+	
 	//도움이돼요
 	void likeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
 	void unlikeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);

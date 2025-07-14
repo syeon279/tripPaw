@@ -158,8 +158,8 @@ const ReviewList = () => {
                   style={{
                     marginTop: 12,
                     whiteSpace: "pre-wrap",
-                    wordBreak: "break-word", // <-- 이게 핵심!
-                    width: "100%",           // <-- 필요시 제한
+                    wordBreak: "break-word", 
+                    width: "100%",           
                   }}
                 >
                   {getContent(item)}
