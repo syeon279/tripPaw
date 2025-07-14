@@ -23,6 +23,20 @@ public class MemberCheckController {
 
 	private final MemberCheckService memberCheckService;
 	private final CheckRoutineMapper checkRoutineMapper;
+	
+	//복수선택 템플릿 하나의 루틴으로 묶고 일괄삽입
+	@PostMapping("/routine/from-templates")
+	public ResponseEntity<List<CheckRoutine>> createBothRoutines(@RequestBody RoutineTemplateRequest request) {
+	    List<CheckRoutine> created = memberCheckService.createRoutineForBothScopes(
+	        request.getMemberId(),
+	        request.getMemberTripPlanId(),
+	        request.getTemplateIds(),
+	        request.getTitle(),
+	        request.getIsSaved() // ✅ boolean flag 전달
+	    );
+	    return ResponseEntity.status(HttpStatus.CREATED).body(created);
+	}
+
 
     // 체크리스트 항목 추가
 	@PostMapping

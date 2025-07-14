@@ -7,6 +7,10 @@ import MypageActionButton from '../../components/tripPlan/MypageAcionButton';
 import TitleModal from '../../components/tripPlan/TitleModal';
 import axios from 'axios';
 import { format } from 'date-fns';
+import MypageLayout from '@/components/layout/MyPageLayout';
+import { Divider } from 'antd';
+import UserChecklistRoutineList from '@/components/checkUser/UserChecklistRoutineList';
+import TripChecklistRoutineList from '@/components/checkUser/TripChecklistRoutineList';
 
 const RouteMapNoSSR = dynamic(() => import('../../components/tripPlan/RouteMap'), {
     ssr: false,
@@ -25,10 +29,9 @@ const layoutStyle = {
         border: '1px solid rgba(170, 169, 169, 0.9)',
     },
     contentWrapper: {
-        width: '70%',
-        height: '80%',
+        height: '60%',
         justifyContent: 'center',
-        margin: 'auto',
+        padding:'0 10px'
     },
     contentBox: {
         display: 'flex',
@@ -211,18 +214,22 @@ const TripPlanDetail = () => {
     //이대로 예약하기 : 추가
 
     return (
+        <MypageLayout>
         <AppLayout>
-            <div style={layoutStyle.header} />
+            {/* <div style={layoutStyle.header} /> */}
             <div style={layoutStyle.contentWrapper}>
-                <h1>{title || '여행 상세 보기'}</h1>
+                <h1 style={{fontSize:'24px', fontWeight:'bold', color:'#653131'}}
+                >{title || '여행 상세 보기'}</h1>
 
+            <div style={{display:'flex', justifyContent:'flex-start'}}>
+                <p style={{borderRight:'1px solid #a9a9a9', paddingRight:'8px'}}>{countPeople}명 {countPet}견</p>
+                <div>
                 {startDate && endDate && (
-                    <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
+                    <p style={{ fontSize: '14px', color: '#555', paddingLeft:'8px'}}>
                         {format(new Date(startDate), 'yyyy.MM.dd')} ~ {format(new Date(endDate), 'yyyy.MM.dd')}
                     </p>
-                )}
-                <div>{countPeople}명 {countPet}견</div>
-
+                )}</div>
+            </div>
                 <div style={layoutStyle.divider}>
                     <div style={layoutStyle.dividerLine} />
                 </div>
@@ -261,7 +268,10 @@ const TripPlanDetail = () => {
                     </div>
                 </div>
             </div>
+        <Divider/>
+        <TripChecklistRoutineList memberId={originMemberId} memberTripPlanId={memberTripPlanId} />
         </AppLayout>
+        </MypageLayout>
     );
 };
 

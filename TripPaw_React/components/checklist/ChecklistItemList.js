@@ -8,26 +8,19 @@ const ChecklistItemList = ({ templateId }) => {
   useEffect(() => {
     const fetchItems = async () => {
       const data = await getTemplateWithItems(templateId);
-      
-      // case 1: 응답이 배열
-      if (Array.isArray(data)) {
-        setItems(data);
-      } 
-      // case 2: 응답이 객체 + items 필드
-      else if (data.items) {
-        setItems(data.items);
-      } else {
-        setItems([]); // fallback
-      }
+      if (Array.isArray(data)) {setItems(data);} 
+      else if (data.items) {setItems(data.items);} 
+      else {setItems([]); }
     };
 
     fetchItems();
   }, [templateId]);
 
   return (
-    <ul>
+    <ul style={{listStyle:'none', padding:'0 16px'}}>
       {items.map((item) => (
-        <li key={item.id}>- {item.content || item.name}</li>
+        <li style={{paddingBottom:'12px'}}
+         key={item.id}> {item.content || item.name}</li>
       ))}
     </ul>
   );
