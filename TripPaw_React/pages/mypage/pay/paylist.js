@@ -38,12 +38,12 @@ const stateMap = {
   REFUNDED: '환불 완료',
 };
 
-// groupId로 그룹화하는 함수
 function groupByGroupId(payments) {
   return payments.reduce((acc, pay) => {
-    const groupId = pay.groupId || 'single'; // groupId가 없으면 single로 처리
-    if (!acc[groupId]) acc[groupId] = [];
-    acc[groupId].push(pay);
+    const date = new Date(pay.createdAt);
+    const yearMonth = `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+    if (!acc[yearMonth]) acc[yearMonth] = [];
+    acc[yearMonth].push(pay);
     return acc;
   }, {});
 }
@@ -156,14 +156,14 @@ const PayList = () => {
 
           {Object.entries(groupedPayments).map(([groupId, pays]) => (
             <section key={groupId}>
-              <YearMonthTitle onClick={() => toggleSection(groupId)}>
-                <span>{groupId === '' ? '단일 결제' : `그룹 결제 (그룹 ID: ${groupId})`}</span>
+              <YearMonthTitle onClick={() => toggleSection(groupId)}>{groupId}
                 <ArrowIcon
                   style={{
                     transform: openedSections[groupId] ? 'rotate(90deg)' : 'rotate(0deg)',
                   }}
                 />
               </YearMonthTitle>
+              
 
               {openedSections[groupId] &&
                 pays.map((pay) => (
