@@ -5,6 +5,7 @@ import BadgeList from '@/components/badge/BadgeList';
 import BadgeForm from '@/components/badge/BadgeForm';
 import BadgeEditForm from '@/components/badge/BadgeEditForm';
 import { Button } from 'antd';
+import MypageLayout from '@/components/layout/MyPageLayout';
 
 const AdminBadgePage = () => {
   const [badges, setBadges] = useState([]);
@@ -25,41 +26,43 @@ const AdminBadgePage = () => {
   }, []);
 
   return (
-    <div style={{ padding: 32 }}>
-      <h2>뱃지 목록</h2>
-      <Button type="primary" onClick={() => setShowForm(true)} style={{ marginBottom: 24 }}>
-        뱃지 추가
-      </Button>
+    <MypageLayout>
+      <div style={{ padding: 32 }}>
+        <h2>뱃지 목록</h2>
+        <Button type="primary" onClick={() => setShowForm(true)} style={{ marginBottom: 24 }}>
+          뱃지 추가
+        </Button>
 
-      {showForm && (
-        <BadgeForm
-          onCancel={() => setShowForm(false)}
-          onSuccess={() => {
-            setShowForm(false);
-            fetchBadges();
-          }}
-        />
-      )}
+        {showForm && (
+          <BadgeForm
+            onCancel={() => setShowForm(false)}
+            onSuccess={() => {
+              setShowForm(false);
+              fetchBadges();
+            }}
+          />
+        )}
 
-      {editingBadge && (
-        <BadgeEditForm
-          badgeData={editingBadge}
-          onCancel={() => setEditingBadge(null)}
-          onSuccess={() => {
-            setEditingBadge(null);
-            fetchBadges();
-          }}
-        />
-      )}
+        {editingBadge && (
+          <BadgeEditForm
+            badgeData={editingBadge}
+            onCancel={() => setEditingBadge(null)}
+            onSuccess={() => {
+              setEditingBadge(null);
+              fetchBadges();
+            }}
+          />
+        )}
 
-      {!showForm && !editingBadge && (
-        <BadgeList
-          badges={badges}
-          onEdit={(badge) => setEditingBadge(badge)}
-          onDeleteSuccess={fetchBadges}
-        />
-      )}
-    </div>
+        {!showForm && !editingBadge && (
+          <BadgeList
+            badges={badges}
+            onEdit={(badge) => setEditingBadge(badge)}
+            onDeleteSuccess={fetchBadges}
+          />
+        )}
+      </div>
+    </MypageLayout>
   );
 };
 

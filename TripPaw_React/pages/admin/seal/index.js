@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchAllSeals, deleteSeal } from '@/api/sealApi';
 import SealTable from '@/components/seal/SealTable';
 import SealEditorModal from '@/components/seal/SealEditorModal';
-import MypageLayout from '@/components/layout/MyPageLayOut';
+import MypageLayout from '@/components/layout/MyPageLayout';
 
 const SealAdminPage = () => {
   const [seals, setSeals] = useState([]);
@@ -35,10 +35,11 @@ const SealAdminPage = () => {
   return (
     <MypageLayout>
       <div style={{padding:'2em'}}>
-      <h2>도장 관리</h2>
-      <button onClick={() => { setSelectedSeal(null); setShowModal(true); }}>
-        도장 추가
-      </button>
+      <div style={{display:'flex', justifyContent: 'space-between', borderBottom:'2px solid #653131', paddingBottom:'12px', marginBottom:'24px'  }}>
+        <h2 style={{ marginBottom: 16, fontSize:'24px', fontWeight:'bold', color:'#653131'}}>도장 관리</h2>
+        <button  style={{border:'none', backgroundColor:'#eee', fontWeight:'bold', padding:'0 18px', borderRadius:'5px'}} 
+        onClick={() => { setSelectedSeal(null); setShowModal(true); }}>도장 추가</button>
+      </div>
       <SealTable seals={seals} onEdit={handleEdit} onDelete={handleDelete} />
       {showModal && (
         <SealEditorModal

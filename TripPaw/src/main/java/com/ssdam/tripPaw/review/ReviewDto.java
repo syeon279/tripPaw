@@ -9,4 +9,5 @@ public class ReviewDto {
     private Long targetId;
     private String content;
     private int rating;
+    private Long reservId;
 }

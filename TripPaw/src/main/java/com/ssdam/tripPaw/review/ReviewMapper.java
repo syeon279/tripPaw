@@ -9,6 +9,7 @@ import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.ReviewType;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 
 @Mapper
 public interface ReviewMapper {
@@ -59,6 +60,13 @@ public interface ReviewMapper {
 
 	// 추천순
 	List<ReviewPlanDto> findAllPlanReviewsOrderByLikesDesc();
+	
+	// 장소리뷰 추천순
+	List<ReviewPlaceDto> findAllPlaceReviewsOrderByLikesDesc();
+	
+	// 특정 예약에 대한 리뷰 작성여부 확인
+	int countByMemberIdAndReservId(@Param("memberId") Long memberId, @Param("reservId") Long reservId);
+	
 	//도움이돼요
 	void likeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
 	void unlikeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
@@ -81,7 +89,8 @@ public interface ReviewMapper {
 	List<Reserv> findWithPlaceByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId,
             										@Param("memberId") Long memberId);
 	//여권 도장용 추가코드
-  List<Reserv> findReservWithoutReview(@Param("memberId") Long memberId);
-  List<MyReviewDto> findReviewsWithPlaceTypeByMemberId(Long memberId);
+	List<MemberTripPlanReviewDto> findTripPlansWithoutReview(@Param("memberId") Long memberId);
+	List<MyReviewDto> findReviewsWithPlaceTypeByMemberId(Long memberId);
+
 
 }

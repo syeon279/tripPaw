@@ -12,14 +12,35 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
       .then((res) => setReviews(res.data))
       .catch((err) => console.error('작성된 리뷰 조회 실패:', err));
 
-    axios.get(`/review/reservs-no-review/${memberId}`)
+    axios.get(`/review/tripplans-no-review/${memberId}`)
       .then((res) => setReservsNoReview(res.data))
-      .catch((err) => console.error('작성 안한 예약 조회 실패:', err));
+      .catch((err) => console.error('작성 안한 여행 조회 실패:', err));
   }, [memberId]);
 
-  const handleReviewSelect = (review) => {
-    setSelectedReview(review);
-  };
+const handleReviewSelect = (item) => {
+  let memberTripPlanId;
+
+  if (item.isUnwritten) {
+    memberTripPlanId = item?.reserv?.memberTripPlan?.id;
+
+    setSelectedReview({ ...item, id: reservId,  memberTripPlanId, });
+  } else {
+    // 작성된 리뷰 → 예약 안에 memberTripPlan 없는 경우 fallback 필요
+    memberTripPlanId = item?.reserv?.memberTripPlan?.id ?? item?.targetId;
+    const reviewId = item?.reviewId || item?.id;
+
+    setSelectedReview({
+      ...item,
+      id: reviewId, 
+      memberTripPlanId,
+    });
+  }
+};
+
+useEffect(() => {
+  console.log('선택된 리뷰:', selectedReview);
+  console.log('추출된 memberTripPlanId:', selectedReview?.memberTripPlanId);
+}, [selectedReview]);
 
   return (
     <>
@@ -39,7 +60,7 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
           height: 90vh;
           background: #fff;
           overflow-y: auto;
-          padding: 24px;
+          padding: 50px 60px;
           box-sizing: border-box;
           border-radius: 8px;
         }
@@ -56,45 +77,61 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
         }
       `}</style>
 
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <h3 style={{ marginBottom: '16px' }}>도장 연결할 리뷰 선택</h3>
+<div className="modal-overlay">
+  <div className="modal-content">
+    <h3 style={{ marginBottom: '16px' }}>도장 연결할 리뷰 선택</h3>
 
-          {[...reviews, ...reservsNoReview.map(r => ({ reserv: r, isUnwritten: true }))].map((item, index) => (
-            <div key={index} className="review-card">
-              {item.isUnwritten ? (
-                <>
-                  <p><strong>{item.reserv.tripPlan?.title || '제목 없음'}</strong> ({item.reserv.startDate} ~ {item.reserv.endDate})</p>
-                  <small>아직 리뷰가 작성되지 않았습니다</small><br />
-                  <button onClick={() => window.location.href = `/write-review?reservId=${item.reserv.id}`}>
-                    리뷰 작성하러 가기
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p><strong>{item.content}</strong></p>
-                  <p>날씨: {item.weatherCondition} / 평점: {item.rating}</p>
-                  <small>작성일: {item.createdAt}</small><br />
-                  <button onClick={() => handleReviewSelect(item)}>도장 연결</button>
-                </>
-              )}
-            </div>
-          ))}
+    {/* 작성된 리뷰 영역 */}
+    <section style={{ marginBottom: '32px' }}>
+      <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>선택 가능 항목</h4>
 
-          {selectedReview && (
-            <SealSelectorModal
-              passportId={passportId}
-              review={selectedReview}
-              onClose={() => setSelectedReview(null)}
-              onSaved={onSaved}
-            />
-          )}
+      {reviews.length === 0 && <p>작성된 리뷰가 없습니다.</p>}
 
-          <button onClick={onClose} style={{ marginTop: '24px' }}>닫기</button>
+      {reviews.map((item, index) => (
+        <div key={`review-${index}`} className="review-card">
+          <p><strong>{item.titleOverride || '제목 없음'}</strong></p>
+          <p>{item.content}</p>
+          <small>날씨: {item.weatherCondition} / 평점: {item.rating}</small><br />
+          <small>작성일: {item.createdAt}</small><br />
+          <button onClick={() => handleReviewSelect(item)} style={{ marginTop: '8px' }}>도장 연결</button>
         </div>
-      </div>
-    </>
-  );
+      ))}
+    </section>
+
+    {/* 작성되지 않은 리뷰 영역 */}
+    <section>
+      <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>아직 리뷰를 작성하지 않았어요!</h4>
+
+      {reservsNoReview.length === 0 && <p>모든 여행에 리뷰가 작성되었습니다.</p>}
+
+      {reservsNoReview.map((item, index) => (
+        <div key={`unwritten-${index}`} className="review-card">
+          <p><strong>{item.titleOverride || '여행명 없음'}</strong> ({item.startDate} ~ {item.endDate})</p>
+          <small style={{ display: 'block', marginBottom: '8px' }}>리뷰가 아직 없습니다.</small>
+          <button onClick={() => window.location.href = `/write-review?reservId=${item.id}`}>리뷰 작성하러 가기</button>
+        </div>
+      ))}
+    </section>
+
+    {/* SealSelectorModal */}
+    {selectedReview && (
+      <SealSelectorModal
+        passportId={passportId}
+        review={selectedReview}
+        memberTripPlanId={selectedReview?.memberTripPlanId}
+        onClose={() => setSelectedReview(null)}
+        onSaved={onSaved}
+      />
+    )}
+
+    <button onClick={onClose}
+      style={{ marginTop: '24px', display: 'block', border: '2px solid #000', fontWeight: 'bold', backgroundColor: '#fff', width: '100%', padding: '10px', borderRadius: '5px', fontSize: '16px', }}
+    > 닫기 </button>
+  </div>
+</div>
+    
+    
+</>);
 };
 
 export default ReviewSelectorModal;

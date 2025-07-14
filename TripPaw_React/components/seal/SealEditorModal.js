@@ -155,7 +155,7 @@ const SealEditorModal = ({ seal, onClose, onSaved }) => {
       <div className="modal-overlay">
 
         <div className="modal-content">
-          <div style={{display:'flex', justifyContent:'space-between', height:'22em', border:'1px solid red'}}>
+          <div style={{display:'flex', justifyContent:'space-between', height:'22em', }}>
 
             <div style={{width:'200px', marginRight:'15px'}}>
               <label>이미지 업로드</label>
