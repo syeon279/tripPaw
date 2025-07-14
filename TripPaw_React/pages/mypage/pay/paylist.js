@@ -147,6 +147,33 @@ const cancelPayment = async (pay) => {
   }
 };
 
+useEffect(() => {
+  if (payments.length === 0 || reservList.length === 0) return;
+
+  let changed = false;
+
+  const updatedPayments = payments.map((pay) => {
+    const relatedReserv = reservList.find(
+      (r) => r.memberTripPlan?.id === pay.groupId
+    );
+    
+    if (
+      relatedReserv &&
+      relatedReserv.state === 'CANCELLED' &&
+      pay.state !== 'CANCELLED'
+    ) {
+      changed = true;
+      return { ...pay, state: 'CANCELLED' };
+    }
+    return pay;
+  });
+
+  if (changed) {
+    setPayments(updatedPayments);
+  }
+  // payments 의존성 제거하여 무한루프 방지
+}, [reservList]);
+
   const refundPayment = async (pay) => {
     if (!window.confirm('정말 환불하시겠습니까?')) return;
     try {
@@ -211,7 +238,9 @@ const cancelPayment = async (pay) => {
       <div key={pay.id} className={styles.receipt}>
         <div className={styles.receiptHeader}>
           <div className={styles.headerLeft}>
-            <h2>{pay.reserv?.place?.name}</h2>
+            <h2>  {pay.groupId !== null
+            ? (reservList.find(r => r.memberTripPlan?.id == pay.groupId)?.memberTripPlan?.tripPlan?.title)
+            : (pay.reserv?.place?.name)}</h2>
           </div>
 
           <div className={styles.headerRight}>

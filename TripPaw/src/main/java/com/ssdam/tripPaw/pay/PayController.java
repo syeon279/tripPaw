@@ -175,30 +175,19 @@ public class PayController {
     public ResponseEntity<?> cancelPayment(@PathVariable Long id) {
         try {
             Pay pay = payService.findById(id);
-            if (pay == null) return ResponseEntity.notFound().build();
-
+            if (pay == null) {
+                return ResponseEntity.notFound().build();
+            }
             if (pay.getReserv().getState() != ReservState.CANCELLED) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("예약이 취소된 경우에만 결제 취소가 가능합니다.");
             }
-
-            payService.cancelSinglePayment(id);
-
-            return ResponseEntity.ok("결제 취소 완료");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("오류: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/group-cancel")
-    public ResponseEntity<?> cancelGroupPayment(@RequestBody Map<String, Object> body) {
-        try {
-            Long groupId = Long.valueOf(body.get("groupId").toString());
-
-            // 예약 상태는 이미 일괄 취소되어 있다고 가정
-            payService.cancelGroupPayment(groupId);
-
-            return ResponseEntity.ok("그룹 결제 취소 완료");
+            int updated = payService.updatePayState(id, PayState.CANCELLED);
+            if (updated > 0) {
+                return ResponseEntity.ok("결제 취소 완료");
+            } else {
+                return ResponseEntity.badRequest().body("결제 취소 실패");
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("오류: " + e.getMessage());
         }

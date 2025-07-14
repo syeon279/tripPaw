@@ -240,7 +240,18 @@
 	<select id="findByMemberTripPlanIdAndMember"
 		resultMap="ReservResultMap">
 		SELECT
-		r.*,
+		r.id AS id,
+		r.count_people,
+		r.count_pet,
+		r.created_at,
+		r.delete_at,
+		r.start_date,
+		r.end_date,
+		r.expire_at,
+		r.state,
+		r.original_price,
+		r.final_price,
+		r.member_id,
 		r.member_trip_plan_id AS member_trip_plan_id,
 		p.id
 		AS place_id,
@@ -250,8 +261,7 @@
 		longitude,
 		p.region AS region,
 		m.id AS member_id,
-		m.username AS
-		member_username
+		m.username AS member_username
 		FROM reserv r
 		JOIN place p ON r.place_id = p.id
 		JOIN

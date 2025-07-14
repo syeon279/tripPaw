@@ -177,24 +177,13 @@ public class PayService {
     
     /** 결제 삭제 */
     @Transactional
-    public void cancelSinglePayment(Long payId) {
-        Pay pay = payMapper.findById(payId);
+    public int softDelete(Long id) {
+        Pay pay = payMapper.findById(id);
         if (pay == null || pay.getDeleteAt() != null) {
-            throw new IllegalArgumentException("이미 취소되었거나 존재하지 않는 결제입니다.");
+            throw new IllegalArgumentException("이미 삭제되었거나 존재하지 않는 결제입니다.");
         }
-        if (pay.getReserv().getState() != ReservState.CANCELLED) {
-            throw new IllegalArgumentException("예약이 취소된 경우에만 결제 취소가 가능합니다.");
-        }
-        payMapper.softDelete(payId);
-    }
 
-    @Transactional
-    public void cancelGroupPayment(Long groupId) {
-        if (groupId == null) {
-            throw new IllegalArgumentException("groupId는 필수입니다.");
-        }
-        // 예약은 이미 일괄 취소 상태라고 가정
-        payMapper.softDeleteByGroupId(groupId);
+        return payMapper.softDelete(id);
     }
     
     public boolean refundPayment(String impUid) throws IamportResponseException, IOException {
