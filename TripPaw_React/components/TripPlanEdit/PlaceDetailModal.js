@@ -19,6 +19,7 @@ const modalStyleBase = {
 const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
     const modalRef = useRef(null);
     const [position, setPosition] = useState({ top: 100, left: 100 });
+    console.log('place:', place);
 
     const fallbackImage = useMemo(() => {
         const randomNum = Math.floor(Math.random() * 10) + 1;
