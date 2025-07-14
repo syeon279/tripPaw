@@ -59,4 +59,12 @@ public class Reserv {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberTripPlan_id", nullable = true)
     private MemberTripPlan memberTripPlan;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tripPlan_id", nullable = true)
+    private TripPlan tripPlan;
+    
+    public Long getTripPlanId() {
+        return tripPlan != null ? tripPlan.getId() : null;
+    }
 }
