@@ -327,6 +327,30 @@ const ReservList = () => {
     }
   }, [reservations]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await axios.get('http://localhost:8080/reserv', { withCredentials: true });
+      const memberRes = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+      const memberId = memberRes.data.id;
+
+      const enrichedReservs = await Promise.all(
+        res.data.map(async (reserv) => {
+          const checkRes = await axios.get('http://localhost:8080/review/reserv/review-check', {
+            params: { memberId, reservId: reserv.id }
+          });
+          return {
+            ...reserv,
+            canWriteReview: checkRes.data
+          };
+        })
+      );
+
+      setReservations(enrichedReservs);
+    };
+
+    fetchData();
+  }, []);
+
   const cancelSingleReserv = async (reservId) => {
     console.log("넘어온 예약 ID:", reservId);
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
@@ -524,21 +548,23 @@ const ReservList = () => {
                         {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
                           <>
                             <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
-                            <Button
-                              style={{ backgroundColor: 'green' }}
-                              onClick={() =>
-                                router.push({
-                                  pathname: '/review/write',
-                                  query: {
-                                    reservId: reserv.id,
-                                    reviewTypeId: 2,
-                                    placeName: reserv.place?.name || '',
-                                  },
-                                })
-                              }
-                            >
-                              리뷰쓰기
-                            </Button>
+                            {reserv.canWriteReview && (
+                              <Button
+                                style={{ backgroundColor: 'green' }}
+                                onClick={() =>
+                                  router.push({
+                                    pathname: '/review/write',
+                                    query: {
+                                      reservId: reserv.id,
+                                      reviewTypeId: 2,
+                                      placeName: reserv.place?.name || '',
+                                    },
+                                  })
+                                }
+                              >
+                                리뷰쓰기
+                              </Button>
+                            )}
                           </>
                         )}
                       </PlaceInfoRight>

@@ -106,11 +106,11 @@ const ReviewTripPlanDetail = () => {
         setIsLoggedIn(true);
         setMemberId(memberId);
 
-        const reservRes = await axios.get('http://localhost:8080/review/reserv/check-tripPlan', {
-          params: { memberId, tripPlanId: planId },
-        });
-
-        setCanWriteReview(reservRes.data === true);
+        // const reservRes = await axios.get('http://localhost:8080/review/reserv/check-tripPlan', {
+        //   params: { memberId, tripPlanId: planId },
+        // });
+        setCanWriteReview(true);
+        // setCanWriteReview(reservRes.data === true);
       } catch (err) {
         console.error('로그인 또는 예약 확인 실패:', err);
         setIsLoggedIn(false);
