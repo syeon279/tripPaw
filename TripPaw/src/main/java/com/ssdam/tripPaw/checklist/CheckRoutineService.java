@@ -26,10 +26,16 @@ public class CheckRoutineService {
     public List<CheckRoutine> getRoutinesByMemberId(Long memberId) {
         return checkRoutineMapper.selectRoutinesByMemberId(memberId);
     }
+    
+    //여행용 루틴 조회
+    public List<CheckRoutine> getRoutinesByTripPlan(Long memberId, Long tripPlanId) {
+        return checkRoutineMapper.selectRoutinesByTripPlanId(memberId, tripPlanId);
+    }
 
     // 루틴 수정
     public void updateRoutine(CheckRoutine checkRoutine) {
         checkRoutineMapper.updateCheckRoutine(checkRoutine);
+        System.out.println("🧪 수정 요청 isSaved: " + checkRoutine.getIsSaved());
     }
 
     // 루틴 삭제

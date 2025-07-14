@@ -43,6 +43,7 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.member.MemberMapper;
 import com.ssdam.tripPaw.member.MemberService;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
@@ -62,7 +63,6 @@ public class ReviewService {
     private final FileUploadService fileUploadService;
     private final ReviewImageMapper reviewImageMapper;
     private final MemberBadgeMapper badgeMapper;
-    private final MemberService memberService;
     private final MemberMapper memberMapper;
     private final ReservForReviewMapper reservForReviewMapper;
     
@@ -83,11 +83,13 @@ public class ReviewService {
 	    if (reviewType == null) throw new RuntimeException("리뷰 타입 없음");
 
 	    Long targetId = dto.getTargetId();
-	    LocalDate date;
-	    double lat, lon;
+	    LocalDate date = null;
+	    double lat = 0, lon = 0;
+	    String weather = "알 수 없음"; // 기본값
+	    Reserv reserv = null;
 
 	    if ("PLAN".equalsIgnoreCase(reviewType.getTargetType())) {
-	        // PLAN 리뷰 처리
+	        // PLAN 리뷰: 예약은 null, 날씨는 "알 수 없음"
 	        Long tripPlanId = dto.getTargetId();
 	        Long memberId = dto.getMemberId();
 
@@ -98,23 +100,16 @@ public class ReviewService {
 
 	        TripPlanCourse course = tripPlan.getTripPlanCourses().get(0);
 	        Place place = course.getRoute().getRoutePlaces().get(0).getPlace();
-
 	        if (place == null || isNullOrEmpty(place.getLatitude()) || isNullOrEmpty(place.getLongitude())) {
 	            throw new RuntimeException("위치 정보 부족");
 	        }
 
-	        lat = parseCoordinate(place.getLatitude(), "위도");
-	        lon = parseCoordinate(place.getLongitude(), "경도");
-
-	        // 예약 조회 (JOIN member_trip_plan)
-	        Reserv reserv = reservForReviewMapper.findReservByMemberAndTripPlan(tripPlanId, memberId);
-	        if (reserv == null) throw new RuntimeException("트립플랜에 연결된 예약 없음");
-
-	        date = reserv.getStartDate();
+	        reserv = null; // PLAN은 예약 없이 저장
+	        targetId = tripPlanId;
 
 	    } else if ("PLACE".equalsIgnoreCase(reviewType.getTargetType())) {
-	        // PLACE 리뷰 처리
-	        Reserv reserv = reservMapper.findByIdWithPlace(targetId);
+	        // PLACE 리뷰: 예약 정보 필요
+	        reserv = reservMapper.findByIdWithPlace(targetId);
 	        if (reserv == null) throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
 
 	        Place place = reserv.getPlace();
@@ -122,23 +117,20 @@ public class ReviewService {
 	            throw new RuntimeException("장소 정보 부족");
 	        }
 
-	        // 예약 이력 확인
 	        int count = reservForReviewMapper.countByMemberAndPlace(member.getId(), place.getId());
-	        if (count == 0) {
-	            throw new RuntimeException("예약 이력이 없어 리뷰 작성 불가");
-	        }
+	        if (count == 0) throw new RuntimeException("예약 이력이 없어 리뷰 작성 불가");
 
 	        lat = parseCoordinate(place.getLatitude(), "위도");
 	        lon = parseCoordinate(place.getLongitude(), "경도");
 	        date = reserv.getStartDate();
-
-	        // 장소 ID를 최종 targetId로 사용
 	        targetId = place.getId();
+
+	        // 날씨 조회
+	        weather = weatherService.getWeather(date, lat, lon);
+
 	    } else {
 	        throw new RuntimeException("알 수 없는 리뷰 타입입니다.");
 	    }
-
-	    String weather = weatherService.getWeather(date, lat, lon);
 
 	    // 리뷰 저장
 	    Review review = new Review();
@@ -149,6 +141,7 @@ public class ReviewService {
 	    review.setRating(dto.getRating());
 	    review.setCreatedAt(LocalDateTime.now());
 	    review.setWeatherCondition(weather);
+	    review.setReserv(reserv); // PLAN이면 null, PLACE면 예약객체
 
 	    reviewMapper.insertReview(review);
 
@@ -167,37 +160,26 @@ public class ReviewService {
 	        }
 	    }
 
-	    // 뱃지 처리
-	    this.evaluateAndGrantBadges(member.getId());
+	    this.evaluateAndGrantBadges(member.getId()); // 뱃지 처리
 	}
-
 	
 	public boolean existsReservationForMemberAndPlace(Long memberId, Long placeId) {
 	    return reservForReviewMapper.countByMemberAndPlace(memberId, placeId) > 0;
 	}
 
+	public boolean hasReviewForReserv(Long memberId, Long reservId) {
+	    return reviewMapper.countByMemberIdAndReservId(memberId, reservId) > 0;
+	}
 
 	public String getWeatherCondition(String type, Long targetId) {
+	    if ("PLAN".equalsIgnoreCase(type)) {
+	        return "알 수 없음";
+	    }
+
 	    LocalDate date;
 	    double lat, lon;
 
-	    if ("PLAN".equalsIgnoreCase(type)) {
-	        TripPlan tripPlan = tripPlanMapper.findByIdWithCourses(targetId);
-	        if (tripPlan == null || tripPlan.getTripPlanCourses().isEmpty()) {
-	            throw new RuntimeException("트립플랜 정보 없음");
-	        }
-
-	        TripPlanCourse course = tripPlan.getTripPlanCourses().get(0);
-	        Place place = course.getRoute().getRoutePlaces().get(0).getPlace();
-
-	        Reserv reserv = reservMapper.findByTripPlanId(targetId);
-	        if (reserv == null) throw new RuntimeException("예약 정보 없음");
-
-	        date = reserv.getStartDate();
-	        lat = parseCoordinate(place.getLatitude(), "위도");
-	        lon = parseCoordinate(place.getLongitude(), "경도");
-
-	    } else if ("PLACE".equalsIgnoreCase(type)) {
+	    if ("PLACE".equalsIgnoreCase(type)) {
 	        Reserv reserv = reservMapper.findByIdWithPlace(targetId);
 	        if (reserv == null) throw new RuntimeException("예약 정보 없음");
 
@@ -206,12 +188,14 @@ public class ReviewService {
 	        lat = parseCoordinate(place.getLatitude(), "위도");
 	        lon = parseCoordinate(place.getLongitude(), "경도");
 
-	    } else {
-	        throw new RuntimeException("알 수 없는 타입");
+	        return weatherService.getWeather(date, lat, lon);
 	    }
 
-	    return weatherService.getWeather(date, lat, lon);
+	    throw new RuntimeException("알 수 없는 타입");
 	}
+
+
+
 
 
 	// 문자열이 null이거나 빈 문자열인지 확인
@@ -268,6 +252,13 @@ public class ReviewService {
             default:
                 return reviewMapper.findAllPlanReviewsOrderByCreatedAtDesc();
         }
+    }
+    
+    public List<ReviewPlanDto> getRecommendedPlanReviews() {
+        return reviewMapper.findAllPlanReviewsOrderByLikesDesc();
+    }
+    public List<ReviewPlaceDto> getRecommendedPlaceReviews() {
+        return reviewMapper.findAllPlaceReviewsOrderByLikesDesc();
     }
 
     //리뷰수정
@@ -391,19 +382,13 @@ public class ReviewService {
  	public List<Badge> getBadgesByMemberId(Long memberId) {
         return badgeMapper.findBadgesByMemberId(memberId);
     }
- 	/*
+ 	
  	//여권 도장용 추가코드
- 	public List<Reserv> getReservsWithoutReview(Long memberId){
- 		List<Reserv> list = reviewMapper.findReservWithoutReview(memberId);
- 		for (Reserv r : list) {
- 		    System.out.println("Reserv ID..........: " + r.getId());
- 		    System.out.println("Trip Title..........: " + 
- 		        (r.getMemberTripPlan() != null ? r.getMemberTripPlan().getTitleOverride() : "null"));
- 		}
- 		return reviewMapper.findReservWithoutReview(memberId);
+ 	public List<MemberTripPlanReviewDto> getTripPlansWithoutReview(Long memberId){
+ 		return reviewMapper.findTripPlansWithoutReview(memberId);
  	}
+ 	
  	public List<MyReviewDto> getReviewsWithPlaceTypeByMemberId(Long memberId){
  	    return reviewMapper.findReviewsWithPlaceTypeByMemberId(memberId);
  	}
-	*/
 }

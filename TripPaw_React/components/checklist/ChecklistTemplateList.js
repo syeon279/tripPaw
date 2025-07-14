@@ -10,7 +10,7 @@ const ChecklistTemplateList = ({ isAdmin }) => {
   const [templates, setTemplates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
 
   const fetchTemplates = async () => {
     setLoading(true);
@@ -45,33 +45,29 @@ const ChecklistTemplateList = ({ isAdmin }) => {
   }, []);
 
   return (
-    <>
-      <div style={{ marginBottom: 16, display:'flex', justifyContent: 'space-between' }}>
-        <h3>체크리스트 템플릿</h3>
-        <Button type="primary" onClick={() => setModalVisible(true)}>템플릿 생성</Button>
+    <div style={{padding:'10px'}}>
+      <div style={{display:'flex', justifyContent: 'space-between', borderBottom:'2px solid #653131', paddingBottom:'12px', marginBottom:'24px'  }}>
+        <h3 style={{ marginBottom: 16, fontSize:'24px', fontWeight:'bold', color:'#653131'}}>체크리스트 템플릿</h3>
+        <Button  style={{border:'none', backgroundColor:'#eee', fontWeight:'bold'}}
+        onClick={() => setModalVisible(true)}>템플릿 생성</Button>
       </div>
 
-      <Collapse accordion>
+      <Collapse accordion style={{ background: 'transparent', border: 'none', padding:'0 16px' }}>
         {templates.map((template) => (
-          <Collapse.Panel header={template.title} key={template.id}>
+          <Collapse.Panel style={{border:'none'}}  key={template.id}
+           header={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight:'bold', fontSize:'16px'}}>
+              <div>{template.title}</div>
+              <TemplateActionButtons template={template} onEdit={setEditingTemplate} onOpenModal={() => setModalVisible(true)} onDelete={handleDelete} />
+            </div>
+            } >  
             <ChecklistItemList templateId={template.id} isAdmin={isAdmin} />
-
-              <TemplateActionButtons
-                template={template}
-                onEdit={setEditingTemplate}
-                onOpenModal={() => setModalVisible(true)}
-                onDelete={handleDelete}
-              />
           </Collapse.Panel>
         ))}
       </Collapse>
 
-      <ChecklistTemplateModal
-        visible={modalVisible}
-        onClose={handleModalClose}
-        editingTemplate={editingTemplate}
-      />
-    </>
+      <ChecklistTemplateModal visible={modalVisible} onClose={handleModalClose} editingTemplate={editingTemplate} />
+    </div>
   );
 };
 

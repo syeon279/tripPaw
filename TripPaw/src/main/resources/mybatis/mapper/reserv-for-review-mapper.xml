@@ -81,9 +81,14 @@
 		SELECT COUNT(*)
 		FROM reserv
 		WHERE member_id = #{memberId}
-		AND trip_plan_id =
-		#{tripPlanId}
-		AND delete_at IS NULL
+		AND reserv_id IN (
+		SELECT
+		reserv_id
+		FROM member_trip_plan
+		WHERE trip_plan_id = #{tripPlanId}
+		)
+		AND
+		delete_at IS NULL
 		AND state = 'CONFIRMED'
 	</select>
 
@@ -155,11 +160,23 @@
 		SELECT r.*
 		FROM reserv r
 		JOIN member_trip_plan mtp ON
-		r.member_id = mtp.member_id
+		r.member_trip_plan_id = mtp.id
 		WHERE mtp.trip_plan_id = #{tripPlanId}
-		AND
-		r.member_id = #{memberId}
+		AND mtp.member_id = #{memberId}
+		AND r.delete_at IS NULL
+		AND r.state =
+		'CONFIRMED'
 		ORDER BY r.start_date ASC
+		LIMIT 1
+	</select>
+
+	<select id="findByTripPlanId" parameterType="long"
+		resultMap="ReservResultMap">
+		SELECT *
+		FROM reserv
+		WHERE trip_plan_id = #{tripPlanId}
+		AND delete_at IS NULL
+		ORDER BY start_date ASC
 		LIMIT 1
 	</select>
 
