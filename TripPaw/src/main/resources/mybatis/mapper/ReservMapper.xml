@@ -116,10 +116,10 @@
 	    m.id AS member_id,
 	    m.username AS member_username,
 	    mtp.id AS member_trip_plan_id,
-	    mtp.start_date AS mtp_start_date,
-	    mtp.end_date AS mtp_end_date,
-	    mtp.count_people AS mtp_count_people,
-	    mtp.count_pet AS mtp_count_pet,
+	    mtp.start_date AS start_date,
+	    mtp.end_date AS end_date,
+	    mtp.count_people AS count_people,
+	    mtp.count_pet AS count_pet,
 	    tp.id AS trip_plan_id,
 	    tp.title AS trip_plan_title
 	  FROM reserv r
@@ -128,7 +128,6 @@
 	  LEFT JOIN member_trip_plan mtp ON r.member_trip_plan_id = mtp.id
 	  LEFT JOIN trip_plan tp ON mtp.trip_plan_id = tp.id
 	  WHERE r.member_id = #{memberId}
-	  AND r.delete_at IS NULL
 	  ORDER BY r.created_at DESC
 	</select>
 

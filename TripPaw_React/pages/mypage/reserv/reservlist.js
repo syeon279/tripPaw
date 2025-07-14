@@ -551,22 +551,34 @@ const ReservList = () => {
                   <div>{reserv.place?.region}</div>
                 </PlaceInfoLeft>
                 <PlaceInfoRight>
-                  {reserv.state === 'WAITING' && (
-                    <>
-                      <Button onClick={async () => {
-                        try {
+                      {reserv.state === 'WAITING' && (
+                          <>
+                        <Button onClick={async () => {
+                        if (reserv.memberTripPlan.id !== null) {
+                          try {
                           router.push({
-                            pathname: '/pay/paybatch',
-                            query: { memberTripPlanId: reserv.memberTripPlan.id }
-                          });
-                        } catch (err) {
+                          pathname: '/pay/paybatch',
+                          query: { memberTripPlanId: reserv.memberTripPlan.id }
+                        });
+                          } catch (err) {
                           alert('자동 예약 처리 중 오류가 발생했습니다.');
                           console.error(err);
+                          }
+                        } else {
+                          goToPayPage(reserv);
                         }
                       }}>결제하기</Button>
                       <Button
                         danger
-                        onClick={() => cancelTripPlanReservs(reserv.memberTripPlan.id)}
+                        onClick={() => {
+                          if (
+                            reserv.memberTripPlan.id !== null
+                          ) {
+                            cancelTripPlanReservs(reserv.memberTripPlan.id);
+                          } else {
+                            cancelSingleReserv(reserv.id);
+                          }
+                        }}
                       >
                         예약 취소
                       </Button>
