@@ -88,15 +88,14 @@ function SignForm({ onToggleForm }) {
   chetGPT();
 },[]) 
 const nicknameIndex = useRef(0);
+
 const onRecommendNickname = () => {
    // 닉네임 배열이 비어있으면 아무것도 하지 않음
     if (aiNicknames.length === 0) return;
 
     // 현재 인덱스의 닉네임을 설정
-    setRecommendNickname(aiNicknames[nicknameIndex.current]);
+    setChangeNickname(aiNicknames[nicknameIndex.current]);
 
-    // 다음 인덱스를 계산 (배열 길이를 넘어가면 다시 0으로)
-    // '%' (나머지 연산자)를 사용하면 코드가 간결해집니다.
     nicknameIndex.current = (nicknameIndex.current + 1) % aiNicknames.length;
     
     console.log('다음 인덱스:', nicknameIndex.current);
@@ -322,7 +321,7 @@ const onRecommendNickname = () => {
   const [namujiAddress, setNamujiAddress] = useState('');
   const onChangeNamujiAddress = useCallback((e) => {
     setNamujiAddress(e.target.value);
-  })
+  },[])
   const open = useDaumPostcodePopup();
   const handleComplete = (data) => {
     let fullAddress = data.address;
@@ -398,7 +397,7 @@ const onRecommendNickname = () => {
     //   data:{ username, phoneNum, email, password, nickname  }
     // }); 
     // 5. dispatch ###
-  }, [username, phoneNum, email, password, passwordRe, nickname]);
+  }, [username, phoneNum, email, password, passwordRe, nickname,zonecode,roadAddress,namujiAddress]);
   const [nextNum, setNextNum] = useState(0);
   let index = 0;
   // const onRecommendNickname = () => {
@@ -434,14 +433,16 @@ const onRecommendNickname = () => {
                 value={username} onChange={onChangeUsername} name='username' required />
             </Form.Item>
             <Form.Item>
+              <div style={{ display: 'flex' }}>
               <label htmlFor='nickname'></label>
               {/* <UnderlineInput placeholder='닉네임' id='nickname'
                 value={nickname} onChange={onChangeNickname} name='nickname' required /> */}
               {/* <UnderlineInput placeholder='닉네임' id='nickname'
                 value={nickname} onChange={onRecommendNickname} name='nickname' required /> */}
                  <UnderlineInput placeholder='닉네임 추천' id='nickname'
-                  value={recommendNickname}  name='nickname' readOnly />
-                <Button onClick={onRecommendNickname} style={{ backgroundColor: 'black', color: 'white' }}>닉네임 추천</Button>
+                  value={nickname}  name='nickname' readOnly />
+                <Button onClick={onRecommendNickname} style={{ backgroundColor: 'black', color: 'white' }}>닉네임추천</Button>
+              </div>
             </Form.Item>
             <Form.Item>
               <label htmlFor='password'></label>
