@@ -47,9 +47,14 @@
 		keyProperty="id">
 		INSERT INTO review (member_id, content, rating,
 		created_at, updated_at,
-		review_type_id, target_id, weather_condition)
-		VALUES (#{member.id}, #{content}, #{rating}, #{createdAt}, NOW(),
-		#{reviewType.id}, #{targetId}, #{weatherCondition})
+		review_type_id, target_id, weather_condition,
+		reserv_id)
+		VALUES (
+		#{member.id}, #{content}, #{rating},
+		#{createdAt}, NOW(),
+		#{reviewType.id}, #{targetId},
+		#{weatherCondition}, #{reserv.id}
+		)
 	</insert>
 
 	<update id="updateReview">
@@ -111,43 +116,33 @@
 		ELSE NULL
 		END AS tripTitle,
 
-		/* PLAN
-		리뷰인 경우 여행 시작/종료일 가져오기*/
-		CASE
-		WHEN rt.target_type = 'PLAN' THEN (SELECT
-		MIN(res.start_date) FROM reserv
-		res WHERE res.trip_plan_id = tp.id)
-		ELSE NULL
-		END AS tripStartDate,
-
-		CASE
-		WHEN rt.target_type = 'PLAN' THEN
-		(SELECT MAX(res.end_date) FROM reserv
-		res WHERE res.trip_plan_id =
-		tp.id)
-		ELSE NULL
-		END AS tripEndDate,
-
-		/* 대표 이미지 1장 */
+		/* 대표
+		이미지 1장 */
 		(SELECT ri.image_url
-		FROM review_image ri WHERE ri.review_id = r.id LIMIT 1)
+		FROM review_image ri WHERE ri.review_id =
+		r.id LIMIT 1)
 		AS imageUrl,
-		(SELECT COUNT(*) FROM review_image ri WHERE ri.review_id = r.id) AS
+		(SELECT COUNT(*) FROM review_image ri WHERE
+		ri.review_id = r.id) AS
 		imageCount,
 
 		/* 장소 정보 (PLACE일 경우만 유효)*/
-		p.name AS placeName,
+		p.name AS
+		placeName,
 		p.image_url
 		AS
 		placeImageUrl
 
 		FROM review r
-		JOIN review_type rt ON r.review_type_id =
+		JOIN review_type rt
+		ON r.review_type_id =
 		rt.id
-		LEFT JOIN trip_plan tp ON (rt.target_type = 'PLAN' AND
+		LEFT JOIN trip_plan tp ON (rt.target_type =
+		'PLAN' AND
 		r.target_id =
 		tp.id)
-		LEFT JOIN place p ON (rt.target_type = 'PLACE' AND
+		LEFT JOIN place p ON (rt.target_type =
+		'PLACE' AND
 		r.target_id = p.id)
 		WHERE r.member_id = #{memberId}
 	</select>
@@ -192,10 +187,12 @@
 		ri.uploaded_at
 
 		FROM review r
-		JOIN member m ON r.member_id = m.id
+		JOIN member m ON
+		r.member_id = m.id
 		LEFT JOIN review_image ri ON ri.review_id = r.id
 		WHERE r.review_type_id = 2 AND r.target_id = #{placeId}
-		ORDER BY r.id, ri.id
+		ORDER BY r.id,
+		ri.id
 	</select>
 
 
@@ -356,9 +353,42 @@
 		ORDER BY likeCount DESC
 	</select>
 
+	<select id="findAllPlaceReviewsOrderByLikesDesc"
+		resultType="com.ssdam.tripPaw.review.ReviewPlaceDto">
+		SELECT
+		r.id AS reviewId,
+		r.content,
+		r.rating,
+		r.weather_condition AS weatherCondition,
+		m.nickname AS memberNickname,
+		p.name AS placeName,
+		p.id AS placeId,
+		(
+		SELECT COUNT(*) FROM
+		member_likes_review ml WHERE ml.review_id = r.id
+		) AS likeCount,
+		(
+		SELECT GROUP_CONCAT(ri.image_url) FROM review_image ri WHERE
+		ri.review_id =
+		r.id
+		) AS imageUrls
+		FROM review r
+		JOIN member m ON
+		r.member_id = m.id
+		LEFT JOIN reserv rs ON rs.id = r.reserv_id
+		LEFT JOIN
+		place p ON
+		(rs.place_id = p.id OR r.target_id = p.id)
+		WHERE
+		r.review_type_id = 2
+		ORDER BY likeCount DESC, r.created_at DESC
+	</select>
 
-
-
+	<select id="countByMemberIdAndReservId" resultType="int">
+		SELECT COUNT(*) FROM review
+		WHERE member_id = #{memberId}
+		AND reserv_id = #{reservId}
+	</select>
 
 	<insert id="likeReview" parameterType="map">
 		INSERT IGNORE INTO
@@ -429,7 +459,8 @@
 		likeCount DESC
 		LIMIT 5
 	</select>
-	
+
+
 	<!-- 추가 도장 추가 시 사용할 작성안한 리뷰 조회 -->
 <resultMap id="tripPlanReviewDtoMap" type="com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto">
   <result property="memberTripPlanId" column="member_trip_plan_id"/>

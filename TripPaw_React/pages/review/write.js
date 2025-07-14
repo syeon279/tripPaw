@@ -112,6 +112,7 @@ const ReviewForm = () => {
       targetId,
       content,
       rating,
+      reservId
     };
 
     formData.append('review', JSON.stringify(reviewDto));
@@ -163,7 +164,7 @@ const ReviewForm = () => {
 
     // ✅ formData 정의 추가
     const formData = new FormData();
-    formData.append('review', new Blob([JSON.stringify(reviewDto)], { type: 'application/json' }));
+    formData.append('review', JSON.stringify(reviewDto));
     fileList.forEach((file) => {
       formData.append('images', file.originFileObj);
     });

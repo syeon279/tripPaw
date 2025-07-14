@@ -77,6 +77,14 @@ public class ReviewController {
         return ResponseEntity.ok(exists);
     }
     
+    @GetMapping("/reserv/review-check")
+    public ResponseEntity<Boolean> canWriteReview(
+            @RequestParam Long memberId,
+            @RequestParam Long reservId) {
+        boolean exists = reviewService.hasReviewForReserv(memberId, reservId);
+        return ResponseEntity.ok(!exists); // 작성 안했으면 true 반환
+    }
+    
     @GetMapping("/reserv/place")
     public ResponseEntity<Long> getReservIdByMemberAndPlace(
         @RequestParam Long memberId,
@@ -139,6 +147,17 @@ public class ReviewController {
         return ResponseEntity.ok("리뷰가 수정되었습니다.");
     }
 
+    //관리자페이지 리뷰
+    @GetMapping("/admin/plan")
+    public ResponseEntity<List<ReviewPlanDto>> getPlanReviews() {
+        return ResponseEntity.ok(reviewService.getRecommendedPlanReviews());
+    }
+
+    @GetMapping("/admin/place")
+    public ResponseEntity<List<ReviewPlaceDto>> getPlaceReviews() {
+        return ResponseEntity.ok(reviewService.getRecommendedPlaceReviews());
+    }
+    
     
     // 단일리뷰조회
     @GetMapping("/{id}")

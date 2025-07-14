@@ -598,7 +598,8 @@ const PlaceReservCreatePage = () => {
                                   router.push({
                                     pathname: '/review/write',
                                     query: {
-                                      reservId,              // 예약 ID
+                                      targetId: reservId,               // 예약 ID
+                                      reservId,
                                       reviewTypeId: 2,       // 장소 리뷰
                                       placeName: place.name,
                                     },
