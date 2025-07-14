@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?> 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
@@ -15,6 +15,7 @@
     <result property="txHash" column="tx_hash" />
     <result property="issuedAt" column="issued_at" />
     <result property="usedAt" column="used_at" />
+    <result property="deletedAt" column="deleted_at" />  <!-- soft delete 필드 추가 -->
 
     <association property="nftMetadata" javaType="com.ssdam.tripPaw.domain.NftMetadata">
       <id property="id" column="nft_metadata_id" />
@@ -29,24 +30,26 @@
     </association>
   </resultMap>
 
-  <!-- 멤버 ID로 NFT 리스트 조회 -->
+  <!-- 멤버 ID로 NFT 리스트 조회 (deleted_at IS NULL 필터 추가) -->
   <select id="findByMemberId" resultMap="MemberNftResultMap" parameterType="long">
     SELECT 
       mn.*, nm.title, nm.image_url, nm.point_value,
-      m.nickname  <!-- 멤버 닉네임 추가 -->
+      m.nickname
     FROM member_nft mn
     JOIN nft_metadata nm ON mn.nft_metadata_id = nm.id
-    JOIN member m ON mn.member_id = m.id   <!-- member 테이블 조인 추가 -->
+    JOIN member m ON mn.member_id = m.id
     WHERE mn.member_id = #{memberId}
+      AND mn.deleted_at IS NULL
   </select>
 
-  <!-- NFT 단건 조회 (사용 시 필요한 정보) -->
+  <!-- NFT 단건 조회 (deleted_at IS NULL 필터 추가) -->
   <select id="findById" resultMap="MemberNftResultMap" parameterType="long">
     SELECT 
       mn.*, nm.title, nm.image_url, nm.point_value
     FROM member_nft mn
     JOIN nft_metadata nm ON mn.nft_metadata_id = nm.id
     WHERE mn.id = #{id}
+      AND mn.deleted_at IS NULL
   </select>
 
   <!-- NFT 삽입 -->
@@ -58,7 +61,7 @@
       #{nftMetadata.id}, #{member.id}, #{tokenId}, #{walletAddress}, #{barcode},
       #{dueAt}, #{issuedReason}, #{txHash}, #{issuedAt}
     )
- </insert>
+  </insert>
 
   <!-- NFT 수정 -->
   <update id="update" parameterType="com.ssdam.tripPaw.domain.MemberNft">
@@ -72,6 +75,7 @@
       issued_reason = #{issuedReason},
       tx_hash = #{txHash}
     WHERE id = #{id}
+      AND deleted_at IS NULL
   </update>
 
   <!-- 사용 처리 -->
@@ -79,27 +83,33 @@
     UPDATE member_nft
     SET used_at = #{usedAt}
     WHERE id = #{id}
+      AND deleted_at IS NULL
   </update>
 
-  <!-- 유저가 자신의 NFT 삭제 -->
-  <delete id="deleteByIdAndMemberId" parameterType="map">
-    DELETE FROM member_nft
+  <!-- 유저가 자신의 NFT soft delete 처리 -->
+  <update id="softDeleteByIdAndMemberId" parameterType="map">
+    UPDATE member_nft
+    SET deleted_at = NOW()
     WHERE id = #{id} AND member_id = #{memberId}
-  </delete>
-  
-  <!-- 관리자용: 사용 완료된 NFT만 삭제 -->
-  <delete id="deleteUsedByNftMetadataId" parameterType="long">
-    DELETE FROM member_nft
+      AND deleted_at IS NULL
+  </update>
+
+  <!-- 관리자용: 사용 완료된 NFT만 soft delete 처리 -->
+  <update id="softDeleteUsedByNftMetadataId" parameterType="long">
+    UPDATE member_nft
+    SET deleted_at = NOW()
     WHERE nft_metadata_id = #{nftMetadataId}
       AND used_at IS NOT NULL
-  </delete>
-  
-  <!-- 사용하지 않은 쿠폰 존재 여부 확인 -->
+      AND deleted_at IS NULL
+  </update>
+
+  <!-- 사용하지 않은 쿠폰 존재 여부 확인 (deleted_at IS NULL 필터 추가) -->
   <select id="countUnusedByMetadataId" resultType="int" parameterType="long">
     SELECT COUNT(*) 
     FROM member_nft 
     WHERE nft_metadata_id = #{nftMetadataId}
       AND used_at IS NULL
+      AND deleted_at IS NULL
   </select>
 
   <!-- NFT 소유자 변경 (선물 기능) -->
@@ -107,11 +117,45 @@
     UPDATE member_nft
     SET member_id = #{toMemberId}
     WHERE id = #{nftId} AND member_id = #{fromMemberId}
+      AND deleted_at IS NULL
   </update>
 
-  <!-- 특정 NFT 메타데이터 ID에 해당하는 발급 여부 확인 -->
+  <!-- 특정 NFT 메타데이터 ID에 해당하는 발급 여부 확인 (deleted_at IS NULL 필터 추가) -->
   <select id="existsByNftMetadataId" parameterType="long" resultType="boolean">
     SELECT COUNT(*) > 0 FROM member_nft WHERE nft_metadata_id = #{metadataId}
+      AND deleted_at IS NULL
   </select>
+  
+  <!-- soft delete 된 NFT 중 재사용 가능한 첫 번째 항목 조회 -->
+  <select id="findFirstSoftDeleted" resultMap="MemberNftResultMap">
+    SELECT 
+      mn.*, nm.title, nm.image_url, nm.point_value,
+      m.nickname
+    FROM member_nft mn
+    JOIN nft_metadata nm ON mn.nft_metadata_id = nm.id
+    JOIN member m ON mn.member_id = m.id
+    WHERE mn.deleted_at IS NOT NULL
+    ORDER BY mn.deleted_at ASC
+    LIMIT 1
+  </select>
+  
+  <!-- soft delete 된 NFT 재사용(복구) -->
+  <update id="reuseSoftDeletedNft" parameterType="com.ssdam.tripPaw.domain.MemberNft">
+    UPDATE member_nft
+    SET
+      nft_metadata_id = #{nftMetadata.id},
+      member_id = #{member.id},
+      token_id = #{tokenId},
+      wallet_address = #{walletAddress},
+      barcode = #{barcode},
+      due_at = #{dueAt},
+      issued_reason = #{issuedReason},
+      tx_hash = #{txHash},
+      issued_at = #{issuedAt},
+      deleted_at = NULL,
+      used_at = NULL
+    WHERE id = #{id}
+      AND deleted_at IS NOT NULL
+  </update>
 
 </mapper>
