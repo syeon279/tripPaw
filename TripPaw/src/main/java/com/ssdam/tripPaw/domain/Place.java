@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -26,7 +27,7 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	@Column(length=2000)
+	@Lob
 	private String description;
 	private String latitude;
 	private String longitude;

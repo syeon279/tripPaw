@@ -1,5 +1,3 @@
-// Trips.jsx
-
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
@@ -7,6 +5,7 @@ import { useRouter } from "next/router";
 import MypageLayout from "@/components/layout/MyPageLayout";
 import { EllipsisOutlined } from "@ant-design/icons";
 import PublicConfirmModal from "@/components/tripPlan/PublicConfirmModal";
+import dayjs from "dayjs"; // ✅ 추가됨
 
 const layoutStyle = {
     header: { width: '100%', height: '80px' },
@@ -28,6 +27,7 @@ const Trips = () => {
     const [tab, setTab] = useState("mytrips");
     const [trips, setTrips] = useState([]);
     const [fallbackImages, setFallbackImages] = useState({});
+    const [selectedMonth, setSelectedMonth] = useState(""); // ✅ 선택된 월
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -58,7 +58,6 @@ const Trips = () => {
 
                 const response = await axios.get(url);
                 const data = response.data;
-                console.log('여행 data : ', data);
                 setTrips(data);
 
                 const fallbackMap = {};
@@ -77,7 +76,10 @@ const Trips = () => {
         fetchTrips();
     }, [memberId, tab]);
 
-    const handleTabChange = (newTab) => setTab(newTab);
+    const handleTabChange = (newTab) => {
+        setTab(newTab);
+        setSelectedMonth(""); // 탭 바꾸면 필터 초기화
+    };
 
     const TripCard = ({ trip }) => {
         const tripId = trip.myTripId || trip.id;
@@ -105,7 +107,6 @@ const Trips = () => {
 
         const handleDelete = async (e) => {
             e.stopPropagation();
-
             const url =
                 tab === "mytrips"
                     ? `http://localhost:8080/memberTripPlan/${trip.myTripId}`
@@ -114,7 +115,7 @@ const Trips = () => {
             const confirmMessage =
                 tab === "mytrips"
                     ? "삭제 된 여행은 복구하기 어렵습니다. 정말 삭제하시겠습니까?"
-                    : "공개로 전환된 여행일 경우 완전 삭제 되지 않습니다. <br />내 페이지에서 숨김 처리 하시겠습니까? 이 과정은 복구되지 않습니다.";
+                    : "공개로 전환된 여행일 경우 완전 삭제 되지 않습니다. 내 페이지에서 숨김 처리 하시겠습니까? 이 과정은 복구되지 않습니다.";
 
             if (window.confirm(confirmMessage)) {
                 try {
@@ -137,8 +138,7 @@ const Trips = () => {
                 setShowModal(false);
             } catch (error) {
                 console.error("공개 처리 실패:", error);
-                const message = error.response?.data || "공개 처리 중 오류가 발생했습니다.";
-                alert(message);
+                alert(error.response?.data || "공개 처리 중 오류가 발생했습니다.");
             }
         };
 
@@ -207,9 +207,7 @@ const Trips = () => {
                         )}
                         {tab === "created" && (
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', gap: '6px' }}>
-                                <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
-                                    {avgRating}
-                                </p>
+                                <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>{avgRating}</p>
                                 <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
                                     {'★'.repeat(Math.floor(avgRating)) + '☆'.repeat(5 - Math.floor(avgRating))}
                                 </p>
@@ -280,6 +278,19 @@ const Trips = () => {
         );
     };
 
+    // ✅ 월별 그룹화 후 선택된 달만 필터링
+    const groupedTrips = trips.reduce((acc, trip) => {
+        const date = trip.startDate || trip.createdAt;
+        const monthKey = dayjs(date).format("YYYY-MM");
+        if (!acc[monthKey]) acc[monthKey] = [];
+        acc[monthKey].push(trip);
+        return acc;
+    }, {});
+
+    const filteredGroupedTrips = selectedMonth
+        ? { [selectedMonth]: groupedTrips[selectedMonth] || [] }
+        : groupedTrips;
+
     return (
         <MypageLayout>
             <div>
@@ -313,25 +324,54 @@ const Trips = () => {
                     >
                         내가 만든 여행
                     </button>
+
+                    {/* ✅ 월 선택 필터 */}
+                    <select
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        style={{
+                            padding: '8px',
+                            marginLeft: 'auto',
+                            borderRadius: '8px',
+                            border: '1px solid #ccc',
+                            width: '10%'
+                        }}
+                    >
+                        <option value="">전체 보기</option>
+                        {Object.keys(groupedTrips)
+                            .sort((a, b) => b.localeCompare(a))
+                            .map(month => (
+                                <option key={month} value={month}>
+                                    {dayjs(month).format("YYYY년 MM월")}
+                                </option>
+                            ))}
+                    </select>
                 </div>
 
                 <div style={layoutStyle.divider}>
                     <div style={layoutStyle.dividerLine} />
                 </div>
 
-                <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                    position: 'relative',
-                    overflow: 'visible',
-                }}>
-                    {trips.length === 0 ? (
-                        <p>여행이 없습니다.</p>
-                    ) : (
-                        trips.map((trip) => <TripCard key={trip.id || trip.myTripId} trip={trip} />)
-                    )}
-                </div>
+                {trips.length === 0 ? (
+                    <p>여행이 없습니다.</p>
+                ) : (
+                    Object.entries(filteredGroupedTrips)
+                        .sort((a, b) => b[0].localeCompare(a[0]))
+                        .map(([month, monthTrips]) => (
+                            <div key={month} style={{ marginBottom: '40px', width: '100%' }}>
+                                <h3 style={{ marginBottom: '12px' }}>{dayjs(month).format("YYYY년 MM월")}</h3>
+                                <div style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: '12px',
+                                }}>
+                                    {monthTrips.map((trip) => (
+                                        <TripCard key={trip.id || trip.myTripId} trip={trip} />
+                                    ))}
+                                </div>
+                            </div>
+                        ))
+                )}
             </div>
         </MypageLayout>
     );

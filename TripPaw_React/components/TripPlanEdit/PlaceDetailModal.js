@@ -19,6 +19,7 @@ const modalStyleBase = {
 const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
     const modalRef = useRef(null);
     const [position, setPosition] = useState({ top: 100, left: 100 });
+    console.log('place:', place);
 
     const fallbackImage = useMemo(() => {
         const randomNum = Math.floor(Math.random() * 10) + 1;
@@ -125,7 +126,7 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
             </div>
 
             <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-                <img src='/image/other/verify.png' alt='주차 가능 여부' style={{ width: '16px', marginRight: '6px' }} />
+                <img src='/image/other/verify.png' alt='주차 가능 여부' style={{ width: '16px', marginRight: '6px' }} /> 주차:
                 {place.parking || '주차 정보 없음'}
             </div>
 
