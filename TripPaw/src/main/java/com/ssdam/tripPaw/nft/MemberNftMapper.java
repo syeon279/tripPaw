@@ -19,6 +19,9 @@ public interface MemberNftMapper {
 
     // soft delete: 사용 완료된 NFT들 삭제 처리
     void softDeleteUsedByNftMetadataId(@Param("nftMetadataId") Long nftMetadataId);
+    
+    // used 여부와 관계없이 모두 soft delete 처리
+    void softDeleteAllByMetadataId(@Param("nftMetadataId") Long nftMetadataId);
 
     void giftNft(@Param("nftId") Long nftId, @Param("fromMemberId") Long fromMemberId, @Param("toMemberId") Long toMemberId);
 
