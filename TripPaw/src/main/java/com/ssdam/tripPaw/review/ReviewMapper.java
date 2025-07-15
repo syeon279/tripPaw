@@ -6,9 +6,11 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.ReviewType;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 //import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 
 @Mapper
@@ -88,9 +90,12 @@ public interface ReviewMapper {
 
 	List<Reserv> findWithPlaceByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId,
             										@Param("memberId") Long memberId);
+	
 	//여권 도장용 추가코드
-//	List<MemberTripPlanReviewDto> findTripPlansWithoutReview(@Param("memberId") Long memberId);
-//	List<MyReviewDto> findReviewsWithPlaceTypeByMemberId(Long memberId);
-
-
+    // 작성한 리뷰 조회
+    List<MemberTripPlanReviewDto> getMyTripReviews(@Param("memberId") Long memberId);
+    
+    // 리뷰 작성하지 않은 여행 목록 조회
+    List<MemberTripPlan> getUnwrittenTripPlans(@Param("memberId") Long memberId);
+    
 }

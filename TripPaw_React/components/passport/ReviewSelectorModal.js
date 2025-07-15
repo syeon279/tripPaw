@@ -9,33 +9,34 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
 
   useEffect(() => {
     axios.get(`/review/member/${memberId}/place-type`)
-      .then((res) => setReviews(res.data))
+      .then((res) => {console.log('작성된 리뷰 응답:', res.data); setReviews(res.data);})
       .catch((err) => console.error('작성된 리뷰 조회 실패:', err));
 
     axios.get(`/review/tripplans-no-review/${memberId}`)
-      .then((res) => setReservsNoReview(res.data))
+      .then((res) => {console.log('작성 안된 리뷰 응답:', res.data); setReservsNoReview(res.data);})
       .catch((err) => console.error('작성 안한 여행 조회 실패:', err));
   }, [memberId]);
 
+
 const handleReviewSelect = (item) => {
-  let memberTripPlanId;
+  console.log('선택한 리뷰 아이템:', item);
 
-  if (item.isUnwritten) {
-    memberTripPlanId = item?.reserv?.memberTripPlan?.id;
+  // tripPlanId는 리뷰의 대상 여행 식별자
+  const tripPlanId = item?.targetId;
+  const reviewId = item?.reviewId || item?.id;
 
-    setSelectedReview({ ...item, id: reservId,  memberTripPlanId, });
-  } else {
-    // 작성된 리뷰 → 예약 안에 memberTripPlan 없는 경우 fallback 필요
-    memberTripPlanId = item?.reserv?.memberTripPlan?.id ?? item?.targetId;
-    const reviewId = item?.reviewId || item?.id;
+  setSelectedReview({
+    ...item,
+    id: reviewId,
+    tripPlanId,
+  });
 
-    setSelectedReview({
-      ...item,
-      id: reviewId, 
-      memberTripPlanId,
-    });
-  }
+  console.log('reserv:', item.reserv);
+  console.log('memberTripPlan:', item.reserv?.memberTripPlan);
+  console.log('titleOverride:', item.reserv?.memberTripPlan?.titleOverride);
+  console.log('추출된 tripPlanId:', tripPlanId);
 };
+
 
 useEffect(() => {
   console.log('선택된 리뷰:', selectedReview);
@@ -108,7 +109,7 @@ useEffect(() => {
         <div key={`unwritten-${index}`} className="review-card">
           <p><strong>{item.titleOverride || '여행명 없음'}</strong> ({item.startDate} ~ {item.endDate})</p>
           <small style={{ display: 'block', marginBottom: '8px' }}>리뷰가 아직 없습니다.</small>
-          <button onClick={() => window.location.href = `/write-review?reservId=${item.id}`}>리뷰 작성하러 가기</button>
+          <button onClick={() => window.location.href = `/tripPlan/${item.tripPlan.id}`}>리뷰 작성하러 가기</button>
         </div>
       ))}
     </section>
@@ -118,7 +119,7 @@ useEffect(() => {
       <SealSelectorModal
         passportId={passportId}
         review={selectedReview}
-        memberTripPlanId={selectedReview?.memberTripPlanId}
+        tripPlanId={selectedReview?.targetId} 
         onClose={() => setSelectedReview(null)}
         onSaved={onSaved}
       />

@@ -23,6 +23,7 @@ public class MemberDataIntializer{
 		                    //.jibunAddress("경기 성남시 분당구 백현동 532")
 		                    .namujiAddress("102동")
 		                    //.role(MemberRole.ADMIN)
+		                    .status(true)
 		                    .provider("")
 		                    .build();
 	        		member.getRole().add(MemberRole.ADMIN);
@@ -38,6 +39,7 @@ public class MemberDataIntializer{
         		.roadAddress("경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)")
         		//.jibunAddress("경기 성남시 분당구 백현동 532")
         		.namujiAddress("102동")
+        		.status(true)
         		.provider("")
         		.build();
 	            member.getRole().add(MemberRole.MEMBER);
@@ -52,6 +54,7 @@ public class MemberDataIntializer{
 	            		.roadAddress("경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)")
 	            		//.jibunAddress("경기 성남시 분당구 백현동 532")
 	            		.namujiAddress("102동")
+	            		.status(true)
 	            		.provider("")
 	            		.build();
 	            member.getRole().add(MemberRole.MEMBER);
@@ -66,6 +69,7 @@ public class MemberDataIntializer{
 	            		.roadAddress("경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)")
 	            		//.jibunAddress("경기 성남시 분당구 백현동 532")
 	            		.namujiAddress("102동")
+	            		.status(true)
 	            		.provider("")
 	            		.build();
 	            member.getRole().add(MemberRole.MEMBER);

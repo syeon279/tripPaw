@@ -2,28 +2,28 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { submitPassportSeal } from '@/api/passportSealApi';
 
-const SealSelectorModal = ({ passportId, review, memberTripPlanId, onClose, onSaved }) => {
+const SealSelectorModal = ({ passportId, review, tripPlanId, onClose, onSaved }) => {
   const [seals, setSeals] = useState([]);
   const [selectedSealId, setSelectedSealId] = useState(null);
 
   useEffect(() => {
-    console.log('memberTripPlanId...:', memberTripPlanId, 'passportId...:', passportId);
-    if (memberTripPlanId && passportId) {
-      axios.get(`/api/seals/tripplan/${memberTripPlanId}/passport/${passportId}`)
+    console.log('TripPlanId...:', tripPlanId, 'passportId...:', passportId);
+    if (tripPlanId && passportId) {
+      axios.get(`/api/seals/tripplan/trip/${tripPlanId}/passport/${passportId}`)
         .then((res) => setSeals(res.data))
         .catch((err) => console.error('도장 조회 실패:', err));
     }
-  }, [memberTripPlanId, passportId]);
+  }, [tripPlanId, passportId]);
 
 const handleSubmit = async () => {
   if (!selectedSealId) { alert('도장을 선택해주세요.');  return; }
 
-  if (!review?.id || !memberTripPlanId) { alert('도장 등록에 필요한 리뷰 정보가 누락됐습니다.'); return; }
+  if (!review?.id || !tripPlanId) { alert('도장 등록에 필요한 리뷰 정보가 누락됐습니다.'); return; }
 
   try {
     // 도장 등록 API 호출
     await submitPassportSeal(passportId, selectedSealId, review.id);
-    const res = await axios.get(`/api/seals/tripplan/${memberTripPlanId}/passport/${passportId}`);
+    const res = await axios.get(`/api/seals/tripplan/trip/${tripPlanId}/passport/${passportId}`);
     setSeals(res.data); 
     if (onSaved) onSaved();
 

@@ -97,7 +97,7 @@
 	</resultMap>
 
 	<!-- 장소 검색 쿼리 -->
-	<select id="searchPlacesByKeyword" parameterType="string"
+	<select id="searchPlacesByKeyword" parameterType="map"
 		resultMap="searchPlaceResultMap">
 		SELECT
 		p.id AS place_id,
@@ -132,16 +132,19 @@
 		pi.image_url AS place_image_url
 
 		FROM place p
-		INNER JOIN place_type pt ON
-		p.place_type_id = pt.id
-		LEFT JOIN review r ON p.id = r.target_id AND
-		r.review_type_id = 2
+		INNER JOIN place_type pt ON p.place_type_id = pt.id
+		LEFT JOIN review r ON p.id = r.target_id AND r.review_type_id = 2
 		LEFT JOIN place_image pi ON p.id = pi.place_id
 
-		WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
-		OR
-		LOWER(pt.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+		WHERE (
+		LOWER(p.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+		OR LOWER(pt.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+		)
+		<if test="region != null and region != ''">
+			AND p.region LIKE LOWER(CONCAT('%', #{region}, '%'))
+		</if>
 	</select>
+
 
 	<!-- 여행 코스 검색 쿼리 -->
 	<select id="searchTripPlansByKeyword" parameterType="string"
@@ -160,32 +163,40 @@
 		rp.id AS rp_id,
 		rp.sequence,
 		p.id AS place_id,
-		p.name AS place_name,
+		p.name AS
+		place_name,
 		p.latitude,
 		p.longitude,
 
 		rv.id AS review_id,
-		rv.content AS review_content,
+		rv.content AS
+		review_content,
 		rv.rating,
 		rv.created_at AS review_created_at,
 		rv.updated_at AS review_updated_at,
 		rv.target_id
 
 		FROM trip_plan tp
-		JOIN member m ON tp.member_id = m.id
 		JOIN
-		trip_plan_course c ON tp.id = c.trip_plan_id
+		member m ON tp.member_id = m.id
+		JOIN
+		trip_plan_course c ON tp.id =
+		c.trip_plan_id
 		JOIN route r ON c.route_id
 		= r.id
-		JOIN route_place rp ON r.id = rp.route_id
+		JOIN route_place rp ON
+		r.id = rp.route_id
 		JOIN place p ON
 		rp.place_id = p.id
-		LEFT JOIN review rv ON tp.id = rv.target_id AND
+		LEFT JOIN review rv
+		ON tp.id = rv.target_id AND
 		rv.review_type_id = 1
-		WHERE tp.is_public = true
+		WHERE tp.is_public =
+		true
 		AND tp.title LIKE
 		CONCAT('%', #{keyword}, '%')
-		ORDER BY tp.id DESC, c.id ASC, rp.sequence
+		ORDER BY tp.id DESC,
+		c.id ASC, rp.sequence
 		ASC
 	</select>
 

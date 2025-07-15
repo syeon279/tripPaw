@@ -89,4 +89,16 @@ public class NFTController {
                 .body(Map.of("error", "삭제 중 오류 발생: " + e.getMessage()));
         }
     }
+    
+    // 관리자용 강제 삭제 API (사용 여부 무시)
+    @DeleteMapping("/metadata/{id}/force")
+    public ResponseEntity<?> forceDeleteNftMetadata(@PathVariable Long id) {
+        try {
+            nftService.forceDeleteNftMetadata(id);
+            return ResponseEntity.ok(Map.of("result", "강제 삭제 완료"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "강제 삭제 실패: " + e.getMessage()));
+        }
+    }
 }

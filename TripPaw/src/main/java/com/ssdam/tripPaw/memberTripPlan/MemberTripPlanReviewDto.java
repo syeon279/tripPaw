@@ -1,6 +1,7 @@
 package com.ssdam.tripPaw.memberTripPlan;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,13 +10,22 @@ import lombok.NoArgsConstructor;
 
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class MemberTripPlanReviewDto {
-    private Long memberTripPlanId;      // 여행 식별자
-    private String titleOverride;       // 커스텀 여행 제목
-    private LocalDate startDate;        // 여행 시작일
-    private LocalDate endDate;          // 여행 종료일
-    private String imageUrl;            // 여행 이미지
-    private String status;              // 여행 진행 상태 (PLANED, ONGOING, END)
-    private int countPeople;            // 인원수
-    private int countPet;               // 반려동물 수
-    private boolean publicVisible;      // 공개 여부
+    // 리뷰 정보 추가
+    private Long reviewId;
+    private Long targetId;
+    private String content;
+    private int rating;
+    private String weatherCondition;
+    private LocalDateTime createdAt;
+
+    // 기존 여행 정보
+    private Long memberTripPlanId;
+    private String titleOverride;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String imageUrl;
+    private String status;
+    private int countPeople;
+    private int countPet;
+    private boolean publicVisible;
 }

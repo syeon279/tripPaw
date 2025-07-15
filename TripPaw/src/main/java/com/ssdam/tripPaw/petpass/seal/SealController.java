@@ -68,12 +68,20 @@ public class SealController {
         return ResponseEntity.ok(seals);
     }
     
-    //등록도장제외
-    @GetMapping("/tripplan/{memberTripPlanId}/passport/{passportId}")
-    public ResponseEntity<List<Seal>> getUnacquiredSeals(@PathVariable Long memberTripPlanId,
-                                                          @PathVariable Long passportId) {
-        List<Seal> seals = sealService.getUnacquiredSeals(memberTripPlanId, passportId);
+    @GetMapping("/tripplan/trip/{tripPlanId}/passport/{passportId}")
+    public ResponseEntity<List<Seal>> getUnacquiredSealsByTrip(@PathVariable Long tripPlanId,
+                                                               @PathVariable Long passportId) {
+        List<Seal> seals = sealService.getUnacquiredSealsByTrip(tripPlanId, passportId);
         return ResponseEntity.ok(seals);
     }
+
+    
+    //등록도장제외
+//    @GetMapping("/tripplan/{memberTripPlanId}/passport/{passportId}")
+//    public ResponseEntity<List<Seal>> getUnacquiredSeals(@PathVariable Long memberTripPlanId,
+//                                                          @PathVariable Long passportId) {
+//        List<Seal> seals = sealService.getUnacquiredSeals(memberTripPlanId, passportId);
+//        return ResponseEntity.ok(seals);
+//    }
 
 }

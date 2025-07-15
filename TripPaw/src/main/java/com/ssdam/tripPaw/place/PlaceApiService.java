@@ -76,25 +76,24 @@ public class PlaceApiService {
 	}
 
 	public void fetchAndSavePetFriendlyPlaces() throws InterruptedException {
-		int[] areaCodes = { 1 };
-		// int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
+		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
 		String[] contentTypeIds = {"12", "14", "15", "25", "28", "32", "38", "39"};
 
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 
 		for (int areaCode : areaCodes) {
-			for( String  contentTypeId : contentTypeIds) {
+			for (String contentTypeId : contentTypeIds) {
 				Thread.sleep(2000);
 				try {
 					String apiUrl = "https://apis.data.go.kr/B551011/KorPetTourService/areaBasedList" 
-				+ "?serviceKey="+ key 
-				+ "&MobileOS=ETC" 
-				+ "&MobileApp=TripPaw" 
-				+ "&areaCode=" + areaCode
-				+ "&contentTypeId=" + contentTypeId  
-				+ "&numOfRows=20" 
-				+ "&pageNo=1" 
-				+ "&_type=json";
+						+ "?serviceKey=" + key 
+						+ "&MobileOS=ETC" 
+						+ "&MobileApp=TripPaw" 
+						+ "&areaCode=" + areaCode
+						+ "&contentTypeId=" + contentTypeId  
+						+ "&numOfRows=20" 
+						+ "&pageNo=1" 
+						+ "&_type=json";
 
 					URI uri = new URI(apiUrl);
 					HttpHeaders headers = new HttpHeaders();
@@ -104,7 +103,7 @@ public class PlaceApiService {
 					ResponseEntity<String> response = fetchWithRetry(uri, entity, 3);
 					String responseBody = response.getBody();
 
-					Thread.sleep(5000);
+					Thread.sleep(7000);
 
 					if (!isValidJson(responseBody)) {
 						System.out.println("⚠️ JSON 응답이 유효하지 않음");
@@ -130,12 +129,12 @@ public class PlaceApiService {
 					System.out.println("❌ 전체 에러: " + e.getMessage());
 					continue;
 				}
+			}
 		}
-			
 
+		// ✅ executor는 for문 바깥에서 shutdown/await 해야 함
 		executor.shutdown();
 		executor.awaitTermination(30, TimeUnit.MINUTES);
-		}
 	}
 
 	///////////////////////////////////////////
@@ -174,15 +173,23 @@ public class PlaceApiService {
 		
 		
 		// detailCommon
-		Thread.sleep(2000);
+		Thread.sleep(5000);
 		try {
-			String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailCommon" 
-		+ "?serviceKey=" + key
-		+ "&MobileOS=ETC" 
-		+ "&MobileApp=TripPaw" 
-		+ "&_type=json" 
-		+ "&contentId=" + contentId
-		+ "&contentTypeId=" + contentTypeId;
+			String detailUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailCommon"
+				    + "?serviceKey=" + key
+				    + "&MobileOS=ETC"
+				    + "&MobileApp=TripPaw"
+				    + "&_type=json"
+				    + "&contentId=" + contentId
+				    + "&contentTypeId=" + contentTypeId
+				    + "&defaultYN=Y"
+				    + "&firstImageYN=Y"
+				    + "&areacodeYN=Y"
+				    + "&catcodeYN=Y"
+				    + "&addrinfoYN=Y"
+				    + "&mapinfoYN=Y"
+				    + "&overviewYN=Y";
+
 
 			ResponseEntity<String> response = fetchWithRetry.apply(detailUrl, entity);
 			if (response != null && isValidJson(response.getBody())) {
@@ -191,6 +198,11 @@ public class PlaceApiService {
 
 				if (!detailItems.isEmpty()) {
 					JSONObject detail = detailItems.getJSONObject(0);
+					
+					// overview
+					System.out.println("📍 detail: " + detail.toString());
+					System.out.println("📍 overview 존재 여부: " + detail.has("overview"));
+					
 					// contentTypeId에 따라 필드명을 다르게 적용
 			        switch (contentTypeId) {
 				        case "12": // 관광지
@@ -215,7 +227,7 @@ public class PlaceApiService {
 		}
 
 		// detailIntro
-		Thread.sleep(3000);
+		Thread.sleep(5000);
 		try {
 			String introUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailIntro" 
 		+ "?serviceKey=" + key
@@ -437,7 +449,7 @@ public class PlaceApiService {
 		placeCategoryService.insertPlaceAndMapCategories(place);
 
 		// 이미지 처리
-		Thread.sleep(2000);
+		Thread.sleep(5000);
 		try {
 			String imageUrl = "https://apis.data.go.kr/B551011/KorService2/detailImage2" 
 								+ "?serviceKey=" + key
