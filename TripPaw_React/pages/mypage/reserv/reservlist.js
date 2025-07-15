@@ -456,7 +456,11 @@ const ReservList = () => {
 
   if (loading) return <Message>불러오는 중...</Message>;
   if (error) return <Error>{error}</Error>;
-  if (reservations.length === 0) return <Message>예약 내역이 없습니다.</Message>;
+  if (reservations.length === 0) return( 
+    <MypageLayout>
+    <Message>예약 내역이 없습니다.</Message>
+    </MypageLayout>
+   );
 
   const groupedReservations = groupByYearMonth(reservations);
 
