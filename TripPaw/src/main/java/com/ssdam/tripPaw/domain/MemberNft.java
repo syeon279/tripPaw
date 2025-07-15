@@ -65,8 +65,13 @@ public class MemberNft {
     @Column(name = "tx_hash")
     private String txHash;
 
+    @Column(name = "deleted_at")  // soft delete 컬럼
+    private LocalDateTime deletedAt;
+    
     @PrePersist
     public void onCreate() {
         this.issuedAt = LocalDateTime.now();
     }
+    
+    
 }

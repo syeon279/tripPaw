@@ -20,6 +20,7 @@
     "bwip-js": "^4.6.0",
     "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.5",
     "html2canvas": "^1.4.1",
     "immer": "^9.0.19",
     "moment": "^2.30.1",

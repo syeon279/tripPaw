@@ -18,10 +18,10 @@ import axios from "axios";
 
 const { Title } = Typography;
 
-// IPFS URL을 적절한 게이트웨이 URL로 바꿔주는 함수
+// IPFS URL 변환 함수
 const getValidImageUrl = (url) => {
   if (!url)
-    return "https://dummyimage.com/300x200/cccccc/000000&text=No+Image"; // 기본 대체 이미지
+    return "https://dummyimage.com/300x200/cccccc/000000&text=No+Image"; 
   if (url.startsWith("ipfs://")) {
     return url.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
   }
@@ -46,6 +46,7 @@ const CouponsManage = () => {
   const [issueForm] = Form.useForm();
   const [issueNftMetadataId, setIssueNftMetadataId] = useState(null);
 
+  // NFT 리스트 fetch
   const fetchNfts = async () => {
     setLoading(true);
     try {
@@ -62,6 +63,7 @@ const CouponsManage = () => {
     fetchNfts();
   }, []);
 
+  // 수정 모달 열기
   const openEditModal = (nft) => {
     setEditingNft(nft);
     editForm.setFieldsValue({
@@ -72,6 +74,7 @@ const CouponsManage = () => {
     setEditModalVisible(true);
   };
 
+  // 수정 완료
   const onEditFinish = async (values) => {
     try {
       await axios.put(`/api/nft/metadata/${editingNft.id}`, values);
@@ -84,22 +87,19 @@ const CouponsManage = () => {
     }
   };
 
+  // 삭제 처리 (사용된 NFT 삭제 후 템플릿 삭제)
   const onDelete = async (metadataId) => {
-  try {
-    // 1) 사용된 NFT 삭제
-    await axios.delete(`/api/member-nft/metadata/${metadataId}/used-nfts`);
+    try {
+      await axios.delete(`/api/member-nft/metadata/${metadataId}/used-nfts`);
+      await axios.delete(`/api/nft/metadata/${metadataId}`);
+      message.success("NFT 템플릿과 사용된 쿠폰 모두 삭제 완료");
+      fetchNfts();
+    } catch (error) {
+      message.error("사용하지 않은 쿠폰이 있어 삭제할 수 없습니다.");
+    }
+  };
 
-    // 2) 템플릿 자체 삭제
-    await axios.delete(`/api/nft/metadata/${metadataId}`);
-
-    message.success("NFT 템플릿과 사용된 쿠폰 모두 삭제 완료");
-    fetchNfts();
-  } catch (error) {
-    message.error("사용하지 않은 쿠폰이 있어 삭제할 수 없습니다.");
-  }
-};
-
-
+  // 블록체인에서 NFT 동기화
   const syncNftsFromBlockchain = async () => {
     const contractAddress = "0x3c1011554E887c1a0CFD5e93535958b03b140c09";
     const walletAddress = "0x59ae01d894f9B0a73EDA9427E5499Ee80De329Cf";
@@ -114,28 +114,31 @@ const CouponsManage = () => {
     }
   };
 
+  // 발급 모달 열기
   const openIssueModal = (nftId) => {
     setIssueNftMetadataId(nftId);
     issueForm.resetFields();
     setIssueModalVisible(true);
   };
 
+  // 발급 처리
   const onIssueFinish = async (values) => {
-    const { issuedReason, userId } = values;
-    if (!userId) {
-      message.error("받는 사용자 ID를 입력하세요");
+    const { issuedReason, nickname } = values;
+    if (!nickname || typeof nickname !== "string") {
+      message.error("닉네임을 올바르게 입력해주세요.");
       return;
     }
+
     try {
       await axios.post(`/api/admin/nft/issue-to-member`, null, {
         params: {
           nftMetadataId: issueNftMetadataId,
           issuedReason,
-          id: userId, // 백엔드의 Long id 파라미터에 맞게
+          nickname: nickname.toString().trim(),
         },
       });
 
-      // 상태 업데이트: 발급된 NFT의 issued = true 처리
+      // 발급 완료 상태 반영
       setNfts((prevNfts) =>
         prevNfts.map((nft) =>
           nft.id === issueNftMetadataId ? { ...nft, issued: true } : nft
@@ -150,25 +153,56 @@ const CouponsManage = () => {
     }
   };
 
+  // CSS 스타일
+  const styles = {
+    container: {
+      padding: 24,
+      backgroundColor: "#f9fafb",
+      minHeight: "calc(100vh - 100px)",
+    },
+    header: {
+      marginBottom: 24,
+      borderBottom: "2px solid #1890ff",
+      paddingBottom: 8,
+      fontWeight: "bold",
+      color: "#1890ff",
+    },
+    syncButtonWrapper: {
+      textAlign: "right",
+      marginBottom: 20,
+    },
+    cardImage: {
+      width: "100%",
+      height: 330,
+      objectFit: "cover",
+      borderRadius: 8,
+    },
+    emptyMessage: {
+      textAlign: "center",
+      marginTop: 50,
+      color: "#888",
+      fontSize: 18,
+      fontWeight: "500",
+    },
+  };
+
   return (
     <MypageLayout>
-      <div style={{ padding: 24 }}>
-        <Title level={2}>NFT 쿠폰 리스트</Title>
+      <div style={styles.container}>
+        <Title level={2} style={styles.header}>
+          NFT 쿠폰 리스트
+        </Title>
 
-        {/* 버튼을 오른쪽 끝에 정렬 */}
-        <div style={{ textAlign: "right", marginBottom: 16 }}>
-          <Button
-            type="primary"
-            onClick={syncNftsFromBlockchain}
-          >
+        <div style={styles.syncButtonWrapper}>
+          <Button type="primary" onClick={syncNftsFromBlockchain}>
             NFT 동기화
           </Button>
         </div>
 
         {loading ? (
-          <Spin size="large" />
+          <Spin size="large" style={{ display: "block", margin: "50px auto" }} />
         ) : nfts.length > 0 ? (
-          <Row gutter={[16, 16]}>
+          <Row gutter={[24, 24]}>
             {nfts.map((nft) => (
               <Col key={nft.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
@@ -182,7 +216,7 @@ const CouponsManage = () => {
                         e.currentTarget.src =
                           "https://dummyimage.com/300x200/cccccc/000000&text=No+Image";
                       }}
-                      style={{ width: "100%", height: 200, objectFit: "contain" }}
+                      style={styles.cardImage}
                     />
                   }
                   actions={[
@@ -209,12 +243,18 @@ const CouponsManage = () => {
                       </Button>
                     </Popconfirm>,
                   ]}
-                />
+                >
+                  <Card.Meta
+                    title={nft.title}
+                    description={`포인트: ${nft.pointValue}`}
+                    style={{ marginBottom: 12 }}
+                  />
+                </Card>
               </Col>
             ))}
           </Row>
         ) : (
-          <div>표시할 NFT가 없습니다.</div>
+          <div style={styles.emptyMessage}>표시할 NFT가 없습니다.</div>
         )}
 
         {/* 수정 모달 */}
@@ -266,12 +306,13 @@ const CouponsManage = () => {
             >
               <Input.TextArea placeholder="예: 리뷰 감사 선물" />
             </Form.Item>
+
             <Form.Item
-              label="받는 사용자 ID (숫자형)"
-              name="userId"
-              rules={[{ required: true, message: "사용자 ID를 입력하세요" }]}
+              label="받는 사용자 닉네임"
+              name="nickname"
+              rules={[{ required: true, message: "닉네임을 입력하세요" }]}
             >
-              <InputNumber style={{ width: "100%" }} placeholder="예: 1" />
+              <Input placeholder="예: doglover123" />
             </Form.Item>
           </Form>
         </Modal>

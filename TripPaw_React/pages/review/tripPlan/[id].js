@@ -34,6 +34,7 @@ const ReviewTripPlanDetail = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
   const [likeStates, setLikeStates] = useState({});
+  const [planTitle, setPlanTitle] = useState('');
 
 
   useEffect(() => {
@@ -49,6 +50,7 @@ const ReviewTripPlanDetail = () => {
         const fetchedReviews = reviewRes.data || [];
         setReviews(fetchedReviews);
         setRouteData(planRes.data.routeData || []);
+        setPlanTitle(planRes.data.title || '');
 
         if (fetchedReviews.length > 0) {
           const sum = fetchedReviews.reduce((acc, r) => acc + r.rating, 0);
@@ -159,95 +161,127 @@ const ReviewTripPlanDetail = () => {
 
   return (
     <AppLayout>
-      <div style={{ display: 'flex', height: 'calc(100vh - 80px)', padding: '20px', paddingTop: '80px', }}>
-        {/* 좌측 지도 */}
-        <div style={{ flex: 1.5, height: '100%' }}>
-          <RouteMapNoSSR
-            routeData={routeData}
-            focusDay={null}
-            setFocusDay={() => { }}
-            setMapInstance={() => { }}
-          />
+      {/* 전체 세로 배치 */}
+      <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+
+        {/* 상단 트립플랜 제목 */}
+        <div style={{
+          marginTop: 40,
+          padding: '20px',
+          paddingTop: '40px',
+          borderBottom: '1px solid #eee',
+          background: '#fff',
+          zIndex: 1,
+        }}>
+          <h1 style={{ margin: 0, fontSize: 24, textAlign: 'center' }}>{planTitle}</h1>
         </div>
 
-        {/* 우측 리뷰 목록 */}
-        <div style={{ flex: 1, paddingLeft: '20px', overflowY: 'auto', height: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h2 style={{ marginBottom: 4 }}>{title}</h2>
-              <span style={{ color: '#f5222d', fontWeight: 600, fontSize: 16 }}>
-                {averageRating.toFixed(1)} <Rate disabled allowHalf value={averageRating} style={{ fontSize: 16 }} />
-              </span>
-              <span style={{ marginLeft: 8, color: '#888' }}>리뷰 {reviews.length}개</span>
-            </div>
-            {isLoggedIn && (
-              <Button
-                type="primary"
-                onClick={() =>
-                  router.push({
-                    pathname: '/review/write',
-                    query: {
-                      reviewTypeId: 1,
-                      targetId: planId,
-                      title: title || '',
-                    },
-                  })
-                }
-              >
-                ✍ 리뷰 작성하기
-              </Button>
-            )}
+        {/* 하단 지도 + 리뷰 영역 */}
+        <div style={{
+          display: 'flex',
+          flex: 1,
+          overflow: 'hidden',
+        }}>
+          {/* 좌측 지도 */}
+          <div style={{ flex: 1.5, height: '100%' }}>
+            <RouteMapNoSSR
+              routeData={routeData}
+              focusDay={null}
+              setFocusDay={() => { }}
+              setMapInstance={() => { }}
+            />
           </div>
 
-          <div style={{ marginTop: 20 }}>
-            {reviews.length === 0 ? (
-              <p>아직 작성된 리뷰가 없습니다.</p>
-            ) : (
-              reviews.map((review) => (
-                <Card key={review.id} style={{ marginBottom: 20 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: 'bold' }}>{review.memberNickname}</div>
-                      <Rate disabled defaultValue={review.rating} style={{ fontSize: 16 }} />
-                      <div style={{ fontSize: 12, color: '#888' }}>
-                        {new Date(review.createdAt).toLocaleDateString()}
+          {/* 우측 리뷰 */}
+          <div style={{
+            flex: 1,
+            padding: '20px',
+            paddingTop: '20px',
+            overflowY: 'auto',
+            height: '100%',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <div>
+                <span style={{ color: '#f5222d', fontWeight: 600, fontSize: 16 }}>
+                  {averageRating.toFixed(1)} <Rate disabled allowHalf value={averageRating} style={{ fontSize: 16 }} />
+                </span>
+                <span style={{ marginLeft: 8, color: '#888' }}>리뷰 {reviews.length}개</span>
+              </div>
+              {isLoggedIn && (
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    router.push({
+                      pathname: '/review/write',
+                      query: {
+                        reviewTypeId: 1,
+                        targetId: planId,
+                        title: title || '',
+                      },
+                    })
+                  }
+                >
+                  ✍ 리뷰 작성하기
+                </Button>
+              )}
+            </div>
+
+            {/* 리뷰 목록 */}
+            <div style={{ marginTop: 20 }}>
+              {reviews.length === 0 ? (
+                <p>아직 작성된 리뷰가 없습니다.</p>
+              ) : (
+                reviews.map((review) => (
+                  <Card key={review.id} style={{ marginBottom: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 'bold' }}>{review.memberNickname}</div>
+                        <Rate disabled defaultValue={review.rating} style={{ fontSize: 16 }} />
+                        <div style={{ fontSize: 12, color: '#888' }}>
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
+                      <div>{weatherIcon(review.weather)}</div>
                     </div>
-                    <div>{weatherIcon(review.weather)}</div>
-                  </div>
-                  <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>{review.content}</p>
-                  {review.imageUrls && review.imageUrls.length > 0 && (
-                    <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                      {review.imageUrls.split(',').map((url, idx) => (
-                        <img
-                          key={idx}
-                          src={`http://localhost:8080/upload/reviews/${url.trim()}`}
-                          alt={`review-${idx}`}
-                          style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }}
-                          onError={(e) => { e.target.src = '/image/other/tempImage.jpg'; }}
-                        />
-                      ))}
+                    <p style={{ marginTop: 12, whiteSpace: 'pre-wrap' }}>{review.content}</p>
+                    {review.imageUrls && review.imageUrls.length > 0 && (
+                      <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                        {review.imageUrls.split(',').map((url, idx) => (
+                          <img
+                            key={idx}
+                            src={`http://localhost:8080/upload/reviews/${url.trim()}`}
+                            alt={`review-${idx}`}
+                            style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }}
+                            onError={(e) => { e.target.src = '/image/other/tempImage.jpg'; }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <div
+                      block
+                      style={{
+                        cursor: 'pointer',
+                        marginTop: 12,
+                        border: '1px solid #ddd',
+                      }}
+                      onClick={() => toggleLike(review.id)}
+                    >
+                      {likeStates[review.id]?.liked ? <LikeFilled /> : <LikeOutlined />} 도움이 돼요
+                      <span style={{ marginLeft: 4 }}>({likeStates[review.id]?.count ?? 0})</span>
                     </div>
-                  )}
-                  <div
-                    block
-                    style={{
-                      cursor: 'pointer',
-                      marginTop: 12,
-                      border: '1px solid #ddd',
-                    }}
-                    onClick={() => toggleLike(review.id)}
-                  >
-                    {likeStates[review.id]?.liked ? <LikeFilled /> : <LikeOutlined />} 도움이 돼요
-                    <span style={{ marginLeft: 4 }}>({likeStates[review.id]?.count ?? 0})</span>
-                  </div>
-                </Card>
-              ))
-            )}
+                  </Card>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
     </AppLayout>
+
   );
 };
 
