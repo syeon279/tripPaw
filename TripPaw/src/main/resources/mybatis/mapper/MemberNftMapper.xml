@@ -102,6 +102,14 @@
       AND used_at IS NOT NULL
       AND deleted_at IS NULL
   </update>
+  
+  <!-- used 여부와 관계없이 모두 soft delete 처리 -->
+  <update id="softDeleteAllByMetadataId" parameterType="long">
+    UPDATE member_nft
+    SET deleted_at = NOW()
+    WHERE nft_metadata_id = #{nftMetadataId}
+      AND deleted_at IS NULL
+  </update>
 
   <!-- 사용하지 않은 쿠폰 존재 여부 확인 (deleted_at IS NULL 필터 추가) -->
   <select id="countUnusedByMetadataId" resultType="int" parameterType="long">

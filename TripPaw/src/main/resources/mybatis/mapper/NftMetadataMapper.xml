@@ -54,7 +54,15 @@
       )
     ORDER BY token_id ASC
     LIMIT 1
- </select>
+  </select>
+ 
+  <!-- soft delete -->
+  <update id="softDelete" parameterType="long">
+    UPDATE nft_metadata
+    SET deleted_at = NOW()
+    WHERE id = #{id}
+      AND deleted_at IS NULL
+  </update>
 
 
 </mapper>
