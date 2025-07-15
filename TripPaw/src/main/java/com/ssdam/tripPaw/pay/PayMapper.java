@@ -14,6 +14,7 @@ public interface PayMapper {
 	public int insert(Pay pay);
 	public int updateByState(Pay pay);
 	public int softDelete(Long id);
+	public int softDeleteByGroupId(Long GroupId);
 	public Pay findByReservId(Long reservId);
 	public Pay findByImpUid(String impUid);
 	public int updateStateByImpUid(@Param("impUid") String impUid, @Param("state") String state);
