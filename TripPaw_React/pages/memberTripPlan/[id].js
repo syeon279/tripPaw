@@ -31,7 +31,7 @@ const layoutStyle = {
     contentWrapper: {
         height: '60%',
         justifyContent: 'center',
-        padding:'0 10px'
+        padding: '0 10px'
     },
     contentBox: {
         display: 'flex',
@@ -103,7 +103,7 @@ const TripPlanDetail = () => {
                 setOriginMemberId(data.originalMemberId);
                 setMemberTripPlanId(id);
                 setOriginTripPlanId(data.originalTripPlanId);
-                console.log('data:', res.data);
+                //console.log('data:', res.data);
                 //setPlanData(res.data);
                 //console.log('setPlanData', planData);
             } catch (err) {
@@ -215,62 +215,62 @@ const TripPlanDetail = () => {
 
     return (
         <MypageLayout>
-        <AppLayout>
-            {/* <div style={layoutStyle.header} /> */}
-            <div style={layoutStyle.contentWrapper}>
-                <h1 style={{fontSize:'24px', fontWeight:'bold', color:'#653131'}}
-                >{title || '여행 상세 보기'}</h1>
+            <AppLayout>
+                {/* <div style={layoutStyle.header} /> */}
+                <div style={layoutStyle.contentWrapper}>
+                    <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#653131' }}
+                    >{title || '여행 상세 보기'}</h1>
 
-            <div style={{display:'flex', justifyContent:'flex-start'}}>
-                <p style={{borderRight:'1px solid #a9a9a9', paddingRight:'8px'}}>{countPeople}명 {countPet}견</p>
-                <div>
-                {startDate && endDate && (
-                    <p style={{ fontSize: '14px', color: '#555', paddingLeft:'8px'}}>
-                        {format(new Date(startDate), 'yyyy.MM.dd')} ~ {format(new Date(endDate), 'yyyy.MM.dd')}
-                    </p>
-                )}</div>
-            </div>
-                <div style={layoutStyle.divider}>
-                    <div style={layoutStyle.dividerLine} />
-                </div>
-
-                <div style={layoutStyle.contentBox}>
-                    <div id="map-capture-target" style={layoutStyle.mapContainer}>
-                        <RouteMapNoSSR
-                            ref={mapRef}
-                            routeData={routeData}
-                            focusDay={focusDay}
-                            setFocusDay={setFocusDay}
-                            setMapInstance={setMapInstance}
-                        />
+                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        <p style={{ borderRight: '1px solid #a9a9a9', paddingRight: '8px' }}>{countPeople}명 {countPet}견</p>
+                        <div>
+                            {startDate && endDate && (
+                                <p style={{ fontSize: '14px', color: '#555', paddingLeft: '8px' }}>
+                                    {format(new Date(startDate), 'yyyy.MM.dd')} ~ {format(new Date(endDate), 'yyyy.MM.dd')}
+                                </p>
+                            )}</div>
+                    </div>
+                    <div style={layoutStyle.divider}>
+                        <div style={layoutStyle.dividerLine} />
                     </div>
 
-                    <div style={layoutStyle.scheduleContainer}>
-                        <DayScheduleList
-                            id="scheduleContainer"
-                            routeData={routeData}
-                            currentDay={currentDay}
-                            onSelectDay={setCurrentDay}
-                            onPlaceClick={handlePlaceClick}
-                            setFocusDay={setFocusDay}
-                            startDate={startDate}
-                        />
-                        <MypageActionButton
-                            //planData={planData}
-                            routeData={routeData}
-                            onEdit={() => handleEdit()}
-                            // 리뷰쓰기 추가
-                            //onReview={}
-                            isNotMytrip={isNotMytrip}
-                            memberTripPlanId={Number(id)}
-                            originTripPlanId={Number(originTripPlanId)}
-                        />
+                    <div style={layoutStyle.contentBox}>
+                        <div id="map-capture-target" style={layoutStyle.mapContainer}>
+                            <RouteMapNoSSR
+                                ref={mapRef}
+                                routeData={routeData}
+                                focusDay={focusDay}
+                                setFocusDay={setFocusDay}
+                                setMapInstance={setMapInstance}
+                            />
+                        </div>
+
+                        <div style={layoutStyle.scheduleContainer}>
+                            <DayScheduleList
+                                id="scheduleContainer"
+                                routeData={routeData}
+                                currentDay={currentDay}
+                                onSelectDay={setCurrentDay}
+                                onPlaceClick={handlePlaceClick}
+                                setFocusDay={setFocusDay}
+                                startDate={startDate}
+                            />
+                            <MypageActionButton
+                                //planData={planData}
+                                routeData={routeData}
+                                onEdit={() => handleEdit()}
+                                // 리뷰쓰기 추가
+                                //onReview={}
+                                isNotMytrip={isNotMytrip}
+                                memberTripPlanId={Number(id)}
+                                originTripPlanId={Number(originTripPlanId)}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
-        <Divider/>
-        <TripChecklistRoutineList memberId={originMemberId} memberTripPlanId={memberTripPlanId} />
-        </AppLayout>
+                <Divider />
+                <TripChecklistRoutineList memberId={originMemberId} memberTripPlanId={memberTripPlanId} />
+            </AppLayout>
         </MypageLayout>
     );
 };

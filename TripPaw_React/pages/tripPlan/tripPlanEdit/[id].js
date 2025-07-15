@@ -84,7 +84,7 @@ const tripEdit = () => {
                     withCredentials: true,
                 });
 
-                console.log('user : ', response.data);
+                //console.log('user : ', response.data);
 
                 if (response.status === 200) {
                     setIsLoggedIn(true);

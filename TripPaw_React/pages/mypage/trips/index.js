@@ -124,7 +124,7 @@ const Trips = () => {
                     setMenuOpen(false);
                     setTrips(prev => prev.filter(t => (t.id || t.myTripId) !== (trip.id || trip.myTripId)));
                 } catch (error) {
-                    console.error("삭제 실패:", error);
+                    console.log("삭제 실패:", error);
                     alert("삭제에 실패했습니다.");
                 }
             }
@@ -137,7 +137,7 @@ const Trips = () => {
                 setMenuOpen(false);
                 setShowModal(false);
             } catch (error) {
-                console.error("공개 처리 실패:", error);
+                console.log("공개 처리 실패:", error);
                 alert(error.response?.data || "공개 처리 중 오류가 발생했습니다.");
             }
         };
