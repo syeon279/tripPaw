@@ -300,5 +300,6 @@ const ReviewList = () => {
       </div>
     </AppLayout>
   );
+
 };
 export default ReviewList;

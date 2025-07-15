@@ -141,55 +141,64 @@ public class TripPlanService {
 	
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// 여행 추천 받기
-		public List<TripRecommendResponse> recommend(TripRecommendRequest request) {
-			LocalDate startDate = LocalDate.parse(request.getStartDate());
-			LocalDate endDate = LocalDate.parse(request.getEndDate());
-			int totalDays = calculateTripDays(startDate, endDate);
+	public List<TripRecommendResponse> recommend(TripRecommendRequest request) {
+	    LocalDate startDate = LocalDate.parse(request.getStartDate());
+	    LocalDate endDate = LocalDate.parse(request.getEndDate());
+	    int totalDays = calculateTripDays(startDate, endDate);
 
-			List<TripRecommendResponse> tripPlans = new ArrayList<>();
+	    List<TripRecommendResponse> tripPlans = new ArrayList<>();
+	    Set<Long> usedPlaceIdsSet = new HashSet<>();
+	    List<Long> usedPlaceIds = new ArrayList<>();
 
-			for (int i = 0; i < totalDays; i++) {
-				List<TripRecommendResponse.PlaceInfo> placeInfos = new ArrayList<>();
+	    for (int i = 0; i < totalDays; i++) {
+	        List<TripRecommendResponse.PlaceInfo> placeInfos = new ArrayList<>();
 
-				// 1. 첫 장소: 관광지(placeType 1) 랜덤 추천
-				Place firstPlace = placeMapper.findFirstRandomPlace(request.getRegion(), request.getSelectedCategoryIds());
-				if (firstPlace == null)
-					continue;
-				placeInfos.add(toPlaceInfo(firstPlace));
+	        // 첫 장소
+	        Place firstPlace = placeMapper.findFirstRandomPlaceExcluding(request.getRegion(), usedPlaceIds);
+	        if (firstPlace == null) continue;
 
-				// 2. 두 번째 장소: 음식점(placeType 6), 첫 장소 기준 가까운 순
-				Place secondPlace = findNearestPlace(6, request, firstPlace);
-				if (secondPlace != null)
-					placeInfos.add(toPlaceInfo(secondPlace));
+	        usedPlaceIds.add(firstPlace.getId());
+	        placeInfos.add(toPlaceInfo(firstPlace));
 
-				// 3. 세 번째 장소: 랜덤 타입 하나 (3, 5, 1 중)
-				int[] randomTypes = { 3, 5, 1 };
-				int randomType = randomTypes[new Random().nextInt(randomTypes.length)];
-				Place thirdPlace = findNearestPlace(randomType, request, secondPlace != null ? secondPlace : firstPlace);
-				if (thirdPlace != null)
-					placeInfos.add(toPlaceInfo(thirdPlace));
+	        String region = firstPlace.getRegion();
 
-				// 4. 네 번째 장소: 숙박 (4)
-				Place fourthPlace = findNearestPlace(4, request,
-						thirdPlace != null ? thirdPlace : (secondPlace != null ? secondPlace : firstPlace));
-				if (fourthPlace != null)
-					placeInfos.add(toPlaceInfo(fourthPlace));
+	        // 두 번째 장소 음식점
+	        Place secondPlace = findNearestPlace(6, firstPlace, region, usedPlaceIds);
+	        if (secondPlace != null) {
+	            usedPlaceIds.add(secondPlace.getId());
+	            placeInfos.add(toPlaceInfo(secondPlace));
+	        }
 
-				tripPlans.add(new TripRecommendResponse(i + 1, placeInfos, startDate, endDate));
-			}
+	        // 세 번째 장소
+	        int[] types = {1, 2, 3, 4, 5, 7}; // 음식점 제외
+	        int randomType = types[new Random().nextInt(types.length)];
+	        Place thirdPlace = findNearestPlace(randomType, secondPlace != null ? secondPlace : firstPlace, region, usedPlaceIds);
+	        if (thirdPlace != null) {
+	            usedPlaceIds.add(thirdPlace.getId());
+	            placeInfos.add(toPlaceInfo(thirdPlace));
+	        }
 
-			return tripPlans;
-		}
+	        // 네 번째 장소
+	        Place fourthPlace = findNearestPlace(4, 
+	            thirdPlace != null ? thirdPlace : (secondPlace != null ? secondPlace : firstPlace), 
+	            region, usedPlaceIds);
+	        if (fourthPlace != null) {
+	            usedPlaceIds.add(fourthPlace.getId());
+	            placeInfos.add(toPlaceInfo(fourthPlace));
+	        }
 
-		private Place findNearestPlace(int placeType, TripRecommendRequest request, Place base) {
-			List<Place> candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
-					request.getSelectedCategoryIds(), base.getLatitude(), base.getLongitude(), 1);
-			if (candidates == null || candidates.isEmpty()) {
-				candidates = placeMapper.findPlacesByTypeAndDistance(placeType, request.getRegion(),
-						Collections.emptyList(), base.getLatitude(), base.getLongitude(), 1);
-			}
-			return candidates.isEmpty() ? null : candidates.get(0);
-		}
+	        tripPlans.add(new TripRecommendResponse(i + 1, placeInfos, startDate, endDate));
+	    }
+
+	    return tripPlans;
+	}
+
+	private Place findNearestPlace(int placeType, Place base, String region, List<Long> usedIds) {
+	    List<Place> candidates = placeMapper.findPlacesByTypeAndDistanceExcluding(
+	        placeType, region, base.getLatitude(), base.getLongitude(), 1, usedIds
+	    );
+	    return (candidates == null || candidates.isEmpty()) ? null : candidates.get(0);
+	}
 
 		private TripRecommendResponse.PlaceInfo toPlaceInfo(Place place) {
 			return new TripRecommendResponse.PlaceInfo(place.getId(), place.getName(), place.getDescription(),

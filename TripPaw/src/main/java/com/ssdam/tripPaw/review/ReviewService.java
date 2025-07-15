@@ -43,7 +43,7 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.member.MemberMapper;
 import com.ssdam.tripPaw.member.MemberService;
-import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
+//import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 import com.ssdam.tripPaw.tripPlan.TripPlanMapper;
@@ -384,11 +384,11 @@ public class ReviewService {
     }
  	
  	//여권 도장용 추가코드
- 	public List<MemberTripPlanReviewDto> getTripPlansWithoutReview(Long memberId){
- 		return reviewMapper.findTripPlansWithoutReview(memberId);
- 	}
+// 	public List<MemberTripPlanReviewDto> getTripPlansWithoutReview(Long memberId){
+// 		return reviewMapper.findTripPlansWithoutReview(memberId);
+// 	}
  	
- 	public List<MyReviewDto> getReviewsWithPlaceTypeByMemberId(Long memberId){
- 	    return reviewMapper.findReviewsWithPlaceTypeByMemberId(memberId);
- 	}
+// 	public List<MyReviewDto> getReviewsWithPlaceTypeByMemberId(Long memberId){
+// 	    return reviewMapper.findReviewsWithPlaceTypeByMemberId(memberId);
+// 	}
 }

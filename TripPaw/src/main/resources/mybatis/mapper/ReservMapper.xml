@@ -47,6 +47,13 @@
 			  </association>
 		</association>
 
+	    <association property="pay" javaType="com.ssdam.tripPaw.domain.Pay">
+	        <id property="id" column="pay_id" />
+	        <result property="state" column="pay_state" />
+	        <result property="amount" column="pay_amount" />
+	        <!-- 필요하면 더 매핑 -->
+	    </association>
+
 	</resultMap>
 	<!-- 예약 + 장소 포함 매핑 -->
 	<resultMap id="ReservWithPlaceResultMap"
@@ -116,10 +123,10 @@
 	    m.id AS member_id,
 	    m.username AS member_username,
 	    mtp.id AS member_trip_plan_id,
-	    mtp.start_date AS mtp_start_date,
-	    mtp.end_date AS mtp_end_date,
-	    mtp.count_people AS mtp_count_people,
-	    mtp.count_pet AS mtp_count_pet,
+	    mtp.start_date AS start_date,
+	    mtp.end_date AS end_date,
+	    mtp.count_people AS count_people,
+	    mtp.count_pet AS count_pet,
 	    tp.id AS trip_plan_id,
 	    tp.title AS trip_plan_title
 	  FROM reserv r
@@ -128,7 +135,6 @@
 	  LEFT JOIN member_trip_plan mtp ON r.member_trip_plan_id = mtp.id
 	  LEFT JOIN trip_plan tp ON mtp.trip_plan_id = tp.id
 	  WHERE r.member_id = #{memberId}
-	  AND r.delete_at IS NULL
 	  ORDER BY r.created_at DESC
 	</select>
 
@@ -241,7 +247,18 @@
 	<select id="findByMemberTripPlanIdAndMember"
 		resultMap="ReservResultMap">
 		SELECT
-		r.*,
+		r.id AS id,
+		r.count_people,
+		r.count_pet,
+		r.created_at,
+		r.delete_at,
+		r.start_date,
+		r.end_date,
+		r.expire_at,
+		r.state,
+		r.original_price,
+		r.final_price,
+		r.member_id,
 		r.member_trip_plan_id AS member_trip_plan_id,
 		p.id
 		AS place_id,
@@ -251,8 +268,7 @@
 		longitude,
 		p.region AS region,
 		m.id AS member_id,
-		m.username AS
-		member_username
+		m.username AS member_username
 		FROM reserv r
 		JOIN place p ON r.place_id = p.id
 		JOIN
@@ -265,6 +281,12 @@
 		AND r.delete_at IS
 		NULL
 		ORDER BY r.start_date ASC
+	</select>
+
+	<select id="findAllByPayId" resultType="com.ssdam.tripPaw.domain.Reserv">
+	    SELECT r.*
+	    FROM reserv r
+	    WHERE r.pay_id = #{payId}
 	</select>
 
 	<select id="findCoursesByMemberId"
@@ -330,6 +352,12 @@
 		</if>
 		)
 	</insert>
+
+	<update id="updatePayIdByReservId">
+	  UPDATE reserv
+	  SET pay_id = #{payId}
+	  WHERE id = #{reservId}
+	</update>
 
 	<select id="existsOverlappingReservation" resultType="boolean">
 		SELECT
