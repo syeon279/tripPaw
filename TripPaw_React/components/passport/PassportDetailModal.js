@@ -90,9 +90,8 @@ const PassportDetailModal = ({ passport, onClose, memberId }) => {
         <div style={{border:'1px solid #fff', height:'260px'}}>  
           {passportSeals.length > 0 ? (
             <div className="stamp-list">
-              {passportSeals.map((seal) => ( <a href={`/reviews/${seal.reviewId}`}> 
-              <img key={seal.id} src={ seal.imageUrl?.startsWith('http') ? seal.imageUrl : `http://localhost:8080${seal.imageUrl}` } alt="도장" />
-                </a>
+              {passportSeals.map((seal) => (   
+                <a key={seal.id} href={`/tripPlan/${seal.review?.targetId}`}>   <img  src={seal.seal?.imageUrl?.startsWith('http') ? seal.seal.imageUrl : `http://localhost:8080${seal.seal?.imageUrl}` } alt={seal.seal?.name || '도장'} /> </a>
               ))}
             </div>
           ) : (

@@ -31,8 +31,12 @@ public interface SealMapper {
     List<Seal> findSealsByTripPlanId(@Param("memberTripPlanId") Long memberTripPlanId);
     
     //등록한 도장 제외
-    List<Seal> findUnacquiredSealsByTripPlan(@Param("memberTripPlanId") Long memberTripPlanId,  @Param("passportId") Long passportId);
+//    List<Seal> findUnacquiredSealsByTripPlan(@Param("memberTripPlanId") Long memberTripPlanId,  @Param("passportId") Long passportId);
     
     int countSealsByName(String name);
+    
+    List<Seal> findUnacquiredSealsByTripPlanId(@Param("tripPlanId") Long tripPlanId,
+            @Param("passportId") Long passportId);
+
     
 }

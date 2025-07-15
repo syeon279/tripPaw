@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssdam.tripPaw.domain.Badge;
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
@@ -43,6 +44,7 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.member.MemberMapper;
 import com.ssdam.tripPaw.member.MemberService;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 //import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
 import com.ssdam.tripPaw.reserv.ReservMapper;
@@ -384,11 +386,12 @@ public class ReviewService {
     }
  	
  	//여권 도장용 추가코드
-// 	public List<MemberTripPlanReviewDto> getTripPlansWithoutReview(Long memberId){
-// 		return reviewMapper.findTripPlansWithoutReview(memberId);
-// 	}
- 	
-// 	public List<MyReviewDto> getReviewsWithPlaceTypeByMemberId(Long memberId){
-// 	    return reviewMapper.findReviewsWithPlaceTypeByMemberId(memberId);
-// 	}
+    public List<MemberTripPlanReviewDto> getMyTripReviews(Long memberId) {
+        return reviewMapper.getMyTripReviews(memberId);
+    }
+
+    public List<MemberTripPlan> getUnwrittenTripPlans(Long memberId) {
+        return reviewMapper.getUnwrittenTripPlans(memberId);
+    }
+    
 }

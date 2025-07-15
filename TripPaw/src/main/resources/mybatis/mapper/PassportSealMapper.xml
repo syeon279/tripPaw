@@ -13,9 +13,10 @@
             <result property="name" column="seal_name"/>
             <result property="imageUrl" column="seal_image"/>
         </association>
-        <association property="review" column="review_id" javaType="com.ssdam.tripPaw.domain.Review">
-            <id property="id" column="review_id"/>
-        </association>
+		<association property="review" column="review_id" javaType="com.ssdam.tripPaw.domain.Review">
+		  <id property="id" column="review_id"/>
+		  <result property="targetId" column="review_target_id"/>
+		</association>
     </resultMap>
 
     <insert id="insert" parameterType="com.ssdam.tripPaw.domain.PassportSeal" useGeneratedKeys="true" keyProperty="id">
@@ -32,11 +33,21 @@
     </select>
 
     <select id="findByPassportId" resultMap="PassportSealResultMap">
-        SELECT ps.id, ps.passport_id, ps.seal_id, ps.review_id,
-               s.name AS seal_name, s.image_url AS seal_image
-        FROM passport_seal ps
-        JOIN seal s ON ps.seal_id = s.id
-        WHERE ps.passport_id = #{passportId}
+  SELECT 
+    ps.id,
+    ps.passport_id,
+    ps.seal_id,
+    ps.review_id,
+
+    s.name AS seal_name,
+    s.image_url AS seal_image,
+
+    r.target_id AS review_target_id  
+
+  FROM passport_seal ps
+  JOIN seal s ON ps.seal_id = s.id
+  JOIN review r ON ps.review_id = r.id  
+  WHERE ps.passport_id = #{passportId}
     </select>
 
     <delete id="delete">
