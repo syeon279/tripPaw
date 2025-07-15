@@ -22,11 +22,10 @@ public class NftIssueService {
     private final NftMetadataService nftMetadataService;
 
     @Transactional
-    public void issueToMember(Long nftMetadataId, Long id, String issuedReason) {
-        
-        Member member = memberMapper.findById(id);
+    public void issueToMemberByNickname(Long nftMetadataId, String nickname, String issuedReason) {
+        Member member = memberMapper.findByNickname(nickname);
         if (member == null) {
-            throw new IllegalArgumentException("해당 사용자를 찾을 수 없습니다: " + id);
+            throw new IllegalArgumentException("해당 닉네임의 사용자를 찾을 수 없습니다: " + nickname);
         }
 
         // 메타데이터 조회
@@ -42,6 +41,6 @@ public class NftIssueService {
         memberNft.setIssuedReason(issuedReason);
         memberNft.setTokenId(metadata.getTokenId());
 
-        memberNftService.issueNft(memberNft);
+        memberNftService.issueOrReuseNft(memberNft);
     }
 }
