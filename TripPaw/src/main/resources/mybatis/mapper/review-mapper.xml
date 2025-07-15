@@ -40,6 +40,7 @@
 		<association property="place"
 			javaType="com.ssdam.tripPaw.domain.Place">
 			<result property="name" column="place_name" />
+			<result property="imageUrl" column="place_image_url"/>
 		</association>
 	</resultMap>
 
@@ -150,8 +151,9 @@
 
 	<select id="findByPlaceIdWithPlaceName"
 		resultMap="reviewWithPlaceMap" parameterType="long">
-		SELECT r.*, p.name AS
-		place_name
+		SELECT r.*, 
+		p.name AS place_name,
+		p.image_url AS place_image_url
 		FROM review r
 		JOIN place p ON r.target_id = p.id
 		WHERE
@@ -230,6 +232,7 @@
 		r.id AS reviewId,
 		r.content,
 		r.rating,
+		r.created_at AS createdAt, 
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
@@ -261,6 +264,7 @@
 		r.id AS reviewId,
 		r.content,
 		r.rating,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
@@ -292,6 +296,7 @@
 		r.id AS reviewId,
 		r.content,
 		r.rating,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
@@ -323,6 +328,7 @@
 		r.id AS reviewId,
 		r.content,
 		r.rating,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		tp.title AS planTitle,
@@ -359,6 +365,7 @@
 		r.id AS reviewId,
 		r.content,
 		r.rating,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
 		p.name AS placeName,

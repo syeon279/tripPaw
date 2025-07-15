@@ -8,10 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.Transactional;
+
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
@@ -206,10 +207,9 @@ public class NFTService {
             throw new IllegalStateException("사용하지 않은 쿠폰이 존재하므로 삭제할 수 없습니다.");
         }
 
-        // 1. 사용 완료된 member_nft 먼저 삭제
-        memberNftMapper.deleteUsedByNftMetadataId(nftMetadataId);
+        // soft delete 메서드 호출로 변경 (이름 맞춤)
+        memberNftMapper.softDeleteUsedByNftMetadataId(nftMetadataId);
 
-        // 2. 이후 nft_metadata 삭제
         nftMetadataMapper.delete(nftMetadataId);
     }
 }

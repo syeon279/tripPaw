@@ -175,13 +175,20 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
-		<!-- OpenAI Java SDK 사용시 -->
+		<!-- OpenAI Java SDK 사용시 theokanning 커스텀 라이브러리 -->
 		<dependency>
 			<groupId>com.theokanning.openai-gpt3-java</groupId>
 			<artifactId>client</artifactId>
 			<version>0.18.2</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/com.openai/openai-java
+			공식 라이브러리
+		 -->
+		<dependency>
+		    <groupId>com.openai</groupId>
+		    <artifactId>openai-java</artifactId>
+		    <version>2.3.0</version>
+		</dependency>
 		<!-- Later -->
 		<dependency>
 			<groupId>com.google.guava</groupId>

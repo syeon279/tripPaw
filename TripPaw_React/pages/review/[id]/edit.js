@@ -9,11 +9,18 @@ const { TextArea } = Input;
 const ReviewEditPage = () => {
   const router = useRouter();
   const { id } = router.query;
-
+  const [memberId, setMemberId] = useState(null);
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState("");
   const [fileList, setFileList] = useState([]);
 
+  useEffect(() => {
+    const fetchMember = async () => {
+      const res = await axios.get("http://localhost:8080/api/auth/check", { withCredentials: true });
+      setMemberId(res.data.id);
+    };
+    fetchMember();
+  }, []);
   // 리뷰 불러오기
   useEffect(() => {
     if (!router.isReady || !router.query.id) return;
@@ -46,7 +53,7 @@ const ReviewEditPage = () => {
     const review = {
       content,
       rating,
-      member: { id: 1 }, // 실제 memberId 필요 (로그인 사용자 기준)
+      member: { id: memberId },
     };
     formData.append("review", new Blob([JSON.stringify(review)], { type: "application/json" }));
 
@@ -64,7 +71,7 @@ const ReviewEditPage = () => {
         },
       });
       message.success("리뷰가 수정되었습니다.");
-      router.push("/review/route-review"); // 이동 경로 필요시 변경
+      router.push("/mypage"); // 이동 경로 필요시 변경
     } catch (err) {
       console.error("수정 실패", err);
       message.error("리뷰 수정에 실패했습니다.");
