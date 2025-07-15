@@ -47,6 +47,13 @@
 			  </association>
 		</association>
 
+	    <association property="pay" javaType="com.ssdam.tripPaw.domain.Pay">
+	        <id property="id" column="pay_id" />
+	        <result property="state" column="pay_state" />
+	        <result property="amount" column="pay_amount" />
+	        <!-- 필요하면 더 매핑 -->
+	    </association>
+
 	</resultMap>
 	<!-- 예약 + 장소 포함 매핑 -->
 	<resultMap id="ReservWithPlaceResultMap"
@@ -276,6 +283,12 @@
 		ORDER BY r.start_date ASC
 	</select>
 
+	<select id="findAllByPayId" resultType="com.ssdam.tripPaw.domain.Reserv">
+	    SELECT r.*
+	    FROM reserv r
+	    WHERE r.pay_id = #{payId}
+	</select>
+
 	<select id="findCoursesByMemberId"
 		resultType="com.ssdam.tripPaw.dto.TripPlanCoursePlaceDto">
 		SELECT
@@ -339,6 +352,12 @@
 		</if>
 		)
 	</insert>
+
+	<update id="updatePayIdByReservId">
+	  UPDATE reserv
+	  SET pay_id = #{payId}
+	  WHERE id = #{reservId}
+	</update>
 
 	<select id="existsOverlappingReservation" resultType="boolean">
 		SELECT

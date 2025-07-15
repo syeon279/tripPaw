@@ -115,25 +115,24 @@ const cancelPayment = async (pay) => {
   if (!window.confirm('결제를 취소하시겠습니까?')) return;
 
   try {
-    if (pay.groupId && !pay.reservId) {
-      // 그룹 결제 취소 (일괄 취소)
-      await axios.post(
-        'http://localhost:8080/pay/group-cancel',
-        {
-          groupId: pay.groupId,
-          impUid: pay.impUid,
-          amount: pay.amount,
-        },
-        { withCredentials: true }
-      );
-    } else {
-      // 단일 결제 취소
-      await axios.post(
-        `http://localhost:8080/pay/${pay.id}/cancel`,
-        null,
-        { withCredentials: true }
-      );
+    // 1. pay.id 기준으로 연결된 예약들 찾기
+    const relatedReservs = reservList.filter(r => r.pay?.id === pay.id);
+
+    // 2. 모든 예약이 취소 상태인지 확인
+    const allCancelled = relatedReservs.length > 0 &&
+      relatedReservs.every(r => r.state === 'CANCELLED');
+
+    if (!allCancelled) {
+      alert('모든 예약이 취소된 경우에만 결제 취소가 가능합니다.');
+      return;
     }
+
+    // 3. 일괄 결제 취소
+    await axios.post(
+      `http://localhost:8080/pay/${pay.id}/cancel`,
+      null,
+      { withCredentials: true }
+    );
 
     alert('결제가 취소되었습니다.');
     setPayments((prev) =>
@@ -146,33 +145,6 @@ const cancelPayment = async (pay) => {
     alert('결제 취소에 실패했습니다.');
   }
 };
-
-useEffect(() => {
-  if (payments.length === 0 || reservList.length === 0) return;
-
-  let changed = false;
-
-  const updatedPayments = payments.map((pay) => {
-    const relatedReserv = reservList.find(
-      (r) => r.memberTripPlan?.id === pay.groupId
-    );
-    
-    if (
-      relatedReserv &&
-      relatedReserv.state === 'CANCELLED' &&
-      pay.state !== 'CANCELLED'
-    ) {
-      changed = true;
-      return { ...pay, state: 'CANCELLED' };
-    }
-    return pay;
-  });
-
-  if (changed) {
-    setPayments(updatedPayments);
-  }
-  // payments 의존성 제거하여 무한루프 방지
-}, [reservList]);
 
   const refundPayment = async (pay) => {
     if (!window.confirm('정말 환불하시겠습니까?')) return;
@@ -229,11 +201,10 @@ useEffect(() => {
               
 {openedSections[groupId] &&
   pays.map((pay) => {
-    const cancelled =
-      pay.reservState === 'CANCELLED' ||
-      pay.reserv?.state === 'CANCELLED' ||
-      (pay.groupId && isGroupCancelled(pay.groupId, reservList));
+    const relatedReservs = reservList.filter(r => r.pay?.id == pay.id);
 
+  const state = (pay.state || '').toUpperCase().trim();
+  const cancelled = relatedReservs.length > 0 && relatedReservs.every(r => (r.state || '').toUpperCase() === 'CANCELLED');
     return (
       <div key={pay.id} className={styles.receipt}>
         <div className={styles.receiptHeader}>
@@ -254,40 +225,33 @@ useEffect(() => {
           </div>
         </div>
         <div className={styles.receiptBody}>
-          <p><strong>결제 상태:</strong> {stateMap[pay.state] || pay.state}</p>
+          <p><strong>결제 상태:</strong> {stateMap[state] || state}</p>
           <p><strong>결제 금액:</strong> {pay.amount.toLocaleString()}원</p>
           <p><strong>결제 수단:</strong> {pay.payMethod}</p>
         </div>
-        <div className={styles.receiptFooter}>
-          {cancelled ? (
-            <>
-              {pay.state === 'PAID' && (
-                <button
-                  onClick={() => cancelPayment(pay)}
-                  className={styles.cancelBtn}
-                >
-                  결제 취소
-                </button>
-              )}
-              {pay.state === 'CANCELLED' && (
-                <button
-                  onClick={() => refundPayment(pay)}
-                  className={styles.refund}
-                >
-                  환불 처리
-                </button>
-              )}
-              {pay.state === 'REFUNDED' && (
-                <span className={styles.refundedBadge}>환불 완료</span>
-              )}
-            </>
-          ) : (
-            <span className={styles.infoText}>예약 취소 후 이용 가능</span>
-          )}
+          <div className={styles.receiptFooter}>
+            {state == 'PAID' && cancelled && (
+              <button onClick={() => cancelPayment(pay)} className={styles.cancelBtn}>
+                결제 취소
+              </button>
+            )}
+            {state == 'CANCELLED' && (
+              <button onClick={() => refundPayment(pay)} className={styles.refund}>
+                환불 처리
+              </button>
+            )}
+            {state == 'REFUNDED' && (
+              <span className={styles.refundedBadge}>환불 완료</span>
+            )}
+            {!(
+              (state == 'PAID' && cancelled) ||
+              state == 'CANCELLED' ||
+              state == 'REFUNDED'
+            ) && <span className={styles.infoText}>예약 취소 후 이용 가능</span>}
+          </div>
         </div>
-      </div>
-    );
-  })}
+      );
+    })}
             </section>
           ))}
 
