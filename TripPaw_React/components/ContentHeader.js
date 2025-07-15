@@ -85,17 +85,17 @@ const ContentHeader = ({ theme }) => {
       </LogoWrapper>
 
       <IconMenu isWhite={isWhite} >
-        <NotificationOutlined
+        {/* <NotificationOutlined
           onClick={() => router.push('/notice')}
           style={{ color: isWhite ? 'white' : 'black' }}
         />
         <SearchOutlined
           onClick={() => router.push('/search')}
           style={{ color: isWhite ? 'white' : 'black' }}
-        />
+        /> */}
         {isLoggedIn ? <div style={{ display: "flex" }}>
           <UserOutlined
-            onClick={() => router.push('/mypage')}
+            onClick={() => router.push('/mypage/trips')}
             style={{ marginRight: '25px', color: isWhite ? 'white' : 'black' }}
           />
           <div>

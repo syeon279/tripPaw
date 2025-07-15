@@ -207,6 +207,12 @@ const tripEdit = () => {
                 memberId
             };
 
+            const hasAtLeastOnePlace = routeData.some(day => day.places && day.places.length > 0);
+            if (!hasAtLeastOnePlace) {
+                alert('여행 일정에 최소 1개 이상의 장소가 필요합니다.');
+                return;
+            }
+
             await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
         } catch (error) {
@@ -217,11 +223,20 @@ const tripEdit = () => {
 
     const handleDeletePlace = (day, placeId) => {
         setRouteData((prev) =>
-            prev.map((route) =>
-                route.day === day
-                    ? { ...route, places: route.places.filter((p) => p.placeId !== placeId) }
-                    : route
-            )
+            prev.map((route) => {
+                if (route.day === day) {
+                    if (route.places.length <= 1) {
+                        alert('일정에는 최소 1개의 장소가 필요합니다.');
+                        return route; // 삭제하지 않고 기존 유지
+                    }
+
+                    return {
+                        ...route,
+                        places: route.places.filter((p) => p.placeId !== placeId),
+                    };
+                }
+                return route;
+            })
         );
     };
 
@@ -258,14 +273,19 @@ const tripEdit = () => {
         <AppLayout>
             <div style={layoutStyle.header} />
             <div style={layoutStyle.contentWrapper}>
-                <h1>강아지와 함께! 에너지 넘치는 파워 여행 루틴</h1>
-                {startDate && endDate && (
-                    <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
-                        {format(new Date(startDate), 'yyyy.MM.dd')} ~{' '}
-                        {format(new Date(endDate), 'yyyy.MM.dd')}
-                    </p>
-                )}
-                <div>{countPeople}명 {countPet}견</div>
+                <div style={{ display: 'flex', alignItems: 'end' }}>
+                    <h1>TripPaw가 추천하는 맞춤 여행</h1>
+                    {startDate && endDate && (
+                        <p style={{ fontSize: '16px', color: '#555', marginTop: '0px', marginLeft: '10px' }}>
+                            {format(new Date(startDate), 'yyyy.MM.dd')} ~{' '}
+                            {format(new Date(endDate), 'yyyy.MM.dd')}
+                        </p>
+                    )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between' }} >
+                    <div>{countPeople}명 {countPet}견</div>
+                    <div style={{ marginRight: '20px', fontSize: '20px', marginBottom: '10px' }}>장소 카드를 움직여 일정을 수정해 보세요!</div>
+                </div>
 
                 <div style={layoutStyle.divider}>
                     <div style={layoutStyle.dividerLine} />
