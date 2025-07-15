@@ -227,12 +227,12 @@ const tripPlanMain = () => {
     const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     const handleRandomDice = () => {
-        const regionList = ["서울", "부산", "제주", "인천", "광주", "대전", "울산", "경기", "강원", "충청", "전라", "경북", "경상"];
+        const regionList = ["서울", "부산", "제주", "인천", "광주", "대전", "울산", "경기", "강원", "충청", "전라", "경상"];
         const randomRegion = getRandomItem(regionList);
 
         const today = new Date();
         const randomStart = addDays(today, getRandomInt(1, 14));
-        const randomEnd = addDays(randomStart, getRandomInt(1, 4));
+        const randomEnd = addDays(randomStart, getRandomInt(0, 2));
 
         const formattedStart = format(randomStart, "yyyy-MM-dd");
         const formattedEnd = format(randomEnd, "yyyy-MM-dd");
@@ -280,7 +280,6 @@ const tripPlanMain = () => {
                                             <option value="강원">강원</option>
                                             <option value="충청">충청</option>
                                             <option value="전라">전라</option>
-                                            <option value="경북">경북</option>
                                             <option value="경상">경상</option>
                                         </select>
                                     </div>
