@@ -51,9 +51,14 @@ public class SealService {
         return sealMapper.findSealsByTripPlanId(memberTripPlanId);
     }
     
-    //등록도장제외
-    public List<Seal> getUnacquiredSeals(Long memberTripPlanId, Long passportId) {
-        return sealMapper.findUnacquiredSealsByTripPlan(memberTripPlanId, passportId);
+    public List<Seal> getUnacquiredSealsByTrip(Long tripPlanId, Long passportId) {
+        return sealMapper.findUnacquiredSealsByTripPlanId(tripPlanId, passportId);
     }
+
+    
+    //등록도장제외
+//    public List<Seal> getUnacquiredSeals(Long memberTripPlanId, Long passportId) {
+//        return sealMapper.findUnacquiredSealsByTripPlan(memberTripPlanId, passportId);
+//    }
 	
 }

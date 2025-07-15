@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,14 @@ public class NFTService {
     private final MemberNftMapper memberNftMapper;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    
+
+
+    // OpenAI API 키 (환경변수 등에서 불러오세요)
+    @Value("${openai.api.key}")
+    private String openAiApiKey;
+    private final String openAiApiUrl = "https://api.openai.com/v1/chat/completions";
 
     // 블록체인에서 보유 NFT 조회
     public List<NFTDto> getNFTs(String contractAddress, String walletAddress) throws Exception {
@@ -93,8 +103,8 @@ public class NFTService {
             // IPFS to HTTPS 변환
             String metadataUrl = rawUri.replace("ipfs://", "https://ipfs.io/ipfs/");
 
-            // ** 메타데이터 JSON 가져와서 image 필드 파싱 **
-            String imageUrl = metadataUrl;  // 기본값 (혹시 실패 시)
+            // 메타데이터 JSON 가져와서 image 필드 파싱
+            String imageUrl = metadataUrl;
             try {
                 ResponseEntity<String> response = restTemplate.getForEntity(metadataUrl, String.class);
                 if (response.getStatusCode().is2xxSuccessful()) {
@@ -110,60 +120,98 @@ public class NFTService {
                     }
                 }
             } catch (Exception e) {
-                // JSON 파싱 실패 시 로그 기록하고 넘어감
                 System.out.println("메타데이터 JSON 파싱 실패, tokenId=" + tokenId + ", url=" + metadataUrl);
                 e.printStackTrace();
             }
 
-            result.add(new NFTDto(tokenId.toString(), metadataUrl, imageUrl));
+            result.add(new NFTDto(tokenId.toString(), metadataUrl, imageUrl, imageUrl));
         }
 
         return result;
     }
 
-    // 🔁 동기화: 블록체인에서 NFT 가져와 DB 저장/업데이트
+    // AI를 통해 NFT 제목 생성 (OpenAI GPT API 호출)
+    private String generateTitleByAI(String metadataUrl) {
+        if (openAiApiKey == null || openAiApiKey.isEmpty()) {
+            System.out.println("OpenAI API 키가 설정되어 있지 않습니다.");
+            return null;
+        }
+
+        String prompt = "Suggest one short, cute, single English word for a dog or cat themed NFT coupon. Only return the word.";
+
+        Map<String, Object> requestBody = Map.of(
+                "model", "gpt-3.5-turbo",
+                "messages", List.of(Map.of("role", "user", "content", prompt)),
+                "max_tokens", 20
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(openAiApiKey);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(openAiApiUrl, entity, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Map<String, Object> body = response.getBody();
+                List<Map<String, Object>> choices = (List<Map<String, Object>>) body.get("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+                    if (message != null) {
+                        String content = (String) message.get("content");
+                        return content.trim();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("AI 제목 생성 실패: " + e.getMessage());
+        }
+        // 실패 시 null 리턴
+        return null;
+    }
+
+    // 동기화: 블록체인에서 NFT 가져와 DB 저장/업데이트 (AI 제목 생성 추가)
     public List<NftMetadata> syncTokensToDb(String contractAddress, String walletAddress) throws Exception {
         List<NFTDto> nfts = getNFTs(contractAddress, walletAddress);
         List<NftMetadata> savedList = new ArrayList<>();
 
         for (NFTDto nft : nfts) {
             try {
-                // tokenId를 Long으로 변환 (기존 값 사용)
                 Long tokenId = Long.parseLong(nft.getTokenId());
                 String imageUrl = nft.getPreviewURL();
-                String title = "Token #" + tokenId;  // 제목 설정, 예시로 tokenId를 포함
 
-                // DB에서 token_id로 기존 레코드 조회
+                // AI 제목 생성 호출
+                String aiTitle = generateTitleByAI(nft.getMetadataUrl());
+                String title = (aiTitle != null && !aiTitle.isBlank()) ? aiTitle : "Token #" + tokenId;
+
                 NftMetadata existing = nftMetadataMapper.findByTokenId(tokenId);
                 if (existing == null) {
-                    // 기존에 없으면 새로 추가
                     NftMetadata newMeta = new NftMetadata();
-                    newMeta.setTokenId(tokenId);  // 반드시 token_id를 설정
+                    newMeta.setTokenId(tokenId);
                     newMeta.setTitle(title);
                     newMeta.setImageUrl(imageUrl);
-                    newMeta.setPointValue(0);  // 기본 포인트값 설정
-                    newMeta.setIssuedAt(LocalDateTime.now());  // 현재 시간
-                    nftMetadataMapper.insert(newMeta);  // DB에 삽입
+                    newMeta.setPointValue(0);
+                    newMeta.setIssuedAt(LocalDateTime.now());
+                    nftMetadataMapper.insert(newMeta);
                     savedList.add(newMeta);
                 } else {
-                    // 기존에 있으면 업데이트
                     existing.setImageUrl(imageUrl);
                     existing.setTitle(title);
-                    existing.setPointValue(0);  // 필요에 따라 업데이트할 필드 설정
-                    nftMetadataMapper.update(existing);  // DB에 업데이트
+                    existing.setPointValue(0);
+                    nftMetadataMapper.update(existing);
                     savedList.add(existing);
                 }
             } catch (Exception e) {
-                // 예외 발생 시 로그 출력
                 System.out.println("Error syncing NFT with tokenId: " + nft.getTokenId());
                 e.printStackTrace();
-                throw new RuntimeException("Failed to sync NFT: " + nft.getTokenId(), e);  // 예외 던지기
+                throw new RuntimeException("Failed to sync NFT: " + nft.getTokenId(), e);
             }
         }
         return savedList;
     }
 
-    // ✅ NFT 템플릿 + 발급 여부 반환
+    // NFT 템플릿 + 발급 여부 반환
     public List<Map<String, Object>> getAllNftMetadata() {
         List<NftMetadata> metadataList = nftMetadataMapper.findAll();
         List<Map<String, Object>> result = new ArrayList<>();
@@ -177,7 +225,6 @@ public class NFTService {
             map.put("pointValue", meta.getPointValue());
             map.put("issuedAt", meta.getIssuedAt());
 
-            // 발급 여부 조회 (member_nft 테이블에 존재 여부)
             boolean isIssued = memberNftMapper.existsByNftMetadataId(meta.getId());
             map.put("issued", isIssued);
 
@@ -206,10 +253,18 @@ public class NFTService {
         if (unusedCount > 0) {
             throw new IllegalStateException("사용하지 않은 쿠폰이 존재하므로 삭제할 수 없습니다.");
         }
+        
+        // used 여부와 관계없이 모두 soft delete 처리
+        memberNftMapper.softDeleteAllByMetadataId(nftMetadataId);
 
-        // soft delete 메서드 호출로 변경 (이름 맞춤)
-        memberNftMapper.softDeleteUsedByNftMetadataId(nftMetadataId);
-
-        nftMetadataMapper.delete(nftMetadataId);
+        nftMetadataMapper.softDelete(nftMetadataId);
+    }
+    
+    // 관리자 강제 삭제
+    @Transactional
+    public void forceDeleteNftMetadata(Long nftMetadataId) {
+        // 사용 여부와 관계없이 soft delete 처리
+        memberNftMapper.softDeleteAllByMetadataId(nftMetadataId);
+        nftMetadataMapper.softDelete(nftMetadataId);
     }
 }

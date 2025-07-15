@@ -27,6 +27,7 @@
 	    <result property="countPeople" column="count_people"/>
 	    <result property="countPet" column="count_pet"/>
 	    <result property="state" column="state_reserv" javaType="com.ssdam.tripPaw.reserv.ReservState" jdbcType="VARCHAR"/>
+	    <result property="reserv.memberTripPlanId" column="member_trip_plan_id"/>
 	    
 	      <association property="place" javaType="com.ssdam.tripPaw.domain.Place">
 		    <id property="id" column="place_id"/>
@@ -50,6 +51,7 @@
 	    r.delete_at AS delete_at_reserv, r.state AS state_reserv, 
 	    r.created_at AS created_at_reserv,
 	    r.original_price, r.final_price, r.count_people, r.count_pet,
+	    r.member_trip_plan_id AS member_trip_plan_id,
 	    
 	    pl.id AS place_id, pl.name AS place_name,
 	    
@@ -143,11 +145,14 @@
     WHERE id = #{id}
   </update>
 
-  <!-- 삭제 -->
+	<!-- 단일 결제 soft delete -->
 	<update id="softDelete" parameterType="long">
-	  UPDATE pay
-	  SET delete_at = NOW()
-	  WHERE id = #{id}
+	  UPDATE pay SET delete_at = NOW() WHERE id = #{id} AND delete_at IS NULL
+	</update>
+	
+	<!-- 그룹 결제 soft delete -->
+	<update id="softDeleteByGroupId" parameterType="long">
+	  UPDATE pay SET delete_at = NOW() WHERE group_id = #{groupId} AND delete_at IS NULL
 	</update>
 	
 </mapper>

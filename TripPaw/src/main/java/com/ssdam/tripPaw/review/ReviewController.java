@@ -22,9 +22,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssdam.tripPaw.domain.Member;
+import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Reserv;
 import com.ssdam.tripPaw.domain.Review;
 import com.ssdam.tripPaw.domain.TripPlan;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 //import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.reserv.ReservMapper;
 
@@ -223,16 +225,15 @@ public class ReviewController {
     }
     
     //도장 선택용 코드 추가
-    //리뷰작성가능한거 조회
-//    @GetMapping("/tripplans-no-review/{memberId}")
-//    public ResponseEntity<List<MemberTripPlanReviewDto>> getTripPlansWithoutReview(@PathVariable Long memberId) {
-//        List<MemberTripPlanReviewDto> result = reviewService.getTripPlansWithoutReview(memberId);
-//        return ResponseEntity.ok(result);
-//    }
-//    
-//    @GetMapping("/member/{memberId}/place-type")
-//    public List<MyReviewDto> getReviewsWithPlaceType(@PathVariable Long memberId) {
-//        return reviewService.getReviewsWithPlaceTypeByMemberId(memberId);
-//    }
+    //리뷰작성가능한거 조회    
+    @GetMapping("/member/{memberId}/place-type")
+    public ResponseEntity<List<MemberTripPlanReviewDto>> getMyTripReviews(@PathVariable Long memberId) {
+        return ResponseEntity.ok(reviewService.getMyTripReviews(memberId));
+    }
+
+    @GetMapping("/tripplans-no-review/{memberId}")
+    public ResponseEntity<List<MemberTripPlan>> getUnwrittenTripPlans(@PathVariable Long memberId) {
+        return ResponseEntity.ok(reviewService.getUnwrittenTripPlans(memberId));
+    } 
 
 }

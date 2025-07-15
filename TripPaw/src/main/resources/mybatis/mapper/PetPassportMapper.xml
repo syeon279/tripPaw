@@ -21,12 +21,21 @@
 	</resultMap>
 
 	<!-- 여권 + 도장 포함 조회 -->
-	<resultMap id="PetPassportWithSealMap" type="PetPassport"
-		extends="PetPassportMap">
-		<collection property="passportSeals" ofType="PassportSeal">
-			<id property="id" column="seal_id" />
-			<!-- seal, review 등 연결 필요 시 확장 가능 -->
-		</collection>
+	<resultMap id="PetPassportWithSealMap" type="PetPassport" extends="PetPassportMap">
+	  <collection property="passportSeals" ofType="PassportSeal">
+	    <id property="id" column="seal_id"/>
+	
+	    <association property="seal" javaType="Seal">
+	      <id property="id" column="seal_id"/>
+	      <result property="imageUrl" column="seal_image"/>
+	      <result property="name" column="seal_name"/>
+	    </association>
+	
+	    <association property="review" javaType="Review">
+	      <id property="id" column="review_id"/>
+	      <result property="targetId" column="review_target_id"/>
+	    </association>
+	  </collection>
 	</resultMap>
 
 	<!-- 여권 등록 -->
@@ -52,12 +61,21 @@
 	</select>
 
 	<!-- 도장 포함 여권 상세 조회 -->
-	<select id="selectPassportWithSeals"
-		resultMap="PetPassportWithSealMap">
-		SELECT pp.*, ps.id AS seal_id
-		FROM pet_passport pp
-		LEFT JOIN passport_seal ps ON pp.id = ps.passport_id
-		WHERE pp.id = #{passportId}
+	<select id="selectPassportWithSeals" resultMap="PetPassportWithSealMap">
+	  SELECT 
+	    pp.*,
+	    ps.id AS seal_id,
+	    s.image_url AS seal_image,
+	    s.name AS seal_name,
+	    r.id AS review_id,
+	    r.target_id AS review_target_id
+	
+	  FROM pet_passport pp
+	  LEFT JOIN passport_seal ps ON pp.id = ps.passport_id
+	  LEFT JOIN seal s ON ps.seal_id = s.id  
+	  LEFT JOIN review r ON ps.review_id = r.id
+	
+	  WHERE pp.id = #{passportId}
 	</select>
 
 	<!-- 여권 수정 -->

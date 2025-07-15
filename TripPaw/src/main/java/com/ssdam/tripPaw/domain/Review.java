@@ -50,6 +50,7 @@ public class Review {
     @JoinColumn(name = "review_type_id", nullable = false)
     private ReviewType reviewType;
 	
+	@Column(name = "target_id")
 	private Long targetId;
 	private String weatherCondition;	//맑음, 비 등
 	

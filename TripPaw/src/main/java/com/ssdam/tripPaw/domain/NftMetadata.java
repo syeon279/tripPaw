@@ -41,6 +41,9 @@ public class NftMetadata {
 
     @Column(name = "issued_at")
     private LocalDateTime issuedAt;
+    
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt; // Soft delete 처리용 필드 추가
 
     @PrePersist
     public void onCreate() {
