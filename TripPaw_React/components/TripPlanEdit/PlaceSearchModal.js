@@ -27,14 +27,26 @@ const overlayStyle = {
     zIndex: 999,
 };
 
+const selectStyle = {
+    padding: '6px',
+    marginLeft: '10px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    height: '35px'
+};
+
 const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
     const [keyword, setKeyword] = useState('');
+    const [region, setRegion] = useState('');
     const [results, setResults] = useState([]);
     const [selectedPlace, setSelectedPlace] = useState(null); // ⭐ 자세히 보기용
+    const [hasSearched, setHasSearched] = useState(false);   // 검색 시도 여부
 
     const handleSearch = async () => {
+        setHasSearched(true); // 검색 버튼 눌렀음을 표시
         try {
-            const response = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
+            const query = `/search?keyword=${encodeURIComponent(keyword)}${region ? `&region=${encodeURIComponent(region)}` : ''}`;
+            const response = await axios.get(query);
             const places = Array.isArray(response.data.places) ? response.data.places : [];
             setResults(places);
         } catch (err) {
@@ -58,20 +70,57 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
         <>
             <div style={overlayStyle} onClick={onClose} />
             <div style={modalStyle}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ borderBottom: '2px solid rgba(155, 155, 155, 0.36)', width: '60%', padding: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div>
+                        <select style={selectStyle} value={region} onChange={(e) => setRegion(e.target.value)}>
+                            <option value="">-- 지역 선택 --</option>
+                            <option value="서울">서울</option>
+                            <option value="부산">부산</option>
+                            <option value="제주">제주</option>
+                            <option value="인천">인천</option>
+                            <option value="광주">광주</option>
+                            <option value="대전">대전</option>
+                            <option value="울산">울산</option>
+                            <option value="경기">경기</option>
+                            <option value="강원">강원</option>
+                            <option value="충청">충청</option>
+                            <option value="전라">전라</option>
+                            <option value="경북">경북</option>
+                            <option value="경상">경상</option>
+                        </select>
+                    </div>
+                    <div style={{ borderBottom: '2px solid rgba(155, 155, 155, 0.36)', width: '45%', padding: '10px', marginRight: '10px' }}>
                         <input
                             type="text"
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
                             placeholder="장소 이름 입력"
-                            style={{ width: '100%', marginBottom: '10px', border: 'none' }}
+                            style={{ width: '100%', marginBottom: '0px', border: 'none' }}
                         />
                     </div>
-                    <button onClick={handleSearch} style={{ marginBottom: '10px', marginLeft: '5%', width: '20%', backgroundColor: 'black', color: 'white', fontWeight: 'bold' }}>찾아보기</button>
+                    <button
+                        onClick={handleSearch}
+                        style={{
+                            marginBottom: '10px',
+                            width: '20%',
+                            backgroundColor: 'black',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            height: '38px',
+                            marginTop: '10px'
+                        }}
+                    >
+                        찾아보기
+                    </button>
                 </div>
 
                 <ul style={{ listStyle: 'none', padding: 0, marginTop: '30px' }}>
+                    {/* 검색 시도가 있었고 결과가 없을 때만 표시 */}
+                    {hasSearched && results.length === 0 && (
+                        <li style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>
+                            검색 결과가 없습니다.
+                        </li>
+                    )}
                     {results.map((place) => (
                         <li
                             key={place.id}
@@ -95,8 +144,8 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
                                     />
                                 </div>
                                 <div style={{ width: '60%' }}>
-                                    <div style={{ margin: '0px 0px', border: '0px solid red', width: '100%' }}>{place.name}</div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', border: '0px solid red' }}>
+                                    <div style={{ margin: '0px 0px', width: '100%' }}>{place.name}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                         <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
                                             {place.avgRating?.toFixed(1) || '0.0'}
                                         </p>
@@ -115,7 +164,7 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
                                         style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
                                     >추가</button>
                                     <button
-                                        onClick={() => setSelectedPlace(place)} // ⭐ 자세히 보기
+                                        onClick={() => setSelectedPlace(place)}
                                         style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
                                     >자세히</button>
                                 </div>

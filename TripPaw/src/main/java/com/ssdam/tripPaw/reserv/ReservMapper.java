@@ -60,6 +60,10 @@ public interface ReservMapper {
 	
 	public int softGroupDelete(@Param("reservIds") List<Long> reservIds, @Param("memberTripPlanId") Long memberTripPlanId);
 	
+	public List<Reserv> findAllByPayId(Long payId);
+	
+    public int updatePayIdByReservId(@Param("payId") Long payId, @Param("reservId") Long reservId);
+	
 	// 해당 tripPlanId의 예약 날짜 가져오기
 	List<Map<String, Object>> findReservedRangesByTripPlanId(Long tripPlanId);
 }

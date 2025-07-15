@@ -113,8 +113,16 @@ public class PayService {
             pay.setIsGroup(false);  // 기본값은 단일 결제
             pay.setGroupId(null);  // 그룹 ID는 null
         }
+        
+        int result = payMapper.insert(pay);
 
-        return payMapper.insert(pay);
+        // 2. 단일 예약일 경우 reserv에 연결
+        if (!pay.getIsGroup() && pay.getReserv() != null && pay.getReserv().getId() != null) {
+            Long reservId = pay.getReserv().getId();
+            reservMapper.updatePayIdByReservId(pay.getId(), reservId); // pay_id 업데이트
+        }
+
+        return result;
     }
 
     /** 결제 상태 업데이트 (예: 결제 완료 → 환불 등) */
@@ -177,13 +185,32 @@ public class PayService {
     
     /** 결제 삭제 */
     @Transactional
-    public int softDelete(Long id) {
+    public boolean softDelete(Long id) {
+        // 1. 결제 조회
         Pay pay = payMapper.findById(id);
-        if (pay == null || pay.getDeleteAt() != null) {
-            throw new IllegalArgumentException("이미 삭제되었거나 존재하지 않는 결제입니다.");
+        if (pay == null) {
+            throw new IllegalArgumentException("결제 내역이 없습니다: " + id);
         }
 
-        return payMapper.softDelete(id);
+        // 2. 해당 결제에 연결된 예약들 조회
+        List<Reserv> reservs = reservMapper.findAllByPayId(id);
+
+        if (reservs == null || reservs.isEmpty()) {
+            throw new IllegalStateException("결제에 연결된 예약이 없습니다.");
+        }
+
+        // 3. 모든 예약이 CANCELLED 상태인지 체크
+        boolean allCancelled = reservs.stream()
+        		.allMatch(r -> r.getState().equals(ReservState.CANCELLED));
+
+        if (!allCancelled) {
+            throw new IllegalStateException("모든 예약이 취소된 경우에만 결제 취소가 가능합니다.");
+        }
+
+        // 4. 결제 상태 CANCELLED 로 업데이트
+        pay.setState(PayState.CANCELLED);
+        int updated = payMapper.updateByState(pay);
+        return updated > 0;
     }
     
     public boolean refundPayment(String impUid) throws IamportResponseException, IOException {

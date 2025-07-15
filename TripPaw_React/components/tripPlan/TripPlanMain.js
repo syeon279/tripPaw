@@ -113,6 +113,11 @@ const tripPlanMain = () => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+    // 🎲 굴러가는 중인지
+    const [isRolling, setIsRolling] = useState(false);
+    const [showDice, setShowDice] = useState(false);
+
+
     // 카테고리 꺼내오기
     useEffect(() => {
         const fetchCategories = async () => {
@@ -216,282 +221,376 @@ const tripPlanMain = () => {
         'rgba(75, 160, 54, 0.9)',
     ];
 
+
+    // 💡 랜덤 값 생성을 위한 함수
+    const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
+    const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    const handleRandomDice = () => {
+        const regionList = ["서울", "부산", "제주", "인천", "광주", "대전", "울산", "경기", "강원", "충청", "전라", "경북", "경상"];
+        const randomRegion = getRandomItem(regionList);
+
+        const today = new Date();
+        const randomStart = addDays(today, getRandomInt(1, 14));
+        const randomEnd = addDays(randomStart, getRandomInt(1, 4));
+
+        const formattedStart = format(randomStart, "yyyy-MM-dd");
+        const formattedEnd = format(randomEnd, "yyyy-MM-dd");
+
+        const randomPeople = getRandomInt(1, 5);
+        const randomPet = getRandomInt(0, 2);
+
+        const shuffled = categories.sort(() => 0.5 - Math.random());
+        const randomCategories = shuffled.slice(0, getRandomInt(1, 3)).map(cat => String(cat.id));
+
+        setRegion(randomRegion);
+        setStartDate(formattedStart);
+        setEndDate(formattedEnd);
+        setCountPeople(randomPeople);
+        setCountPet(randomPet);
+        setSelectedCategories(randomCategories);
+    };
+
     return (
-        <form onSubmit={handleSubmit} style={{ flex: 1 }}>
-            <div style={containerStyle}>
-                {/* <img src="/image/background/main.png" alt="background" style={backgroundStyle} /> */}
+        <>
+            <form onSubmit={handleSubmit} style={{ flex: 1 }}>
+                <div style={containerStyle}>
+                    {/* <img src="/image/background/main.png" alt="background" style={backgroundStyle} /> */}
 
-                <div style={contentStyle}>
-                    <div style={{ width: '90%', margin: '0 auto' }}>
-                        <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={480}
-                            height={120}
-                            priority />
-                        <div style={boxStyle}>
-                            <div style={rowStyle}>
-                                {/* 여행지 */}
-                                <div style={fieldStyle}>
-                                    <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행지</label>
-                                    <select style={selectStyle} value={region} onChange={(e) => setRegion(e.target.value)}>
-                                        <option value="">-- 지역 선택 --</option>
-                                        <option value="서울">서울</option>
-                                        <option value="부산">부산</option>
-                                        <option value="제주">제주</option>
-                                        <option value="인천">인천</option>
-                                        <option value="광주">광주</option>
-                                        <option value="대전">대전</option>
-                                        <option value="울산">울산</option>
-                                        <option value="경기">경기</option>
-                                        <option value="강원">강원</option>
-                                        <option value="충청">충청</option>
-                                        <option value="전라">전라</option>
-                                        <option value="경북">경북</option>
-                                        <option value="경상">경상</option>
-                                    </select>
-                                </div>
-
-                                <div style={dividerStyle} />
-
-                                {/* 여행 일자 */}
-                                <div style={fieldStyle}>
-                                    <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행 일자</label>
-                                    <div style={{ display: 'flex', gap: '8px', padding: '0px', }}>
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            placeholder="시작일"
-                                            min={today}
-                                            style={{
-                                                ...inputStyle,
-                                                width: '100%',
-                                                borderBottom: '1px solid #ccc',
-                                                paddingBottom: '4px',
-                                                fontSize: '14px',
-                                                color: startDate ? 'black' : '#aaa',
-                                            }}
-                                        />
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            placeholder="종료일"
-                                            min={startDate || today}
-                                            style={{
-                                                ...inputStyle,
-                                                width: '100%',
-                                                borderBottom: '1px solid #ccc',
-                                                paddingBottom: '4px',
-                                                fontSize: '14px',
-                                                color: endDate ? 'black' : '#aaa',
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div style={dividerStyle} />
-
-                                {/* 동행 */}
-                                <div style={fieldStyle}>
-                                    <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>동행</label>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '0px', }}>
-                                        <input style={inputStyle} type="number" value={countPeople} min="1"
-                                            onChange={(e) => setCountPeople(Number(e.target.value))} /> 명
-                                        <div style={{
-                                            width: '1px',
-                                            border: '1px solid rgba(221, 220, 220, 0.9)',
-                                            height: '30px',
-                                            margin: '10px',
-                                            //marginRight: '15px'
-                                        }}></div>
-                                        <input style={inputStyle} type="number" value={countPet} min="0" onChange={(e) => setCountPet(Number(e.target.value))} /> 견
-                                    </div>
-                                    <div>
-                                    </div>
-                                </div>
-
-                                <div style={dividerStyle} />
-
-                                {/* 여행 테마*/}
-                                <div style={{ position: 'relative' }}>
-                                    {/* 선택된 카테고리들 */}
-                                    <div
-                                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                        onWheel={(e) => e.stopPropagation()}
-                                        style={{
-                                            minHeight: '40px',
-                                            borderRadius: '8px',
-                                            padding: '8px',
-                                            display: 'flex',
-                                            flexWrap: 'wrap',
-                                            gap: '8px',
-                                            cursor: 'pointer',
-                                            //backgroundColor: '#fff',
-                                            maxHeight: '100px',
-                                            width: '300px',
-                                            maxWidth: '300px',
-                                            overflowY: 'auto',
-                                            /* 👇 스크롤 숨기기 */
-                                            scrollbarWidth: 'none',       // Firefox
-                                            msOverflowStyle: 'none',      // IE, Edge
-                                        }}
-                                    >
-                                        {selectedCategories.length === 0 && <span style={{ color: '#aaa' }}>테마를 선택하세요</span>}
-                                        {selectedCategories.map((categoryId, index) => {
-                                            const category = categories.find(c => c.id === parseInt(categoryId));
-                                            const color = tagColors[index % tagColors.length]; // 색상 반복
-                                            return (
-                                                <span
-                                                    key={categoryId}
-                                                    style={{
-                                                        backgroundColor: color,
-                                                        color: 'white',
-                                                        padding: '4px 8px',
-                                                        borderRadius: '16px',
-                                                        fontSize: '13px',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '6px',
-                                                        position: 'relative',
-                                                    }}
-                                                    onMouseEnter={(e) => {
-                                                        e.currentTarget.querySelector('button').style.visibility = 'visible';
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        e.currentTarget.querySelector('button').style.visibility = 'hidden';
-                                                    }}
-                                                >
-                                                    {category?.name}
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setSelectedCategories(prev =>
-                                                                prev.filter((id) => id !== categoryId)
-                                                            );
-                                                        }}
-                                                        style={{
-                                                            background: 'transparent',
-                                                            border: 'none',
-                                                            color: 'white',
-                                                            cursor: 'pointer',
-                                                            fontWeight: 'bold',
-                                                            fontSize: '14px',
-                                                            visibility: 'hidden',
-                                                            padding: '0 4px',
-                                                            lineHeight: '1',
-                                                        }}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                </span>
-                                            );
-                                        })}
+                    <div style={contentStyle}>
+                        <div style={{ width: '90%', margin: '0 auto' }}>
+                            <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={480}
+                                height={120}
+                                priority />
+                            <div style={boxStyle}>
+                                <div style={rowStyle}>
+                                    {/* 여행지 */}
+                                    <div style={fieldStyle}>
+                                        <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행지</label>
+                                        <select style={selectStyle} value={region} onChange={(e) => setRegion(e.target.value)}>
+                                            <option value="">-- 지역 선택 --</option>
+                                            <option value="서울">서울</option>
+                                            <option value="부산">부산</option>
+                                            <option value="제주">제주</option>
+                                            <option value="인천">인천</option>
+                                            <option value="광주">광주</option>
+                                            <option value="대전">대전</option>
+                                            <option value="울산">울산</option>
+                                            <option value="경기">경기</option>
+                                            <option value="강원">강원</option>
+                                            <option value="충청">충청</option>
+                                            <option value="전라">전라</option>
+                                            <option value="경북">경북</option>
+                                            <option value="경상">경상</option>
+                                        </select>
                                     </div>
 
-                                    {/* 드롭다운 */}
-                                    {isDropdownOpen && (
+                                    <div style={dividerStyle} />
+
+                                    {/* 여행 일자 */}
+                                    <div style={fieldStyle}>
+                                        <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>여행 일자</label>
+                                        <div style={{ display: 'flex', gap: '8px', padding: '0px', }}>
+                                            <input
+                                                type="date"
+                                                value={startDate}
+                                                onChange={(e) => setStartDate(e.target.value)}
+                                                placeholder="시작일"
+                                                min={today}
+                                                style={{
+                                                    ...inputStyle,
+                                                    width: '100%',
+                                                    borderBottom: '1px solid #ccc',
+                                                    paddingBottom: '4px',
+                                                    fontSize: '14px',
+                                                    color: startDate ? 'black' : '#aaa',
+                                                }}
+                                            />
+                                            <input
+                                                type="date"
+                                                value={endDate}
+                                                onChange={(e) => setEndDate(e.target.value)}
+                                                placeholder="종료일"
+                                                min={startDate || today}
+                                                style={{
+                                                    ...inputStyle,
+                                                    width: '100%',
+                                                    borderBottom: '1px solid #ccc',
+                                                    paddingBottom: '4px',
+                                                    fontSize: '14px',
+                                                    color: endDate ? 'black' : '#aaa',
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div style={dividerStyle} />
+
+                                    {/* 동행 */}
+                                    <div style={fieldStyle}>
+                                        <label style={{ fontSize: '14px', marginBottom: '10px', display: 'block' }}>동행</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '0px', }}>
+                                            <input style={inputStyle} type="number" value={countPeople} min="1"
+                                                onChange={(e) => setCountPeople(Number(e.target.value))} /> 명
+                                            <div style={{
+                                                width: '1px',
+                                                border: '1px solid rgba(221, 220, 220, 0.9)',
+                                                height: '30px',
+                                                margin: '10px',
+                                                //marginRight: '15px'
+                                            }}></div>
+                                            <input style={inputStyle} type="number" value={countPet} min="0" onChange={(e) => setCountPet(Number(e.target.value))} /> 견
+                                        </div>
+                                        <div>
+                                        </div>
+                                    </div>
+
+                                    <div style={dividerStyle} />
+
+                                    {/* 여행 테마*/}
+                                    <div style={{ position: 'relative' }}>
+                                        {/* 선택된 카테고리들 */}
                                         <div
-                                            ref={dropdownRef}
+                                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                             onWheel={(e) => e.stopPropagation()}
                                             style={{
-                                                position: 'fixed',
-                                                top: '70%',
-                                                left: '60%',
-                                                transform: 'translate(-50%, -50%)',
-                                                width: '320px',
-                                                maxHeight: '300px',
-                                                backgroundColor: 'white',
-                                                padding: '16px',
-                                                zIndex: 1000,
+                                                minHeight: '40px',
+                                                borderRadius: '8px',
+                                                padding: '8px',
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: '8px',
+                                                cursor: 'pointer',
+                                                //backgroundColor: '#fff',
+                                                maxHeight: '100px',
+                                                width: '300px',
+                                                maxWidth: '300px',
                                                 overflowY: 'auto',
-                                                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.38)',
                                                 /* 👇 스크롤 숨기기 */
                                                 scrollbarWidth: 'none',       // Firefox
                                                 msOverflowStyle: 'none',      // IE, Edge
-                                                overscrollBehavior: 'contain', // 스크롤 바운스 방지
                                             }}
                                         >
-                                            <div style={{ marginBottom: '12px', fontWeight: 'bold' }}>여행 테마 선택</div>
-                                            {categories.map(category => (
-                                                <label
-                                                    key={category.id}
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '10px',
-                                                        padding: '6px 0',
-                                                        fontSize: '15px',
-                                                        cursor: 'pointer',
-                                                    }}
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        value={category.id}
-                                                        checked={selectedCategories.includes(String(category.id))}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            if (e.target.checked) {
-                                                                setSelectedCategories(prev => [...prev, value]);
-                                                            } else {
-                                                                setSelectedCategories(prev => prev.filter(id => id !== value));
-                                                            }
+                                            {selectedCategories.length === 0 && <span style={{ color: '#aaa' }}>테마를 선택하세요</span>}
+                                            {selectedCategories.map((categoryId, index) => {
+                                                const category = categories.find(c => c.id === parseInt(categoryId));
+                                                const color = tagColors[index % tagColors.length]; // 색상 반복
+                                                return (
+                                                    <span
+                                                        key={categoryId}
+                                                        style={{
+                                                            backgroundColor: color,
+                                                            color: 'white',
+                                                            padding: '4px 8px',
+                                                            borderRadius: '16px',
+                                                            fontSize: '13px',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            position: 'relative',
                                                         }}
-                                                    />
-                                                    {category.name}
-                                                </label>
-                                            ))}
-                                            <div style={{ marginTop: '16px', textAlign: 'right' }}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setIsDropdownOpen(false)}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.querySelector('button').style.visibility = 'visible';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.querySelector('button').style.visibility = 'hidden';
+                                                        }}
+                                                    >
+                                                        {category?.name}
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedCategories(prev =>
+                                                                    prev.filter((id) => id !== categoryId)
+                                                                );
+                                                            }}
+                                                            style={{
+                                                                background: 'transparent',
+                                                                border: 'none',
+                                                                color: 'white',
+                                                                cursor: 'pointer',
+                                                                fontWeight: 'bold',
+                                                                fontSize: '14px',
+                                                                visibility: 'hidden',
+                                                                padding: '0 4px',
+                                                                lineHeight: '1',
+                                                            }}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </span>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* 드롭다운 */}
+                                        {isDropdownOpen && (
+                                            <div
+                                                ref={dropdownRef}
+                                                onWheel={(e) => e.stopPropagation()}
+                                                style={{
+                                                    position: 'fixed',
+                                                    top: '70%',
+                                                    left: '60%',
+                                                    transform: 'translate(-50%, -50%)',
+                                                    width: '320px',
+                                                    maxHeight: '300px',
+                                                    backgroundColor: 'white',
+                                                    padding: '16px',
+                                                    zIndex: 1000,
+                                                    overflowY: 'auto',
+                                                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.38)',
+                                                    /* 👇 스크롤 숨기기 */
+                                                    scrollbarWidth: 'none',       // Firefox
+                                                    msOverflowStyle: 'none',      // IE, Edge
+                                                    overscrollBehavior: 'contain', // 스크롤 바운스 방지
+                                                }}
+                                            >
+                                                <div style={{ marginBottom: '12px', fontWeight: 'bold' }}>여행 테마 선택</div>
+                                                {categories.map(category => (
+                                                    <label
+                                                        key={category.id}
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '10px',
+                                                            padding: '6px 0',
+                                                            fontSize: '15px',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            value={category.id}
+                                                            checked={selectedCategories.includes(String(category.id))}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                if (e.target.checked) {
+                                                                    setSelectedCategories(prev => [...prev, value]);
+                                                                } else {
+                                                                    setSelectedCategories(prev => prev.filter(id => id !== value));
+                                                                }
+                                                            }}
+                                                        />
+                                                        {category.name}
+                                                    </label>
+                                                ))}
+                                                <div style={{ marginTop: '16px', textAlign: 'right' }}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsDropdownOpen(false)}
+                                                        style={{
+                                                            padding: '6px 12px',
+                                                            backgroundColor: '#0c9397',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        선택 완료
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+
+                                    <div style={{ marginRight: '100px' }}>
+                                    </div>
+
+
+                                    {/* 버튼 */}
+                                    <div style={fieldStyle}>
+                                        {/* 주사위 */}
+                                        <div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (categories.length === 0 || isRolling) return;
+
+                                                    setIsRolling(true);
+                                                    setShowDice(true); // 👈 주사위 표시
+
+                                                    setTimeout(() => {
+                                                        handleRandomDice(); // 랜덤 값 설정
+                                                        setIsRolling(false);
+                                                        setShowDice(false); // 👈 주사위 숨기기
+                                                    }, 1000);
+                                                }}
+                                                style={{
+                                                    backgroundColor: 'rgba(35, 185, 231, 0.9)',
+                                                    color: 'white',
+                                                    padding: '8px 24px',
+                                                    borderRadius: '8px',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    fontSize: '16px',
+                                                    marginTop: '10px',
+                                                    width: '80%',
+                                                }}
+                                                disabled={isRolling}
+                                            >
+                                                <span
                                                     style={{
-                                                        padding: '6px 12px',
-                                                        backgroundColor: '#0c9397',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
+                                                        display: 'inline-block',
+                                                        transition: 'transform 1s ease-in-out',
+                                                        transform: isRolling ? 'rotate(720deg)' : 'rotate(0deg)',
+                                                        display: 'inline-block',
+                                                        marginRight: '8px',
                                                     }}
                                                 >
-                                                    선택 완료
-                                                </button>
-                                            </div>
+                                                    🎲
+                                                </span>
+                                                주사위 굴리기
+                                            </button>
                                         </div>
-                                    )}
+                                        <button
+                                            type='submit'
+                                            style={{
+                                                backgroundColor: 'rgba(18, 137, 173, 0.9)',
+                                                color: 'white',
+                                                padding: '8px 24px',
+                                                borderRadius: '8px',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                fontSize: '16px',
+                                                marginTop: '10px',
+                                                width: '80%',
+                                            }}
+                                        >
+                                            여행가기
+                                        </button>
+                                    </div>
                                 </div>
 
-
-                                <div style={{ marginRight: '100px' }}>
-
-                                </div>
-
-
-                                {/* 버튼 */}
-                                <div style={fieldStyle}>
-                                    <button
-                                        type='submit'
-                                        style={{
-                                            backgroundColor: 'rgba(18, 137, 173, 0.9)',
-                                            color: 'white',
-                                            padding: '8px 24px',
-                                            borderRadius: '8px',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            fontSize: '16px',
-                                            marginTop: '20px',
-                                            width: '80%',
-                                        }}
-                                    >
-                                        여행가기
-                                    </button>
-                                </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
+                {showDice && (
+                    <div style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 9999,
+                        fontSize: '120px',
+                        animation: 'spinDice 1s ease-in-out',
+                        pointerEvents: 'none', // 클릭 방지
+                    }}>
+                        🎲
+                    </div>
+                )}
+            </form >
+            <style jsx global>{`
+                @keyframes spinDice {
+                    0% { transform: translate(-50%, -50%) rotate(0deg); }
+                    100% { transform: translate(-50%, -50%) rotate(720deg); }
+                }
+            `}</style>
+        </>
     );
 };
 

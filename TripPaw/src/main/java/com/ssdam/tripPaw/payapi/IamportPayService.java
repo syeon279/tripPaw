@@ -79,6 +79,7 @@ public class IamportPayService {
         int result = payMapper.insert(pay);
         
         if (result > 0) {
+            reservMapper.updatePayIdByReservId(pay.getId(), reservId);
             reservService.updateReservState(reservId, ReservState.CONFIRMED);
         }
         
@@ -169,13 +170,15 @@ public class IamportPayService {
                 pay.setState(PayState.REFUNDED);
                 payMapper.updateByState(pay);
 
-                Reserv reserv = reservMapper.findById(pay.getReserv().getId());
-                if (reserv == null) {
-                    throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
+                Reserv reserv = null;
+                if (pay.getReserv() != null) {
+                    reserv = reservMapper.findById(pay.getReserv().getId());
+                    if (reserv == null) {
+                        throw new RuntimeException("예약 정보를 찾을 수 없습니다.");
+                    }
+                    reserv.setState(ReservState.CANCELLED);
+                    reservMapper.updateByState(reserv);
                 }
-
-                reserv.setState(ReservState.CANCELLED);
-                reservMapper.updateByState(reserv);
 
                 return true;
             }

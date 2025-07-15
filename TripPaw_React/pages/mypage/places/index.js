@@ -68,7 +68,7 @@ const MyPlaces = () => {
                 setFallbackImages(fallbackMap);
             })
             .catch(err => {
-                console.error('즐겨찾기 장소 목록 불러오기 실패', err);
+                console.log('즐겨찾기 장소 목록 불러오기 실패', err);
                 setPlaces([]);
             });
     }, [memberId]);
