@@ -4,6 +4,7 @@ import TripPlanMain from '../components/tripPlan/TripPlanMain';
 import TripPlanSearch from '../components/search/TripPlanSearch';
 import SearchResultSection from '../components/search/SearchResultSection';
 import axios from 'axios';
+import PetassistantLoading from '@/components/pet/PetassistantLoading';
 
 const sectionStyle = (isActive) => ({
     height: '100vh',
@@ -29,17 +30,22 @@ const Home = () => {
 
     const sectionCount = hasSearched ? 3 : 2;
 
+    //로딩
+    const [isLoading, setIsLoading] = useState(false);
+
     // 🔍 검색 요청 핸들러
     const handleSearch = async () => {
         if (!keyword.trim()) return;
         try {
+            setIsLoading(true); // 🔥 시작
             const response = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
             setSearchResult(response.data);
-            //console.log('검색 데이터 : ', response.data);
             setHasSearched(true);
             setSectionIndex(2);
         } catch (err) {
-            console.error('❌ 검색 실패:', err);
+            console.log('❌ 검색 실패:', err);
+        } finally {
+            setIsLoading(false); // 🔥 완료
         }
     };
 
@@ -94,6 +100,7 @@ const Home = () => {
 
     return (
         <AppLayout headerTheme="white">
+            {isLoading && <PetassistantLoading reservState="DEFAULT" />}
             <div
                 ref={containerRef}
                 style={{
