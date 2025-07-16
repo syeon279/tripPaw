@@ -441,6 +441,15 @@
 		AND reserv_id =
 		#{reservId}
 	</select>
+	
+	<select id="countByMemberIdAndTripPlanId" resultType="int">
+		SELECT COUNT(*) 
+		FROM review
+		WHERE member_id = #{memberId}
+		AND target_id = #{planId}
+		AND review_type_id = 1
+	</select>
+	
 
 	<insert id="likeReview" parameterType="map">
 		INSERT IGNORE INTO
