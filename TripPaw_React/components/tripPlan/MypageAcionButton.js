@@ -32,6 +32,8 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userId, setUserId] = useState('');
     const [userName, setUserName] = useState('');
+    const [hasWrittenReview, setHasWrittenReview] = useState(false);
+
     // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
 
     console.log('ActionButtons memberTripPlanId:', memberTripPlanId);
@@ -58,6 +60,26 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
 
         checkLoginStatus();
     }, [])
+
+    useEffect(() => {
+        const checkReviewWritten = async () => {
+            if (!userId || !originTripPlanId) return;
+
+            try {
+                const res = await axios.get('http://localhost:8080/review/check', {
+                    params: { memberId: userId, planId: originTripPlanId },
+                    withCredentials: true,
+                });
+                setHasWrittenReview(res.data); // true or false
+            } catch (err) {
+                console.error('리뷰 작성 여부 확인 실패:', err);
+            }
+        };
+
+        if (userId && originTripPlanId) {
+            checkReviewWritten();
+        }
+    }, [userId, originTripPlanId]);
 
     // useEffect(() => {
     // if (router.query.memberTripPlanId) {
@@ -102,6 +124,30 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
         }
     };
 
+    const handleWriteReview = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8080/review/member-trip-plan/${memberTripPlanId}`);
+            const tripPlan = res.data?.tripPlan;
+
+            if (!tripPlan?.id) {
+                alert('tripPlan 정보를 가져올 수 없습니다.');
+                return;
+            }
+
+            router.push({
+                pathname: '/review/write',
+                query: {
+                    reviewTypeId: 1,
+                    targetId: tripPlan.id,
+                    title: tripPlan.title || '',
+                },
+            });
+        } catch (err) {
+            console.error('리뷰 작성용 트립플랜 조회 실패:', err);
+            alert('리뷰 작성 정보를 불러오는 데 실패했습니다.');
+        }
+    };
+
     return (
         <div style={bottonWrapperStyle}>
             <button style={{ ...bottonStyle, background: 'blue' }}
@@ -112,11 +158,14 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
                 style={{ ...bottonStyle, background: 'black' }} onClick={handleReservation}>
                 이대로 예약하기
             </button>
-            {isNotMytrip &&
-                <button style={{ ...bottonStyle, background: 'green' }} >
+            {isNotMytrip && !hasWrittenReview && (
+                <button
+                    style={{ ...bottonStyle, background: 'green' }}
+                    onClick={handleWriteReview}
+                >
                     리뷰쓰기
                 </button>
-            }
+            )}
         </div>
     );
 };

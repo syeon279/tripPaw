@@ -42,7 +42,7 @@ public class ReviewController {
 	private final ReviewImageMapper reviewImageMapper;
 	private final ReservMapper reservMapper;
 	private final ReservForReviewMapper reservForReviewMapper;
-
+	
 	/* 경로(tripPlan)에 포함된 예약(장소) 목록 조회 GET /review/trip/3/places?memberId=1 */
     @GetMapping("/trip/{tripPlanId}/places")
     public ResponseEntity<List<Reserv>> getReservsByTripPlan(@PathVariable Long tripPlanId,
@@ -86,6 +86,16 @@ public class ReviewController {
         boolean exists = reviewService.hasReviewForReserv(memberId, reservId);
         return ResponseEntity.ok(!exists); // 작성 안했으면 true 반환
     }
+    
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> hasWrittenReview(
+        @RequestParam Long memberId,
+        @RequestParam Long planId
+    ) {
+        boolean hasReview = reviewService.hasWrittenReviewForTripPlan(memberId, planId);
+        return ResponseEntity.ok(hasReview);
+    }
+
     
     @GetMapping("/reserv/place")
     public ResponseEntity<Long> getReservIdByMemberAndPlace(
@@ -250,5 +260,12 @@ public class ReviewController {
     public ResponseEntity<List<MemberTripPlan>> getUnwrittenTripPlans(@PathVariable Long memberId) {
         return ResponseEntity.ok(reviewService.getUnwrittenTripPlans(memberId));
     } 
+    
+    @GetMapping("/member-trip-plan/{id}")
+    public ResponseEntity<MemberTripPlan> getById(@PathVariable Long id) {
+        MemberTripPlan mtp = reviewService.findById(id);
+        if (mtp == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(mtp);
+    }
 
 }
