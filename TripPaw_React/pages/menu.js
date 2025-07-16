@@ -41,7 +41,7 @@ const Menu = () => {
                     setIsLoggedIn(true);
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
+                console.log("로그인 상태 확인 실패:", error);
             }
         };
         checkLoginStatus();
@@ -83,7 +83,7 @@ const Menu = () => {
                     <div style={menuItem} onClick={() => Router.push('/review/route-review')}>리뷰</div>
                     <div style={menuItem} onClick={() => Router.push('/chat/chatRooms')}>나의 채팅</div>
                     {isLoggedIn ? (
-                        <div style={menuItem} onClick={() => Router.push('/mypage')}>마이페이지</div>
+                        <div style={menuItem} onClick={() => Router.push('/mypage/trips')}>마이페이지</div>
                     ) : (
                         <div style={menuItem} onClick={() => Router.push('/member/login')}>로그인</div>
                     )}

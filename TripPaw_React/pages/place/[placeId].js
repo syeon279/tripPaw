@@ -171,7 +171,7 @@ const PlaceReservCreatePage = () => {
       try {
         const res = await axios.get(`http://localhost:8080/place/${id}`);
         setPlace(res.data);
-        console.log('place : ', res.data);
+        //console.log('place : ', res.data);
       } catch {
         setMessage('장소 정보를 불러오지 못했습니다.');
       }

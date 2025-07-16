@@ -31,8 +31,8 @@ public class PlaceApiService {
 	private final RestTemplate restTemplate = new RestTemplate();
 
 
-	private static final String key = "bEzli6nTnVAqDCGLttEaemrA%2BSSd4Eec2q6Pq1Zc%2B7XExraEhli6YSth32uv1ghTnI0VksM2YwF%2Bawnots8hpA%3D%3D";
-	//private static final String key = "kqofCEpJVKxi9%2FD6M7kUNpRDUq4FhSKXk%2FzZxPL8mP1VNAP6TzJnYMNkHQB81OMT0zcwh6VQRyP4cPbSl1HNAg%3D%3D";
+	//private static final String key = "bEzli6nTnVAqDCGLttEaemrA%2BSSd4Eec2q6Pq1Zc%2B7XExraEhli6YSth32uv1ghTnI0VksM2YwF%2Bawnots8hpA%3D%3D";
+	private static final String key = "kqofCEpJVKxi9%2FD6M7kUNpRDUq4FhSKXk%2FzZxPL8mP1VNAP6TzJnYMNkHQB81OMT0zcwh6VQRyP4cPbSl1HNAg%3D%3D";
 
 	public PlaceApiService(PlaceMapper placeMapper, PlaceTypeMapper placeTypeMapper,
 			PlaceImageMapper placeImageMapper, PlaceCategoryService placeCategoryService) {
@@ -59,7 +59,11 @@ public class PlaceApiService {
 		return body != null && body.trim().startsWith("{");
 	}
 
-
+	private String normalizeCoordinate(String coord) {
+	    double value = Double.parseDouble(coord);
+	    return String.format("%.9f", value);
+	}
+	
 	private ResponseEntity<String> fetchWithRetry(URI uri, HttpEntity<String> entity, int maxAttempts)
 			throws InterruptedException {
 		int attempt = 0;
@@ -76,7 +80,31 @@ public class PlaceApiService {
 	}
 
 	public void fetchAndSavePetFriendlyPlaces() throws InterruptedException {
-		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
+		int[] areaCodes = {35, 36, 37, 38, 39};
+//		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
+		/*
+		 
+		 | 지역 코드 | 지역명     |
+| ----- | ------- |
+| 1     | 서울특별시   |
+| 2     | 인천광역시   |
+| 3     | 대전광역시   |
+| 4     | 대구광역시   |
+| 5     | 광주광역시   |
+| 6     | 부산광역시   |
+| 7     | 울산광역시   |
+| 8     | 세종특별자치시 |
+| 31    | 경기도     |
+| 32    | 강원특별자치도 |
+| 33    | 충청북도    |
+| 34    | 충청남도    |
+| 35    | 경상북도    |
+| 36    | 경상남도    |
+| 37    | 전라북도    |
+| 38    | 전라남도    |
+| 39    | 제주특별자치도 |
+
+		 */
 		String[] contentTypeIds = {"12", "14", "15", "25", "28", "32", "38", "39"};
 
 		ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -91,7 +119,7 @@ public class PlaceApiService {
 						+ "&MobileApp=TripPaw" 
 						+ "&areaCode=" + areaCode
 						+ "&contentTypeId=" + contentTypeId  
-						+ "&numOfRows=20" 
+						+ "&numOfRows=100" 
 						+ "&pageNo=1" 
 						+ "&_type=json";
 
@@ -227,7 +255,7 @@ public class PlaceApiService {
 		}
 
 		// detailIntro
-		Thread.sleep(5000);
+		Thread.sleep(10000);
 		try {
 			String introUrl = "https://apis.data.go.kr/B551011/KorPetTourService/detailIntro" 
 		+ "?serviceKey=" + key
@@ -428,8 +456,8 @@ public class PlaceApiService {
 		Place place = new Place();
 		place.setName(item.optString("title"));
 		place.setRegion(item.optString("addr1"));
-		place.setLatitude(item.optString("mapy"));
-		place.setLongitude(item.optString("mapx"));
+		place.setLatitude(normalizeCoordinate(item.optString("mapy")));
+		place.setLongitude(normalizeCoordinate(item.optString("mapx")));
 		place.setHomePage(homepage);
 		place.setPhone(phone);
 		place.setImageUrl(item.optString("firstimage"));
@@ -445,8 +473,13 @@ public class PlaceApiService {
 		place.setDescription(description);
 		place.setPlaceType(placeType);
 
-		placeMapper.insert(place);
-		placeCategoryService.insertPlaceAndMapCategories(place);
+		try {
+		    placeMapper.insert(place);
+		    placeCategoryService.insertPlaceAndMapCategories(place);
+		} catch (DuplicateKeyException e) {
+		    System.out.println("⚠️ 중복 장소 저장 실패: 위도=" + place.getLatitude() + ", 경도=" + place.getLongitude());
+		    return; // 중복일 경우 이미지 저장도 생략하고 종료
+		}
 
 		// 이미지 처리
 		Thread.sleep(5000);
