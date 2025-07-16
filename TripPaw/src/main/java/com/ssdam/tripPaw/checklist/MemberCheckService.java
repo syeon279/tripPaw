@@ -41,7 +41,11 @@ public class MemberCheckService {
         routines.add(tripRoutine);
 
         // 템플릿 항목 불러오기
-        List<CheckTemplateItem> items = checkTemplateItemMapper.selectItemsByIds(templateIds);
+        List<CheckTemplateItem> items = new ArrayList<>();
+        for (Long templateId : templateIds) {
+            List<CheckTemplateItem> itemList = checkTemplateItemMapper.selectItemsByTemplateId(templateId);
+            items.addAll(itemList);
+        }
 
         for (CheckTemplateItem item : items) {
             MemberCheck tripCheck = new MemberCheck();

@@ -73,7 +73,7 @@ public class ReviewService {
     private static final ObjectMapper mapper = new ObjectMapper();
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
 
-	private final String apiKey = "sk-..";
+	private final String apiKey = "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"; // GPT API 키
 	
 	public List<Reserv> getReservListForTripPlanReview(Long tripPlanId, Long memberId) {
         return reservForReviewMapper.findByTripPlanIdAndMember(tripPlanId, memberId);

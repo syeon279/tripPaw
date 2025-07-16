@@ -13,6 +13,7 @@ public interface NftMetadataMapper {
     void update(NftMetadata nftMetadata);
     void delete(Long id);
     void softDelete(Long id);
+    boolean existsByTitle(String title);
     
     // 사용되지 않은 NFT 중 가장 token_id가 작은 것 1개 반환
     NftMetadata findFirstUnused();

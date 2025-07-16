@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {  getPassportsByMemberId,  deletePassport,} from '@/api/passportApi';
 import PassportDetailModal from '@/components/passport/PassportDetailModal';
 import PassportEditorModal from '@/components/passport/PassportEditorModal';
+import { Button } from 'antd';
 
 const PassportCardList = ({ memberId }) => {
   const [passports, setPassports] = useState([]);
@@ -34,9 +35,26 @@ const PassportCardList = ({ memberId }) => {
 
   return (
     <div style={{padding:'10px'}}>
-      <h2  style={{ marginBottom: 16, fontSize:'24px', fontWeight:'bold', color:'#653131', borderBottom:'2px solid #653131', paddingBottom:'12px', marginBottom:'12px' }}>내 반려동물 여권</h2>
-      <div style={{textAlign:'end'}}><button style={{fontWeight:'bold', border:'2px solid #1a2f69', borderRadius:'5px', padding:'5px 12px', backgroundColor:'#fff', cursor:'pointer'}}
-      onClick={() => { setSelectedPassport(null); setShowEditorModal(true);}}> 여권 생성</button></div>
+{/* 
+<button style={{  }}  >  </button> */}
+
+    <div style={{display:'flex', justifyContent: 'space-between', borderBottom:'2px solid #653131', paddingBottom:'12px', marginBottom:'24px'  }}>
+      <h3 style={{ marginBottom: 16, fontSize:'24px', fontWeight:'bold', color:'#653131'}}>반려동물 여권</h3>
+      <button  
+      style={{fontWeight: 'bold', border: '2px solid #1a2f69', borderRadius: '5px', padding: '2px 20px', backgroundColor: '#fff', cursor: 'pointer', height:'36px', marginTop:'6px'}}
+        onClick={() => { setSelectedPassport(null);  setShowEditorModal(true); }}
+      >여권 생성</button>
+    </div>
+
+
+    {/* 여권이 없을 때 안내 메시지 */}
+    {passports.length === 0 && (
+      <div style={{ textAlign: 'center', marginTop: '40px', marginBottom: '40px' }}>
+        <p style={{ fontSize: '16px', color: '#666', marginBottom: '16px' }}>
+          반려동물 여권을 만들어 추억을 특별하게 관리하세요!
+        </p>
+      </div>
+    )}
 
       <div className="passport-grid">
         {passports.map((passport) => (

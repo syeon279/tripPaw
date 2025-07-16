@@ -30,6 +30,14 @@ const UserChecklistRoutineList = ({ memberId }) => {
     <div style={{padding:'10px'}}>
       <h3 style={{ marginBottom: 16, fontSize:'24px', fontWeight:'bold', color:'#653131', borderBottom:'2px solid #653131', paddingBottom:'12px', marginBottom:'36px' }}>내 체크리스트</h3>
 
+      {/* 루틴 없을 때 메시지 추가 */}
+      {routines.length === 0 && !loading && (
+        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '16px', color: '#999' }}>
+          저장한 체크리스트 루틴이 존재하지 않습니다.
+        </div>
+      )}
+
+      {/* 루틴 목록 */}
       <Collapse accordion style={{ background: 'transparent', border: 'none', padding:'0 16px' }}>
         {routines.map((routine) => (
           <Collapse.Panel style={{border:'none'}} key={routine.id}
