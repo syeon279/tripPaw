@@ -176,13 +176,15 @@ const RouteRecommendPage = () => {
         return (
             <>
                 <style>{fadeStyle}</style>
-                <div style={{
-                    position: 'fixed',
-                    bottom: '25%',      // 원하는 여백
-                    left: '40%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 9999
-                }}>
+                <div
+                // style={{
+                //     position: 'fixed',
+                //     bottom: '25%',      // 원하는 여백
+                //     left: '40%',
+                //     transform: 'translateX(-50%)',
+                //     zIndex: 9999
+                // }}
+                >
                     <PetAssistantLoading reservState={!routeData ? 'FETCHING_DATA' : 'MAP_LOADING'} />
                 </div>
             </>

@@ -15,6 +15,13 @@ const SearchResultSection = ({
     const tripScrollRef = useRef(null);
     const router = useRouter();
 
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+    const [canTripScrollLeft, setCanTripScrollLeft] = useState(false);
+    const [canTripScrollRight, setCanTripScrollRight] = useState(false);
+
+    const scrollIntervalRef = useRef(null); // 🔥 추가: 스크롤 타이머 저장
+
     useEffect(() => {
         if (!keyword.trim()) {
             setFilteredResults(results);
@@ -39,7 +46,6 @@ const SearchResultSection = ({
         });
     }, [keyword, results]);
 
-    // ✅ 장소/여행 스크롤 바인딩
     useEffect(() => {
         const placeEl = placeScrollRef.current;
         const tripEl = tripScrollRef.current;
@@ -63,6 +69,51 @@ const SearchResultSection = ({
             tripEl.removeEventListener('wheel', handleTripWheel);
         };
     }, []);
+
+    // 스크롤 상태 감지
+    useEffect(() => {
+        const el = placeScrollRef.current;
+        if (!el) return;
+        const updateScrollStatus = () => {
+            setCanScrollLeft(el.scrollLeft > 0);
+            setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+        };
+        el.addEventListener('scroll', updateScrollStatus);
+        updateScrollStatus();
+        return () => el.removeEventListener('scroll', updateScrollStatus);
+    }, []);
+
+    useEffect(() => {
+        const el = tripScrollRef.current;
+        if (!el) return;
+        const updateTripScrollStatus = () => {
+            setCanTripScrollLeft(el.scrollLeft > 0);
+            setCanTripScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+        };
+        el.addEventListener('scroll', updateTripScrollStatus);
+        updateTripScrollStatus();
+        return () => el.removeEventListener('scroll', updateTripScrollStatus);
+    }, []);
+
+    // 🔥 연속 스크롤 함수 추가
+    const startScroll = (direction, ref) => {
+        const step = 1000;
+        const scrollFn = () => {
+            ref.current?.scrollBy({ left: direction * step });
+        };
+        scrollFn();
+        scrollIntervalRef.current = setInterval(scrollFn, 16); // 약 60fps
+    };
+
+    const stopScroll = () => {
+        clearInterval(scrollIntervalRef.current);
+    };
+
+    // 단발 클릭용도 여전히 사용 가능
+    const scrollLeft = () => placeScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' });
+    const scrollRight = () => placeScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
+    const scrollTripLeft = () => tripScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' });
+    const scrollTripRight = () => tripScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
 
     if (!results) return <div>검색 결과가 없습니다.</div>;
 
@@ -118,71 +169,93 @@ const SearchResultSection = ({
                 <div>검색하신 키워드에 맞는 장소를 찾아왔어요!</div>
             </div>
 
-            <div
-                ref={placeScrollRef}
-                style={{
-                    marginTop: '16px',
-                    marginBottom: '16px',
-                    overflowX: 'auto',
-                    overflowY: 'hidden',
-                    whiteSpace: 'nowrap',
-                    scrollBehavior: 'smooth',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                }}
-            >
-                <div style={{ display: 'flex', minWidth: 'fit-content', gap: '12px' }}>
-                    {places.length === 0 ? (
-                        <p>검색 결과가 없어요...</p>
-                    ) : (
-                        places.map((place) => (
-                            <div
-                                key={place.id}
-                                onClick={() => router.push(`/place/${place.id}`)}
-                                style={{
-                                    borderRadius: '16px',
-                                    backgroundColor: 'white',
-                                    width: '400px',
-                                    marginRight: '12px',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                                    border: '1px solid #e0e0e0',
-                                    overflow: 'hidden',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <div style={{ width: '100%', height: '150px', overflow: 'hidden' }}>
-                                    <img
-                                        alt="장소 이미지"
-                                        src={place.imageUrl && place.imageUrl.length > 0 ? place.imageUrl : fallbackImages[place.id]}
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = "/image/other/tempImage.jpg";
-                                        }}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                </div>
-                                <div style={{ padding: '16px' }}>
-                                    <div style={{ display: 'flex' }}>
-                                        <p style={{ fontSize: '18px', fontWeight: 'bold', marginRight: '10px' }}>{place.name}</p>
-                                        <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>{place.placeType?.name}</p>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
-                                            {place.avgRating?.toFixed(1) || '0.0'}
-                                        </p>
-                                        <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
-                                            {'★'.repeat(Math.floor(place.avgRating)) + '☆'.repeat(5 - Math.floor(place.avgRating))}
-                                        </p>
-                                        <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
-                                            | 리뷰 {place.reviewCount || 0}
-                                        </p>
-                                    </div>
-                                    <p style={{ fontSize: '12px', color: '#666' }}>{place.region}</p>
-                                </div>
+            <div style={{ position: 'relative' }}>
+                {canScrollLeft && (
+                    <button
+                        style={arrowStyle('left')}
+                        onMouseDown={() => startScroll(-1, placeScrollRef)}
+                        onMouseUp={stopScroll}
+                        onMouseLeave={stopScroll}
+                    >
+                        ←
+                    </button>
+                )}
+                {canScrollRight && (
+                    <button
+                        style={arrowStyle('right')}
+                        onMouseDown={() => startScroll(1, placeScrollRef)}
+                        onMouseUp={stopScroll}
+                        onMouseLeave={stopScroll}
+                    >
+                        →
+                    </button>
+                )}
 
-                            </div>
-                        ))
-                    )}
+                <div
+                    ref={placeScrollRef}
+                    style={{
+                        marginTop: '16px',
+                        marginBottom: '16px',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        whiteSpace: 'nowrap',
+                        scrollBehavior: 'smooth',
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                    }}
+                >
+                    <div style={{ display: 'flex', minWidth: 'fit-content', gap: '12px' }}>
+                        {places.length === 0 ? (
+                            <p>검색 결과가 없어요...</p>
+                        ) : (
+                            places.map((place) => (
+                                <div
+                                    key={place.id}
+                                    onClick={() => router.push(`/place/${place.id}`)}
+                                    style={{
+                                        borderRadius: '16px',
+                                        backgroundColor: 'white',
+                                        width: '400px',
+                                        marginRight: '12px',
+                                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                        border: '1px solid #e0e0e0',
+                                        overflow: 'hidden',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <div style={{ width: '100%', height: '150px', overflow: 'hidden' }}>
+                                        <img
+                                            alt="장소 이미지"
+                                            src={place.imageUrl && place.imageUrl.length > 0 ? place.imageUrl : fallbackImages[place.id]}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = "/image/other/tempImage.jpg";
+                                            }}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    </div>
+                                    <div style={{ padding: '16px' }}>
+                                        <div style={{ display: 'flex' }}>
+                                            <p style={{ fontSize: '18px', fontWeight: 'bold', marginRight: '10px' }}>{place.name}</p>
+                                            <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>{place.placeType?.name}</p>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                                {place.avgRating?.toFixed(1) || '0.0'}
+                                            </p>
+                                            <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                                {'★'.repeat(Math.floor(place.avgRating)) + '☆'.repeat(5 - Math.floor(place.avgRating))}
+                                            </p>
+                                            <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
+                                                | 리뷰 {place.reviewCount || 0}
+                                            </p>
+                                        </div>
+                                        <p style={{ fontSize: '12px', color: '#666' }}>{place.region}</p>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -192,77 +265,115 @@ const SearchResultSection = ({
                 <div>트립포우가 당신에게 딱 맞는 여행경로를 추천해 줄게요</div>
             </div>
 
-            <div
-                ref={tripScrollRef}
-                style={{
-                    marginTop: '16px',
-                    marginBottom: '16px',
-                    overflowX: 'auto',
-                    overflowY: 'hidden',
-                    whiteSpace: 'nowrap',
-                    scrollBehavior: 'smooth',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                }}
-            >
-                <div style={{ display: 'flex', minWidth: 'fit-content', gap: '12px' }}>
-                    {tripPlans.length === 0 ? (
-                        <p>검색 결과가 없어요...</p>
-                    ) : (
-                        tripPlans.map((plan) => (
-                            <div
-                                key={plan.id}
-                                onClick={() => router.push(`/tripPlan/${plan.id}`)}
-                                style={{
-                                    borderRadius: '16px',
-                                    backgroundColor: 'white',
-                                    width: '400px',
-                                    marginRight: '12px',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                                    border: '1px solid #e0e0e0',
-                                    overflow: 'hidden',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <div style={{ width: '100%', height: '120px', overflow: 'hidden' }}>
-                                    <img
-                                        src={plan.imageUrl && plan.imageUrl.length > 0 ? plan.imageUrl : fallbackImages[plan.id] || "/image/other/tempImage.jpg"}
-                                        alt={plan.title}
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = "/image/other/tempImage.jpg";
-                                        }}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                </div>
-                                <div style={{ padding: '16px' }}>
-                                    <div style={{ display: 'flex' }}>
-                                        <p style={{ fontSize: '18px', fontWeight: 'bold', marginRight: '10px' }}>{plan.title}</p>
-                                        <p style={{ fontSize: '12px', color: '#555', marginTop: '5px' }}>🗓 {plan.days}일 일정</p>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
-                                            {plan.avgRating?.toFixed(1) || '0.0'}
-                                        </p>
-                                        <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
-                                            {'★'.repeat(Math.floor(plan.avgRating)) + '☆'.repeat(5 - Math.floor(plan.avgRating))}
-                                        </p>
-                                        <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
-                                            | 리뷰 {plan.reviewCount || 0}
-                                        </p>
-                                    </div>
-                                    <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>
-                                        {plan.authorNickname}의 추천 코스 ✨
-                                    </p>
-                                </div>
-                            </div>
+            <div style={{ position: 'relative' }}>
+                {canTripScrollLeft && (
+                    <button
+                        style={arrowStyle('left')}
+                        onMouseDown={() => startScroll(-1, tripScrollRef)}
+                        onMouseUp={stopScroll}
+                        onMouseLeave={stopScroll}
+                    >
+                        ←
+                    </button>
+                )}
+                {canTripScrollRight && (
+                    <button
+                        style={arrowStyle('right')}
+                        onMouseDown={() => startScroll(1, tripScrollRef)}
+                        onMouseUp={stopScroll}
+                        onMouseLeave={stopScroll}
+                    >
+                        →
+                    </button>
+                )}
 
-                        ))
-                    )}
+                <div
+                    ref={tripScrollRef}
+                    style={{
+                        marginTop: '16px',
+                        marginBottom: '16px',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        whiteSpace: 'nowrap',
+                        scrollBehavior: 'smooth',
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                    }}
+                >
+                    <div style={{ display: 'flex', minWidth: 'fit-content', gap: '12px' }}>
+                        {tripPlans.length === 0 ? (
+                            <p>검색 결과가 없어요...</p>
+                        ) : (
+                            tripPlans.map((plan) => (
+                                <div
+                                    key={plan.id}
+                                    onClick={() => router.push(`/tripPlan/${plan.id}`)}
+                                    style={{
+                                        borderRadius: '16px',
+                                        backgroundColor: 'white',
+                                        width: '400px',
+                                        marginRight: '12px',
+                                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                        border: '1px solid #e0e0e0',
+                                        overflow: 'hidden',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <div style={{ width: '100%', height: '120px', overflow: 'hidden' }}>
+                                        <img
+                                            src={plan.imageUrl && plan.imageUrl.length > 0 ? plan.imageUrl : fallbackImages[plan.id] || "/image/other/tempImage.jpg"}
+                                            alt={plan.title}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = "/image/other/tempImage.jpg";
+                                            }}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    </div>
+                                    <div style={{ padding: '16px' }}>
+                                        <div style={{ display: 'flex' }}>
+                                            <p style={{ fontSize: '18px', fontWeight: 'bold', marginRight: '10px' }}>{plan.title}</p>
+                                            <p style={{ fontSize: '12px', color: '#555', marginTop: '5px' }}>🗓 {plan.days}일 일정</p>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                                {plan.avgRating?.toFixed(1) || '0.0'}
+                                            </p>
+                                            <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                                {'★'.repeat(Math.floor(plan.avgRating)) + '☆'.repeat(5 - Math.floor(plan.avgRating))}
+                                            </p>
+                                            <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
+                                                | 리뷰 {plan.reviewCount || 0}
+                                            </p>
+                                        </div>
+                                        <p style={{ fontSize: '13px', color: '#999', marginTop: '6px' }}>
+                                            {plan.authorNickname}의 추천 코스 ✨
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
+
+// 공통 화살표 스타일
+const arrowStyle = (position) => ({
+    position: 'absolute',
+    top: '50%',
+    [position]: 0,
+    transform: 'translateY(-50%)',
+    zIndex: 10,
+    background: 'rgba(0,0,0,0.5)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '50%',
+    width: '36px',
+    height: '36px',
+    cursor: 'pointer',
+});
 
 export default SearchResultSection;

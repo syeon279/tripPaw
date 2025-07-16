@@ -12,11 +12,21 @@ const waggleRotate = keyframes`
   50% { transform: translateX(6px) rotate(5deg); }
 `;
 
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.6); // ✅ 흐림 정도 조절
+  z-index: 998; // Wrapper보다 낮아야 함
+`;
+
 const PetAssistantWrapper = styled.div`
   position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
   z-index: 999;
   display: flex;
   flex-direction: column;
@@ -24,6 +34,7 @@ const PetAssistantWrapper = styled.div`
   animation: ${({ animate }) =>
     animate ? css`${fadeInUp} 0.6s ease forwards` : 'none'};
   gap: 12px;  // 너무 벌어지면 중앙 안 맞아보일 수 있어서 살짝 줄임
+  backgroundColor: rgba(250, 250, 250, 0.63);
 `;
 
 const SpeechBubble = styled.div`
@@ -58,7 +69,7 @@ const SpeechBubble = styled.div`
   }
 `;
 const PetImage = styled.img`
-  width: 180px;
+  width: 300px;
   height: auto;
   filter: drop-shadow(2px 3px 6px rgba(164, 90, 42, 0.3));
   user-select: none;
@@ -90,10 +101,13 @@ const PetassistantLoading = ({ reservState }) => {
   }, [reservState]);
 
   return (
-    <PetAssistantWrapper animate={animate}>
-      <SpeechBubble style={{ marginBottom: '20px' }}>{message}</SpeechBubble>
-      <PetImage src={petImg.src} alt="AI 펫 캐릭터" />
-    </PetAssistantWrapper>
+    <>
+      <Overlay />
+      <PetAssistantWrapper animate={animate}>
+        <SpeechBubble style={{ marginBottom: '20px' }}>{message}</SpeechBubble>
+        <PetImage src={petImg.src} alt="AI 펫 캐릭터" />
+      </PetAssistantWrapper>
+    </>
   );
 };
 
