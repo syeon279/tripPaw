@@ -43,7 +43,7 @@ const Profile = () => {
   const [phoneNum, setPhoneNum] = useState('');
   const [memberId, setMemberId] = useState('');
   const [totalPoints, setTotalPoints] = useState(null);  // 추가
-  
+
   // 추가  
   useEffect(() => {
     const fetchTotalPoints = async () => {
@@ -54,7 +54,7 @@ const Profile = () => {
           params: { memberId },
           withCredentials: true,
         });
-        console.log("총 포인트 조회 결과:", response.data.totalPoints);
+        //console.log("총 포인트 조회 결과:", response.data.totalPoints);
         setTotalPoints(response.data.totalPoints);
       } catch (error) {
         console.error("포인트 조회 실패:", error);
@@ -78,7 +78,7 @@ const Profile = () => {
         // }
         if (response.status === 200) {
           setIsLoggedIn(true);
-          console.log('id=', response.data.id);
+          //console.log('id=', response.data.id);
 
           setMemberId(response.data.id)
           setNickname(response.data.nickname);

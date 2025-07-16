@@ -101,7 +101,7 @@ const RouteRecommendPage = () => {
                 if (error.response?.status === 401) {
                     setIsLoggedIn(false);
                 } else {
-                    console.error("⚠️ 로그인 상태 확인 중 에러:", error);
+                    console.log("⚠️ 로그인 상태 확인 중 에러:", error);
                 }
             }
         };

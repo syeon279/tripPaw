@@ -35,7 +35,7 @@ const Home = () => {
         try {
             const response = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
             setSearchResult(response.data);
-            console.log('검색 데이터 : ', response.data);
+            //console.log('검색 데이터 : ', response.data);
             setHasSearched(true);
             setSectionIndex(2);
         } catch (err) {

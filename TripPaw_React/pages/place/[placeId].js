@@ -171,7 +171,7 @@ const PlaceReservCreatePage = () => {
       try {
         const res = await axios.get(`http://localhost:8080/place/${id}`);
         setPlace(res.data);
-        console.log('place : ', res.data);
+        //console.log('place : ', res.data);
       } catch {
         setMessage('장소 정보를 불러오지 못했습니다.');
       }
@@ -279,13 +279,26 @@ const PlaceReservCreatePage = () => {
 
   // 예약하기
   const executeReservation = async (resolvedMemberId) => {
+    const peopleCount = Number(countPeople);
+    const petCount = Number(countPet);
+
+    if (peopleCount < 1 || peopleCount > 30) {
+      alert('예약 인원은 1명 이상 30명 이하로 입력해주세요.');
+      return;
+    }
+
+    if (petCount < 0 || petCount > 20) {
+      alert('예약 반려 동물은 0마리 이상 20마리 이하로 입력해주세요.');
+      return;
+    }
+
     const expireAtDate = addDays(new Date(), 5);
     const payload = {
       startDate: format(dateRange[0].startDate, 'yyyy-MM-dd'),
       endDate: format(dateRange[0].endDate, 'yyyy-MM-dd'),
       expireAt: format(expireAtDate, 'yyyy-MM-dd'),
-      countPeople: Number(countPeople),
-      countPet: Number(countPet),
+      countPeople: peopleCount,
+      countPet: petCount,
       member: { id: resolvedMemberId },
       place: { id: placeId },
       tripPlan: tripPlanId ? { id: tripPlanId } : null,
