@@ -14,7 +14,7 @@ const AppLayout = ({ children, headerTheme }) => {
   return (
 
     <>
-      <AppLayoutWrapper>
+      <AppLayoutWrapper >
         <ContentHeader theme={headerTheme} />
         {children}
       </AppLayoutWrapper>

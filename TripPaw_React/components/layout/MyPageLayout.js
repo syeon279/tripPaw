@@ -15,7 +15,7 @@ const MypageLayout = ({ children }) => {
         <Sidebar />
       </Sider>
       <ContentHeader />
-      <Content style={{ padding: '24px', paddingTop: '80px', background: '#fff' }}>
+      <Content style={{ padding: '80px', paddingTop: '80px', background: '#fff' }}>
         {children}
       </Content>
     </Layout>
