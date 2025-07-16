@@ -138,11 +138,21 @@ public class NFTService {
         }
 
         String prompt = "Suggest one short, cute, single English word for a dog or cat themed NFT coupon. Only return the word.";
+        int retryCount = 5;
+        for (int i = 0; i < retryCount; i++) {
+            String title = generateTitleFromAI(prompt);
+            if (title != null && !nftMetadataMapper.existsByTitle(title)) {
+                return title;
+            }
+        }
+        return "Token-" + System.currentTimeMillis(); // fallback
+    }
 
+    private String generateTitleFromAI(String prompt) {
         Map<String, Object> requestBody = Map.of(
-                "model", "gpt-3.5-turbo",
-                "messages", List.of(Map.of("role", "user", "content", prompt)),
-                "max_tokens", 20
+            "model", "gpt-3.5-turbo",
+            "messages", List.of(Map.of("role", "user", "content", prompt)),
+            "max_tokens", 20
         );
 
         HttpHeaders headers = new HttpHeaders();
@@ -159,17 +169,16 @@ public class NFTService {
                 if (choices != null && !choices.isEmpty()) {
                     Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
                     if (message != null) {
-                        String content = (String) message.get("content");
-                        return content.trim();
+                        return ((String) message.get("content")).trim();
                     }
                 }
             }
         } catch (Exception e) {
             System.out.println("AI 제목 생성 실패: " + e.getMessage());
         }
-        // 실패 시 null 리턴
         return null;
     }
+
 
     // 동기화: 블록체인에서 NFT 가져와 DB 저장/업데이트 (AI 제목 생성 추가)
     public List<NftMetadata> syncTokensToDb(String contractAddress, String walletAddress) throws Exception {
