@@ -64,6 +64,15 @@
 		DELETE FROM check_template_item
 		WHERE id = #{id}
 	</delete>
+	
+<!-- 템플릿 ID 기준으로 항목 조회 -->
+<select id="selectItemsByTemplateId" resultMap="ItemResultMap">
+    SELECT id, checktemplate_id, content, created_at
+    FROM check_template_item
+    WHERE checktemplate_id = #{templateId}
+    ORDER BY created_at
+</select>
+
 
 	<resultMap id="ItemResultMap" type="CheckTemplateItem">
 		<id property="id" column="id" />
