@@ -96,12 +96,20 @@ const MyBadgeSection = ({ memberId }) => {
             <Tooltip
               key={badge.id}
               title={
-                owned && nextGap !== null ? (
-                  <div>
-                    {badge.name} : {ownedInfo.weight}g
-                    <br />
-                    다음 단계까지 {nextGap}g 남았어요.
-                  </div>
+                owned ? (
+                  nextGap !== null ? (
+                    <div>
+                      {badge.name} : {ownedInfo.weight}g
+                      <br />
+                      다음 단계까지 {nextGap}g 남았어요.
+                    </div>
+                  ) : (
+                    <div>
+                      {badge.name} : {ownedInfo.weight}g
+                      <br />
+                      최고 등급 뱃지를 획득하셨습니다 🎉
+                    </div>
+                  )
                 ) : (
                   '???'
                 )
