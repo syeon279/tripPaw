@@ -3,12 +3,16 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import AppLayout from '@/components/AppLayout';
 import axios from 'axios';
-import { Card, Rate, Spin, Button, Tooltip } from 'antd';
-import { LikeOutlined, LikeFilled, CloudOutlined, SunOutlined, QuestionOutlined } from '@ant-design/icons';
+import { Card, Rate, Spin, Button } from 'antd';
+import {
+  LikeOutlined,
+  LikeFilled,
+  CloudOutlined,
+  SunOutlined,
+  QuestionOutlined,
+} from '@ant-design/icons';
 
-const RouteMapNoSSR = dynamic(() => import('@/components/tripPlan/RouteMap'), {
-  ssr: false,
-});
+const RouteMapNoSSR = dynamic(() => import('@/components/tripPlan/RouteMap'), { ssr: false });
 
 const weatherIcon = (condition) => {
   switch (condition) {
@@ -26,26 +30,34 @@ const weatherIcon = (condition) => {
 const ReviewTripPlanDetail = () => {
   const router = useRouter();
   const { id: planId, title } = router.query;
+
   const [reviews, setReviews] = useState([]);
   const [routeData, setRouteData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [memberId, setMemberId] = useState(null);
-  const [canWriteReview, setCanWriteReview] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [planTitle, setPlanTitle] = useState('');
   const [averageRating, setAverageRating] = useState(0);
   const [likeStates, setLikeStates] = useState({});
-  const [planTitle, setPlanTitle] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [memberId, setMemberId] = useState(null);
+  const [canWriteReview, setCanWriteReview] = useState(false);
 
-
+  // ✅ 로그인 + 리뷰/트립플랜 정보 + 작성 여부 체크
   useEffect(() => {
-    if (!planId) return;
-
-    const fetchData = async () => {
+    const fetchAll = async () => {
       try {
+        const authRes = await axios.get('http://localhost:8080/api/auth/check', {
+          withCredentials: true,
+        });
+        const memberId = authRes.data.id;
+        setIsLoggedIn(true);
+        setMemberId(memberId);
+
         const [reviewRes, planRes] = await Promise.all([
           axios.get(`http://localhost:8080/review/plan/${planId}`),
           axios.get(`http://localhost:8080/tripPlan/${planId}`),
         ]);
+        console.log('리뷰 작성자 ID들:', reviews.map((r) => r.memberId));
+console.log('현재 로그인 ID:', memberId);
 
         const fetchedReviews = reviewRes.data || [];
         setReviews(fetchedReviews);
@@ -58,18 +70,25 @@ const ReviewTripPlanDetail = () => {
         } else {
           setAverageRating(0);
         }
+
+        // 리뷰 작성 여부 확인
+        const hasWritten = fetchedReviews.some((r) => r.memberId === memberId);
+        setCanWriteReview(!hasWritten);
       } catch (err) {
-        console.error('리뷰 또는 경로 불러오기 실패:', err);
+        console.error('데이터 로딩 실패:', err);
+        setIsLoggedIn(false);
+        setCanWriteReview(false);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    if (planId) fetchAll();
   }, [planId]);
 
+  // ✅ 좋아요 상태
   useEffect(() => {
-    if (!planId || !isLoggedIn || !memberId || reviews.length === 0) return;
+    if (!memberId || reviews.length === 0) return;
 
     const fetchLikeStates = async () => {
       const states = {};
@@ -82,14 +101,14 @@ const ReviewTripPlanDetail = () => {
                 params: { memberId },
                 withCredentials: true,
               }),
-              axios.get(`http://localhost:8080/review/${review.id}/like/count`)
+              axios.get(`http://localhost:8080/review/${review.id}/like/count`),
             ]);
             states[review.id] = {
               liked: markedRes.data,
-              count: countRes.data
+              count: countRes.data,
             };
           } catch (err) {
-            console.error(`리뷰 ${review.id} 좋아요 상태 불러오기 실패`, err);
+            console.error(`좋아요 상태 실패: ${review.id}`, err);
           }
         })
       );
@@ -98,32 +117,7 @@ const ReviewTripPlanDetail = () => {
     };
 
     fetchLikeStates();
-  }, [reviews, isLoggedIn, memberId]);
-
-  useEffect(() => {
-    const checkLoginAndReservation = async () => {
-      try {
-        const authRes = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
-        const memberId = authRes.data.id;
-        setIsLoggedIn(true);
-        setMemberId(memberId);
-
-        // const reservRes = await axios.get('http://localhost:8080/review/reserv/check-tripPlan', {
-        //   params: { memberId, tripPlanId: planId },
-        // });
-        setCanWriteReview(true);
-        // setCanWriteReview(reservRes.data === true);
-      } catch (err) {
-        console.error('로그인 또는 예약 확인 실패:', err);
-        setIsLoggedIn(false);
-        setCanWriteReview(false);
-      }
-    };
-
-    if (planId) {
-      checkLoginAndReservation();
-    }
-  }, [planId]);
+  }, [memberId, reviews]);
 
   const toggleLike = async (reviewId) => {
     if (!isLoggedIn || !memberId) {
@@ -140,7 +134,7 @@ const ReviewTripPlanDetail = () => {
         });
         setLikeStates((prev) => ({
           ...prev,
-          [reviewId]: { liked: false, count: prev[reviewId].count - 1 }
+          [reviewId]: { liked: false, count: prev[reviewId].count - 1 },
         }));
       } else {
         await axios.post(`http://localhost:8080/review/${reviewId}/like`, null, {
@@ -149,7 +143,7 @@ const ReviewTripPlanDetail = () => {
         });
         setLikeStates((prev) => ({
           ...prev,
-          [reviewId]: { liked: true, count: prev[reviewId].count + 1 }
+          [reviewId]: { liked: true, count: prev[reviewId].count + 1 },
         }));
       }
     } catch (err) {
@@ -161,57 +155,44 @@ const ReviewTripPlanDetail = () => {
 
   return (
     <AppLayout>
-      {/* 전체 세로 배치 */}
       <div style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
-
-        {/* 상단 트립플랜 제목 */}
-        <div style={{
-          marginTop: 40,
-          padding: '20px',
-          paddingTop: '40px',
-          borderBottom: '1px solid #eee',
-          background: '#fff',
-          zIndex: 1,
-        }}>
+        {/* 타이틀 */}
+        <div
+          style={{
+            marginTop: 40,
+            padding: '20px',
+            paddingTop: '40px',
+            borderBottom: '1px solid #eee',
+            background: '#fff',
+            zIndex: 1,
+          }}
+        >
           <h1 style={{ margin: 0, fontSize: 24, textAlign: 'center' }}>{planTitle}</h1>
         </div>
 
-        {/* 하단 지도 + 리뷰 영역 */}
-        <div style={{
-          display: 'flex',
-          flex: 1,
-          overflow: 'hidden',
-        }}>
-          {/* 좌측 지도 */}
+        {/* 지도 + 리뷰 */}
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+          {/* 지도 */}
           <div style={{ flex: 1.5, height: '100%' }}>
             <RouteMapNoSSR
               routeData={routeData}
               focusDay={null}
-              setFocusDay={() => { }}
-              setMapInstance={() => { }}
+              setFocusDay={() => {}}
+              setMapInstance={() => {}}
             />
           </div>
 
-          {/* 우측 리뷰 */}
-          <div style={{
-            flex: 1,
-            padding: '20px',
-            paddingTop: '20px',
-            overflowY: 'auto',
-            height: '100%',
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}>
+          {/* 리뷰 목록 */}
+          <div style={{ flex: 1, padding: 20, overflowY: 'auto', height: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <span style={{ color: '#f5222d', fontWeight: 600, fontSize: 16 }}>
-                  {averageRating.toFixed(1)} <Rate disabled allowHalf value={averageRating} style={{ fontSize: 16 }} />
+                  {averageRating.toFixed(1)}{' '}
+                  <Rate disabled allowHalf value={averageRating} style={{ fontSize: 16 }} />
                 </span>
                 <span style={{ marginLeft: 8, color: '#888' }}>리뷰 {reviews.length}개</span>
               </div>
-              {isLoggedIn && (
+              {isLoggedIn && canWriteReview && (
                 <Button
                   type="primary"
                   onClick={() =>
@@ -230,14 +211,13 @@ const ReviewTripPlanDetail = () => {
               )}
             </div>
 
-            {/* 리뷰 목록 */}
             <div style={{ marginTop: 20 }}>
               {reviews.length === 0 ? (
                 <p>아직 작성된 리뷰가 없습니다.</p>
               ) : (
                 reviews.map((review) => (
                   <Card key={review.id} style={{ marginBottom: 20 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <div>
                         <div style={{ fontWeight: 'bold' }}>{review.memberNickname}</div>
                         <Rate disabled defaultValue={review.rating} style={{ fontSize: 16 }} />
@@ -255,23 +235,32 @@ const ReviewTripPlanDetail = () => {
                             key={idx}
                             src={`http://localhost:8080/upload/reviews/${url.trim()}`}
                             alt={`review-${idx}`}
-                            style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }}
-                            onError={(e) => { e.target.src = '/image/other/tempImage.jpg'; }}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              objectFit: 'cover',
+                              borderRadius: 8,
+                            }}
+                            onError={(e) => {
+                              e.target.src = '/image/other/tempImage.jpg';
+                            }}
                           />
                         ))}
                       </div>
                     )}
                     <div
-                      block
                       style={{
                         cursor: 'pointer',
                         marginTop: 12,
                         border: '1px solid #ddd',
+                        padding: '4px 8px',
+                        borderRadius: 4,
+                        display: 'inline-block',
                       }}
                       onClick={() => toggleLike(review.id)}
                     >
-                      {likeStates[review.id]?.liked ? <LikeFilled /> : <LikeOutlined />} 도움이 돼요
-                      <span style={{ marginLeft: 4 }}>({likeStates[review.id]?.count ?? 0})</span>
+                      {likeStates[review.id]?.liked ? <LikeFilled /> : <LikeOutlined />}{' '}
+                      도움이 돼요 ({likeStates[review.id]?.count ?? 0})
                     </div>
                   </Card>
                 ))
@@ -281,7 +270,6 @@ const ReviewTripPlanDetail = () => {
         </div>
       </div>
     </AppLayout>
-
   );
 };
 

@@ -43,12 +43,29 @@ const PlaceReviewWrite = () => {
   useEffect(() => {
     if (!tripPlanId || !memberId) return;
 
-    axios.get(`http://localhost:8080/review/trip/${tripPlanId}/places`, {
-      params: { memberId },
-    })
-      .then(res => {
+    const fetchReservs = async () => {
+      try {
+        const res = await axios.get('http://localhost:8080/review/place-reservations', {
+          params: { tripPlanId, memberId },
+        });
+
+        const rawReservs = res.data;
+
+        // 각 예약에 대해 리뷰 여부 체크
+        const filtered = await Promise.all(
+          rawReservs.map(async (r) => {
+            const check = await axios.get('http://localhost:8080/review/reserv/review-check', {
+              params: { memberId, reservId: r.id },
+            });
+            return check.data === true ? r : null;
+          })
+        );
+
+        const writeableReservs = filtered.filter(Boolean);
+        setReservs(writeableReservs);
+
         const initialData = {};
-        res.data.forEach(r => {
+        for (const r of writeableReservs) {
           initialData[r.id] = {
             rating: 0,
             content: '',
@@ -57,11 +74,8 @@ const PlaceReviewWrite = () => {
             submitted: false,
             weather: '',
           };
-        });
-        setReservs(res.data);
-        setReviews(initialData);
 
-        res.data.forEach(r => {
+          // 날씨 정보 가져오기
           axios.get('http://localhost:8080/review/weather', {
             params: { type: 'PLACE', targetId: r.id },
           }).then(resp => {
@@ -73,11 +87,15 @@ const PlaceReviewWrite = () => {
               },
             }));
           });
-        });
-      })
-      .catch(() => {
+        }
+
+        setReviews(initialData);
+      } catch (err) {
         message.error("장소 목록을 불러오지 못했습니다.");
-      });
+      }
+    };
+
+    fetchReservs();
   }, [tripPlanId, memberId]);
 
   const handleChange = (reservId, field, value) => {
@@ -154,37 +172,57 @@ const PlaceReviewWrite = () => {
     handleChange(reservId, 'fileList', fileList);
   };
 
-  const allSubmitted = Object.values(reviews).every(r => r.submitted);
+  const allSubmitted = Object.values(reviews).length > 0 && Object.values(reviews).every(r => r.submitted);
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      <h2>장소 리뷰</h2>
+      <h2 style={{marginBottom: 50}}>장소 리뷰</h2>
 
-      {reservs.length === 0 ? (
-        <div>등록된 장소가 없습니다.</div>
+      {reservs.length === 0 || allSubmitted ? (
+        // ✅ 리뷰가 없거나 전부 작성된 경우 동일 UI 출력
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: 32 }} />
+          <h3>모든 리뷰를 작성했습니다!</h3>
+          <Button type="primary" onClick={() => router.push('/')}>홈으로 이동</Button>
+        </div>
       ) : (
         reservs.map((reserv) => {
+          console.log('reservs:', reservs);
           const review = reviews[reserv.id];
           if (!review || review.submitted) return null;
 
           return (
             <div key={reserv.id} style={{ marginBottom: 32, borderBottom: '1px solid #ddd', paddingBottom: 16 }}>
-              <img
-                src={reserv.place?.imageUrl}
-                alt={reserv.place?.name}
-                style={{ width: '200px', height: 'auto', borderRadius: '8px' }}
-              />
-              <h3>{reserv.place?.name || '장소 이름 없음'}
-                {review.weather && (
-                  <div style={{ width: 60, textAlign: 'right' }}>
-                    {['맑음', '흐림', '비', '눈', '구름많음'].includes(review.weather) ? (
-                      <img src={`/image/weather/${getWeatherImage(review.weather)}`} alt={review.weather} style={{ width: 40, height: 40 }} />
-                    ) : (
-                      <QuestionOutlined style={{ fontSize: 24, color: '#ccc' }} />
-                    )}
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+                {/* 좌측: 장소 이미지 + 이름 */}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {reserv.place?.imageUrl && (
+                    <img
+                      src={reserv.place.imageUrl.startsWith('http') ? reserv.place.imageUrl : `http://localhost:8080${reserv.place.imageUrl}`}
+                      alt={reserv.place.name || '장소 이미지'}
+                      style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, marginRight: 12 }}
+                    />
+                  )}
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 'bold' }}>
+                      {reserv.place?.name || '장소 이름 없음'}
+                    </div>
                   </div>
-                )}
-              </h3>
+                </div>
+
+                {/* 우측: 날씨 아이콘 */}
+                <div style={{ marginLeft: 'auto', width: 60, textAlign: 'right' }}>
+                  {['맑음', '흐림', '비', '눈', '구름많음'].includes(review.weather) ? (
+                    <img
+                      src={`/image/weather/${getWeatherImage(review.weather)}`}
+                      alt={review.weather}
+                      style={{ width: 40, height: 40 }}
+                    />
+                  ) : (
+                    <QuestionOutlined style={{ fontSize: 24, color: '#ccc' }} />
+                  )}
+                </div>
+              </div>
               <Rate value={review.rating} onChange={(v) => handleChange(reserv.id, 'rating', v)} />
               <Checkbox.Group value={review.keywords} onChange={(v) => handleChange(reserv.id, 'keywords', v)}>
                 <Row gutter={[8, 8]} style={{ marginTop: 10 }}>

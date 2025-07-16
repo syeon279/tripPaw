@@ -43,7 +43,9 @@ const ReviewList = () => {
   const [loading, setLoading] = useState(false);
   const [sort, setSort] = useState("latest");
   const [likeStates, setLikeStates] = useState({});
-  const memberId = 1;
+  
+  const [memberId, setMemberId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [nfts, setNfts] = useState([]);
   const [issueModalVisible, setIssueModalVisible] = useState(false);
@@ -51,10 +53,25 @@ const ReviewList = () => {
   const [selectedReviewUser, setSelectedReviewUser] = useState(null);
   const [issueForm] = Form.useForm();
 
+   // 사용자 권한 정보 로드
   useEffect(() => {
+    const fetchAuth = async () => {
+      try {
+        const res = await axios.get("/api/auth/check", { withCredentials: true });
+        setMemberId(res.data.memberId);
+        setIsAdmin(res.data.auth === "ADMIN");
+      } catch (err) {
+        console.error("사용자 인증 정보 불러오기 실패", err);
+      }
+    };
+    fetchAuth();
+  }, []);
+
+  useEffect(() => {
+  if (memberId !== null) {
     fetchReviews(sort);
-    fetchNfts();
-  }, [sort]);
+  }
+}, [sort, memberId]);
 
   const fetchReviews = async (sortKey = "latest") => {
     setLoading(true);
@@ -243,11 +260,13 @@ const ReviewList = () => {
                     </Button>
                   </div>
 
-                  <div style={{ marginTop: 12 }}>
-                    <Button block type="dashed" onClick={() => openIssueModal(item.memberNickname)}>
-                      🎁 NFT 발급
-                    </Button>
-                  </div>
+                  {isAdmin && (
+                    <div style={{ marginTop: 12 }}>
+                      <Button block type="dashed" onClick={() => openIssueModal(item.memberNickname)}>
+                        🎁 NFT 발급
+                      </Button>
+                    </div>
+                  )}
                 </List.Item>
               )}
             />

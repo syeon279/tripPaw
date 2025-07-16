@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper
 	namespace="com.ssdam.tripPaw.review.ReservForReviewMapper">
 
@@ -46,6 +45,32 @@
 		<result property="state" column="state" />
 		<result property="isReviewed" column="is_reviewed" />
 	</resultMap>
+
+	<resultMap id="ReservWithPlaceMap"
+		type="com.ssdam.tripPaw.domain.Reserv">
+		<id property="id" column="id" />
+		<result property="countPeople" column="count_people" />
+		<result property="countPet" column="count_pet" />
+		<result property="createdAt" column="created_at" />
+		<result property="deleteAt" column="delete_at" />
+		<result property="startDate" column="start_date" />
+		<result property="endDate" column="end_date" />
+		<result property="expireAt" column="expire_at" />
+		<result property="state" column="state" />
+		<result property="originalPrice" column="original_price" />
+		<result property="finalPrice" column="final_price" />
+
+		<association property="place"
+			javaType="com.ssdam.tripPaw.domain.Place">
+			<id property="id" column="p_id" />
+			<result property="name" column="p_name" />
+			<result property="imageUrl" column="p_image_url" />
+			<result property="latitude" column="p_latitude" />
+			<result property="longitude" column="p_longitude" />
+			<result property="region" column="p_region" />
+		</association>
+	</resultMap>
+
 
 
 	<select id="findOneByMemberAndPlace" resultMap="ReservResultMap">
@@ -175,10 +200,34 @@
 		SELECT *
 		FROM reserv
 		WHERE trip_plan_id = #{tripPlanId}
-		AND delete_at IS NULL
+		AND
+		delete_at IS NULL
 		ORDER BY start_date ASC
 		LIMIT 1
 	</select>
+
+	<select id="findReservsByTripPlanAndMember"
+		resultMap="ReservWithPlaceMap">
+		SELECT r.*,
+		p.id AS p_id,
+		p.name AS p_name,
+		p.image_url AS
+		p_image_url,
+		p.latitude AS p_latitude,
+		p.longitude AS p_longitude,
+		p.region AS p_region
+		FROM reserv r
+		JOIN member_trip_plan mtp ON
+		r.member_trip_plan_id = mtp.id
+		JOIN place p ON r.place_id = p.id
+		WHERE
+		mtp.trip_plan_id = #{tripPlanId}
+		AND mtp.member_id = #{memberId}
+	</select>
+
+
+
+
 
 	<!-- <select id="countByMemberAndPlace" resultType="int"> SELECT COUNT(*) 
 		FROM reserv WHERE member_id = #{memberId} AND place_id = #{placeId} </select> -->
