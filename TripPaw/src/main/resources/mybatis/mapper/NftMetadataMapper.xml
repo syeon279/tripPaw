@@ -64,5 +64,8 @@
       AND deleted_at IS NULL
   </update>
 
+  <select id="existsByTitle" resultType="boolean">
+    SELECT COUNT(*) > 0 FROM nft_metadata WHERE title = #{title}
+  </select>
 
 </mapper>
