@@ -51,6 +51,17 @@
     WHERE mn.id = #{id}
       AND mn.deleted_at IS NULL
   </select>
+  
+  <select id="findByTokenId" resultType="com.ssdam.tripPaw.domain.MemberNft">
+    SELECT * FROM member_nft WHERE token_id = #{tokenId}
+  </select>
+  
+  <select id="findByNftMetadataId" resultType="com.ssdam.tripPaw.domain.MemberNft">
+    SELECT *
+    FROM member_nft
+    WHERE token_id = #{nftMetadataId}
+    AND deleted_at IS NULL
+  </select>
 
   <!-- NFT 삽입 -->
   <insert id="insert" parameterType="com.ssdam.tripPaw.domain.MemberNft">
