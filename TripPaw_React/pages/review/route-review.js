@@ -141,6 +141,8 @@ const ReviewList = () => {
     setSelectedNftId(null);
     setIssueModalVisible(true);
     issueForm.resetFields();
+
+    fetchNfts();
   };
 
   const onIssueFinish = async (values) => {
@@ -160,6 +162,9 @@ const ReviewList = () => {
       });
       message.success("NFT 발급 성공");
       setIssueModalVisible(false);
+
+      fetchNfts();
+
     } catch (err) {
       message.error("발급 실패: " + err.message);
     }
@@ -295,20 +300,37 @@ const ReviewList = () => {
                 {nfts.map((nft) => (
                   <Col span={8} key={nft.id}>
                     <Card
-                      hoverable
-                      onClick={() => setSelectedNftId(nft.id)}
+                      hoverable={!nft.issued}
+                      onClick={() => {
+                        if (!nft.issued) setSelectedNftId(nft.id);
+                      }}
                       style={{
                         border: selectedNftId === nft.id ? "2px solid #1890ff" : "1px solid #ccc",
+                        opacity: nft.issued ? 0.5 : 1,
+                        position: "relative",
+                        cursor: nft.issued ? "not-allowed" : "pointer",
                       }}
                       cover={
                         <img
                           alt={nft.title}
                           src={getValidImageUrl(nft.imageUrl)}
-                          style={{ height: 180, objectFit: "cover" }}
+                          style={{ height: 180, objectFit: "cover", filter: nft.issued ? "grayscale(100%)" : "none" }}
                         />
                       }
                     >
-                      <Card.Meta title={nft.title} description={`포인트: ${nft.pointValue}`} />
+                      <Card.Meta
+                        title={
+                          <>
+                            {nft.title}
+                            {nft.issued && (
+                              <span style={{ marginLeft: 8, color: "red", fontWeight: "bold" }}>
+                                (발급 완료)
+                              </span>
+                            )}
+                          </>
+                        }
+                        description={`포인트: ${nft.pointValue}`}
+                      />
                     </Card>
                   </Col>
                 ))}

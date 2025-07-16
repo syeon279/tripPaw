@@ -34,6 +34,13 @@ public class MemberNftService {
 
     // NFT 발급
     public void issueOrReuseNft(MemberNft memberNft) {
+    	
+    	// 중복 발급 방지
+        MemberNft existing = memberNftMapper.findByNftMetadataId(memberNft.getNftMetadata().getId());
+        if (existing != null) {
+            throw new IllegalStateException("이미 발급된 NFT입니다.");
+        }
+    	
         // 1. soft delete 된 재사용 가능한 NFT 조회
         MemberNft reusableNft = memberNftMapper.findFirstSoftDeleted();
 
