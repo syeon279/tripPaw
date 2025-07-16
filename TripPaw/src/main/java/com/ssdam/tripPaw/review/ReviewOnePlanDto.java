@@ -11,4 +11,5 @@ public class ReviewOnePlanDto {
     private String createdAt;
     private String memberNickname;
     private String imageUrls; 
+    private Long memberId;
 }
