@@ -50,6 +50,7 @@ const Layout = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 40px;
+  height: calc(100vh - 160px);
 `;
 
 const ImageSection = styled.div`
@@ -132,7 +133,9 @@ const ErrorMsg = styled.p`
 const TabsSection = styled.div`
   flex: 1;
   min-width: 300px;
-  margin-top: -50px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 10px;
 `;
 
 const PlaceReservCreatePage = () => {
@@ -519,7 +522,6 @@ const PlaceReservCreatePage = () => {
   return (
     <AppLayout>
       <div style={{ width: '100%', height: '100px' }} />
-      <ScrollContainer>
         {!place ? (
           <Container>
             <Title>장소 정보를 불러오는 중입니다...</Title>
@@ -720,7 +722,6 @@ const PlaceReservCreatePage = () => {
             />}
           </Container>
         )}
-      </ScrollContainer>
     </AppLayout>
   );
 };
