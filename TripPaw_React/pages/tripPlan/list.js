@@ -10,7 +10,7 @@ const header = {
 
 
 const MyTripsPage = () => {
-    console.log('🐢 tripPlan/list 도착');
+    //console.log('🐢 tripPlan/list 도착');
     const [trips, setTrips] = useState([]);
 
     useEffect(() => {

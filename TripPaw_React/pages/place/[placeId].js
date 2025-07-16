@@ -50,6 +50,7 @@ const Layout = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 40px;
+  height: calc(100vh - 160px);
 `;
 
 const ImageSection = styled.div`
@@ -132,7 +133,9 @@ const ErrorMsg = styled.p`
 const TabsSection = styled.div`
   flex: 1;
   min-width: 300px;
-  margin-top: -50px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 10px;
 `;
 
 const PlaceReservCreatePage = () => {
@@ -154,6 +157,8 @@ const PlaceReservCreatePage = () => {
   const [avgRating, setAvgRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [likeStates, setLikeStates] = useState({});
+  // 리뷰 정렬
+  const [sortKey, setSortKey] = useState('latest');
   // 상태 변수
   const [pendingAction, setPendingAction] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -171,7 +176,7 @@ const PlaceReservCreatePage = () => {
       try {
         const res = await axios.get(`http://localhost:8080/place/${id}`);
         setPlace(res.data);
-        console.log('place : ', res.data);
+        //console.log('place : ', res.data);
       } catch {
         setMessage('장소 정보를 불러오지 못했습니다.');
       }
@@ -279,13 +284,26 @@ const PlaceReservCreatePage = () => {
 
   // 예약하기
   const executeReservation = async (resolvedMemberId) => {
+    const peopleCount = Number(countPeople);
+    const petCount = Number(countPet);
+
+    if (peopleCount < 1 || peopleCount > 30) {
+      alert('예약 인원은 1명 이상 30명 이하로 입력해주세요.');
+      return;
+    }
+
+    if (petCount < 0 || petCount > 20) {
+      alert('예약 반려 동물은 0마리 이상 20마리 이하로 입력해주세요.');
+      return;
+    }
+
     const expireAtDate = addDays(new Date(), 5);
     const payload = {
       startDate: format(dateRange[0].startDate, 'yyyy-MM-dd'),
       endDate: format(dateRange[0].endDate, 'yyyy-MM-dd'),
       expireAt: format(expireAtDate, 'yyyy-MM-dd'),
-      countPeople: Number(countPeople),
-      countPet: Number(countPet),
+      countPeople: peopleCount,
+      countPet: petCount,
       member: { id: resolvedMemberId },
       place: { id: placeId },
       tripPlan: tripPlanId ? { id: tripPlanId } : null,
@@ -395,10 +413,12 @@ const PlaceReservCreatePage = () => {
 
 
   // 리뷰
-  const fetchReviews = async (placeId, memberId) => {
+  const fetchReviews = async (placeId, memberId, sort = 'latest') => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8080/review/place/${placeId}`);
+      const res = await axios.get(`http://localhost:8080/review/place/${placeId}`, {
+        params: { sort },
+      });
       const reviews = res.data;
       setReviews(reviews);
 
@@ -502,7 +522,6 @@ const PlaceReservCreatePage = () => {
   return (
     <AppLayout>
       <div style={{ width: '100%', height: '100px' }} />
-      <ScrollContainer>
         {!place ? (
           <Container>
             <Title>장소 정보를 불러오는 중입니다...</Title>
@@ -617,7 +636,26 @@ const PlaceReservCreatePage = () => {
                           )}
                         </div>
                       </div>
-
+                      <div style={{ display: 'flex', gap: 16, marginBottom: 30 }}>
+                          <Button
+                            type={sortKey === 'latest' ? 'primary' : 'default'}
+                            onClick={() => {
+                              setSortKey('latest');
+                              fetchReviews(placeId, memberId, 'latest');
+                            }}
+                          >
+                            최신순
+                          </Button>
+                          <Button
+                            type={sortKey === 'likes' ? 'primary' : 'default'}
+                            onClick={() => {
+                              setSortKey('likes');
+                              fetchReviews(placeId, memberId, 'likes');
+                            }}
+                          >
+                            추천순
+                          </Button>
+                        </div>
                       {loading ? (
                         <Spin tip="리뷰 불러오는 중..." />
                       ) : (
@@ -684,7 +722,6 @@ const PlaceReservCreatePage = () => {
             />}
           </Container>
         )}
-      </ScrollContainer>
     </AppLayout>
   );
 };

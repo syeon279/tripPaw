@@ -183,14 +183,20 @@ public class ReviewController {
 //        return ResponseEntity.ok(reviewService.getReviewsByPlaceId(placeId));
 //    }
     @GetMapping("/place/{placeId}")
-    public ResponseEntity<List<Review>> getReviewsByPlace(@PathVariable Long placeId) {
-        return ResponseEntity.ok(reviewService.getReviewsByPlaceId(placeId));
+    public ResponseEntity<List<Review>> getPlaceReviews(
+            @PathVariable Long placeId,
+            @RequestParam(defaultValue = "latest") String sort
+    ) {
+        List<Review> reviews = reviewService.getReviewsByPlaceId(placeId, sort);
+        return ResponseEntity.ok(reviews);
     }
 
+
     @GetMapping("/plan/{planId}")
-    public ResponseEntity<List<Review>> getReviewsByPlan(@PathVariable Long planId) {
+    public ResponseEntity<List<ReviewOnePlanDto>> getReviewsByPlan(@PathVariable Long planId) {
         return ResponseEntity.ok(reviewService.getReviewsByPlanId(planId));
     }
+
 
 //    @GetMapping("/plan")
 //    public ResponseEntity<List<Review>> getAllPlanReviews() {
@@ -222,6 +228,15 @@ public class ReviewController {
     @GetMapping("/{reviewId}/like/marked")
     public ResponseEntity<Boolean> hasLiked(@PathVariable Long reviewId, @RequestParam Long memberId) {
         return ResponseEntity.ok(reviewService.hasLikedReview(memberId, reviewId));
+    }
+    
+    @GetMapping("/place-reservations")
+    public ResponseEntity<List<Reserv>> getPlaceReservationsForReview(
+        @RequestParam Long tripPlanId,
+        @RequestParam Long memberId
+    ) {
+        List<Reserv> reservs = reservForReviewMapper.findReservsByTripPlanAndMember(tripPlanId, memberId);
+        return ResponseEntity.ok(reservs);
     }
     
     //도장 선택용 코드 추가
