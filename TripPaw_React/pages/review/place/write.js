@@ -255,14 +255,6 @@ const PlaceReviewWrite = () => {
           );
         })
       )}
-
-      {allSubmitted && (
-        <div style={{ textAlign: 'center', marginTop: 40 }}>
-          <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: 32 }} />
-          <h3>모든 리뷰를 작성했습니다!</h3>
-          <Button type="primary" onClick={() => router.push('/')}>홈으로 이동</Button>
-        </div>
-      )}
     </div>
   );
 };

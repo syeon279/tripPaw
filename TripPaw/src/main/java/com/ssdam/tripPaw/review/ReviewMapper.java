@@ -70,6 +70,7 @@ public interface ReviewMapper {
 	
 	// 특정 예약에 대한 리뷰 작성여부 확인
 	int countByMemberIdAndReservId(@Param("memberId") Long memberId, @Param("reservId") Long reservId);
+	int countByMemberIdAndTripPlanId(@Param("memberId") Long memberId, @Param("planId") Long planId);
 	
 	//도움이돼요
 	void likeReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
