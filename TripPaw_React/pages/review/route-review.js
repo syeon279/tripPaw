@@ -43,7 +43,7 @@ const ReviewList = () => {
   const [loading, setLoading] = useState(false);
   const [sort, setSort] = useState("latest");
   const [likeStates, setLikeStates] = useState({});
-  
+
   const [memberId, setMemberId] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -53,7 +53,7 @@ const ReviewList = () => {
   const [selectedReviewUser, setSelectedReviewUser] = useState(null);
   const [issueForm] = Form.useForm();
 
-   // 사용자 권한 정보 로드
+  // 사용자 권한 정보 로드
   useEffect(() => {
     const fetchAuth = async () => {
       try {
@@ -68,10 +68,10 @@ const ReviewList = () => {
   }, []);
 
   useEffect(() => {
-  if (memberId !== null) {
-    fetchReviews(sort);
-  }
-}, [sort, memberId]);
+    if (memberId !== null) {
+      fetchReviews(sort);
+    }
+  }, [sort, memberId]);
 
   const fetchReviews = async (sortKey = "latest") => {
     setLoading(true);
@@ -181,13 +181,12 @@ const ReviewList = () => {
     <AppLayout>
       <div style={{ maxWidth: 900, margin: "auto", padding: 24 }}>
         <ScrollContainer>
-          <h2 style={{ fontSize: "22px", fontWeight: 700 }}>사용자 리뷰</h2>
+          <h2 style={{ fontSize: "22px", fontWeight: 700, marginTop: 50 }}>사용자 리뷰</h2>
 
           <Tabs
             activeKey={sort}
             onChange={(key) => setSort(key)}
             centered
-            style={{ marginBottom: 32 }}
             items={[
               { label: "추천순", key: "recommended" },
               { label: "최신순", key: "latest" },
@@ -203,51 +202,124 @@ const ReviewList = () => {
               itemLayout="vertical"
               dataSource={reviews}
               renderItem={(item) => (
-                <List.Item key={item.reviewId} style={{ borderBottom: "1px solid #eee", paddingBottom: 24 }}>
-                  <div style={{ fontWeight: 600, color: '#666', marginBottom: 4, cursor: 'pointer' }}
-                    onClick={() => router.push(`/review/tripPlan/${item.tripPlanId}`)}>
-                    📌 여행 플랜: {item.planTitle}
-                  </div>
-
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                    <div>
-                      {(item.tags || []).map((tag, idx) => (
-                        <Tag key={idx} color="volcano" style={{ marginBottom: 4, marginRight: 4 }}>{tag}</Tag>
-                      ))}
-                      <div style={{ fontWeight: "bold", fontSize: "16px", marginTop: 4 }}>{item.title}</div>
+                <List.Item key={item.reviewId} style={{ borderBottom: "1px solid #ccc", paddingBottom: 24, marginBottom: 32, }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: 8,
+                      marginBottom: 12,
+                    }}
+                  >
+                    {/* 왼쪽: 플랜 제목 */}
+                    <div
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: 16,
+                        color: "#333",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => router.push(`/review/tripPlan/${item.tripPlanId}`)}
+                    >
+                      📌 여행 플랜: {item.planTitle}
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <Rate value={item.avgRating} disabled style={{ fontSize: 16 }} />
-                      <div style={{ fontSize: 13, marginTop: 2 }}>평균 ★ {item.avgRating?.toFixed(1)}</div>
+
+                    {/* 오른쪽: 별점 + 평균 */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Rate
+                        value={item.avgRating}
+                        disabled
+                        style={{ fontSize: 14, lineHeight: 1 }}
+                      />
+                      <div style={{ fontSize: 12, color: "#555", lineHeight: 1 }}>
+                        평균 ★ {item.avgRating?.toFixed(1)}
+                      </div>
                     </div>
                   </div>
-
-                  <div style={{ display: "flex", alignItems: "center", marginTop: 12 }}>
+                  <div
+                    style={{
+                      borderTop: "1px solid #eee",
+                      marginTop: 8,
+                      paddingTop: 16,
+                    }}
+                  />
+                  {/* 유저 정보 & 작성일 & 별점 */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginTop: 12,
+                    }}
+                  >
                     <Avatar size={48} />
                     <div style={{ marginLeft: 12 }}>
                       <div style={{ fontWeight: 600 }}>{item.memberNickname}</div>
                       <Rate value={item.rating} disabled style={{ fontSize: 14 }} />
                     </div>
+
+                    {/* 구분선 및 작성일 정보 */}
+                    <div
+                      style={{
+                        borderLeft: "1px solid #ddd",
+                        marginLeft: 24,
+                        paddingLeft: 24,
+                        fontSize: 12,
+                        color: "#888",
+                      }}
+                    >
+                      작성일: {item.createdAt?.slice(0, 10)}
+                    </div>
                   </div>
 
-                  <div style={{ marginTop: 12, whiteSpace: "pre-wrap", wordBreak: "break-word", width: "100%" }}>
+                  {/* 내용 */}
+                  <div
+                    style={{
+                      marginTop: 12,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                      width: "100%",
+                    }}
+                  >
                     {getContent(item)}
                     {item.content.length > MAX_CONTENT_LENGTH && (
-                      <Button type="link" size="small" icon={<EllipsisOutlined />} onClick={() => toggleContent(item.reviewId)}>
+                      <Button
+                        type="link"
+                        size="small"
+                        icon={<EllipsisOutlined />}
+                        onClick={() => toggleContent(item.reviewId)}
+                      >
                         {expandedReviewId === item.reviewId ? "접기" : "더보기"}
                       </Button>
                     )}
                   </div>
 
+                  {/* 이미지들 */}
                   {item.imageUrls && (
                     <Image.PreviewGroup>
-                      <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          marginTop: 12,
+                          flexWrap: "wrap",
+                        }}
+                      >
                         {item.imageUrls.split(",").map((src, idx) => (
                           <Image
                             key={idx}
                             width={120}
                             height={120}
-                            style={{ objectFit: "cover", borderRadius: 8 }}
+                            style={{
+                              objectFit: "cover",
+                              borderRadius: 8,
+                            }}
                             src={`http://localhost:8080/upload/reviews/${src}`}
                           />
                         ))}
