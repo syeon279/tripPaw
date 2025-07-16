@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import PlaceDetailModal from './PlaceDetailModal';
 
@@ -39,16 +39,35 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
     const [keyword, setKeyword] = useState('');
     const [region, setRegion] = useState('');
     const [results, setResults] = useState([]);
-    const [selectedPlace, setSelectedPlace] = useState(null); // ⭐ 자세히 보기용
-    const [hasSearched, setHasSearched] = useState(false);   // 검색 시도 여부
+    const [resultIds, setResultIds] = useState(new Set());
+    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [hasSearched, setHasSearched] = useState(false);
+    const [offset, setOffset] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const scrollRef = useRef();
 
     const handleSearch = async () => {
-        setHasSearched(true); // 검색 버튼 눌렀음을 표시
+        setHasSearched(true);
+        setOffset(0);
+        setHasMore(true);
+        setResultIds(new Set()); // 초기화
         try {
-            const query = `/search?keyword=${encodeURIComponent(keyword)}${region ? `&region=${encodeURIComponent(region)}` : ''}`;
-            const response = await axios.get(query);
+            //const query = `/search?keyword=${encodeURIComponent(keyword)}${region ? `&region=${encodeURIComponent(region)}` : ''} & offset=0`;
+            //const response = await axios.get(query);
+            const response = await axios.get('/search', {
+                params: {
+                    keyword,
+                    region,
+                    offset,
+                }
+            });
+            console.log("params", keyword, offset);
             const places = Array.isArray(response.data.places) ? response.data.places : [];
+            const ids = new Set(places.map(p => p.id));
             setResults(places);
+            setResultIds(ids);
+            if (places.length < 5) setHasMore(false);
+            else setOffset(5);
         } catch (err) {
             console.error('검색 실패:', err);
             setResults([]);
@@ -65,6 +84,53 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
     };
 
     const fallbackImages = useMemo(() => getFallbackImages(results), [results]);
+
+    const fetchMoreResults = useCallback(async () => {
+        try {
+            const query = `/search?keyword=${encodeURIComponent(keyword)}${region ? `&region=${encodeURIComponent(region)}` : ''}&offset=${offset}`;
+            const response = await axios.get(query);
+            const newPlaces = Array.isArray(response.data.places) ? response.data.places : [];
+
+            const uniquePlaces = newPlaces.filter(place => !resultIds.has(place.id));
+            if (uniquePlaces.length === 0) {
+                setHasMore(false);
+            } else {
+                setResults(prev => [...prev, ...uniquePlaces]);
+                setResultIds(prev => {
+                    const newSet = new Set(prev);
+                    uniquePlaces.forEach(place => newSet.add(place.id));
+                    return newSet;
+                });
+                setOffset(prev => prev + 5);
+            }
+        } catch (err) {
+            console.error('더 불러오기 실패:', err);
+        }
+    }, [keyword, region, offset, resultIds]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const container = scrollRef.current;
+            if (!container || !hasMore) return;
+
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight;
+            const clientHeight = container.clientHeight;
+
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                fetchMoreResults();
+            }
+        };
+
+        const container = scrollRef.current;
+        if (container) {
+            container.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            if (container) container.removeEventListener('scroll', handleScroll);
+        };
+    }, [fetchMoreResults, hasMore]);
 
     return (
         <>
@@ -112,72 +178,72 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
                         찾아보기
                     </button>
                 </div>
-
-                <ul style={{ listStyle: 'none', padding: 0, marginTop: '30px' }}>
-                    {/* 검색 시도가 있었고 결과가 없을 때만 표시 */}
-                    {hasSearched && results.length === 0 && (
-                        <li style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>
-                            검색 결과가 없습니다.
-                        </li>
-                    )}
-                    {results.map((place) => (
-                        <li
-                            key={place.id}
-                            style={{
-                                margin: '10px 0',
-                                borderBottom: '1px solid #ddd',
-                                paddingBottom: '8px',
-                            }}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                <div style={{ display: 'flex' }}>
-                                    <img
-                                        src={place.imageUrl || fallbackImages[place.id]}
-                                        alt={place.name}
-                                        style={{
-                                            width: '80px',
-                                            height: '80px',
-                                            objectFit: 'cover',
-                                            borderRadius: '0px'
-                                        }}
-                                    />
-                                </div>
-                                <div style={{ width: '60%' }}>
-                                    <div style={{ margin: '0px 0px', width: '100%' }}>{place.name}</div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
-                                            {place.avgRating?.toFixed(1) || '0.0'}
-                                        </p>
-                                        <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
-                                            {'★'.repeat(Math.floor(place.avgRating)) + '☆'.repeat(5 - Math.floor(place.avgRating))}
-                                        </p>
-                                        <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
-                                            | 리뷰 {place.reviewCount || 0}
-                                        </p>
+                <div ref={scrollRef} style={{ maxHeight: '60vh', overflowY: 'auto', marginTop: '20px' }}>
+                    <ul style={{ listStyle: 'none', padding: 0, marginTop: '30px' }}>
+                        {hasSearched && results.length === 0 && (
+                            <li style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>
+                                검색 결과가 없습니다.
+                            </li>
+                        )}
+                        {results.map((place) => (
+                            <li
+                                key={place.id}
+                                style={{
+                                    margin: '10px 0',
+                                    borderBottom: '1px solid #ddd',
+                                    paddingBottom: '8px',
+                                }}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                    <div style={{ display: 'flex' }}>
+                                        <img
+                                            src={place.imageUrl || fallbackImages[place.id]}
+                                            alt={place.name}
+                                            style={{
+                                                width: '80px',
+                                                height: '80px',
+                                                objectFit: 'cover',
+                                                borderRadius: '0px'
+                                            }}
+                                        />
                                     </div>
-                                    <p style={{ fontSize: '12px', color: '#666' }}>{place.region}</p>
+                                    <div style={{ width: '60%' }}>
+                                        <div style={{ margin: '0px 0px', width: '100%' }}>{place.name}</div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                                {place.avgRating?.toFixed(1) || '0.0'}
+                                            </p>
+                                            <p style={{ fontSize: '14px', color: '#f44336', margin: 0 }}>
+                                                {'★'.repeat(Math.floor(place.avgRating)) + '☆'.repeat(5 - Math.floor(place.avgRating))}
+                                            </p>
+                                            <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
+                                                | 리뷰 {place.reviewCount || 0}
+                                            </p>
+                                        </div>
+                                        <p style={{ fontSize: '12px', color: '#666' }}>{place.region}</p>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                                        <button
+                                            onClick={() => onSelectPlace(place)}
+                                            style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
+                                        >추가</button>
+                                        <button
+                                            onClick={() => setSelectedPlace(place)}
+                                            style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
+                                        >자세히</button>
+                                    </div>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                                    <button
-                                        onClick={() => onSelectPlace(place)}
-                                        style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
-                                    >추가</button>
-                                    <button
-                                        onClick={() => setSelectedPlace(place)}
-                                        style={{ backgroundColor: 'black', color: 'white', height: '30px', cursor: 'pointer' }}
-                                    >자세히</button>
-                                </div>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                            </li>
+                        ))}
+                    </ul>
 
-                {selectedPlace && (
-                    <PlaceDetailModal
-                        place={selectedPlace}
-                        onClose={() => setSelectedPlace(null)}
-                    />
-                )}
+                    {selectedPlace && (
+                        <PlaceDetailModal
+                            place={selectedPlace}
+                            onClose={() => setSelectedPlace(null)}
+                        />
+                    )}
+                </div>
             </div>
         </>
     );

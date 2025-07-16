@@ -97,8 +97,26 @@
 	</resultMap>
 
 	<!-- 장소 검색 쿼리 -->
-	<select id="searchPlacesByKeyword" parameterType="map"
-		resultMap="searchPlaceResultMap">
+	<select id="findPlaceIdsByKeyword" resultType="long"
+		parameterType="map">
+		SELECT DISTINCT p.id
+		FROM place p
+		INNER JOIN place_type pt ON
+		p.place_type_id = pt.id
+		WHERE (LOWER(p.name) LIKE LOWER(CONCAT('%',
+		#{keyword}, '%'))
+		OR LOWER(pt.name) LIKE LOWER(CONCAT('%', #{keyword},
+		'%')))
+		<if test="region != null and region != ''">
+			AND LOWER(p.region) LIKE LOWER(CONCAT('%', #{region},
+			'%'))
+		</if>
+		ORDER BY p.id
+		LIMIT 10 OFFSET #{offset}
+	</select>
+
+	<select id="findPlacesByIds" resultMap="searchPlaceResultMap"
+		parameterType="list">
 		SELECT
 		p.id AS place_id,
 		p.name AS place_name,
@@ -119,35 +137,59 @@
 		p.source,
 
 		pt.id AS place_type_id,
-		pt.name AS place_type_name,
+		pt.name AS
+		place_type_name,
 
 		r.id AS review_id,
 		r.content AS review_content,
 		r.rating,
 		r.created_at AS review_created_at,
-		r.updated_at AS review_updated_at,
+		r.updated_at AS
+		review_updated_at,
 		r.target_id,
 
 		pi.id AS place_image_id,
-		pi.image_url AS place_image_url
+		pi.image_url AS
+		place_image_url
 
 		FROM place p
-		INNER JOIN place_type pt ON p.place_type_id = pt.id
-		LEFT JOIN review r ON p.id = r.target_id AND r.review_type_id = 2
+		INNER JOIN place_type pt ON p.place_type_id
+		= pt.id
+		LEFT JOIN review r ON p.id = r.target_id AND r.review_type_id =
+		2
 		LEFT JOIN place_image pi ON p.id = pi.place_id
-
-		WHERE (
-		LOWER(p.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
-		OR LOWER(pt.name) LIKE LOWER(CONCAT('%', #{keyword}, '%'))
-		)
-		<if test="region != null and region != ''">
-			AND p.region LIKE LOWER(CONCAT('%', #{region}, '%'))
-		</if>
+		WHERE p.id IN
+		<foreach item="id" collection="list" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
 	</select>
 
 
 	<!-- 여행 코스 검색 쿼리 -->
-	<select id="searchTripPlansByKeyword" parameterType="string"
+	<!-- <select id="searchTripPlansByKeyword" parameterType="map" resultMap="searchTripPlanMap"> 
+		SELECT tp.id AS tp_id, tp.title, tp.days, tp.is_public, tp.created_at, tp.image_url, 
+		m.nickname AS member_nickname, c.id AS c_id, r.id AS route_id, rp.id AS rp_id, 
+		rp.sequence, p.id AS place_id, p.name AS place_name, p.latitude, p.longitude, 
+		rv.id AS review_id, rv.content AS review_content, rv.rating, rv.created_at 
+		AS review_created_at, rv.updated_at AS review_updated_at, rv.target_id FROM 
+		trip_plan tp JOIN member m ON tp.member_id = m.id JOIN trip_plan_course c 
+		ON tp.id = c.trip_plan_id JOIN route r ON c.route_id = r.id JOIN route_place 
+		rp ON r.id = rp.route_id JOIN place p ON rp.place_id = p.id LEFT JOIN review 
+		rv ON tp.id = rv.target_id AND rv.review_type_id = 1 WHERE tp.is_public = 
+		true AND tp.title LIKE CONCAT('%', #{keyword}, '%') ORDER BY tp.id DESC, 
+		c.id ASC, rp.sequence ASC LIMIT 5 OFFSET #{tripPlanOffset} </select> -->
+	<select id="findTripPlanIdsByKeyword" parameterType="map"
+		resultType="long">
+		SELECT DISTINCT tp.id
+		FROM trip_plan tp
+		WHERE tp.is_public = true
+		AND tp.title LIKE CONCAT('%', #{keyword}, '%')
+		ORDER BY tp.id DESC
+		LIMIT 10 OFFSET #{tripPlanOffset}
+	</select>
+
+	<select id="findTripPlansByIds" parameterType="list"
 		resultMap="searchTripPlanMap">
 		SELECT
 		tp.id AS tp_id,
@@ -159,7 +201,8 @@
 		m.nickname AS member_nickname,
 
 		c.id AS c_id,
-		r.id AS route_id,
+		r.id AS
+		route_id,
 		rp.id AS rp_id,
 		rp.sequence,
 		p.id AS place_id,
@@ -179,25 +222,21 @@
 		FROM trip_plan tp
 		JOIN
 		member m ON tp.member_id = m.id
-		JOIN
-		trip_plan_course c ON tp.id =
+		JOIN trip_plan_course c ON tp.id =
 		c.trip_plan_id
-		JOIN route r ON c.route_id
-		= r.id
+		JOIN route r ON c.route_id = r.id
 		JOIN route_place rp ON
 		r.id = rp.route_id
-		JOIN place p ON
-		rp.place_id = p.id
-		LEFT JOIN review rv
-		ON tp.id = rv.target_id AND
-		rv.review_type_id = 1
-		WHERE tp.is_public =
-		true
-		AND tp.title LIKE
-		CONCAT('%', #{keyword}, '%')
-		ORDER BY tp.id DESC,
-		c.id ASC, rp.sequence
-		ASC
+		JOIN place p ON rp.place_id = p.id
+		LEFT JOIN review
+		rv ON tp.id = rv.target_id AND rv.review_type_id = 1
+		WHERE tp.id IN
+		<foreach item="id" collection="list" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+		ORDER BY tp.id DESC, c.id ASC, rp.sequence ASC
 	</select>
+
 
 </mapper>
