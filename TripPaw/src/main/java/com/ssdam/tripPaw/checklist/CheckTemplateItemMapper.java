@@ -31,4 +31,6 @@ public interface CheckTemplateItemMapper {
     //단일항목 삭제
     int deleteItemById(@Param("id") Long id);
     
+    List<CheckTemplateItem> selectItemsByTemplateId(Long templateId);
+    
 }
