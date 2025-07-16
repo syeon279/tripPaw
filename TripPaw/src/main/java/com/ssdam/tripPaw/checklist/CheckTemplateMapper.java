@@ -29,4 +29,5 @@ public interface CheckTemplateMapper {
     
     //템플릿 삭제 - 항목 삭제 O
     int deleteTemplateById(@Param("id") Long id);
+
 }

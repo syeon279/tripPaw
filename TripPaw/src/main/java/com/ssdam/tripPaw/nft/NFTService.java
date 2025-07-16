@@ -48,7 +48,7 @@ public class NFTService {
 
 
     // OpenAI API 키 (환경변수 등에서 불러오세요)
-    @Value("${openai.api.key}")
+//    @Value("${openai.api.key}")
     private String openAiApiKey;
     private final String openAiApiUrl = "https://api.openai.com/v1/chat/completions";
 
