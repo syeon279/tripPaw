@@ -30,6 +30,11 @@ public interface MemberNftMapper {
     void markAsUsed(@Param("id") Long id, @Param("usedAt") LocalDateTime usedAt);
 
     MemberNft findById(@Param("id") Long id);
+    
+    MemberNft findByTokenId(Long tokenId);
+    
+    // 특정 nftMetadataId가 이미 발급된 적 있는지 확인
+    MemberNft findByNftMetadataId(Long nftMetadataId);
 
     int countUnusedByMetadataId(Long nftMetadataId);
 
