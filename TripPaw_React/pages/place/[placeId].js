@@ -23,7 +23,8 @@ const { TabPane } = Tabs;
 
 const ScrollContainer = styled.div`
   width: 100%;
-  height: calc(100vh - 100px);
+  cursor: s-resize;
+  height: calc(100vh - 240px);
   overflow-y: auto !important;
 
   &::-webkit-scrollbar {
@@ -64,6 +65,7 @@ const Layout = styled.div`
 const ImageSection = styled.div`
   flex: 1;
   min-width: 300px;
+  height: 100%;
   p {
     color: #555;
     line-height: 1.6;
@@ -76,7 +78,7 @@ const ImageWrapper = styled.div`
   width: 100%;
   img.place-image {
     width: 100%;
-    height: 450px;
+    height: 400px;
     object-fit: cover;
     border-radius: 12px;
     margin-bottom: 20px;
@@ -548,34 +550,36 @@ const PlaceReservCreatePage = () => {
           <Title>{place.name}</Title>
           <Layout>
             <ImageSection>
-              <ImageWrapper>
-                <img
-                  alt="장소 이미지"
-                  className="place-image"
-                  src={place.imageUrl && place.imageUrl.length > 0 ? place.imageUrl : fallbackImages[place.id]}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/image/other/tempImage.jpg";
-                  }}
-                />
-                {isFavorite !== null && (
+              <ScrollContainer>
+                <ImageWrapper>
                   <img
-                    src={`${isFavorite
-                      ? '/image/other/favorite/favorite.png'
-                      : '/image/other/favorite/notFavorite.png'}?t=${new Date().getTime()}`}
-                    alt="즐겨 찾기"
-                    className="favorite-icon"
-                    onClick={toggleFavorite}
+                    alt="장소 이미지"
+                    className="place-image"
+                    src={place.imageUrl && place.imageUrl.length > 0 ? place.imageUrl : fallbackImages[place.id]}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/image/other/tempImage.jpg";
+                    }}
                   />
-                )}
-              </ImageWrapper>
-              <p style={{ padding: '10px' }}>{place.description || <div>낯선 길 위를 걷고 있을 때, 가장 큰 위로는 곁에 있는 존재에서 옵니다.
-                이곳은 그런 위로가 자연스럽게 스며드는 공간입니다.
-                당신과 반려동물이 오랫동안 간직하고 싶은 추억을 만들어보세요.</div>}</p>
-              <div style={{ marginBottom: '5px' }}><img src='/image/other/location.png' alt='장소' /> &nbsp; {place.region}</div>
-              <div style={{ marginBottom: '5px' }}><img src='/image/other/call-calling.png' alt='전화번호' /> &nbsp; {place.phone || '010-1234-1234'}</div>
-              <div style={{ marginBottom: '5px' }}><img src='/image/other/clock.png' alt='시간' /> &nbsp; {place.openHours || '홈페이지 참조'}</div>
-              <div style={{ marginBottom: '5px' }}><img src='/image/other/verify.png' alt='장소' /> &nbsp; {place.parking || 불가능}</div>
+                  {isFavorite !== null && (
+                    <img
+                      src={`${isFavorite
+                        ? '/image/other/favorite/favorite.png'
+                        : '/image/other/favorite/notFavorite.png'}?t=${new Date().getTime()}`}
+                      alt="즐겨 찾기"
+                      className="favorite-icon"
+                      onClick={toggleFavorite}
+                    />
+                  )}
+                </ImageWrapper>
+                <p style={{ padding: '10px' }}>{place.description || <div>낯선 길 위를 걷고 있을 때, 가장 큰 위로는 곁에 있는 존재에서 옵니다.
+                  이곳은 그런 위로가 자연스럽게 스며드는 공간입니다.
+                  당신과 반려동물이 오랫동안 간직하고 싶은 추억을 만들어보세요.</div>}</p>
+                <div style={{ marginBottom: '5px' }}><img src='/image/other/location.png' alt='장소' /> &nbsp; {place.region}</div>
+                <div style={{ marginBottom: '5px' }}><img src='/image/other/call-calling.png' alt='전화번호' /> &nbsp; {place.phone || '010-1234-1234'}</div>
+                <div style={{ marginBottom: '5px' }}><img src='/image/other/clock.png' alt='시간' /> &nbsp; {place.openHours || '홈페이지 참조'}</div>
+                <div style={{ marginBottom: '5px' }}><img src='/image/other/verify.png' alt='장소' /> &nbsp; {place.parking || 불가능}</div>
+              </ScrollContainer>
             </ImageSection>
             <TabsSection >
               {/* <div style={{ display: 'flex', justifyContent: 'center' }}> */}
