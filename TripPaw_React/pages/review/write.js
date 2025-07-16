@@ -191,7 +191,7 @@ const ReviewForm = () => {
       message.success('경로 리뷰가 저장되었습니다.');
       router.push({
         pathname: '/review/place/write',
-        query: { tripPlanId: targetId },
+        query: { tripPlanId: targetId, memberId },
       });
     } catch (err) {
       console.error('경로 리뷰 저장 실패:', err);

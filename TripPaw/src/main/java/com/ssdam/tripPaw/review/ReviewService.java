@@ -44,6 +44,7 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.domain.TripPlanCourse;
 import com.ssdam.tripPaw.member.MemberMapper;
 import com.ssdam.tripPaw.member.MemberService;
+import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 //import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.place.PlaceMapper;
@@ -67,6 +68,7 @@ public class ReviewService {
     private final MemberBadgeMapper badgeMapper;
     private final MemberMapper memberMapper;
     private final ReservForReviewMapper reservForReviewMapper;
+    private final MemberTripPlanMapper memberTripPlanMapper;
     
     private static final ObjectMapper mapper = new ObjectMapper();
 	private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
@@ -172,6 +174,10 @@ public class ReviewService {
 	public boolean hasReviewForReserv(Long memberId, Long reservId) {
 	    return reviewMapper.countByMemberIdAndReservId(memberId, reservId) > 0;
 	}
+	public boolean hasWrittenReviewForTripPlan(Long memberId, Long planId) {
+	    return reviewMapper.countByMemberIdAndTripPlanId(memberId, planId) > 0;
+	}
+
 
 	public String getWeatherCondition(String type, Long targetId) {
 	    if ("PLAN".equalsIgnoreCase(type)) {
@@ -228,14 +234,18 @@ public class ReviewService {
 //    public List<Review> getReviewsByPlaceId(Long placeId) {
 //        return reviewMapper.findByPlaceIdWithPlaceName(placeId);
 //    }
-    public List<Review> getReviewsByPlaceId(Long placeId) {
-        return reviewMapper.findByPlaceId(placeId); // reviewResultMap 사용
+    public List<Review> getReviewsByPlaceId(Long placeId, String sort) {
+    	if ("likes".equalsIgnoreCase(sort)) {
+            return reviewMapper.findPlaceReviewsOrderByLikesDesc(placeId);
+        }
+        // 기본은 최신순
+        return reviewMapper.findPlaceReviewsOrderByLatest(placeId);
     }
 
-
-    public List<Review> getReviewsByPlanId(Long planId) {
+    public List<ReviewOnePlanDto> getReviewsByPlanId(Long planId) {
         return reviewMapper.findByPlanId(planId);
     }
+
 
     public List<Review> getAllPlanReviews() {
         return reviewMapper.findAllPlanReviews();
@@ -379,6 +389,10 @@ public class ReviewService {
                 badgeMapper.insertMemberBadge(memberId, badge.getId());
             }
         }
+    }
+ 	
+ 	public MemberTripPlan findById(Long id) {
+        return memberTripPlanMapper.findById(id);
     }
  	
  	public List<Badge> getBadgesByMemberId(Long memberId) {
