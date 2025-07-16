@@ -24,4 +24,5 @@ public interface ReservForReviewMapper {
 
     Reserv findByTripPlanId(Long tripPlanId);
 
+    List<Reserv> findReservsByTripPlanAndMember(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
 }
