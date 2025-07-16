@@ -33,7 +33,7 @@ const MyPlaces = () => {
                     withCredentials: true,
                 });
 
-                console.log('member : ', response.data);
+                //console.log('member : ', response.data);
 
                 if (response.status === 200) {
                     setIsLoggedIn(true);
@@ -42,7 +42,7 @@ const MyPlaces = () => {
                     return true; // 성공 시 true 반환
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
+                console.log("로그인 상태 확인 실패:", error);
                 alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
                 router.push('/member/login');
                 return false; // 실패 시 false 반환
@@ -56,7 +56,7 @@ const MyPlaces = () => {
             .then(res => {
                 const favoritePlaces = Object.values(res.data); // 객체를 배열로 변환
                 setPlaces(favoritePlaces);
-                console.log('넘어온 favoritePlace : ', favoritePlaces);
+                //console.log('넘어온 favoritePlace : ', favoritePlaces);
 
                 const fallbackMap = {};
                 favoritePlaces.forEach(place => {

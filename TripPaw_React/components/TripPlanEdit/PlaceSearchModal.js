@@ -85,7 +85,6 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
                             <option value="강원">강원</option>
                             <option value="충청">충청</option>
                             <option value="전라">전라</option>
-                            <option value="경북">경북</option>
                             <option value="경상">경상</option>
                         </select>
                     </div>

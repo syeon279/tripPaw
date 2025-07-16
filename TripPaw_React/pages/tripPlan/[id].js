@@ -91,7 +91,7 @@ const TripPlanDetail = () => {
                 setAvgRating(data.avgRating || 0);
                 setRating(data.avgRating || 0);
                 setReviewCount(data.reviewCount || 0);
-                console.log('data:', data);
+                //console.log('data:', data);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
             }

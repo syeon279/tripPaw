@@ -90,6 +90,12 @@ const DayScheduleList = ({ routeData, setRouteData, onDeletePlace }) => {
             }
         }
 
+        // 일정이 비는 것 막기
+        if (fromDayObj?.places.length === 1) {
+            alert('하루 일정에는 최소 1개 이상의 장소가 있어야 합니다.');
+            return;
+        }
+
         if (!fromDayObj || !toDayObj || fromIdx === null || toIdx === null) return;
 
         const [moved] = fromDayObj.places.splice(fromIdx, 1);

@@ -228,14 +228,18 @@ public class ReviewService {
 //    public List<Review> getReviewsByPlaceId(Long placeId) {
 //        return reviewMapper.findByPlaceIdWithPlaceName(placeId);
 //    }
-    public List<Review> getReviewsByPlaceId(Long placeId) {
-        return reviewMapper.findByPlaceId(placeId); // reviewResultMap 사용
+    public List<Review> getReviewsByPlaceId(Long placeId, String sort) {
+    	if ("likes".equalsIgnoreCase(sort)) {
+            return reviewMapper.findPlaceReviewsOrderByLikesDesc(placeId);
+        }
+        // 기본은 최신순
+        return reviewMapper.findPlaceReviewsOrderByLatest(placeId);
     }
 
-
-    public List<Review> getReviewsByPlanId(Long planId) {
+    public List<ReviewOnePlanDto> getReviewsByPlanId(Long planId) {
         return reviewMapper.findByPlanId(planId);
     }
+
 
     public List<Review> getAllPlanReviews() {
         return reviewMapper.findAllPlanReviews();

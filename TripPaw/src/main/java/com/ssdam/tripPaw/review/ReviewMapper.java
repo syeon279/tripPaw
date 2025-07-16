@@ -38,9 +38,11 @@ public interface ReviewMapper {
 	
 	List<Review> findByPlaceIdWithPlaceName(Long placeId);
 	
-	List<Review> findByPlaceId(Long placeId);
+	// 장소리뷰 최신 / 추천순
+	List<Review> findPlaceReviewsOrderByLatest(Long placeId);
+	List<Review> findPlaceReviewsOrderByLikesDesc(Long placeId);
 	
-	List<Review> findByPlanId(Long planId);
+	List<ReviewOnePlanDto> findByPlanId(Long planId);
 	
 	List<Review> findAllPlanReviews();
 	
