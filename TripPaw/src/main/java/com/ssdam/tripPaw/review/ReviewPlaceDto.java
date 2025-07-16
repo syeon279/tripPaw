@@ -13,4 +13,5 @@ public class ReviewPlaceDto {
     private Long placeId;
     private String imageUrls;
     private int likeCount;
+    private String createdAt;
 }
