@@ -61,6 +61,7 @@ const ReviewCard = ({ review, onDelete, onOpenIssueModal }) => {
         {review.planTitle || review.placeName}
       </p>
       <p><strong>좋아요:</strong> {review.likeCount}</p>
+      <p><strong>작성일:</strong> {review.createdAt?.substring(0, 10)}</p>
       <p><strong>별점:</strong> <Rate disabled value={review.rating} /></p>
       <p><strong>날씨:</strong> {review.weatherCondition}</p>
       <p><strong>내용:</strong> {review.content}</p>
