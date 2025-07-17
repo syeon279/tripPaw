@@ -4,13 +4,15 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
+import com.ssdam.tripPaw.pay.PayState;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,9 +27,9 @@ public class Pay {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(unique=true)
+	@Column(name = "imp_uid", unique=true)
     private String impUid;         // 아임포트 결제 ID
-	@Column(unique=true)
+	@Column(name = "merchant_uid",unique=true)
     private String merchantUid;    // 가맹점 주문번호
 
     private int amount;
@@ -36,15 +38,24 @@ public class Pay {
     @Column(name = "pg_provider")
     private String pgProvider;
     
-    private String state;
+    @Enumerated(EnumType.STRING)
+    private PayState state;
     private LocalDateTime paidAt;
-    private LocalDateTime createdAt;
+    private LocalDateTime deleteAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+    
+    @Column(name = "is_group")
+    private Boolean isGroup; 
+    @Column(name = "group_id")
+    private Long groupId;
+    private boolean haspayShare;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reserv_id", nullable = false)
+    @JoinColumn(name = "reserv_id", nullable = true)
     private Reserv reserv;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payGroup_id", nullable = false)
-    private PayGroup payGroup;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+    
 }

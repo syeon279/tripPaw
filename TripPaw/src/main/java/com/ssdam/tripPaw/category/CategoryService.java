@@ -1,5 +1,7 @@
 package com.ssdam.tripPaw.category;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,7 @@ public class CategoryService {
     };
     
     // select
-    public Category findAll() {
+    public List<Category> findAll() {
     	return categoryMapper.findAll();
     };
     public Category findById(Long id) {
