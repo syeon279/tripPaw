@@ -8,9 +8,16 @@ const SearchResultSection = ({
     setKeyword,
     handleSearch,
     handleKeyPress,
-    setSectionIndex
+    setSectionIndex,
+    offset,
+    setOffset,
+    tripPlanOffset,
+    setTripPlanOffset,
 }) => {
-    const [filteredResults, setFilteredResults] = useState(results);
+    const [filteredResults, setFilteredResults] = useState({
+        places: results?.places || [],
+        tripPlans: results?.tripPlans || [],
+    });
     const placeScrollRef = useRef(null);
     const tripScrollRef = useRef(null);
     const router = useRouter();
@@ -20,7 +27,10 @@ const SearchResultSection = ({
     const [canTripScrollLeft, setCanTripScrollLeft] = useState(false);
     const [canTripScrollRight, setCanTripScrollRight] = useState(false);
 
-    const scrollIntervalRef = useRef(null); // 🔥 추가: 스크롤 타이머 저장
+    const scrollIntervalRef = useRef(null);
+    const isLoading = !results;
+
+    //console.log('🔥 결과 데이터:', results);
 
     useEffect(() => {
         if (!keyword.trim()) {
@@ -44,6 +54,7 @@ const SearchResultSection = ({
             places: filteredPlaces,
             tripPlans: filteredTripPlans,
         });
+
     }, [keyword, results]);
 
     useEffect(() => {
@@ -70,7 +81,6 @@ const SearchResultSection = ({
         };
     }, []);
 
-    // 스크롤 상태 감지
     useEffect(() => {
         const el = placeScrollRef.current;
         if (!el) return;
@@ -95,30 +105,22 @@ const SearchResultSection = ({
         return () => el.removeEventListener('scroll', updateTripScrollStatus);
     }, []);
 
-    // 🔥 연속 스크롤 함수 추가
     const startScroll = (direction, ref) => {
         const step = 1000;
         const scrollFn = () => {
             ref.current?.scrollBy({ left: direction * step });
         };
         scrollFn();
-        scrollIntervalRef.current = setInterval(scrollFn, 16); // 약 60fps
+        scrollIntervalRef.current = setInterval(scrollFn, 16);
     };
 
     const stopScroll = () => {
         clearInterval(scrollIntervalRef.current);
     };
 
-    // 단발 클릭용도 여전히 사용 가능
-    const scrollLeft = () => placeScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' });
-    const scrollRight = () => placeScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
-    const scrollTripLeft = () => tripScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' });
-    const scrollTripRight = () => tripScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
-
-    if (!results) return <div>검색 결과가 없습니다.</div>;
-
     const { places = [], tripPlans = [] } = filteredResults;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     const getFallbackImages = (items) => {
         const map = {};
         items.forEach(item => {
@@ -129,7 +131,41 @@ const SearchResultSection = ({
     };
 
     const fallbackImages = useMemo(() => getFallbackImages(places.concat(tripPlans)), [places, tripPlans]);
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    useEffect(() => {
+        const el = placeScrollRef.current;
+        if (!el) return;
+
+        const handleScroll = () => {
+            const scrollAtRight = el.scrollLeft + el.clientWidth >= el.scrollWidth - 100;
+            if (scrollAtRight && !isLoading) {
+                console.log('📦 장소 스크롤 끝! → 데이터 더 불러오기');
+                setOffset(prev => prev + 5);
+            }
+        };
+
+        el.addEventListener('scroll', handleScroll);
+        return () => el.removeEventListener('scroll', handleScroll);
+    }, [isLoading]);
+
+    useEffect(() => {
+        const el = tripScrollRef.current;
+        if (!el) return;
+
+        const handleScroll = () => {
+            const scrollAtRight = el.scrollLeft + el.clientWidth >= el.scrollWidth - 100;
+            if (scrollAtRight && !isLoading) {
+                console.log('📦 여행 스크롤 끝! → tripPlanOffset 증가');
+                setTripPlanOffset(prev => prev + 5);
+            }
+        };
+
+        el.addEventListener('scroll', handleScroll);
+        return () => el.removeEventListener('scroll', handleScroll);
+    }, [isLoading]);
+    ////////////////////////////////////////////////////////////////////////////////////
     return (
         <div style={{ width: '100%', maxWidth: '960px', display: 'flex', flexDirection: 'column' }}>
             {/* 검색 입력창 */}

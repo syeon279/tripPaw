@@ -431,6 +431,7 @@ const PlaceReservCreatePage = () => {
 
   // 리뷰
   const fetchReviews = async (placeId, memberId, sort = 'latest') => {
+    if (!placeId) return;
     setLoading(true);
     try {
       const res = await axios.get(`http://localhost:8080/review/place/${placeId}`, {
@@ -447,14 +448,15 @@ const PlaceReservCreatePage = () => {
 
       const newLikeStates = {};
       for (let review of reviews) {
-        const [likedRes, countRes] = await Promise.all([
-          memberId
-            ? axios.get(`http://localhost:8080/review/${review.id}/like/marked`, {
-              params: { memberId },
-            })
-            : Promise.resolve({ data: false }),
-          axios.get(`http://localhost:8080/review/${review.id}/like/count`),
-        ]);
+        const likePromise = memberId
+          ? axios.get(`http://localhost:8080/review/${review.id}/like/marked`, {
+            params: { memberId },
+          })
+          : Promise.resolve({ data: false });
+
+        const countPromise = axios.get(`http://localhost:8080/review/${review.id}/like/count`);
+
+        const [likedRes, countRes] = await Promise.all([likePromise, countPromise]);
 
         newLikeStates[review.id] = {
           liked: likedRes.data,
@@ -468,7 +470,14 @@ const PlaceReservCreatePage = () => {
     }
     setLoading(false);
   };
+  useEffect(() => {
+    if (placeId) {
+      fetchReviews(placeId, memberId || null); // 로그인 안 해도 null로 호출
+    }
+  }, [placeId, memberId]);
 
+
+  /////////////////////////////////////////////////////
   // 좋아요 
   const toggleLike = async (reviewId) => {
     if (!memberId) {

@@ -11,7 +11,8 @@ import com.ssdam.tripPaw.domain.Badge;
 
 @Mapper
 public interface BadgeMapper {
-    void insertBadge(Badge badge);
+	void insertBadge(Badge badge);
+	void insertOrUpdateBadge(Badge badge);
     void updateBadge(Badge badge);
     void deleteBadge(Long id);
     Badge findById(Long id);

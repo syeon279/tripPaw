@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
-const TripPlanSearch = ({ keyword, setKeyword, handleSearch, handleKeyPress }) => {
+const TripPlanSearch = ({ keyword, setKeyword, handleSearch, handleKeyPress, handleSearchClick }) => {
     const recommendedKeywords = [
         '🧐 어디를 가볼까요?', '서울 여행',
         '🧐 어디를 가볼까요?', ' 관광지',

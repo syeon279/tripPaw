@@ -21,6 +21,7 @@ const Ssdam = ({ Component, pageProps }) => {
       <Head>
         <meta charSet="utf-8" />
         <title>TripPaw</title>
+        <link rel="icon" type="image/jpeg" href="/image/other/header.jpg?v=1" />
       </Head>
       <Component {...pageProps} />
     </CookiesProvider>

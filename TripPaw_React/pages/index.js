@@ -30,33 +30,96 @@ const Home = () => {
 
     const sectionCount = hasSearched ? 3 : 2;
 
-    //로딩
+    // 로딩 및 페이징
     const [isLoading, setIsLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [offset, setOffset] = useState(0);
+    const [tripPlanOffset, setTripPlanOffset] = useState(0);
 
-    // 🔍 검색 요청 핸들러
+    // 🔍 검색 요청
     const handleSearch = async () => {
         if (!keyword.trim()) return;
         try {
-            setIsLoading(true); // 🔥 시작
-            const response = await axios.get(`/search?keyword=${encodeURIComponent(keyword)}`);
-            setSearchResult(response.data);
+            setIsLoading(true);
+
+            const response = await axios.get('/search', {
+                params: {
+                    keyword,
+                    offset,
+                    tripPlanOffset
+                }
+            });
+            //console.log('[검색 요청]', { keyword, offset });
+            //console.log('[검색 데이터]]', response);
+
+            const { places = [], tripPlans = [] } = response.data || {};
+            const newResult = { places, tripPlans };
+
+            if (offset === 0) {
+                setSearchResult(newResult);
+            } else {
+                setSearchResult((prev) => ({
+                    ...prev,
+                    places: [...(prev?.places || []), ...places],
+                    tripPlans: [...(prev?.tripPlans || []), ...tripPlans],
+                }));
+            }
+
             setHasSearched(true);
             setSectionIndex(2);
+
+            if (places.length < 5 && tripPlans.length < 5) {
+                setHasMore(false);
+            }
+
         } catch (err) {
             console.log('❌ 검색 실패:', err);
         } finally {
-            setIsLoading(false); // 🔥 완료
+            setIsLoading(false);
         }
     };
 
-    // ⌨️ 엔터 키 핸들러
+    useEffect(() => {
+        if (!hasSearched || !hasMore) return;
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            const isBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 100;
+            if (isBottom && !isLoading) {
+                console.log('📦 스크롤 맨 아래 도달!');
+                setOffset((prev) => prev + 5);
+            }
+        };
+
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [hasSearched, hasMore, isLoading]);
+
+    useEffect(() => {
+        if (hasMore && !isLoading) {
+            handleSearch();
+        }
+    }, [offset, tripPlanOffset]);
+
+    const handleSearchClick = () => {
+        setSearchResult(null);
+        setOffset(0);
+        setTripPlanOffset(0);
+        setHasMore(true);
+        handleSearch();
+    };
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
+            setSearchResult(null);
+            setOffset(0);
+            setTripPlanOffset(0);
+            setHasMore(true);
             handleSearch();
         }
     };
 
-    // 🖱️ 마우스 휠로 스크롤 전환
     useEffect(() => {
         const handleWheel = (e) => {
             if (isScrollingRef.current) return;
@@ -74,7 +137,6 @@ const Home = () => {
         return () => window.removeEventListener('wheel', handleWheel);
     }, [sectionIndex, sectionCount]);
 
-    // 🎯 섹션 스크롤 이동
     useEffect(() => {
         const container = containerRef.current;
         if (container) {
@@ -88,7 +150,6 @@ const Home = () => {
         }
     }, [sectionIndex]);
 
-    // ✋ 바디 스크롤 막기
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         document.documentElement.style.overflow = 'hidden';
@@ -144,13 +205,13 @@ const Home = () => {
                         <TripPlanSearch
                             keyword={keyword}
                             setKeyword={setKeyword}
-                            handleSearch={handleSearch}
+                            handleSearch={handleSearchClick}
                             handleKeyPress={handleKeyPress}
                         />
                     </section>
 
                     {/* ✅ 섹션 3 - 결과 */}
-                    {hasSearched && (
+                    {hasSearched && searchResult && (
                         <section style={sectionStyle(sectionIndex === 2)}>
                             <SearchResultSection
                                 results={searchResult}
@@ -159,6 +220,10 @@ const Home = () => {
                                 handleKeyPress={handleKeyPress}
                                 handleSearch={handleSearch}
                                 setSectionIndex={setSectionIndex}
+                                setOffset={setOffset} // ✅ 추가
+                                isLoading={isLoading} // ✅ 추가
+                                tripPlanOffset={tripPlanOffset}           // ✅ 추가
+                                setTripPlanOffset={setTripPlanOffset}     // ✅ 추가
                             />
                         </section>
                     )}
