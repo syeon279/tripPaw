@@ -227,7 +227,8 @@
 
 #### 🎬 시연 영상 보기
 
-[![TripPaw 시연 영상](https://github.com/user-attachments/assets/f8d54d29-b318-43eb-afac-5ee99dc58c05)]([https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://youtu.be/LXcgUj_6oBI?feature=shared))
+[![TripPaw 시연 영상](https://github.com/user-attachments/assets/f8d54d29-b318-43eb-afac-5ee99dc58c05)](https://youtu.be/LXcgUj_6oBI?feature=shared)
+
 
 
 
