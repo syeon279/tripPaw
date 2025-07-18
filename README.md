@@ -3,6 +3,23 @@
 ## 😎 PROJECT INTRO
 <img width="1446" height="808" alt="Image" src="https://github.com/user-attachments/assets/21ca11d7-4f91-49c1-bbbd-eff6c2258386" />
 
+
+<br />
+<br />
+
+
+<br />
+<br />
+
+- TripPaw는 반려동물 동반 여행 경로 추천 사이트입니다.
+- 지역 기반 반려동물이 동반 가능한 장소들만 모아 경로를 추천해줍니다.
+- 사용자가 직접 여행 계획을 세우고, 다른 사람에게 공개할 수 있습니다.
+- 경로 자체에도 리뷰가 가능하며, 여러 사람이 하나의 여행 플랜으로 여행을 다녀올 수 있습니다.
+- 리뷰에는 실제 예약 날짜의 날씨 정보를 연동하여 사용자가 여행을 했을 당시의 날씨를 볼 수 있습니다.
+- 여행 계획에 있는 모든 장소들을 하나하나 예약하는 것이 아닌 버튼 하나로 예약할 수 있습니다.
+- 체크리스트를 생성하여 여행에 필요한 준비물을 챙길 수 있습니다. 
+
+
 <br />
 <br />
 
@@ -205,6 +222,13 @@
 <br />
 
 ### 🌟 주요기능
+
+## 경로 추천, 편집, 저장
+
+#### 🎬 시연 영상 보기
+
+[![TripPaw 시연 영상](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)]([https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://youtu.be/LXcgUj_6oBI?feature=shared))
+
 
 
 
