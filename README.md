@@ -217,7 +217,8 @@
 ## 5. NFT
 
 #### 🎬 시연 영상 보기
-https://youtu.be/i2rlSeZK0rM
+<img width="1588" height="670" alt="Image" src="https://github.com/user-attachments/assets/3f173be9-4ed1-431f-948b-c23a41413926" /> (https://youtu.be/i2rlSeZK0rM)
+
 
 ## 6. 채팅
 
