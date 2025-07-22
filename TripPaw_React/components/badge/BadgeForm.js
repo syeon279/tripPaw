@@ -48,7 +48,7 @@ const BadgeForm = ({ onCancel, onSuccess }) => {
     formData.append('image', imageFile);
 
     try {
-      await axios.post('http://localhost:8080/admin/badge', formData, {
+      await axios.post('/admin/badge', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

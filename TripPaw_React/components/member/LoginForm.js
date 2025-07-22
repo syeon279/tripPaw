@@ -157,7 +157,7 @@ const SignupLink = styled.div`
 `;
 
 const onClickOauth2 = async (e) => {
-  const response = await axios.get('http://localhost:8080/oauth2/authorization/kakao');
+  const response = await axios.get('/oauth2/authorization/kakao');
 }
 
 // onToggleForm 함수를 props로 받습니다.
@@ -175,23 +175,23 @@ function LoginForm({ onToggleForm }) {
   const handleSubmit = async (event) => {
     event.preventDefault(); // 폼 기본 제출 동작 방지
     console.log('Login attempt with:', { username, password });
-    const loginSubmit = await axios.post(`http://localhost:8080/api/auth/login`, {
+    const loginSubmit = await axios.post(`/api/auth/login`, {
       username: username,
       password: password
     }, {
       withCredentials: true,
-    }).then(function (response){
-      console.log('상태확인=',response.status);
+    }).then(function (response) {
+      console.log('상태확인=', response.status);
 
       Router.replace('/')
-    }).catch(function(error){
+    }).catch(function (error) {
       if (error.response && error.response.status === 401) {
         const errorMessage = error.response.data?.message || '아이디 또는 비밀번호가 일치하지 않습니다.';
         alert(errorMessage);
         return;
-    }
-     
-      console.log('탈퇴에러',error.response.data.message);
+      }
+
+      console.log('탈퇴에러', error.response.data.message);
     })
     // 실제 로그인 로직을 여기에 구현합니다. (API 호출 등)
   };
@@ -247,10 +247,10 @@ function LoginForm({ onToggleForm }) {
         <SocialLogin>
           <p>소셜 아이디로 로그인하기</p>
           <SocialIcons>
-            <SocialIcon href={`http://localhost:8080/oauth2/authorization/google`}><img src={googleIconPath} alt="구글" /></SocialIcon>
+            <SocialIcon href={`/oauth2/authorization/google`}><img src={googleIconPath} alt="구글" /></SocialIcon>
             {/* <SocialIcon href={`https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon> */}
-            <SocialIcon href={`http://localhost:8080/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
-            <SocialIcon href={`http://localhost:8080/oauth2/authorization/naver`}><img src={naverIconPath} alt="네이버" /></SocialIcon>
+            <SocialIcon href={`/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
+            <SocialIcon href={`/oauth2/authorization/naver`}><img src={naverIconPath} alt="네이버" /></SocialIcon>
           </SocialIcons>
         </SocialLogin>
 

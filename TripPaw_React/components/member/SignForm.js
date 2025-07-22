@@ -69,52 +69,52 @@ function SignForm({ onToggleForm }) {
 
   const [recommendNickname, setRecommendNickname] = useState([]);
   const [aiNicknames, setAiNicknames] = useState('');
-  useEffect( () => {
+  useEffect(() => {
     const chetGPT = async () => {
-      try{
-        const response = await axios.get('http://localhost:8080/api/chatGPT')
-        if(response.status == 200){
-             const rawString = response.data.choices[0].message.content;
+      try {
+        const response = await axios.get('/api/chatGPT')
+        if (response.status == 200) {
+          const rawString = response.data.choices[0].message.content;
 
-            const nicknameArray = rawString.split('\n').filter(name => name.trim() !== '');
-            setAiNicknames(nicknameArray);
+          const nicknameArray = rawString.split('\n').filter(name => name.trim() !== '');
+          setAiNicknames(nicknameArray);
           //setRecommendNickname(response.data.choices[0].message.content);
-          
+
         }
-      }catch(error){
+      } catch (error) {
         console.log();
       }
-  }
-  chetGPT();
-},[]) 
-const nicknameIndex = useRef(0);
+    }
+    chetGPT();
+  }, [])
+  const nicknameIndex = useRef(0);
 
-const onRecommendNickname = () => {
-   // 닉네임 배열이 비어있으면 아무것도 하지 않음
+  const onRecommendNickname = () => {
+    // 닉네임 배열이 비어있으면 아무것도 하지 않음
     if (aiNicknames.length === 0) return;
 
     // 현재 인덱스의 닉네임을 설정
     setChangeNickname(aiNicknames[nicknameIndex.current]);
 
     nicknameIndex.current = (nicknameIndex.current + 1) % aiNicknames.length;
-    
-    console.log('다음 인덱스:', nicknameIndex.current);
-}
-// useEffect(() => {
-//    //console.log('recommendNickname',recommendNickname);
-//   //  for(var i=0; i<recommendNickname.length; i++){
-//   //   for(var j=0; j<recommendNickname[i].length; j++){
-//   //     console.log('recommendNickname',recommendNickname[i][j]);
-//   //   }
-//   //  }
-// //   console.log('업데이트된 닉네임 배열:', recommendNickname);
 
-//     // 배열의 각 항목을 보려면 forEach 등을 사용합니다.
-//     // recommendNickname.forEach(name => console.log(name));
-//     // for(let i = 0; i<recommendNickname.length; i++){
-//     //   console.log('배열',recommendNickname[i]);
-//     // }
-// },[recommendNickname])
+    console.log('다음 인덱스:', nicknameIndex.current);
+  }
+  // useEffect(() => {
+  //    //console.log('recommendNickname',recommendNickname);
+  //   //  for(var i=0; i<recommendNickname.length; i++){
+  //   //   for(var j=0; j<recommendNickname[i].length; j++){
+  //   //     console.log('recommendNickname',recommendNickname[i][j]);
+  //   //   }
+  //   //  }
+  // //   console.log('업데이트된 닉네임 배열:', recommendNickname);
+
+  //     // 배열의 각 항목을 보려면 forEach 등을 사용합니다.
+  //     // recommendNickname.forEach(name => console.log(name));
+  //     // for(let i = 0; i<recommendNickname.length; i++){
+  //     //   console.log('배열',recommendNickname[i]);
+  //     // }
+  // },[recommendNickname])
   // useEffect(() => { 
   //   if ( user &&  user.id) {   Router.replace('/');  }
   // } , [user &&  user.id]);
@@ -257,7 +257,7 @@ const onRecommendNickname = () => {
     }
     setIsDisabled(false);
 
-    const response = await axios.post(`http://localhost:8080/api/sms/send/${phoneNum}`, {}, {
+    const response = await axios.post(`/api/sms/send/${phoneNum}`, {}, {
       withCredentials: true,
     });
     // const response = await axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
@@ -321,7 +321,7 @@ const onRecommendNickname = () => {
   const [namujiAddress, setNamujiAddress] = useState('');
   const onChangeNamujiAddress = useCallback((e) => {
     setNamujiAddress(e.target.value);
-  },[])
+  }, [])
   const open = useDaumPostcodePopup();
   const handleComplete = (data) => {
     let fullAddress = data.address;
@@ -378,7 +378,7 @@ const onRecommendNickname = () => {
     }
     if (password !== passwordRe) { return setPasswordReError(true); }
     console.log('zonecode=', zonecode);
-    const response = await axios.post('http://localhost:8080/api/auth/join', {
+    const response = await axios.post('/api/auth/join', {
       "username": username,
       "phoneNum": phoneNum,
       "email": email,
@@ -397,11 +397,11 @@ const onRecommendNickname = () => {
     //   data:{ username, phoneNum, email, password, nickname  }
     // }); 
     // 5. dispatch ###
-  }, [username, phoneNum, email, password, passwordRe, nickname,zonecode,roadAddress,namujiAddress]);
+  }, [username, phoneNum, email, password, passwordRe, nickname, zonecode, roadAddress, namujiAddress]);
   const [nextNum, setNextNum] = useState(0);
   let index = 0;
   // const onRecommendNickname = () => {
-    
+
   // }
   return (
     <div >
@@ -434,13 +434,13 @@ const onRecommendNickname = () => {
             </Form.Item>
             <Form.Item>
               <div style={{ display: 'flex' }}>
-              <label htmlFor='nickname'></label>
-              {/* <UnderlineInput placeholder='닉네임' id='nickname'
+                <label htmlFor='nickname'></label>
+                {/* <UnderlineInput placeholder='닉네임' id='nickname'
                 value={nickname} onChange={onChangeNickname} name='nickname' required /> */}
-              {/* <UnderlineInput placeholder='닉네임' id='nickname'
+                {/* <UnderlineInput placeholder='닉네임' id='nickname'
                 value={nickname} onChange={onRecommendNickname} name='nickname' required /> */}
-                 <UnderlineInput placeholder='닉네임 추천' id='nickname'
-                  value={nickname}  name='nickname' readOnly />
+                <UnderlineInput placeholder='닉네임 추천' id='nickname'
+                  value={nickname} name='nickname' readOnly />
                 <Button onClick={onRecommendNickname} style={{ backgroundColor: 'black', color: 'white' }}>닉네임추천</Button>
               </div>
             </Form.Item>
@@ -546,7 +546,7 @@ const onRecommendNickname = () => {
                 <SocialIcons>
                   <SocialIcon><img src={googleIconPath} alt="구글" /></SocialIcon>
                   {/* <SocialIcon href={`https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon> */}
-                  <SocialIcon href={`http://localhost:8080/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
+                  <SocialIcon href={`/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
                   <SocialIcon><img src={naverIconPath} alt="네이버" /></SocialIcon>
                 </SocialIcons>
               </SocialLogin>

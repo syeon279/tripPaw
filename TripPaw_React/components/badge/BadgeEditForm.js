@@ -14,7 +14,7 @@ const BadgeEditForm = ({ badgeData, onCancel, onSuccess }) => {
 
   useEffect(() => {
     if (badgeData.imageUrl) {
-      setPreviewUrl(`http://localhost:8080/upload/badge/${badgeData.imageUrl}`);
+      setPreviewUrl(`/upload/badge/${badgeData.imageUrl}`);
     }
   }, [badgeData]);
 
