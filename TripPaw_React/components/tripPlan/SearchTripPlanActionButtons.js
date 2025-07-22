@@ -46,7 +46,7 @@ const SearchTripPlanActionButton = ({
 
     const handleConfirm = async () => {
         try {
-            await axios.put(`http://localhost:8080/tripPlan/${tripPlanId}/public`);
+            await axios.put(`/tripPlan/${tripPlanId}/public`);
             alert('공개로 전환되었습니다.');
             onSave?.();
         } catch (err) {
@@ -75,7 +75,7 @@ const SearchTripPlanActionButton = ({
         const fetchDisabledDates = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:8080/reserv/disabled-dates/tripPlan`,
+                    `/reserv/disabled-dates/tripPlan`,
                     {
                         params: { tripPlanId },
                     }
@@ -107,7 +107,7 @@ const SearchTripPlanActionButton = ({
     const handleConfirmSave = async (travelData) => {
         try {
             const response = await axios.post(
-                `http://localhost:8080/memberTripPlan/save`,
+                `/memberTripPlan/save`,
                 {
                     memberId: myId, // 로그인 유저의 ID
                     tripPlanId: tripPlanId,

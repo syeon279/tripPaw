@@ -76,15 +76,15 @@ const ReviewList = () => {
   const fetchReviews = async (sortKey = "latest") => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8080/review/plan?sort=${sortKey}`);
+      const response = await axios.get(`/review/plan?sort=${sortKey}`);
       const reviews = response.data;
       setReviews(reviews);
 
       const newStates = {};
       for (let review of reviews) {
         const [likedRes, countRes] = await Promise.all([
-          axios.get(`http://localhost:8080/review/${review.reviewId}/like/marked`, { params: { memberId } }),
-          axios.get(`http://localhost:8080/review/${review.reviewId}/like/count`)
+          axios.get(`/review/${review.reviewId}/like/marked`, { params: { memberId } }),
+          axios.get(`/review/${review.reviewId}/like/count`)
         ]);
         newStates[review.reviewId] = {
           liked: likedRes.data,
@@ -115,14 +115,14 @@ const ReviewList = () => {
     const current = likeStates[reviewId];
     try {
       if (current?.liked) {
-        await axios.delete(`http://localhost:8080/review/${reviewId}/like`, { params: { memberId } });
+        await axios.delete(`/review/${reviewId}/like`, { params: { memberId } });
       } else {
-        await axios.post(`http://localhost:8080/review/${reviewId}/like`, null, { params: { memberId } });
+        await axios.post(`/review/${reviewId}/like`, null, { params: { memberId } });
       }
 
       const [likedRes, countRes] = await Promise.all([
-        axios.get(`http://localhost:8080/review/${reviewId}/like/marked`, { params: { memberId } }),
-        axios.get(`http://localhost:8080/review/${reviewId}/like/count`)
+        axios.get(`/review/${reviewId}/like/marked`, { params: { memberId } }),
+        axios.get(`/review/${reviewId}/like/count`)
       ]);
       setLikeStates({
         ...likeStates,
@@ -320,7 +320,7 @@ const ReviewList = () => {
                               objectFit: "cover",
                               borderRadius: 8,
                             }}
-                            src={`http://localhost:8080/upload/reviews/${src}`}
+                            src={`/upload/reviews/${src}`}
                           />
                         ))}
                       </div>

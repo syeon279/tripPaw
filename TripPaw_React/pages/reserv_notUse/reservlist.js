@@ -133,9 +133,9 @@ const StatusBadge = styled.span`
   border-radius: 6px;
   background-color: ${({ state }) =>
     state === 'WAITING' ? '#facc15' :
-    state === 'CANCELLED' ? '#f87171' :
-    state === 'EXPIRED' ? '#9ca3af' :
-    '#34d399'};
+      state === 'CANCELLED' ? '#f87171' :
+        state === 'EXPIRED' ? '#9ca3af' :
+          '#34d399'};
   color: #fff;
   font-weight: 600;
   line-height: 1;
@@ -292,12 +292,12 @@ const ReservList = () => {
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/reserv', {
+        const response = await axios.get('/reserv', {
           withCredentials: true,
         });
         setReservations(response.data);
 
-        if(response.data.length > 0) setLatestState(response.data[0].state);
+        if (response.data.length > 0) setLatestState(response.data[0].state);
         else setLatestState(null);
 
         const grouped = groupByYearMonth(response.data);
@@ -330,7 +330,7 @@ const ReservList = () => {
 
     // 2. 필터링된 예약들의 상태를 CANCELLED로 업데이트
     setReservations(prevReservations => {
-      return prevReservations.map(r => 
+      return prevReservations.map(r =>
         reservationsToCancel.some(reservation => reservation.id === r.id)
           ? { ...r, state: 'CANCELLED' }
           : r
@@ -342,11 +342,11 @@ const ReservList = () => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, { withCredentials: true });
+      await axios.post(`/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
 
       setReservations(prevReservations =>
-        prevReservations.map(r => 
+        prevReservations.map(r =>
           r.id === reservId ? { ...r, state: 'CANCELLED' } : r
         )
       );
@@ -371,7 +371,7 @@ const ReservList = () => {
 
       // 서버로 배치 취소 요청
       await axios.post(
-        `http://localhost:8080/reserv/batch/cancel`,
+        `/reserv/batch/cancel`,
         { reservIds: reservIdsToCancel, memberTripPlanId },
         { withCredentials: true }
       );
@@ -426,7 +426,7 @@ const ReservList = () => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, {
+      await axios.post(`/reserv/${reservId}/delete`, null, {
         withCredentials: true,
       });
       alert('예약이 취소되었습니다.');
@@ -453,39 +453,39 @@ const ReservList = () => {
           <Title>예약 내역</Title>
         </div>
 
-      {Object.entries(groupedReservations).map(([yearMonth, reservs]) => {
-        const selectedStatus = sectionStatusFilters[yearMonth] || 'ALL';
+        {Object.entries(groupedReservations).map(([yearMonth, reservs]) => {
+          const selectedStatus = sectionStatusFilters[yearMonth] || 'ALL';
 
-        const filteredReservs = selectedStatus === 'ALL'
-          ? reservs
-          : reservs.filter(r => r.state === selectedStatus);
+          const filteredReservs = selectedStatus === 'ALL'
+            ? reservs
+            : reservs.filter(r => r.state === selectedStatus);
 
-        if (filteredReservs.length === 0) return null; // 해당 월에 필터 결과 없으면 숨김
+          if (filteredReservs.length === 0) return null; // 해당 월에 필터 결과 없으면 숨김
 
-        return (
-          <section key={yearMonth}>
-          <YearMonthTitle>
-            <YearMonthText onClick={() => toggleSection(yearMonth)}>{yearMonth}</YearMonthText>
+          return (
+            <section key={yearMonth}>
+              <YearMonthTitle>
+                <YearMonthText onClick={() => toggleSection(yearMonth)}>{yearMonth}</YearMonthText>
 
-            <RightControls onClick={e => e.stopPropagation()}>
-              <StyledSelect
-                size="small"
-                value={selectedStatus}
-                onChange={(value) => setSectionStatusFilters(prev => ({ ...prev, [yearMonth]: value }))}
-                options={[
-                  { label: '전체', value: 'ALL' },
-                  { label: '결제 대기중', value: 'WAITING' },
-                  { label: '예약 완료', value: 'CONFIRMED' },
-                  { label: '예약 취소', value: 'CANCELLED' },
-                  { label: '예약 만료', value: 'EXPIRED' },
-                ]}
-              />
-              <ArrowIcon
-                onClick={() => toggleSection(yearMonth)}
-                style={{ transform: openedSections[yearMonth] ? 'rotate(90deg)' : 'rotate(0deg)' }}
-              />
-            </RightControls>
-          </YearMonthTitle>
+                <RightControls onClick={e => e.stopPropagation()}>
+                  <StyledSelect
+                    size="small"
+                    value={selectedStatus}
+                    onChange={(value) => setSectionStatusFilters(prev => ({ ...prev, [yearMonth]: value }))}
+                    options={[
+                      { label: '전체', value: 'ALL' },
+                      { label: '결제 대기중', value: 'WAITING' },
+                      { label: '예약 완료', value: 'CONFIRMED' },
+                      { label: '예약 취소', value: 'CANCELLED' },
+                      { label: '예약 만료', value: 'EXPIRED' },
+                    ]}
+                  />
+                  <ArrowIcon
+                    onClick={() => toggleSection(yearMonth)}
+                    style={{ transform: openedSections[yearMonth] ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                  />
+                </RightControls>
+              </YearMonthTitle>
 
               {openedSections[yearMonth] && filteredReservs.map((reserv) => (
                 <ReservCard key={reserv.id}>

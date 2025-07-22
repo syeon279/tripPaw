@@ -148,7 +148,7 @@ function reservdutch() {
 
     stompClient.activate();
     setClient(stompClient);
-    const response = axios.get('http://localhost:8080/api/auth/check', { withCredentials: true })
+    const response = axios.get('/api/auth/check', { withCredentials: true })
       .then(response => {
         const username = response.data.username;
         console.log('username:', username);
@@ -171,7 +171,7 @@ function reservdutch() {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/reserv/disabled-dates')
+    axios.get('/reserv/disabled-dates')
       .then(res => {
         const allDisabled = [];
         const today = new Date();
@@ -216,7 +216,7 @@ function reservdutch() {
 
     try {
       // 예약 생성
-      const res = await axios.post('http://localhost:8080/reserv', payload);
+      const res = await axios.post('/reserv', payload);
 
       alert('예약 성공! 🎉');
 

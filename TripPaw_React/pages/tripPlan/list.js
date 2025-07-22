@@ -14,7 +14,7 @@ const MyTripsPage = () => {
     const [trips, setTrips] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/tripPlan/list', { withCredentials: true })
+        axios.get('/tripPlan/list', { withCredentials: true })
             .then(res => setTrips(res.data))
             .catch(err => console.error('여행 목록 불러오기 실패:', err));
     }, []);
@@ -42,7 +42,7 @@ const MyTripsPage = () => {
                             background: '#fafafa'
                         }}>
                             <img
-                                src={`http://localhost:8080${trip.imageUrl}`}
+                                src={`trip.imageUrl`}
                                 alt="썸네일"
                                 style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 6 }}
                             />

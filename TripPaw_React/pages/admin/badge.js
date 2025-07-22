@@ -27,7 +27,7 @@ const AdminBadgePage = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+        const res = await axios.get('/api/auth/check', { withCredentials: true });
         const isAdmin = res.data.id === 1 || res.data.role === 'ADMIN';
         if (isAdmin) {
           setAuthorized(true);

@@ -140,7 +140,7 @@ function ReservCreatePage() {
   useEffect(() => {
     if (!placeId) return;
 
-    axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${placeId}`)
+    axios.get(`/reserv/disabled-dates?placeId=${placeId}`)
       .then(res => {
         const allDisabled = [];
         const today = new Date();
@@ -179,7 +179,7 @@ function ReservCreatePage() {
     };
 
     try {
-      const res = await axios.post('http://localhost:8080/reserv', payload);
+      const res = await axios.post('/reserv', payload);
       alert('예약 성공! 🎉');
 
       const reservId = res.data.id;
@@ -205,56 +205,56 @@ function ReservCreatePage() {
 
   return (
     <>
-    <ContentHeader theme="dark" />
-    <Container>
-      <Title>{place.name}</Title>
+      <ContentHeader theme="dark" />
+      <Container>
+        <Title>{place.name}</Title>
 
-      <Layout>
-        <ImageSection>
-          <img src={place.imageUrl} alt={place.name} />
-          <p>{place.description}</p>
-        </ImageSection>
+        <Layout>
+          <ImageSection>
+            <img src={place.imageUrl} alt={place.name} />
+            <p>{place.description}</p>
+          </ImageSection>
 
-        <Form onSubmit={handleSubmit}>
-          <div>
-            <Label>예약 날짜</Label>
-            <DateRange
-              editableDateInputs={true}
-              onChange={item => setDateRange([item.selection])}
-              moveRangeOnFirstSelection={false}
-              ranges={dateRange}
-              minDate={new Date()}
-              disabledDates={disabledDates}
-            />
-          </div>
+          <Form onSubmit={handleSubmit}>
+            <div>
+              <Label>예약 날짜</Label>
+              <DateRange
+                editableDateInputs={true}
+                onChange={item => setDateRange([item.selection])}
+                moveRangeOnFirstSelection={false}
+                ranges={dateRange}
+                minDate={new Date()}
+                disabledDates={disabledDates}
+              />
+            </div>
 
-          <ExpireText>⏳ 만료일: <strong>{format(addDays(new Date(), 5), 'yyyy-MM-dd')}</strong> (자동 설정)</ExpireText>
+            <ExpireText>⏳ 만료일: <strong>{format(addDays(new Date(), 5), 'yyyy-MM-dd')}</strong> (자동 설정)</ExpireText>
 
-          <div>
-            <Label>인원 수</Label>
-            <Input
-              type="number"
-              min="1"
-              value={countPeople}
-              onChange={(e) => setCountPeople(e.target.value)}
-            />
-          </div>
+            <div>
+              <Label>인원 수</Label>
+              <Input
+                type="number"
+                min="1"
+                value={countPeople}
+                onChange={(e) => setCountPeople(e.target.value)}
+              />
+            </div>
 
-          <div>
-            <Label>반려동물 수</Label>
-            <Input
-              type="number"
-              min="0"
-              value={countPet}
-              onChange={(e) => setCountPet(e.target.value)}
-            />
-          </div>
+            <div>
+              <Label>반려동물 수</Label>
+              <Input
+                type="number"
+                min="0"
+                value={countPet}
+                onChange={(e) => setCountPet(e.target.value)}
+              />
+            </div>
 
-          <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
+            <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
 
-          {message && <ErrorMsg>{message}</ErrorMsg>}
-          
-{/* 더미 테스트
+            {message && <ErrorMsg>{message}</ErrorMsg>}
+
+            {/* 더미 테스트
         <DummyButton type="button" onClick={async () => {
           try {
             const res = await axios.post('http://localhost:8080/pay/dummy?memberId=1', null, {
@@ -276,10 +276,10 @@ function ReservCreatePage() {
           🚀 더미 트립플랜으로 결제 테스트하기
         </DummyButton> */}
 
-        </Form>
-      </Layout>
-      <PetAssistant />
-    </Container>
+          </Form>
+        </Layout>
+        <PetAssistant />
+      </Container>
     </>
   );
 }

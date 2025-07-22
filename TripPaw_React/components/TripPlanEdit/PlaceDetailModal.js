@@ -40,7 +40,7 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
                         return;
                     }
 
-                    const { data } = await axios.get(`http://localhost:8080/place/${place.placeId}`);
+                    const { data } = await axios.get(`/place/${place.placeId}`);
                     setPlaceDetail({ ...place, ...data });
                     console.log('📦 place 보완 완료:', data);
                 } else {

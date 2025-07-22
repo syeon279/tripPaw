@@ -81,7 +81,7 @@ const memberTripPlanEdit = () => {
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
                 if (response.status === 200) {
@@ -98,7 +98,7 @@ const memberTripPlanEdit = () => {
     useEffect(() => {
         const fetchTripById = async (TripPlanId) => {
             try {
-                const response = await axios.get(`http://localhost:8080/memberTripPlan/${TripPlanId}`);
+                const response = await axios.get(`/memberTripPlan/${TripPlanId}`);
                 const trip = response.data;
 
                 if (!trip.routeData || !Array.isArray(trip.routeData)) {
@@ -215,7 +215,7 @@ const memberTripPlanEdit = () => {
                 memberId,
             };
 
-            await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
+            await axios.post('/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
             router.push('/mypage/trips');
             return true;

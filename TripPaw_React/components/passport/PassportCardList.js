@@ -62,7 +62,7 @@ const PassportCardList = ({ memberId }) => {
             <div style={{ textAlign: 'end', width: '200px', height: '260px' }}>
 
               <img
-                src={passport.imageUrl?.startsWith('http') ? passport.imageUrl : `passport.imageUrl`}
+                src={passport.imageUrl?.startsWith('http') ? passport.imageUrl : passport.imageUrl}
                 alt={passport.petName} />
               <h1 style={{ color: '#fff', fontSize: '24px', margin: '20px 0 4px' }}>동물왕국 여권</h1>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '32px' }}>

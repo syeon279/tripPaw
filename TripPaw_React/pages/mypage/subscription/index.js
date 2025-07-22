@@ -27,7 +27,7 @@ const SubscriptionManagePage = () => {
     // 로그인 사용자 확인
     const fetchLoginUser = async () => {
         try {
-            const res = await axios.get('http://localhost:8080/api/auth/check', {
+            const res = await axios.get('/api/auth/check', {
                 withCredentials: true,
             });
             setMemberId(res.data.id);
@@ -42,7 +42,7 @@ const SubscriptionManagePage = () => {
     const fetchSubscription = async (id) => {
         setLoading(true);
         try {
-            const res = await axios.get(`http://localhost:8080/subscription/latest/${id}`);
+            const res = await axios.get(`/subscription/latest/${id}`);
             setSubscription(res.data);
         } catch (err) {
             console.error('구독 정보 조회 실패:', err);
@@ -54,7 +54,7 @@ const SubscriptionManagePage = () => {
     // 구독 취소
     const handleCancel = async () => {
         try {
-            await axios.put(`http://localhost:8080/subscription/cancel/${memberId}`);
+            await axios.put(`/subscription/cancel/${memberId}`);
             message.success('구독을 취소했습니다.');
             fetchSubscription(memberId);
         } catch (err) {

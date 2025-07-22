@@ -198,8 +198,8 @@ const PlaceReservCreatePage = () => {
 
       try {
         const [placeRes, disabledDatesRes] = await Promise.all([
-          axios.get(`http://localhost:8080/place/${id}`),
-          axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${id}`),
+          axios.get(`/place/${id}`),
+          axios.get(`/reserv/disabled-dates?placeId=${id}`),
         ]);
 
         setPlace(placeRes.data);
@@ -247,7 +247,7 @@ const PlaceReservCreatePage = () => {
   useEffect(() => {
     const fetchUserAndPlaceMeta = async () => {
       try {
-        const authRes = await axios.get('http://localhost:8080/api/auth/check', {
+        const authRes = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
         const userId = authRes.data.id;
@@ -255,10 +255,10 @@ const PlaceReservCreatePage = () => {
         setIsLoggedIn(true);
 
         const [canWriteRes, favoriteRes] = await Promise.all([
-          axios.get(`http://localhost:8080/review/reserv/check`, {
+          axios.get(`/review/reserv/check`, {
             params: { memberId: userId, placeId },
           }),
-          axios.get(`http://localhost:8080/favorite/check`, {
+          axios.get(`/favorite/check`, {
             params: {
               memberId: userId,
               targetId: placeId,
@@ -304,9 +304,9 @@ const PlaceReservCreatePage = () => {
       };
 
       if (newFavorite) {
-        await axios.post(`http://localhost:8080/favorite/add`, payload);
+        await axios.post(`/favorite/add`, payload);
       } else {
-        await axios.delete(`http://localhost:8080/favorite/delete`, { data: payload });
+        await axios.delete(`/favorite/delete`, { data: payload });
       }
 
       // 서버 재확인 생략 가능 (성공 응답만 받으면 됨)
@@ -346,7 +346,7 @@ const PlaceReservCreatePage = () => {
     };
 
     try {
-      const res = await axios.post('http://localhost:8080/reserv', payload);
+      const res = await axios.post('/reserv', payload);
       alert('예약 성공! 🎉');
       router.push({
         pathname: '/pay/pay',
@@ -385,14 +385,14 @@ const PlaceReservCreatePage = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const authRes = await axios.get('http://localhost:8080/api/auth/check', {
+        const authRes = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
         const userId = authRes.data.id;
         setMemberId(userId);             // ✅ 이걸 먼저 설정하고
         setIsLoggedIn(true);
 
-        const reservRes = await axios.get(`http://localhost:8080/review/reserv/check`, {
+        const reservRes = await axios.get(`/review/reserv/check`, {
           params: { memberId: userId, placeId },
         });
         setCanWriteReview(reservRes.data === true);
@@ -434,7 +434,7 @@ const PlaceReservCreatePage = () => {
     if (!placeId) return;
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8080/review/place/${placeId}`, {
+      const res = await axios.get(`/review/place/${placeId}`, {
         params: { sort },
       });
       const reviews = res.data;
@@ -449,12 +449,12 @@ const PlaceReservCreatePage = () => {
       const newLikeStates = {};
       for (let review of reviews) {
         const likePromise = memberId
-          ? axios.get(`http://localhost:8080/review/${review.id}/like/marked`, {
+          ? axios.get(`/review/${review.id}/like/marked`, {
             params: { memberId },
           })
           : Promise.resolve({ data: false });
 
-        const countPromise = axios.get(`http://localhost:8080/review/${review.id}/like/count`);
+        const countPromise = axios.get(`/review/${review.id}/like/count`);
 
         const [likedRes, countRes] = await Promise.all([likePromise, countPromise]);
 
@@ -487,7 +487,7 @@ const PlaceReservCreatePage = () => {
 
     try {
       const liked = likeStates[reviewId]?.liked;
-      const url = `http://localhost:8080/review/${reviewId}/like`;
+      const url = `/review/${reviewId}/like`;
 
       if (liked) {
         await axios.delete(url, {
@@ -524,7 +524,7 @@ const PlaceReservCreatePage = () => {
     setShowLoginModal(false);
 
     try {
-      const res = await axios.get('http://localhost:8080/api/auth/check', {
+      const res = await axios.get('/api/auth/check', {
         withCredentials: true,
       });
 
@@ -667,7 +667,7 @@ const PlaceReservCreatePage = () => {
                               //type="primary"
                               onClick={async () => {
                                 try {
-                                  const res = await axios.get('http://localhost:8080/review/reserv/place', {
+                                  const res = await axios.get('/review/reserv/place', {
                                     params: { memberId, placeId },
                                   });
 
@@ -729,7 +729,7 @@ const PlaceReservCreatePage = () => {
                                 {r.reviewImages.map((img) => (
                                   <img
                                     key={img.id}
-                                    src={`http://localhost:8080/upload/reviews/${img.imageUrl}`}
+                                    src={`/upload/reviews/${img.imageUrl}`}
                                     alt={img.originalFileName}
                                     style={{
                                       width: 120,
