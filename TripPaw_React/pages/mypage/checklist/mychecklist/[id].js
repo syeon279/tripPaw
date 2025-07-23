@@ -14,7 +14,7 @@ const MyChecklistPage = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+        const res = await axios.get('/api/auth/check', { withCredentials: true });
         if (res.status === 200) {
           const authUser = res.data;
           setUser(authUser);

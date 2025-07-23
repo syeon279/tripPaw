@@ -75,7 +75,7 @@ const MyReviewList = ({ memberId }) => {
     const isPlace = review.reviewType === 'PLACE';
     console.log('review:', review);
     return (
-      
+
       <div key={review.reviewId} style={{
         background: '#fff',
         padding: 16,
@@ -84,14 +84,15 @@ const MyReviewList = ({ memberId }) => {
         boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
         position: 'relative'
       }}>
-        
+
         {/* 상단 정보 */}
         <div style={{ marginBottom: 12, borderBottom: '1px solid #ddd', paddingBottom: 8 }}>
           {/* PLAN 리뷰: 여행 경로 제목 + 날짜 */}
           {!isPlace && (
             <>
-              <div style={{ 
-                fontWeight: 'bold', fontSize: 16, cursor:'pointer' }}
+              <div style={{
+                fontWeight: 'bold', fontSize: 16, cursor: 'pointer'
+              }}
                 onClick={() => router.push(`/review/tripPlan/${review.targetId}`)}
               >
                 {review.tripTitle || '제목 없음'}
@@ -111,7 +112,7 @@ const MyReviewList = ({ memberId }) => {
                 style={{ objectFit: 'cover', borderRadius: 8 }}
               />
               <div>
-                <div 
+                <div
                   style={{ fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
                   onClick={() => router.push(`/place/${review.targetId}`)}
                 >
@@ -136,7 +137,7 @@ const MyReviewList = ({ memberId }) => {
                 src={
                   review.imageUrl.startsWith('http')
                     ? review.imageUrl
-                    : `http://localhost:8080/upload/reviews/${review.imageUrl}`
+                    : `/upload/reviews/${review.imageUrl}`
                 }
                 width={100}
                 height={100}

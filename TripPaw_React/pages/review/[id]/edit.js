@@ -16,7 +16,7 @@ const ReviewEditPage = () => {
 
   useEffect(() => {
     const fetchMember = async () => {
-      const res = await axios.get("http://localhost:8080/api/auth/check", { withCredentials: true });
+      const res = await axios.get("/api/auth/check", { withCredentials: true });
       setMemberId(res.data.id);
     };
     fetchMember();
@@ -34,7 +34,7 @@ const ReviewEditPage = () => {
 
     const fetchReview = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/review/${id}`);
+        const res = await axios.get(`/review/${id}`);
         setRating(res.data.rating);
         setContent(res.data.content);
       } catch (err) {
@@ -65,7 +65,7 @@ const ReviewEditPage = () => {
     });
 
     try {
-      await axios.put(`http://localhost:8080/review/${id}`, formData, {
+      await axios.put(`/review/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

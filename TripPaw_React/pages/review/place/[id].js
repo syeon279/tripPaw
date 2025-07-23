@@ -31,7 +31,7 @@ const PlaceReviewPage = () => {
   const fetchReviewsByPlace = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8080/review/place/${placeId}`);
+      const res = await axios.get(`/review/place/${placeId}`);
       setReviews(res.data);
 
       // 평균 평점 계산
@@ -45,10 +45,10 @@ const PlaceReviewPage = () => {
       const newLikeStates = {};
       for (let review of res.data) {
         const [likedRes, countRes] = await Promise.all([
-          axios.get(`http://localhost:8080/review/${review.id}/like/marked`, {
+          axios.get(`/review/${review.id}/like/marked`, {
             params: { memberId },
           }),
-          axios.get(`http://localhost:8080/review/${review.id}/like/count`),
+          axios.get(`/review/${review.id}/like/count`),
         ]);
         newLikeStates[review.id] = {
           liked: likedRes.data,
@@ -66,20 +66,20 @@ const PlaceReviewPage = () => {
     const current = likeStates[reviewId];
     try {
       if (current?.liked) {
-        await axios.delete(`http://localhost:8080/review/${reviewId}/like`, {
+        await axios.delete(`/review/${reviewId}/like`, {
           params: { memberId },
         });
       } else {
-        await axios.post(`http://localhost:8080/review/${reviewId}/like`, null, {
+        await axios.post(`/review/${reviewId}/like`, null, {
           params: { memberId },
         });
       }
 
       const [likedRes, countRes] = await Promise.all([
-        axios.get(`http://localhost:8080/review/${reviewId}/like/marked`, {
+        axios.get(`/review/${reviewId}/like/marked`, {
           params: { memberId },
         }),
-        axios.get(`http://localhost:8080/review/${reviewId}/like/count`),
+        axios.get(`/review/${reviewId}/like/count`),
       ]);
 
       setLikeStates({

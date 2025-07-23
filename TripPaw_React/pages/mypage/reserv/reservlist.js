@@ -286,14 +286,14 @@ const ReservList = () => {
   const [openedSections, setOpenedSections] = useState({});
   const [latestState, setLatestState] = useState(null);
   const [openPlanIds, setOpenPlanIds] = useState({});
-  
+
   // 각 연월별 상태 필터 관리
   const [sectionStatusFilters, setSectionStatusFilters] = useState({});
 
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/reserv', {
+        const response = await axios.get('/reserv', {
           withCredentials: true,
         });
         setReservations(response.data);
@@ -327,13 +327,13 @@ const ReservList = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get('http://localhost:8080/reserv', { withCredentials: true });
-      const memberRes = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+      const res = await axios.get('/reserv', { withCredentials: true });
+      const memberRes = await axios.get('/api/auth/check', { withCredentials: true });
       const memberId = memberRes.data.id;
 
       const enrichedReservs = await Promise.all(
         res.data.map(async (reserv) => {
-          const checkRes = await axios.get('http://localhost:8080/review/reserv/review-check', {
+          const checkRes = await axios.get('/review/reserv/review-check', {
             params: { memberId, reservId: reserv.id }
           });
           return {
@@ -361,7 +361,7 @@ const ReservList = () => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`http://localhost:8080/reserv/${reservId}/delete`, null, { withCredentials: true });
+      await axios.post(`/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
       setReservations(prev =>
         prev.map(r => (r.id === reservId ? { ...r, state: 'CANCELLED' } : r))
@@ -405,7 +405,7 @@ const ReservList = () => {
     }
 
     try {
-      await axios.post(`http://localhost:8080/reserv/batch/cancel`, requestBody, {
+      await axios.post(`/reserv/batch/cancel`, requestBody, {
         withCredentials: true
       });
 
@@ -456,11 +456,11 @@ const ReservList = () => {
 
   if (loading) return <Message>불러오는 중...</Message>;
   if (error) return <Error>{error}</Error>;
-  if (reservations.length === 0) return( 
+  if (reservations.length === 0) return (
     <MypageLayout>
-    <Message>예약 내역이 없습니다.</Message>
+      <Message>예약 내역이 없습니다.</Message>
     </MypageLayout>
-   );
+  );
 
   const groupedReservations = groupByYearMonth(reservations);
 
@@ -506,120 +506,120 @@ const ReservList = () => {
                   </RightControls>
                 </YearMonthTitle>
 
-            {openedSections[yearMonth] && (
-  <>
-    {Object.entries(
-      filteredReservs
-        .slice() // 원본 배열 안 건드리기
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // 최신순 정렬
-        .filter(reserv => reserv.memberTripPlan)
-        .reduce((acc, reserv) => {
-          const planId = reserv.memberTripPlan.id;
-          if (!acc[planId]) acc[planId] = [];
-          acc[planId].push(reserv);
-          return acc;
-        }, {})
-    ).map(([planId, reservGroup]) => {
-      const isOpen = openPlanIds[planId] ?? true; // 기본은 열림 상태
+                {openedSections[yearMonth] && (
+                  <>
+                    {Object.entries(
+                      filteredReservs
+                        .slice() // 원본 배열 안 건드리기
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // 최신순 정렬
+                        .filter(reserv => reserv.memberTripPlan)
+                        .reduce((acc, reserv) => {
+                          const planId = reserv.memberTripPlan.id;
+                          if (!acc[planId]) acc[planId] = [];
+                          acc[planId].push(reserv);
+                          return acc;
+                        }, {})
+                    ).map(([planId, reservGroup]) => {
+                      const isOpen = openPlanIds[planId] ?? true; // 기본은 열림 상태
 
-      return (
-        <section key={planId} style={{ marginBottom: '2rem' }}>
-          <h3
-            onClick={() => togglePlanOpen(planId)}
-            style={{
-              fontWeight: 'bold',
-              fontSize: '1.2rem',
-              margin: '1rem 0',
-              cursor: 'pointer',
-              userSelect: 'none',
-              backgroundColor: '#f0f0f0',
-              padding: '8px',
-              borderRadius: '6px',
-            }}
-          >
-            📌 {reservGroup[0].memberTripPlan.tripPlan?.title ?? '단일 예약'}
-            {isOpen ? ' ▲' : ' ▼'}
-          </h3>
+                      return (
+                        <section key={planId} style={{ marginBottom: '2rem' }}>
+                          <h3
+                            onClick={() => togglePlanOpen(planId)}
+                            style={{
+                              fontWeight: 'bold',
+                              fontSize: '1.2rem',
+                              margin: '1rem 0',
+                              cursor: 'pointer',
+                              userSelect: 'none',
+                              backgroundColor: '#f0f0f0',
+                              padding: '8px',
+                              borderRadius: '6px',
+                            }}
+                          >
+                            📌 {reservGroup[0].memberTripPlan.tripPlan?.title ?? '단일 예약'}
+                            {isOpen ? ' ▲' : ' ▼'}
+                          </h3>
 
-          {isOpen && reservGroup.map((reserv) => (
-            <ReservCard key={reserv.id}>
-              <td>
-                {reserv.startDate} ~ {reserv.endDate}
-                <StatusBadge state={reserv.state}>
-                  {statusMap[reserv.state] || reserv.state}
-                </StatusBadge>
-              </td>
-              <ReservPlaceInfo>
-                <PlaceInfoLeft>
-                  <div><strong>{reserv.place?.name}</strong></div>
-                  <div>{reserv.place?.region}</div>
-                </PlaceInfoLeft>
-                <PlaceInfoRight>
-                      {reserv.state === 'WAITING' && (
-                          <>
-                        <Button onClick={async () => {
-                        if (reserv.memberTripPlan.id !== null) {
-                          try {
-                          router.push({
-                          pathname: '/pay/paybatch',
-                          query: { memberTripPlanId: reserv.memberTripPlan.id }
-                        });
-                          } catch (err) {
-                          alert('자동 예약 처리 중 오류가 발생했습니다.');
-                          console.error(err);
-                          }
-                        } else {
-                          goToPayPage(reserv);
-                        }
-                      }}>결제하기</Button>
-                      <Button
-                        danger
-                        onClick={() => {
-                          if (
-                            reserv.memberTripPlan.id !== null
-                          ) {
-                            cancelTripPlanReservs(reserv.memberTripPlan.id);
-                          } else {
-                            cancelSingleReserv(reserv.id);
-                          }
-                        }}
-                      >
-                        예약 취소
-                      </Button>
-                    </>
-                  )}
-                  {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
-                    <>
-                      <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
-                      {reserv.canWriteReview && (
-                        <Button
-                          style={{ backgroundColor: 'green' }}
-                          onClick={() =>
-                            router.push({
-                              pathname: '/review/write',
-                              query: {
-                                reservId: reserv.id,
-                                reviewTypeId: 2,
-                                placeName: reserv.place?.name || '',
-                              },
-                            })
-                          }
-                        >
-                          리뷰쓰기
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </PlaceInfoRight>
-              </ReservPlaceInfo>
-            </ReservCard>
-          ))}
-        </section>
-      );
-    })}
-  </>
-)}
-                
+                          {isOpen && reservGroup.map((reserv) => (
+                            <ReservCard key={reserv.id}>
+                              <td>
+                                {reserv.startDate} ~ {reserv.endDate}
+                                <StatusBadge state={reserv.state}>
+                                  {statusMap[reserv.state] || reserv.state}
+                                </StatusBadge>
+                              </td>
+                              <ReservPlaceInfo>
+                                <PlaceInfoLeft>
+                                  <div><strong>{reserv.place?.name}</strong></div>
+                                  <div>{reserv.place?.region}</div>
+                                </PlaceInfoLeft>
+                                <PlaceInfoRight>
+                                  {reserv.state === 'WAITING' && (
+                                    <>
+                                      <Button onClick={async () => {
+                                        if (reserv.memberTripPlan.id !== null) {
+                                          try {
+                                            router.push({
+                                              pathname: '/pay/paybatch',
+                                              query: { memberTripPlanId: reserv.memberTripPlan.id }
+                                            });
+                                          } catch (err) {
+                                            alert('자동 예약 처리 중 오류가 발생했습니다.');
+                                            console.error(err);
+                                          }
+                                        } else {
+                                          goToPayPage(reserv);
+                                        }
+                                      }}>결제하기</Button>
+                                      <Button
+                                        danger
+                                        onClick={() => {
+                                          if (
+                                            reserv.memberTripPlan.id !== null
+                                          ) {
+                                            cancelTripPlanReservs(reserv.memberTripPlan.id);
+                                          } else {
+                                            cancelSingleReserv(reserv.id);
+                                          }
+                                        }}
+                                      >
+                                        예약 취소
+                                      </Button>
+                                    </>
+                                  )}
+                                  {reserv.state !== 'WAITING' && reserv.state !== 'CANCELLED' && reserv.state !== 'EXPIRED' && (
+                                    <>
+                                      <Button onClick={() => viewReservDetail(reserv)}>상세보기</Button>
+                                      {reserv.canWriteReview && (
+                                        <Button
+                                          style={{ backgroundColor: 'green' }}
+                                          onClick={() =>
+                                            router.push({
+                                              pathname: '/review/write',
+                                              query: {
+                                                reservId: reserv.id,
+                                                reviewTypeId: 2,
+                                                placeName: reserv.place?.name || '',
+                                              },
+                                            })
+                                          }
+                                        >
+                                          리뷰쓰기
+                                        </Button>
+                                      )}
+                                    </>
+                                  )}
+                                </PlaceInfoRight>
+                              </ReservPlaceInfo>
+                            </ReservCard>
+                          ))}
+                        </section>
+                      );
+                    })}
+                  </>
+                )}
+
               </section>
             );
           })}
@@ -646,7 +646,7 @@ const ReservList = () => {
                       danger
                       onClick={() => {
                         if (
-                            selectedReserv.memberTripPlan.id !== null
+                          selectedReserv.memberTripPlan.id !== null
                         ) {
                           cancelTripPlanReservs(selectedReserv.memberTripPlan.id);
                         } else {

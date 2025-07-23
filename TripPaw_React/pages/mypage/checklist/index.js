@@ -14,29 +14,29 @@ const ChecklistPage = () => {
   const router = useRouter();
 
   const checkUser = async () => {
-  try {
-    const response = await axios.get('http://localhost:8080/api/auth/check', { withCredentials: true });
+    try {
+      const response = await axios.get('/api/auth/check', { withCredentials: true });
 
-    if (response.status === 200) {
-      const data = response.data;
+      if (response.status === 200) {
+        const data = response.data;
 
-      if (data.auth !== 'ADMIN') {
-        router.push('/mypage');
-        return; 
+        if (data.auth !== 'ADMIN') {
+          router.push('/mypage');
+          return;
+        }
+
+        setUser(data);
+        setIsAdmin(true);
       }
-
-      setUser(data);
-      setIsAdmin(true);
+    } catch (error) {
+      console.error('사용자 정보 확인 실패:', error);
+      router.push('/login');
     }
-  } catch (error) {
-    console.error('사용자 정보 확인 실패:', error);
-    router.push('/login');
-  }
-};
-useEffect(() => {
-  checkUser();
-}, []);
-  if (!isAdmin) return <div>관리자 전용 페이지입니다.</div>; 
+  };
+  useEffect(() => {
+    checkUser();
+  }, []);
+  if (!isAdmin) return <div>관리자 전용 페이지입니다.</div>;
 
   return (
     <MypageLayout>

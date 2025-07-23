@@ -47,7 +47,7 @@ const ContentHeader = ({ theme }) => {
     const checkLoginStatus = async () => {
       try {
         // 1. 서버에 인증 상태 확인 API 요청
-        const response = await axios.get('http://localhost:8080/api/auth/check', {
+        const response = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
         // 2. API 호출 성공 시, 로그인 상태를 true로 변경
@@ -67,7 +67,7 @@ const ContentHeader = ({ theme }) => {
     checkLoginStatus();
   }, []); // []를 사용하여 앱 시작 시 한 번만 실행
   const onLogout = async () => {
-    await axios.post('http://localhost:8080/api/auth/logout', {
+    await axios.post('/api/auth/logout', {
       withCredentials: true,
     })
     setIsLoggedIn(false);

@@ -157,7 +157,7 @@ function PaymentPage() {
     // 예약정보가 query에 없으면 API 호출
     if (!memberId || !countPeople || !countPet || !startDate || !endDate || !amount) {
       setLoading(true);
-      axios.get(`http://localhost:8080/reserv/${reservId}`)
+      axios.get(`/reserv/${reservId}`)
         .then(res => {
           const data = res.data;
           setReservData({
@@ -211,7 +211,7 @@ function PaymentPage() {
         async (rsp) => {
           if (rsp.success) {
             try {
-              await axios.post('http://localhost:8080/pay/verify', null, {
+              await axios.post('/pay/verify', null, {
                 params: {
                   impUid: rsp.imp_uid,
                   merchantUid: rsp.merchant_uid,

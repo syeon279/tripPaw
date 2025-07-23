@@ -122,7 +122,7 @@ const tripPlanMain = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/category', { withCredentials: true, });
+                const response = await axios.get('/category', { withCredentials: true, });
                 setCategories(response.data);
             } catch (error) {
                 console.error('카테고리 불러오기 실패:', error);
@@ -186,7 +186,7 @@ const tripPlanMain = () => {
         };
 
         try {
-            const response = await axios.post('http://localhost:8080/tripPlan/recommend', requestData, {
+            const response = await axios.post('/tripPlan/recommend', requestData, {
                 withCredentials: true,
             });
 

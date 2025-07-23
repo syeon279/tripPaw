@@ -135,62 +135,62 @@ function PayBatchPage() {
   const [userId, setUserId] = useState('');
   const [userName, setUserName] = useState('');
 
-    useEffect(() => {
-        const checkLoginStatus = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
-                    withCredentials: true,
-                });
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('/api/auth/check', {
+          withCredentials: true,
+        });
 
-                if (response.status === 200) {
-                    setIsLoggedIn(true);
-                    setUserId(response.data.id);
-                    setUserName(response.data.username);
-                }
-            } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
-                alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-                router.push('/member/login');
-            }
-        };
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+          setUserId(response.data.id);
+          setUserName(response.data.username);
+        }
+      } catch (error) {
+        console.error("로그인 상태 확인 실패:", error);
+        alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+        router.push('/member/login');
+      }
+    };
 
-        checkLoginStatus();
-    },[])
+    checkLoginStatus();
+  }, [])
 
   useEffect(() => {
     if (!memberTripPlanId || !userId) return;
 
     console.log('📦 API 요청 준비:', memberTripPlanId, userId);
 
-    axios.get(`http://localhost:8080/pay/batch/${memberTripPlanId}?userId=${userId}`, {
+    axios.get(`/pay/batch/${memberTripPlanId}?userId=${userId}`, {
       withCredentials: true,
     })
-    .then(res => {
-      console.log('✅ API 응답 성공:', res.data);
+      .then(res => {
+        console.log('✅ API 응답 성공:', res.data);
 
-      setTotalAmount(res.data.totalAmount);
+        setTotalAmount(res.data.totalAmount);
 
-      if (res.data.payList) {
-        console.log('payList 있음:', res.data.payList);
-        setPayList(res.data.payList);
-        setPlaceSummaryList(createPlaceSummary(res.data.payList));
-        setReservList([]);
-      } else if (res.data.reservList) {
-        console.log('reservList 있음:', res.data.reservList);
-        console.log('reservList 길이:', res.data.reservList.length);
-        setPayList([]);
-        setReservList(res.data.reservList);
-        setPlaceSummaryList(createPlaceSummaryFromReserv(res.data.reservList));
-      } else {
-        console.log('payList, reservList 모두 없음');
-        setPayList([]);
-        setReservList([]);
-        setPlaceSummaryList([]);
-      }
-    })
-    .catch(() => {
-      alert('일괄 결제 정보 불러오기 실패');
-    });
+        if (res.data.payList) {
+          console.log('payList 있음:', res.data.payList);
+          setPayList(res.data.payList);
+          setPlaceSummaryList(createPlaceSummary(res.data.payList));
+          setReservList([]);
+        } else if (res.data.reservList) {
+          console.log('reservList 있음:', res.data.reservList);
+          console.log('reservList 길이:', res.data.reservList.length);
+          setPayList([]);
+          setReservList(res.data.reservList);
+          setPlaceSummaryList(createPlaceSummaryFromReserv(res.data.reservList));
+        } else {
+          console.log('payList, reservList 모두 없음');
+          setPayList([]);
+          setReservList([]);
+          setPlaceSummaryList([]);
+        }
+      })
+      .catch(() => {
+        alert('일괄 결제 정보 불러오기 실패');
+      });
   }, [memberTripPlanId, userId]);
 
   // 장소별 요약 생성 함수 (payList 기준)
@@ -258,13 +258,13 @@ function PayBatchPage() {
       async (rsp) => {
         if (rsp.success) {
           try {
-            await axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}/verify`, 
-            { impUid: rsp.imp_uid }, 
-            { withCredentials: true });
+            await axios.post(`/pay/batch/${memberTripPlanId}/verify`,
+              { impUid: rsp.imp_uid },
+              { withCredentials: true });
 
             alert('일괄 결제가 완료되었습니다!');
             router.push({
-              pathname:'/pay/paygroup-success',
+              pathname: '/pay/paygroup-success',
               query: { memberTripPlanId: memberTripPlanId }
             });
           } catch (err) {

@@ -55,7 +55,7 @@ const MyBadgeSection = ({ memberId }) => {
         {representativeBadge ? (
           <>
             <img
-              src={`http://localhost:8080/upload/badge/${representativeBadge.imageUrl}`}
+              src={`/upload/badge/${representativeBadge.imageUrl}`}
               alt="대표 뱃지"
               style={{
                 width: '150px',
@@ -138,7 +138,7 @@ const MyBadgeSection = ({ memberId }) => {
                 >
                   {owned ? (
                     <img
-                      src={`http://localhost:8080/upload/badge/${badge.imageUrl}`}
+                      src={`/upload/badge/${badge.imageUrl}`}
                       alt={badge.name}
                       style={{
                         width: '100%',

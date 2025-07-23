@@ -26,7 +26,7 @@ const SealEditorModal = ({ seal, onClose, onSaved }) => {
       setForm(seal);
       const fullUrl = seal.imageUrl?.startsWith('http')
         ? seal.imageUrl
-        : `http://localhost:8080${seal.imageUrl}`;
+        : seal.imageUrl;
       setPreviewUrl(fullUrl);
     }
   }, [seal]);
@@ -155,20 +155,20 @@ const SealEditorModal = ({ seal, onClose, onSaved }) => {
       <div className="modal-overlay">
 
         <div className="modal-content">
-          <div style={{display:'flex', justifyContent:'space-between', height:'22em', }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', height: '22em', }}>
 
-            <div style={{width:'200px', marginRight:'15px'}}>
+            <div style={{ width: '200px', marginRight: '15px' }}>
               <label>이미지 업로드</label>
-              <div style={{display:'flex', flexDirection:'column', justifyContent:'space-between', height:'18em'}}>
-                <div style={{height:'100%', backgroundColor:'#eee', width:'100%' }}>{previewUrl && ( <img src={previewUrl} alt="미리보기" style={{ width:'100%', height:'100%', objectFit:'cover', border:'2px solid red'}} /> )}</div>
-                
-                <label htmlFor="file-upload" style={{display: 'inline-block', padding: '10px 20px',  backgroundColor: '#000', color: 'white', borderRadius: '2px',  cursor: 'pointer',  fontWeight: 'bold',textAlign:'center'}}> 이미지 업로드</label>
-                <input  id="file-upload"  type="file"  accept="image/*"  onChange={handleFileChange}  style={{ display: 'none' }}/>
-                
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '18em' }}>
+                <div style={{ height: '100%', backgroundColor: '#eee', width: '100%' }}>{previewUrl && (<img src={previewUrl} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover', border: '2px solid red' }} />)}</div>
+
+                <label htmlFor="file-upload" style={{ display: 'inline-block', padding: '10px 20px', backgroundColor: '#000', color: 'white', borderRadius: '2px', cursor: 'pointer', fontWeight: 'bold', textAlign: 'center' }}> 이미지 업로드</label>
+                <input id="file-upload" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+
               </div>
             </div>
 
-            <div style={{flexGrow:1}}>
+            <div style={{ flexGrow: 1 }}>
               <label>이름</label>
               <input name="name" value={form.name} onChange={handleChange} />
 

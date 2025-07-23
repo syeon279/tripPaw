@@ -32,7 +32,7 @@ const PlaceReviewWrite = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/auth/check', { withCredentials: true })
+    axios.get('/api/auth/check', { withCredentials: true })
       .then(res => setMemberId(res.data.id))
       .catch(() => {
         message.error("로그인이 필요합니다.");
@@ -45,7 +45,7 @@ const PlaceReviewWrite = () => {
 
     const fetchReservs = async () => {
       try {
-        const res = await axios.get('http://localhost:8080/review/place-reservations', {
+        const res = await axios.get('/review/place-reservations', {
           params: { tripPlanId, memberId },
         });
 
@@ -54,7 +54,7 @@ const PlaceReviewWrite = () => {
         // 각 예약에 대해 리뷰 여부 체크
         const filtered = await Promise.all(
           rawReservs.map(async (r) => {
-            const check = await axios.get('http://localhost:8080/review/reserv/review-check', {
+            const check = await axios.get('/review/reserv/review-check', {
               params: { memberId, reservId: r.id },
             });
             return check.data === true ? r : null;
@@ -76,7 +76,7 @@ const PlaceReviewWrite = () => {
           };
 
           // 날씨 정보 가져오기
-          axios.get('http://localhost:8080/review/weather', {
+          axios.get('/review/weather', {
             params: { type: 'PLACE', targetId: r.id },
           }).then(resp => {
             setReviews(prev => ({
@@ -131,7 +131,7 @@ const PlaceReviewWrite = () => {
 
     try {
       setLoading(true);
-      await axios.post('http://localhost:8080/review/write', formData, {
+      await axios.post('/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
@@ -155,7 +155,7 @@ const PlaceReviewWrite = () => {
     }
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:8080/review/generate", { keywords: selected });
+      const res = await axios.post("/review/generate", { keywords: selected });
       setReviews(prev => ({
         ...prev,
         [reservId]: { ...prev[reservId], content: res.data.content },
@@ -176,7 +176,7 @@ const PlaceReviewWrite = () => {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-      <h2 style={{marginBottom: 50}}>장소 리뷰</h2>
+      <h2 style={{ marginBottom: 50 }}>장소 리뷰</h2>
 
       {reservs.length === 0 || allSubmitted ? (
         // ✅ 리뷰가 없거나 전부 작성된 경우 동일 UI 출력
@@ -198,7 +198,7 @@ const PlaceReviewWrite = () => {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {reserv.place?.imageUrl && (
                     <img
-                      src={reserv.place.imageUrl.startsWith('http') ? reserv.place.imageUrl : `http://localhost:8080${reserv.place.imageUrl}`}
+                      src={reserv.place.imageUrl.startsWith('http') ? reserv.place.imageUrl : reserv.place.imageUrl}
                       alt={reserv.place.name || '장소 이미지'}
                       style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, marginRight: 12 }}
                     />

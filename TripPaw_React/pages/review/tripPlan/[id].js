@@ -45,7 +45,7 @@ const ReviewTripPlanDetail = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const authRes = await axios.get('http://localhost:8080/api/auth/check', {
+        const authRes = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
         const memberId = authRes.data.id;
@@ -53,11 +53,11 @@ const ReviewTripPlanDetail = () => {
         setMemberId(memberId);
 
         const [reviewRes, planRes] = await Promise.all([
-          axios.get(`http://localhost:8080/review/plan/${planId}`),
-          axios.get(`http://localhost:8080/tripPlan/${planId}`),
+          axios.get(`/review/plan/${planId}`),
+          axios.get(`/tripPlan/${planId}`),
         ]);
         console.log('리뷰 작성자 ID들:', reviews.map((r) => r.memberId));
-console.log('현재 로그인 ID:', memberId);
+        console.log('현재 로그인 ID:', memberId);
 
         const fetchedReviews = reviewRes.data || [];
         setReviews(fetchedReviews);
@@ -97,11 +97,11 @@ console.log('현재 로그인 ID:', memberId);
         reviews.map(async (review) => {
           try {
             const [markedRes, countRes] = await Promise.all([
-              axios.get(`http://localhost:8080/review/${review.id}/like/marked`, {
+              axios.get(`/review/${review.id}/like/marked`, {
                 params: { memberId },
                 withCredentials: true,
               }),
-              axios.get(`http://localhost:8080/review/${review.id}/like/count`),
+              axios.get(`/review/${review.id}/like/count`),
             ]);
             states[review.id] = {
               liked: markedRes.data,
@@ -128,7 +128,7 @@ console.log('현재 로그인 ID:', memberId);
     const current = likeStates[reviewId];
     try {
       if (current?.liked) {
-        await axios.delete(`http://localhost:8080/review/${reviewId}/like`, {
+        await axios.delete(`/review/${reviewId}/like`, {
           params: { memberId },
           withCredentials: true,
         });
@@ -137,7 +137,7 @@ console.log('현재 로그인 ID:', memberId);
           [reviewId]: { liked: false, count: prev[reviewId].count - 1 },
         }));
       } else {
-        await axios.post(`http://localhost:8080/review/${reviewId}/like`, null, {
+        await axios.post(`/review/${reviewId}/like`, null, {
           params: { memberId },
           withCredentials: true,
         });
@@ -177,8 +177,8 @@ console.log('현재 로그인 ID:', memberId);
             <RouteMapNoSSR
               routeData={routeData}
               focusDay={null}
-              setFocusDay={() => {}}
-              setMapInstance={() => {}}
+              setFocusDay={() => { }}
+              setMapInstance={() => { }}
             />
           </div>
 
@@ -233,7 +233,7 @@ console.log('현재 로그인 ID:', memberId);
                         {review.imageUrls.split(',').map((url, idx) => (
                           <img
                             key={idx}
-                            src={`http://localhost:8080/upload/reviews/${url.trim()}`}
+                            src={`/upload/reviews/${url.trim()}`}
                             alt={`review-${idx}`}
                             style={{
                               width: 100,

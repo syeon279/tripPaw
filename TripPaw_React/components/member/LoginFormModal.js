@@ -193,7 +193,7 @@ const LoginFormModal = ({ onToggleForm, onLoginSuccess }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const loginSubmit = await axios.post(`http://localhost:8080/api/auth/login`, {
+      const loginSubmit = await axios.post(`/api/auth/login`, {
         username: username,
         password: password
       }, {
@@ -263,7 +263,7 @@ const LoginFormModal = ({ onToggleForm, onLoginSuccess }) => {
             <p>소셜 아이디로 로그인하기</p>
             <SocialIcons>
               <SocialIcon><img src={googleIconPath} alt="구글" /></SocialIcon>
-              <SocialIcon href={`http://localhost:8080/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
+              <SocialIcon href={`/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
               <SocialIcon><img src={naverIconPath} alt="네이버" /></SocialIcon>
             </SocialIcons>
           </SocialLogin>

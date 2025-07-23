@@ -91,7 +91,7 @@ const TripPlanDetail = () => {
             if (!router.isReady || !id) return;
 
             try {
-                const res = await axios.get(`http://localhost:8080/memberTripPlan/${id}`);
+                const res = await axios.get(`/memberTripPlan/${id}`);
                 const data = res.data;
                 setRouteData(data.routeData || []);
                 setCountPeople(data.countPeople);
@@ -116,7 +116,7 @@ const TripPlanDetail = () => {
 
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
 

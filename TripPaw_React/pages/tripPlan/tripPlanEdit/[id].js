@@ -80,7 +80,7 @@ const tripEdit = () => {
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
 
@@ -104,7 +104,7 @@ const tripEdit = () => {
     useEffect(() => {
         const fetchTripById = async (TripPlanId) => {
             try {
-                const response = await axios.get(`http://localhost:8080/tripPlan/${TripPlanId}`);
+                const response = await axios.get(`/tripPlan/${TripPlanId}`);
                 const trip = response.data;
 
                 if (!trip.tripPlanCourses || !Array.isArray(trip.tripPlanCourses)) {
@@ -213,7 +213,7 @@ const tripEdit = () => {
                 return;
             }
 
-            await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
+            await axios.post('/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
         } catch (error) {
             console.error('저장 실패:', error);

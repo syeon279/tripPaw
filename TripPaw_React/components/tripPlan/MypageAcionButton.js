@@ -42,7 +42,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
 
@@ -66,7 +66,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
             if (!userId || !originTripPlanId) return;
 
             try {
-                const res = await axios.get('http://localhost:8080/review/check', {
+                const res = await axios.get('/review/check', {
                     params: { memberId: userId, planId: originTripPlanId },
                     withCredentials: true,
                 });
@@ -89,7 +89,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
 
     const handleReservation = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/reserv/auto/plan', {
+            const response = await axios.post('/reserv/auto/plan', {
                 userId: userId,
                 memberTripPlanId: memberTripPlanId,
                 originTripPlanId: originTripPlanId,
@@ -126,7 +126,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
 
     const handleWriteReview = async () => {
         try {
-            const res = await axios.get(`http://localhost:8080/review/member-trip-plan/${memberTripPlanId}`);
+            const res = await axios.get(`/review/member-trip-plan/${memberTripPlanId}`);
             const tripPlan = res.data?.tripPlan;
 
             if (!tripPlan?.id) {
