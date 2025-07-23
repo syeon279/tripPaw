@@ -1,5 +1,9 @@
 # TRIP PAW
 
+<br />
+<br />
+
+
 ## 😎 PROJECT INTRO
 <img width="1446" height="808" alt="Image" src="https://github.com/user-attachments/assets/21ca11d7-4f91-49c1-bbbd-eff6c2258386" />
 
@@ -23,176 +27,138 @@
 <br />
 <br />
 
-## 🛠 Crew
+## 🛠 기술 스택
+
+
+
+<br />
+<br />
+
+## 🦾 Crew
 <div align="center">
-    <table style="margin: auto;">
+  <table style="margin: auto;">
+    <thead>
       <tr>
-        <th>
-          <img width="200" height="480" alt="Image" src="https://github.com/user-attachments/assets/125bf686-b6bd-4043-ae9d-ba3fd02af207" />
-        </th>
-        <th>
-          담당 기능
-        </th>
+        <th style="width: 200px;">팀원</th>
+        <th style="width: 250px;">담당 기능</th>
+        <th style="width: 250px;">UI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td align="center">
+          <div>
+            <img width="150" src="https://github.com/user-attachments/assets/125bf686-b6bd-4043-ae9d-ba3fd02af207" alt="윤소현" /><br/>
+            <a href="https://github.com/syeon279" target="_blank">윤소현 | 팀장</a>
+          </div>
+        </td>
         <td>
-          공공 데이터 포털 : '	한국관광공사_반려동물_동반여행_서비스' API 연결 <br />
-          여행 경로 추천 <br />
-          여행 일정 생성 / 편집 / 삭제  <br />
-          여행 공유하기  <br />
-          장소 / 여행 검색 <br />
+          공공 데이터 포털 : '한국관광공사_반려동물_동반여행_서비스' API 연결<br />
+          여행 경로 추천<br />
+          여행 일정 생성 / 편집 / 삭제<br />
+          여행 공유하기<br />
+          장소 / 여행 검색
+        </td>
+        <td>
+          메인, 검색<br />
+          장소 상세보기<br />
+          경로 추천 / 편집<br />
+          마이페이지 내 여행 / 장소<br />
+          로그인 / 회원가입
         </td>
       </tr>
       <tr>
-        <th>
-          <a href="https://github.com/syeon279" target="_blank">윤소현 | 팀장</a>
-        </th>
-        <th>
-          UI
-        </th>
+        <td align="center">
+          <div>
+            <img width="150" src="https://github.com/user-attachments/assets/c95f0fb7-2923-4b13-b6ba-e0b20348ef98" alt="이수정" /><br/>
+            <a href="https://github.com/sj71791" target="_blank">이수정 | 팀원</a>
+          </div>
+        </td>
         <td>
-          메인, 검색  <br />
-          장소 상세보기  <br />
-          경로 추천 / 편집  <br />
-          마이페이지 내 여행 / 장소  <br />
+          리뷰 작성/편집/수정/삭제<br />
+          뱃지 부여
+        </td>
+        <td>
+          리뷰 <br />
+          장소 상세보기 <br />
+          마이페이지 뱃지
         </td>
       </tr>
-    </table>
-
-  <table style="margin: auto;">
-    <tr>
-      <th>
-        <img width="200" height="480" alt="Image" src="https://github.com/user-attachments/assets/c95f0fb7-2923-4b13-b6ba-e0b20348ef98" />
-      </th>
-          <th>
-        담당 기능
-      </th>
-      <td>
-        리뷰 작성/편집/수정/삭제<br />
-        뱃지 부여
-      </td>
-    </tr>
       <tr>
-      <th>
-        <a href="https://github.com/sj71791" target="_blank">이수정 | 팀원</a>
-      </th>
-      <th>
-        UI
-      </th>
-      <td>
-        리뷰  <br />
-      </td>
-    </tr>
-
-  <table style="margin: auto;">
-    <tr>
-      <th>
-        <img width="200" height="480" alt="Image" src="https://github.com/user-attachments/assets/8c1d3270-919a-4f23-992a-494b57eb1345" />
-      </th>
-          <th>
-        담당 기능
-      </th>
-      <td>
-        로그인 / 회원가입 / 비밀번호 찾기 <br />
-        채팅
-      </td>
-    </tr>
+        <td align="center">
+          <div>
+            <img width="150" src="https://github.com/user-attachments/assets/8c1d3270-919a-4f23-992a-494b57eb1345" alt="최영진" /><br/>
+            <a href="https://github.com/JinProjects" target="_blank">최영진 | 팀원</a>
+          </div>
+        </td>
+        <td>
+          로그인 / 회원가입 / 비밀번호 찾기<br />
+          채팅
+        </td>
+        <td>
+          마이페이지 정보 수정<br />
+          로그인 / 회원가입 / 비밀번호 찾기
+        </td>
+      </tr>
       <tr>
-      <th>
-         <a href="https://github.com/JinProjects" target="_blank">최영진 | 팀원</a>  
-      </th>
-      <th>
-        UI
-      </th>
-      <td>
-        메인, 검색  <br />
-        장소 상세보기  <br />
-        경로 추천 / 편집  <br />
-        마이페이지 내 여행 / 장소  <br />
-      </td>
-    </tr>
+        <td align="center">
+          <div>
+            <img width="150" src="https://github.com/user-attachments/assets/f2d3ffa7-4182-4095-a07f-e6d6a2c6e7a4" alt="이예림" /><br/>
+            <a href="https://github.com/dpflaalee" target="_blank">이예림 | 팀원</a>
+          </div>
+        </td>
+        <td>
+          체크리스트 생성/수정/삭제 <br />
+          반려동물 여권 생성/수정/삭제 <br />
+          반려동물 여권 도장 
+        </td>
+        <td>
+          체크리스트 <br />
+          반려동물 여권 / 도장 <br />
+          마이페이지 
+        </td>
+      </tr>
+      <tr>
+        <td align="center">
+          <div>
+            <img width="150" src="https://github.com/user-attachments/assets/62d9a879-0324-41e4-9438-000be664a714" alt="이재명" /><br/>
+            <a href="https://github.com/Lee-jaemyeong" target="_blank">이재명 | 팀원</a>
+          </div>
+        </td>
+        <td>
+          예약<br />
+          결제<br />
+          일괄 예약 / 결제 
+        </td>
+        <td>
+          장소 상세보기 <br />
+          내 예약 내역 <br />
+          결제 내역 <br />
+        </td>
+      </tr>
+      <tr>
+        <td align="center">
+          <div>
+            <img width="150" src="https://github.com/user-attachments/assets/727976bd-3131-488f-8855-9c514c84cce7" alt="이정우" /><br/>
+            <a href="https://github.com/jeongwoo76" target="_blank">이정우 | 팀원</a>
+          </div>
+        </td>
+        <td>
+          NFT 쿠폰 생성/삭제/수정/발급<br />
+          NFT 쿠폰 사용/선물/상세/삭제
+        </td>
+        <td>
+          관리자페이지 쿠폰 관리<br />
+          관리자페이지 리뷰관리 NFT 발급 모달<br />
+          마이페이지 내 쿠폰함
+        </td>
+      </tr>
+    </tbody>
   </table>
+</div>
 
-  <table style="margin: auto;">
-    <tr>
-      <th>
-        <img width="200" height="480" alt="Image" src="https://github.com/user-attachments/assets/f2d3ffa7-4182-4095-a07f-e6d6a2c6e7a4" />
-      </th>
-          <th>
-        담당 기능
-      </th>
-      <td>
-        체크리스트 생성/수정/삭제
-      </td>
-    </tr>
-      <tr>
-      <th>
-        <a href="https://github.com/dpflaalee" target="_blank">이예림 | 팀원 </a>
-      </th>
-      <th>
-        UI
-      </th>
-      <td>
-        체크리스트
-      </td>
-    </tr>
-  </table>
 
-  <table style="margin: auto;">
-    <tr>
-      <th>
-        <img width="200" height="480" alt="Image" src="https://github.com/user-attachments/assets/62d9a879-0324-41e4-9438-000be664a714" />
-      </th>
-          <th>
-        담당 기능
-      </th>
-      <td>
-        예약 <br />
-        결제 <br />
-        일괄 예약 / 결제 <br />
-      </td>
-    </tr>
-      <tr>
-      <th>
-       <a href="https://github.com/Lee-jaemyeong" target="_blank">이재명 | 팀원 </a>
-      </th>
-      <th>
-        UI
-      </th>
-      <td>
-        메인, 검색  <br />
-        장소 상세보기  <br />
-        경로 추천 / 편집  <br />
-        마이페이지 내 여행 / 장소  <br />
-      </td>
-    </tr>
-  </table>
 
-  <table style="margin: auto;">
-    <tr>
-      <th>
-        <img width="200" height="480" alt="Image" src="https://github.com/user-attachments/assets/727976bd-3131-488f-8855-9c514c84cce7" />
-      </th>
-          <th>
-        담당 기능
-      </th>
-      <td>
-        NFT 쿠폰 생성/삭제/수정/발급 <br />
-        NFT 쿠폰 사용/선물/상세/삭제  
-      </td>
-    </tr>
-      <tr>
-      <th>
-         <a href="https://github.com/jeongwoo76" target="_blank">이정우 | 팀원</a>
-      </th>
-      <th>
-        UI
-      </th>
-      <td>
-        관리자페이지 쿠폰관리 <br />
-        관리자페이지 리뷰관리 NFT발급 모달 <br />  
-        마이페이지 내 쿠폰함
-      </td>
-    </tr>
-  </table>
 
 </div>
 
