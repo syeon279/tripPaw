@@ -13,6 +13,7 @@ public class InitAllRunner implements ApplicationRunner {
     private final TemplateDataInitializer templateDataInitializer;
     private final PlaceInitializer placeInitializer;
     private final BadgeInitializer badgeInitializer;
+    private final SealInitializer sealInitializer;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -23,14 +24,13 @@ public class InitAllRunner implements ApplicationRunner {
 
         System.out.println("[INIT] === 초기화 순차 실행 시작 ===");
 
-        // 1. 템플릿 초기화
+        badgeInitializer.run(args.getSourceArgs());
+        
         templateDataInitializer.run(args.getSourceArgs());
 
-        // 2. 장소 초기화
         placeInitializer.run(args);
 
-        // 3. 뱃지 초기화
-        badgeInitializer.run(args.getSourceArgs());
+        sealInitializer.run();
 
         System.out.println("[INIT] === 초기화 완료 ===");
     }

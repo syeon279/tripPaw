@@ -20,7 +20,7 @@ public class PlaceInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws URISyntaxException, InterruptedException {
-        if (args.containsOption("initPlace")) {
+        if (args.containsOption("initAll")) {
             System.out.println("[INFO] 장소 초기화 시작");
             placeApiService.fetchAndSavePetFriendlyPlaces();
             System.out.println("[INFO] 장소 초기화 완료");

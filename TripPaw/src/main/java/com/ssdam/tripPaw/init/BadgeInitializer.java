@@ -8,7 +8,6 @@ import com.ssdam.tripPaw.domain.Badge;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
 @RequiredArgsConstructor
 public class BadgeInitializer implements CommandLineRunner {
     private final BadgeMapper badgeMapper;

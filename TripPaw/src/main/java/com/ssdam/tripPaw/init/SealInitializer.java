@@ -13,14 +13,17 @@ import com.ssdam.tripPaw.place.PlaceTypeMapper;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class SealInitializer {
 	
     private final SealMapper sealMapper;
     private final PlaceTypeMapper placeTypeMapper;
 
-    @PostConstruct
-    public void insertDummySealsOnce() {
+    public SealInitializer(SealMapper sealMapper, PlaceTypeMapper placeTypeMapper) {
+        this.sealMapper = sealMapper;
+        this.placeTypeMapper = placeTypeMapper;
+    }
+    
+    public void run() {
         if (sealMapper.countSealsByName("관광지 도장 A") > 0) {
             System.out.println("도장 더미 이미 존재함, 초기화 생략");
             return;}
