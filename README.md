@@ -61,7 +61,7 @@ Notion, GitHub, KakaoTalk
 #### 이용가이드
 - 초기 데이터가 필요합니다. 자세한 내용을 다음을 참고해주세요.
 
-[👉 초기 데이터 삽입 가이드 바로가기](https://github.com/syeon279/tripPaw/wiki)
+[👉 초기 데이터 삽입 가이드 바로가기]([https://github.com/syeon279/tripPaw/wiki](https://github.com/syeon279/tripPaw/wiki/Data-%EC%82%BD%EC%9E%85-%EA%B0%80%EC%9D%B4%EB%93%9C))
 
 <br />
 <br />
