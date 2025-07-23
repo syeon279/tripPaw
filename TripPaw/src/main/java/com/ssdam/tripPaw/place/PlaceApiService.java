@@ -80,7 +80,7 @@ public class PlaceApiService {
 	}
 
 	public void fetchAndSavePetFriendlyPlaces() throws InterruptedException {
-		int[] areaCodes = {35, 36, 37, 38, 39};
+		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
 //		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
 		/*
 		 

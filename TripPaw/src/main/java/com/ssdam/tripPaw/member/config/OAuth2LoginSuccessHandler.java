@@ -40,14 +40,22 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 	        String refreshToken = jwtProvider.generateRefreshToken(authentication);
 	       // redisUtil.saveRefreshToken(refreshToken, refreshToken, 1209600000L);
 	        // 2. 프론트엔드로 리다이렉트할 URL을 만듭니다. 토큰을 쿼리 파라미터에 담아 보냅니다.
-	        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/")
+	        String profile = System.getProperty("spring.profiles.active", "local"); // 기본값 local
+	        boolean isProd = profile.equals("prod");
+	        
+	        String redirectUrl = isProd
+	                ? "http://3.34.235.202"        // 실제 배포 도메인
+	                : "http://localhost:3000";       // 개발용 주소
+	        
+	        
+	        String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl)
 	                //.queryParam("token", accessToken)
 	                //.queryParam("refreshToken", refreshToken)
 	                .build().toUriString(); 
 	        
 	        ResponseCookie cookie = ResponseCookie.from("jwt", accessToken)
 	                .httpOnly(true)
-	                .secure(false) // 개발 중: http 환경이면 false, 운영에서는 true
+	                .secure(isProd) // 개발 중: http 환경이면 false, 운영에서는 true
 	                .sameSite("Lax")
 	                .path("/")
 	                .maxAge(60 * 60)

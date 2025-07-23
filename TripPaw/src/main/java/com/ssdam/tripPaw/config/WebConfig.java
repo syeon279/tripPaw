@@ -1,33 +1,49 @@
 package com.ssdam.tripPaw.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.CacheControl;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
 
-@Configuration("appWebConfig")
+@Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins(
+                        "http://localhost:3000",
+                        "http://3.34.235.202",       // EC2 IP 주소
+                        "https://your-domain.com"    // 도메인 연결 시
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .exposedHeaders("*")
+                .allowCredentials(true);
+    }
+
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 리뷰 이미지 경로
+        // 리뷰 이미지
         String reviewPath = Paths.get("C:/upload/reviews").toFile().getAbsolutePath();
-        System.out.println("리뷰 이미지 경로: " + reviewPath);  // 디버깅을 위한 출력
         registry.addResourceHandler("/upload/reviews/**")
-                .addResourceLocations("file:///" + reviewPath + "/");  // 'file:///' 세 개의 슬래시 사용
+                .addResourceLocations("file:///" + reviewPath + "/");
 
-
-        // 뱃지 이미지 경로 추가
+        // 뱃지 이미지
         String badgePath = Paths.get("C:/upload/badge").toFile().getAbsolutePath();
-        System.out.println("뱃지 이미지 경로: " + badgePath);  // 디버깅을 위한 출력
         registry.addResourceHandler("/upload/badge/**")
-                .addResourceLocations("file:///" + badgePath + "/");  // 'file:///' 세 개의 슬래시 사용
-        // 멤버 이미지 경로 추가
+                .addResourceLocations("file:///" + badgePath + "/");
+
+        // 멤버 이미지
         String memberPath = Paths.get("C:/upload/memberImg").toFile().getAbsolutePath();
-        System.out.println("멤버 이미지 경로: " + memberPath);  // 디버깅을 위한 출력
         registry.addResourceHandler("/upload/memberImg/**")
-        .addResourceLocations("file:///" + memberPath + "/");  // 'file:///' 세 개의 슬래시 사용
+                .addResourceLocations("file:///" + memberPath + "/");
+
+        // 체크리스트 업로드 경로 (기존 /uploads/** 대응)
+        String checklistUploadPath = Paths.get("C:/upload").toFile().getAbsolutePath();
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:///" + checklistUploadPath + "/");
     }
 }

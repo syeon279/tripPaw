@@ -10,7 +10,7 @@ import com.ssdam.tripPaw.dto.SearchResultDto;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+
 @Controller
 @RequiredArgsConstructor
 public class SearchController {
@@ -26,7 +26,7 @@ public class SearchController {
     	    @RequestParam(defaultValue = "0") int offset, // ⭐ offset 추가
     	    @RequestParam(defaultValue = "0") int tripPlanOffset
     	) {
-    	System.out.println("...............[controller] : keyword=" + keyword + ", region=" + region + ", offset=" + offset + ", tripPlanOffset=" + tripPlanOffset);
+    	//System.out.println("...............[controller] : keyword=" + keyword + ", region=" + region + ", offset=" + offset + ", tripPlanOffset=" + tripPlanOffset);
         return searchService.search(keyword, region, offset, tripPlanOffset); // ✅ 수정
     	}
 }

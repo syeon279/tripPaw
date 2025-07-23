@@ -32,7 +32,7 @@ import com.ssdam.tripPaw.reserv.ReservMapper;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")  // 여기요청오는것 ok
+
 @RestController
 @RequestMapping("/review")
 @RequiredArgsConstructor

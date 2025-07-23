@@ -21,7 +21,6 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/pay/share")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class PayShareController {
 
     private final PayShareService payShareService;
