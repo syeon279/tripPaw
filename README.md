@@ -5,30 +5,57 @@
 
 
 ## 😎 PROJECT INTRO
-<img width="1446" height="808" alt="Image" src="https://github.com/user-attachments/assets/21ca11d7-4f91-49c1-bbbd-eff6c2258386" />
+<div align="center">
+  <img width="900" height="808" alt="Image" src="https://github.com/user-attachments/assets/21ca11d7-4f91-49c1-bbbd-eff6c2258386" />
+</div>
 
+> 처음부터 끝까지, 내 강아지와 함께 하는 여행
 
 <br />
 <br />
 
 
-<br />
-<br />
-
-- TripPaw는 반려동물 동반 여행 경로 추천 사이트입니다.
-- 지역 기반 반려동물이 동반 가능한 장소들만 모아 경로를 추천해줍니다.
-- 사용자가 직접 여행 계획을 세우고, 다른 사람에게 공개할 수 있습니다.
-- 경로 자체에도 리뷰가 가능하며, 여러 사람이 하나의 여행 플랜으로 여행을 다녀올 수 있습니다.
-- 리뷰에는 실제 예약 날짜의 날씨 정보를 연동하여 사용자가 여행을 했을 당시의 날씨를 볼 수 있습니다.
-- 여행 계획에 있는 모든 장소들을 하나하나 예약하는 것이 아닌 버튼 하나로 예약할 수 있습니다.
-- 체크리스트를 생성하여 여행에 필요한 준비물을 챙길 수 있습니다. 
-
+### 프로젝트 정보
+- 프로젝트 이름: TripPaw
+- 개발 인원: 6명
+- 개발 기간: 2025.06.19 ~ 2025.07.17
+- 주요 기능:
+  
+  - [x] 지역 기반, 반려동물이 동반 가능한 장소들만 모아 경로를 추천해줍니다.
+  - [x] 사용자가 직접 여행 계획을 세우고, 다른 사람에게 내가 만든 여행을 공개할 수 있습니다.
+  - [x] 경로 자체에도 리뷰가 가능하며, 여러 사람이 하나의 여행 플랜으로 여행을 다녀올 수 있습니다.
+  - [x] 리뷰에는 실제 예약 날짜의 날씨 정보를 연동하여 사용자가 여행을 했을 당시의 날씨를 확인 할 수 있습니다.
+  - [x] 여행 계획에 있는 모든 장소들을 하나하나 예약하는 것이 아닌 버튼 하나로 예약할 수 있습니다.
+  - [x] 체크리스트를 생성하여 여행에 필요한 준비물을 챙길 수 있습니다.
 
 <br />
 <br />
 
 ## 🛠 기술 스택
+#### Backend:
+- Java11
+- Spring Boot 2.7.14
+- MyBatis 2.3.1
+- redis 2.7.14
+- MySQL 8.0
+- JPA 2.7.14
+- Spring Security 2.7.14
+- OpneAi 2.3.0
+- LomBok 1.18.28
 
+#### Frontend
+- Next.js 15.3.5
+- React 18.20.0
+- WebSocket 1.6.1
+- dnd-kit 6.3.1
+- styled components 5.3.11
+- Antd 4.23.16
+- data-fns 4.1.0
+- Axios 1.9.0
+- Kakao Map API 1.2.0
+
+#### 협업 툴
+Notion, GitHub, KakaoTalk
 
 
 <br />
@@ -165,32 +192,27 @@
 <br />
 <br />
 
-### 🌟 주요기능
+# 🎬  주요기능 영상으로 확인하기
 
-## 1. 경로 추천, 편집, 저장
-
-#### 🎬 시연 영상 보기
+### 1. 경로 추천, 편집, 저장
 
 [![TripPaw 시연 영상](https://github.com/user-attachments/assets/f8d54d29-b318-43eb-afac-5ee99dc58c05)](https://youtu.be/LXcgUj_6oBI?feature=shared)
 
 
 
-## 2. 일괄예약/결제
-
-#### 🎬 시연 영상 보기
+### 2. 일괄예약/결제
 
 [![TripPaw 시연 영상](https://github.com/user-attachments/assets/f8d54d29-b318-43eb-afac-5ee99dc58c05)](https://youtu.be/e_rdrCIfam0)
 
-## 3. 체크리스트
+### 3. 체크리스트
 
-## 4. AI 리뷰 생성
+### 4. AI 리뷰 생성
 
-## 5. NFT
+### 5. NFT
 
-#### 🎬 시연 영상 보기
 [![NFT 시연 영상](https://github.com/user-attachments/assets/3f173be9-4ed1-431f-948b-c23a41413926)](https://youtu.be/i2rlSeZK0rM)
 
 
-## 6. 채팅
+### 6. 채팅
 
 
