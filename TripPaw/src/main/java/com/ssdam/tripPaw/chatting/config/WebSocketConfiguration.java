@@ -28,7 +28,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     	registry.addEndpoint("/ws")
         // [수정된 부분]
         // localhost:3000 CORS 요청을 허용하도록 설정합니다.
-        .setAllowedOriginPatterns("http://localhost:3000")
+        .setAllowedOriginPatterns("http://localhost:3000", "http://3.34.235.202")
         .withSockJS(); // SockJS를 사용하도록 설정
     }
 }

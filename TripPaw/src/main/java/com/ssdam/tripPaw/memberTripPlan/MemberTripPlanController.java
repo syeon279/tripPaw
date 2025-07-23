@@ -33,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/memberTripPlan")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class MemberTripPlanController {
 
     private final MemberTripPlanMapper memberTripPlanMapper;

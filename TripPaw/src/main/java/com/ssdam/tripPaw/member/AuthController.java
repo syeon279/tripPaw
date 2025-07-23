@@ -31,7 +31,7 @@ import com.ssdam.tripPaw.member.util.JwtProvider;
 import com.ssdam.tripPaw.member.util.RedisUtil;
 
 import lombok.RequiredArgsConstructor;
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")  // 쿠키 허용
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")

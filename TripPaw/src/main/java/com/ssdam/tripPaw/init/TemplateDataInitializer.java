@@ -14,8 +14,6 @@ import com.ssdam.tripPaw.review.ReviewTypeMapper;
 
 import lombok.RequiredArgsConstructor;
 
-
-@Component
 @RequiredArgsConstructor
 public class TemplateDataInitializer implements CommandLineRunner {
 	
