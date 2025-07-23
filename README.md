@@ -81,7 +81,7 @@ Notion, GitHub, KakaoTalk
         <td align="center">
           <div>
             <img width="150" src="https://github.com/user-attachments/assets/125bf686-b6bd-4043-ae9d-ba3fd02af207" alt="윤소현" /><br/>
-            <a href="https://github.com/syeon279" target="_blank">윤소현 | 팀장</a>
+            <a href="https://ysh-blue.notion.site/ysh?source=copy_link" target="_blank">윤소현 | 팀장</a>
           </div>
         </td>
         <td>
