@@ -239,4 +239,4 @@ Notion, GitHub, KakaoTalk
 
 ---
 
-[🔼](#-PROJECT-INTRO)
+[🔼 위로 가기 🔼](#-PROJECT-INTRO)
