@@ -216,4 +216,4 @@ Notion, GitHub, KakaoTalk
 
 ### 6. 유저/채팅
 
-[![NFT 시연 영상](https://github.com/user-attachments/assets/3f173be9-4ed1-431f-948b-c23a41413926)](https://youtu.be/Yb4b0vNmzp0?si=x9ghAVkzx0Km6oR8)
+[![유저/채팅 시연 영상](https://i9.ytimg.com/vi_webp/Yb4b0vNmzp0/mq2.webp?sqp=CNSqgsQG-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgXChMMA8=&rs=AOn4CLCknnrwoP-pVKICZVSkIzHL5uxDag)](https://youtu.be/Yb4b0vNmzp0?si=x9ghAVkzx0Km6oR8)
