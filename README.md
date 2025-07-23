@@ -14,7 +14,7 @@
 <br />
 <br />
 
----
+
 
 ## 🚩 목차
 - [프로젝트 정보](#프로젝트-정보)
@@ -22,6 +22,10 @@
 - [이용 가이드](#이용-가이드)
 - [팀원](#-Crew)
 - [주요 기능 시연 영상](#-주요기능-영상으로-확인하기)
+
+<br />
+<br />
+<br />
 
 
 
@@ -235,8 +239,7 @@ Notion, GitHub, KakaoTalk
 [![유저/채팅 시연 영상](https://github.com/user-attachments/assets/bb52b5b1-24e7-4116-a238-3dec79bbbb80)](https://youtu.be/Yb4b0vNmzp0?si=x9ghAVkzx0Km6oR8)
 
 
-
-
----
+<br />
+<br />
 
 [🔼 위로 가기 🔼](#-PROJECT-INTRO)
