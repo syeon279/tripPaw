@@ -58,6 +58,11 @@
 Notion, GitHub, KakaoTalk
 
 
+#### 이용가이드
+- 초기 데이터가 필요합니다. 자세한 내용을 다음을 참고해주세요.
+
+[👉 초기 데이터 삽입 가이드 바로가기](https://github.com/syeon279/tripPaw/wiki)
+
 <br />
 <br />
 
@@ -193,6 +198,7 @@ Notion, GitHub, KakaoTalk
 <br />
 
 # 🎬  주요기능 영상으로 확인하기
+👉 사진을 클릭하면 유튜브로 이동됩니다.
 
 ### 1. 경로 추천, 편집, 저장
 
