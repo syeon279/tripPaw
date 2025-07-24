@@ -218,11 +218,9 @@ Notion, GitHub, KakaoTalk
 
 [![TripPaw 시연 영상](https://github.com/user-attachments/assets/f8d54d29-b318-43eb-afac-5ee99dc58c05)](https://youtu.be/LXcgUj_6oBI?feature=shared)
 
-
-
 ### 2. 일괄예약/결제
 
-[![TripPaw 시연 영상](https://github.com/user-attachments/assets/f8d54d29-b318-43eb-afac-5ee99dc58c05)](https://youtu.be/e_rdrCIfam0)
+[![TripPaw 시연 영상](https://github.com/user-attachments/assets/eb22f50a-270a-4447-b2ac-b17968c76169)](https://youtu.be/e_rdrCIfam0)
 
 ### 3. 체크리스트-여권
 [![TripPaw 시연 영상](https://github.com/user-attachments/assets/0c79e16c-7a89-480a-93ca-9abcbb8add4a)](https://youtu.be/1OsTD4pHRkc)
