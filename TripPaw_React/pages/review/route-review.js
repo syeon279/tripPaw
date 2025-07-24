@@ -21,6 +21,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import styled from 'styled-components';
 import AppLayout from "@/components/AppLayout";
+import { Pagination } from "antd";
 
 const ScrollContainer = styled.div`
   width: 100%;
@@ -43,6 +44,9 @@ const ReviewList = () => {
   const [loading, setLoading] = useState(false);
   const [sort, setSort] = useState("latest");
   const [likeStates, setLikeStates] = useState({});
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [size] = useState(5);
 
   const [memberId, setMemberId] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -69,19 +73,25 @@ const ReviewList = () => {
 
   useEffect(() => {
     if (memberId !== null) {
-      fetchReviews(sort);
+      fetchReviews(sort, page);
     }
-  }, [sort, memberId]);
+  }, [sort, memberId, page]);
 
-  const fetchReviews = async (sortKey = "latest") => {
+  const fetchReviews = async (sortKey = "latest", page = 0, size = 10) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/review/plan?sort=${sortKey}`);
-      const reviews = response.data;
-      setReviews(reviews);
+      const response = await axios.get(`/review/plan`, {
+        params: { sort: sortKey, page, size }
+      });
+
+      console.log("응답 결과", response.data); // 확인용
+
+      const { content = [], totalPages = 0 } = response.data;
+      setReviews(content);
+      setTotalPages(totalPages);
 
       const newStates = {};
-      for (let review of reviews) {
+      for (let review of content) {
         const [likedRes, countRes] = await Promise.all([
           axios.get(`/review/${review.reviewId}/like/marked`, { params: { memberId } }),
           axios.get(`/review/${review.reviewId}/like/count`)
@@ -97,6 +107,7 @@ const ReviewList = () => {
     }
     setLoading(false);
   };
+
 
   const fetchNfts = async () => {
     try {
@@ -198,155 +209,166 @@ const ReviewList = () => {
           {loading ? (
             <Spin tip="리뷰 불러오는 중..." />
           ) : (
-            <List
-              itemLayout="vertical"
-              dataSource={reviews}
-              renderItem={(item) => (
-                <List.Item key={item.reviewId} style={{ borderBottom: "1px solid #ccc", paddingBottom: 24, marginBottom: 32, }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginTop: 8,
-                      marginBottom: 12,
-                    }}
-                  >
-                    {/* 왼쪽: 플랜 제목 */}
+            <>
+              <List
+                itemLayout="vertical"
+                dataSource={reviews}
+                renderItem={(item) => (
+                  <List.Item key={item.reviewId} style={{ borderBottom: "1px solid #ccc", paddingBottom: 24, marginBottom: 32, }}>
                     <div
                       style={{
-                        fontWeight: "bold",
-                        fontSize: 16,
-                        color: "#333",
-                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginTop: 8,
+                        marginBottom: 12,
                       }}
-                      onClick={() => router.push(`/review/tripPlan/${item.tripPlanId}`)}
                     >
-                      📌 여행 플랜: {item.planTitle}
-                    </div>
+                      {/* 왼쪽: 플랜 제목 */}
+                      <div
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          color: "#333",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => router.push(`/review/tripPlan/${item.tripPlanId}`)}
+                      >
+                        📌 여행 플랜: {item.planTitle}
+                      </div>
 
-                    {/* 오른쪽: 별점 + 평균 */}
+                      {/* 오른쪽: 별점 + 평균 */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <Rate
+                          value={item.avgRating}
+                          disabled
+                          style={{ fontSize: 14, lineHeight: 1 }}
+                        />
+                        <div style={{ fontSize: 12, color: "#555", lineHeight: 1 }}>
+                          평균 ★ {item.avgRating?.toFixed(1)}
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        borderTop: "1px solid #eee",
+                        marginTop: 8,
+                        paddingTop: 16,
+                      }}
+                    />
+                    {/* 유저 정보 & 작성일 & 별점 */}
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 6,
+                        marginTop: 12,
                       }}
                     >
-                      <Rate
-                        value={item.avgRating}
-                        disabled
-                        style={{ fontSize: 14, lineHeight: 1 }}
-                      />
-                      <div style={{ fontSize: 12, color: "#555", lineHeight: 1 }}>
-                        평균 ★ {item.avgRating?.toFixed(1)}
+                      <Avatar size={48} />
+                      <div style={{ marginLeft: 12 }}>
+                        <div style={{ fontWeight: 600 }}>{item.memberNickname}</div>
+                        <Rate value={item.rating} disabled style={{ fontSize: 14 }} />
                       </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      borderTop: "1px solid #eee",
-                      marginTop: 8,
-                      paddingTop: 16,
-                    }}
-                  />
-                  {/* 유저 정보 & 작성일 & 별점 */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginTop: 12,
-                    }}
-                  >
-                    <Avatar size={48} />
-                    <div style={{ marginLeft: 12 }}>
-                      <div style={{ fontWeight: 600 }}>{item.memberNickname}</div>
-                      <Rate value={item.rating} disabled style={{ fontSize: 14 }} />
-                    </div>
 
-                    {/* 구분선 및 작성일 정보 */}
-                    <div
-                      style={{
-                        borderLeft: "1px solid #ddd",
-                        marginLeft: 24,
-                        paddingLeft: 24,
-                        fontSize: 12,
-                        color: "#888",
-                      }}
-                    >
-                      작성일: {item.createdAt?.slice(0, 10)}
-                    </div>
-                  </div>
-
-                  {/* 내용 */}
-                  <div
-                    style={{
-                      marginTop: 12,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
-                      width: "100%",
-                    }}
-                  >
-                    {getContent(item)}
-                    {item.content.length > MAX_CONTENT_LENGTH && (
-                      <Button
-                        type="link"
-                        size="small"
-                        icon={<EllipsisOutlined />}
-                        onClick={() => toggleContent(item.reviewId)}
-                      >
-                        {expandedReviewId === item.reviewId ? "접기" : "더보기"}
-                      </Button>
-                    )}
-                  </div>
-
-                  {/* 이미지들 */}
-                  {item.imageUrls && (
-                    <Image.PreviewGroup>
+                      {/* 구분선 및 작성일 정보 */}
                       <div
                         style={{
-                          display: "flex",
-                          gap: 8,
-                          marginTop: 12,
-                          flexWrap: "wrap",
+                          borderLeft: "1px solid #ddd",
+                          marginLeft: 24,
+                          paddingLeft: 24,
+                          fontSize: 12,
+                          color: "#888",
                         }}
                       >
-                        {item.imageUrls.split(",").map((src, idx) => (
-                          <Image
-                            key={idx}
-                            width={120}
-                            height={120}
-                            style={{
-                              objectFit: "cover",
-                              borderRadius: 8,
-                            }}
-                            src={`/upload/reviews/${src}`}
-                          />
-                        ))}
+                        작성일: {item.createdAt?.slice(0, 10)}
                       </div>
-                    </Image.PreviewGroup>
-                  )}
+                    </div>
 
-                  <div style={{ marginTop: 16 }}>
-                    <Button
-                      block
-                      type={likeStates[item.reviewId]?.liked ? "primary" : "default"}
-                      onClick={() => toggleLike(item.reviewId)}
+                    {/* 내용 */}
+                    <div
+                      style={{
+                        marginTop: 12,
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        width: "100%",
+                      }}
                     >
-                      👍 도움이 돼요 {likeStates[item.reviewId]?.count ?? 0}
-                    </Button>
-                  </div>
+                      {getContent(item)}
+                      {item.content.length > MAX_CONTENT_LENGTH && (
+                        <Button
+                          type="link"
+                          size="small"
+                          icon={<EllipsisOutlined />}
+                          onClick={() => toggleContent(item.reviewId)}
+                        >
+                          {expandedReviewId === item.reviewId ? "접기" : "더보기"}
+                        </Button>
+                      )}
+                    </div>
 
-                  {isAdmin && (
-                    <div style={{ marginTop: 12 }}>
-                      <Button block type="dashed" onClick={() => openIssueModal(item.memberNickname)}>
-                        🎁 NFT 발급
+                    {/* 이미지들 */}
+                    {item.imageUrls && (
+                      <Image.PreviewGroup>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: 8,
+                            marginTop: 12,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {item.imageUrls.split(",").map((src, idx) => (
+                            <Image
+                              key={idx}
+                              width={120}
+                              height={120}
+                              style={{
+                                objectFit: "cover",
+                                borderRadius: 8,
+                              }}
+                              src={`/upload/reviews/${src}`}
+                            />
+                          ))}
+                        </div>
+                      </Image.PreviewGroup>
+                    )}
+
+                    <div style={{ marginTop: 16 }}>
+                      <Button
+                        block
+                        type={likeStates[item.reviewId]?.liked ? "primary" : "default"}
+                        onClick={() => toggleLike(item.reviewId)}
+                      >
+                        👍 도움이 돼요 {likeStates[item.reviewId]?.count ?? 0}
                       </Button>
                     </div>
-                  )}
-                </List.Item>
-              )}
-            />
+
+                    {isAdmin && (
+                      <div style={{ marginTop: 12 }}>
+                        <Button block type="dashed" onClick={() => openIssueModal(item.memberNickname)}>
+                          🎁 NFT 발급
+                        </Button>
+                      </div>
+                    )}
+                  </List.Item>
+                )}
+              />
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 24 }}>
+                <Pagination
+                  current={page + 1}          // UI에 표시될 현재 페이지 (1-based)
+                  total={totalPages * size}   // 전체 아이템 수 = 페이지 수 * 페이지당 개수
+                  pageSize={size}             // 페이지당 아이템 수
+                  onChange={(p) => setPage(p - 1)} // 이벤트 핸들러 (0-based로 세팅)
+                  showSizeChanger={false}
+                />
+              </div>
+            </>
           )}
         </ScrollContainer>
 
