@@ -242,6 +242,7 @@ Notion, GitHub, KakaoTalk
 [![TripPaw 시연 영상](https://github.com/user-attachments/assets/0c79e16c-7a89-480a-93ca-9abcbb8add4a)](https://youtu.be/1OsTD4pHRkc)
 
 ### 4. AI 리뷰 생성
+(영상 준비중입니다.)
 
 ### 5. NFT
 
