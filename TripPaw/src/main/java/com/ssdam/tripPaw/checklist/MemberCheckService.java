@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service @RequiredArgsConstructor
 public class MemberCheckService {
 	
-	private final MemberCheckMapper memberCheckMapper;
+    private final MemberCheckMapper memberCheckMapper;
     private final CheckRoutineMapper checkRoutineMapper;
     private final CheckTemplateItemMapper checkTemplateItemMapper;
     
@@ -27,7 +27,7 @@ public class MemberCheckService {
         Long tripPlanId,
         List<Long> templateIds,
         String title,
-        boolean includePersonalRoutine // ✅ 개인 루틴 생성 여부
+        boolean includePersonalRoutine //개인 루틴 생성 여부
     ) {
         List<CheckRoutine> routines = new ArrayList<>();
 
@@ -56,7 +56,7 @@ public class MemberCheckService {
             memberCheckMapper.insertMemberCheck(tripCheck);
         }
 
-        // ✅ 개인 루틴 생성 조건부 처리
+        //개인 루틴 생성 조건부 처리
         if (includePersonalRoutine) {
             CheckRoutine personalRoutine = new CheckRoutine();
             personalRoutine.setTitle(title + " (내 루틴)");
