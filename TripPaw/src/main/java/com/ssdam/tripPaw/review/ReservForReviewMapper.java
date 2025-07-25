@@ -17,8 +17,6 @@ public interface ReservForReviewMapper {
     int countByMemberAndTripPlan(@Param("memberId") Long memberId, @Param("tripPlanId") Long tripPlanId);
     
     List<Reserv> findByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
-    
-//  List<ReservWithReviewDto> findAllWithReviewStatus(Long memberId);
 
     Reserv findReservByMemberAndTripPlan(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
 
