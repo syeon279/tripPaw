@@ -17,11 +17,8 @@ import ScratchCard from "react-scratchcard";
 
 import { motion } from "framer-motion";
 
-
 const { Panel } = Collapse;
 const { Title } = Typography;
-
-
 
 /* ---------- 유틸 ---------- */
 const getValidImageUrl = (url) => {
@@ -49,7 +46,7 @@ const Coupons = () => {
   const [giftModalVisible, setGiftModalVisible] = useState(false);
   const [giftTargetNft, setGiftTargetNft] = useState(null);
   const [giftNickname, setGiftNickname] = useState("");
-  const [giftMessage, setGiftMessage] = useState("");          // ⭐ 메시지 상태 추가
+  const [giftMessage, setGiftMessage] = useState("");         
 
   /* 상세 보기 모달 */
   const [detailModalVisible, setDetailModalVisible] = useState(false);
@@ -170,7 +167,7 @@ useEffect(() => {
     try {
       await axios.post(
         `/api/member-nft/gift/${giftTargetNft.id}`,
-        { message: giftMessage },                                   // ⭐ message body
+        { message: giftMessage },                                  
         {
           params: {
             fromMemberId: memberId,
@@ -233,9 +230,6 @@ const Balloon = ({ children }) => (
     <p>4. 쿠폰 상세 정보에서 발급 이유, 만료일 등을 확인할 수 있습니다.</p>
   </Panel>
 </Collapse>
-
-
-
 
 
         {loading ? (
