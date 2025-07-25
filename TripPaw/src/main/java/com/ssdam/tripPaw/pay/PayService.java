@@ -38,46 +38,6 @@ public class PayService {
     private final TripPlanMapper tripPlanMapper;
     private final ReservService reservService;
 
-//    // 더미 테스트
-//    @Transactional
-//    public Long createDummyTripPlanWithReservs(Member member) {
-//        // 1. TripPlan 생성
-//        TripPlan tripPlan = new TripPlan();
-//        tripPlan.setTitle("테스트 플랜");
-//        tripPlan.setMember(member);
-//        tripPlan.setDays(2);
-//        tripPlan.setCreatedAt(LocalDateTime.now());
-//        tripPlan.setPublicVisible(false);
-//        tripPlan.setImageUrl("https://dummyimage.com/600x400/000/fff&text=DummyPlan");
-//
-//        tripPlanMapper.insertTripPlan(tripPlan);
-//
-//        // 2. Place 더미 연결 (주의: 실제 존재하는 Place ID 사용)
-//        Long dummyPlaceId = 1L; // 테스트할 Place ID
-//
-//        for (int i = 0; i < 2; i++) {
-//            Reserv reserv = new Reserv();
-//            reserv.setStartDate(LocalDate.now().plusDays(i));
-//            reserv.setEndDate(LocalDate.now().plusDays(i + 1));
-//            reserv.setFinalPrice(10000 * (i + 1));
-//            reserv.setOriginalPrice(12000 * (i + 1));
-//            reserv.setCountPeople(2);
-//            reserv.setCountPet(1);
-//            reserv.setState(ReservState.WAITING);
-//            reserv.setCreatedAt(LocalDateTime.now());
-//            reserv.setMember(member);
-//
-//            Place dummyPlace = new Place();
-//            dummyPlace.setId(dummyPlaceId);
-//            reserv.setPlace(dummyPlace);
-//
-//            reserv.setTripPlan(tripPlan);
-//
-//            reservMapper.insert(reserv);
-//        }
-//
-//        return tripPlan.getId();
-//    }
     
     /** 결제 조회 */
     public Pay findById(Long id) {
