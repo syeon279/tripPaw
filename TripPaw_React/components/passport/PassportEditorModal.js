@@ -1,9 +1,9 @@
 //등록/수정 모달
 import React, { useEffect, useState } from 'react';
-import {  createPassport,  updatePassport,  checkPassNumDuplicate,} from '@/api/passportApi';
+import { createPassport, updatePassport, checkPassNumDuplicate, } from '@/api/passportApi';
 import axios from 'axios';
 
-const PassportEditorModal = ({ passport, onClose, onSaved, memberId  }) => {
+const PassportEditorModal = ({ passport, onClose, onSaved, memberId }) => {
   const [form, setForm] = useState({
     petName: '',
     species: '',
@@ -11,7 +11,7 @@ const PassportEditorModal = ({ passport, onClose, onSaved, memberId  }) => {
     petGender: '',
     imageUrl: '',
     passNum: '',
-    member: { id: memberId  }, 
+    member: { id: memberId },
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -24,7 +24,7 @@ const PassportEditorModal = ({ passport, onClose, onSaved, memberId  }) => {
 
       const fullUrl = passport.imageUrl?.startsWith('http')
         ? passport.imageUrl
-        : `http://localhost:8080${passport.imageUrl}`;
+        : passport.imageUrl;
 
       setPreviewUrl(fullUrl);
     }
@@ -33,7 +33,8 @@ const PassportEditorModal = ({ passport, onClose, onSaved, memberId  }) => {
   useEffect(() => {
     if (form.passNum) {
       checkPassNumDuplicate(form.passNum).then((res) => {
-        setIsPassNumValid(!res.data);      });
+        setIsPassNumValid(!res.data);
+      });
     }
   }, [form.passNum]);
 
@@ -120,44 +121,44 @@ const PassportEditorModal = ({ passport, onClose, onSaved, memberId  }) => {
       <div className="passport-overlay">
         <div className="passport-modal">
           {/* <button className="passport-close" onClick={onClose}>×</button> */}
-          <h3 style={{fontWeight:'bold', fontSize:'22px'}}>{passport ? '여권 수정' : '여권 등록'}</h3>
+          <h3 style={{ fontWeight: 'bold', fontSize: '22px' }}>{passport ? '여권 수정' : '여권 등록'}</h3>
 
-          <div style={{display:'flex', justifyContent:'space-between', height:'22em'}}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', height: '22em' }}>
 
-          <div style={{width:'200px', marginRight:'15px'}}>
-            <label></label>
-            <div style={{display:'flex', flexDirection:'column', justifyContent:'space-between', height:'18em'}}>
-              <div style={{height:'100%', backgroundColor:'#eee', width:'100%' }}>{previewUrl && ( <img src={previewUrl} alt="미리보기" style={{ width:'100%', height:'100%', objectFit:'cover'}} /> )}</div>
-              <label htmlFor="file-upload" style={{display: 'inline-block', padding: '10px 20px',  backgroundColor: '#000', color: 'white', borderRadius: '2px',  cursor: 'pointer',  fontWeight: 'bold',textAlign:'center'}}> 이미지 업로드</label>
-              <input  id="file-upload"  type="file"  accept="image/*"  onChange={handleFileChange}  style={{ display: 'none' }}/>
-            </div>            
+            <div style={{ width: '200px', marginRight: '15px' }}>
+              <label></label>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '18em' }}>
+                <div style={{ height: '100%', backgroundColor: '#eee', width: '100%' }}>{previewUrl && (<img src={previewUrl} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />)}</div>
+                <label htmlFor="file-upload" style={{ display: 'inline-block', padding: '10px 20px', backgroundColor: '#000', color: 'white', borderRadius: '2px', cursor: 'pointer', fontWeight: 'bold', textAlign: 'center' }}> 이미지 업로드</label>
+                <input id="file-upload" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+              </div>
+            </div>
+
+            <div style={{ flexGrow: 1 }}>
+              <label>반려동물 이름</label>
+              <input name="petName" value={form.petName} onChange={handleChange} />
+
+              <label>종(species)</label>
+              <input name="species" value={form.species} onChange={handleChange} />
+
+              <label>나이</label>
+              <input name="petAge" type="number" value={form.petAge} onChange={handleChange} />
+
+              <label>성별</label>
+              <select name="petGender" value={form.petGender} onChange={handleChange}>
+                <option value="">선택</option>
+                <option value="암컷">암컷</option>
+                <option value="수컷">수컷</option>
+              </select>
+            </div>
           </div>
 
-          <div style={{flexGrow:1}}>
-            <label>반려동물 이름</label>
-            <input name="petName" value={form.petName} onChange={handleChange} />
-
-            <label>종(species)</label>
-            <input name="species" value={form.species} onChange={handleChange} />
-
-            <label>나이</label>
-            <input name="petAge" type="number" value={form.petAge} onChange={handleChange} />
-
-            <label>성별</label>
-            <select name="petGender" value={form.petGender} onChange={handleChange}>
-              <option value="">선택</option>
-              <option value="암컷">암컷</option>
-              <option value="수컷">수컷</option>
-            </select>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '32px' }}>
+            <button style={{ fontSize: '16px', fontWeight: 'bold', padding: '10px', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              onClick={handleSubmit}>저장</button>
+            <button style={{ fontSize: '16px', fontWeight: 'bold', padding: '10px', backgroundColor: '#fff', border: '2px solid #000', borderRadius: '5px', cursor: 'pointer' }}
+              onClick={onClose}>취소</button>
           </div>
-          </div>
-
-        <div style={{display:'flex', flexDirection:'column', gap:'10px', marginTop:'32px'}}>
-          <button style={{fontSize:'16px', fontWeight:'bold', padding:'10px', backgroundColor:'#000', color:'#fff', border:'none', borderRadius:'5px',cursor:'pointer'}}
-          onClick={handleSubmit}>저장</button>
-          <button style={{fontSize:'16px', fontWeight:'bold', padding:'10px', backgroundColor:'#fff', border:'2px solid #000',borderRadius:'5px', cursor:'pointer'}}
-          onClick={onClose}>취소</button>
-        </div>
 
         </div>
       </div>

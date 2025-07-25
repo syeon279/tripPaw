@@ -32,7 +32,7 @@ const Trips = () => {
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
                 if (response.status === 200) {
@@ -53,8 +53,8 @@ const Trips = () => {
             try {
                 const url =
                     tab === "mytrips"
-                        ? `http://localhost:8080/memberTripPlan/${memberId}/mytrips`
-                        : `http://localhost:8080/tripPlan/${memberId}/trips`;
+                        ? `/memberTripPlan/${memberId}/mytrips`
+                        : `/tripPlan/${memberId}/trips`;
 
                 const response = await axios.get(url);
                 const data = response.data;
@@ -109,8 +109,8 @@ const Trips = () => {
             e.stopPropagation();
             const url =
                 tab === "mytrips"
-                    ? `http://localhost:8080/memberTripPlan/${trip.myTripId}`
-                    : `http://localhost:8080/tripPlan/${trip.id}`;
+                    ? `/memberTripPlan/${trip.myTripId}`
+                    : `/tripPlan/${trip.id}`;
 
             const confirmMessage =
                 tab === "mytrips"
@@ -132,7 +132,7 @@ const Trips = () => {
 
         const requestPublish = async () => {
             try {
-                await axios.put(`http://localhost:8080/tripPlan/${trip.id}/public`);
+                await axios.put(`/tripPlan/${trip.id}/public`);
                 alert("여행이 공개로 전환되었습니다.");
                 setMenuOpen(false);
                 setShowModal(false);

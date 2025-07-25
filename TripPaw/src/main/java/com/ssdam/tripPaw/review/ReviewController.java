@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,10 +30,8 @@ import com.ssdam.tripPaw.domain.TripPlan;
 import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 //import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanReviewDto;
 import com.ssdam.tripPaw.reserv.ReservMapper;
-
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")  // 여기요청오는것 ok
 @RestController
 @RequestMapping("/review")
 @RequiredArgsConstructor
@@ -161,14 +160,21 @@ public class ReviewController {
 
     //관리자페이지 리뷰
     @GetMapping("/admin/plan")
-    public ResponseEntity<List<ReviewPlanDto>> getPlanReviews() {
-        return ResponseEntity.ok(reviewService.getRecommendedPlanReviews());
+    public ResponseEntity<PagedReviewPlanResponse> getPlanReviewsPaged(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(reviewService.getRecommendedPlanReviewsPaged(page, size));
+    }
+    @GetMapping("/admin/place")
+    public ResponseEntity<PagedReviewPlaceResponse> getPlaceReviewsPaged(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(reviewService.getRecommendedPlaceReviewsPaged(page, size));
     }
 
-    @GetMapping("/admin/place")
-    public ResponseEntity<List<ReviewPlaceDto>> getPlaceReviews() {
-        return ResponseEntity.ok(reviewService.getRecommendedPlaceReviews());
-    }
+
     
     
     // 단일리뷰조회
@@ -183,39 +189,46 @@ public class ReviewController {
 
     // 특정회원 리뷰 목록
     @GetMapping("/member/{memberId}")
-    public ResponseEntity<List<MyReviewDto>> getMemberReviews(@PathVariable Long memberId) {
-    	List<MyReviewDto> reviews = reviewService.getMyReviews(memberId);
-        return ResponseEntity.ok(reviews);
-    }
-    
-//    @GetMapping("/place/{placeId}")
-//    public ResponseEntity<List<Review>> getReviewsByPlace(@PathVariable Long placeId) {
-//        return ResponseEntity.ok(reviewService.getReviewsByPlaceId(placeId));
-//    }
-    @GetMapping("/place/{placeId}")
-    public ResponseEntity<List<Review>> getPlaceReviews(
-            @PathVariable Long placeId,
-            @RequestParam(defaultValue = "latest") String sort
+    @ResponseBody
+    public ResponseEntity<PagedResponse<MyReviewDto>> getMemberReviewsPaged(
+            @PathVariable Long memberId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "PLAN") String type
     ) {
-        List<Review> reviews = reviewService.getReviewsByPlaceId(placeId, sort);
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(reviewService.getMyReviewsPaged(memberId, page, size, type));
     }
 
+    
+    @GetMapping("/place/{placeId}")
+    public ResponseEntity<PagedReviewResponse> getPlaceReviews(
+            @PathVariable Long placeId,
+            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PagedReviewResponse response = reviewService.getReviewsByPlaceId(placeId, sort, page, size);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/plan/{planId}")
-    public ResponseEntity<List<ReviewOnePlanDto>> getReviewsByPlan(@PathVariable Long planId) {
-        return ResponseEntity.ok(reviewService.getReviewsByPlanId(planId));
+    public ResponseEntity<PagedReviewPlanResponse<ReviewPlanDto>> getReviewsByPlanPaged(
+        @PathVariable Long planId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(reviewService.getReviewsByPlanIdPaged(planId, page, size));
     }
 
-
-//    @GetMapping("/plan")
-//    public ResponseEntity<List<Review>> getAllPlanReviews() {
-//        return ResponseEntity.ok(reviewService.getAllPlanReviews());
-//    }
     
     @GetMapping("/plan")
-    public ResponseEntity<List<ReviewPlanDto>> getPlanReviews(@RequestParam(defaultValue = "latest") String sort) {
-        return ResponseEntity.ok(reviewService.getPlanReviewsOrdered(sort));
+    public ResponseEntity<PagedReviewPlanResponse<ReviewPlanDto>> getPlanReviewsPaged(
+        @RequestParam(defaultValue = "latest") String sort,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        PagedReviewPlanResponse<ReviewPlanDto> pagedResult = reviewService.getPlanReviewsPaged(sort, page, size);
+        return ResponseEntity.ok(pagedResult);
     }
 
     @PostMapping("/{reviewId}/like")

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import com.ssdam.tripPaw.category.CategoryMapper;
 import com.ssdam.tripPaw.place.PlaceApiService;
 
-@Component
 public class PlaceInitializer implements ApplicationRunner {
 	private final CategoryMapper categoryMapper;
     private final PlaceApiService placeApiService;
@@ -21,7 +20,12 @@ public class PlaceInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws URISyntaxException, InterruptedException {
- 
-        //placeApiService.fetchAndSavePetFriendlyPlaces();
+        if (args.containsOption("initAll")) {
+            System.out.println("[INFO] 장소 초기화 시작");
+            placeApiService.fetchAndSavePetFriendlyPlaces();
+            System.out.println("[INFO] 장소 초기화 완료");
+        } else {
+            System.out.println("[INFO] 장소 초기화 건너뜀");
+        }
     }
 }

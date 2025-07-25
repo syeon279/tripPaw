@@ -121,7 +121,7 @@ function PayBatchPage() {
   useEffect(() => {
     if (!memberTripPlanId) return;
 
-    axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}`, null, {
+    axios.post(`/pay/batch/${memberTripPlanId}`, null, {
       withCredentials: true,
     }).then(res => {
       setTotalAmount(res.data.totalAmount);
@@ -162,7 +162,7 @@ function PayBatchPage() {
       async (rsp) => {
         if (rsp.success) {
           try {
-            await axios.post(`http://localhost:8080/pay/batch/${memberTripPlanId}/verify`,
+            await axios.post(`/pay/batch/${memberTripPlanId}/verify`,
               { impUid: rsp.imp_uid },
               { withCredentials: true });
 

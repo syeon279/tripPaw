@@ -29,7 +29,7 @@ const MyPlaces = () => {
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
 
@@ -52,7 +52,7 @@ const MyPlaces = () => {
     }, [router.isReady, router.query]);
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/favorite/member/place/${memberId}`)
+        axios.get(`/favorite/member/place/${memberId}`)
             .then(res => {
                 const favoritePlaces = Object.values(res.data); // 객체를 배열로 변환
                 setPlaces(favoritePlaces);

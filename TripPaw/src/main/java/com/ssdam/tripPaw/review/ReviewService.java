@@ -227,51 +227,83 @@ public class ReviewService {
     public List<Review> getMemberReviews(Long memberId) {
         return reviewMapper.findByMemberId(memberId);
     }
-    public List<MyReviewDto> getMyReviews(Long memberId) {
-        return reviewMapper.findMyReviewsByMemberId(memberId);
+    
+    public PagedResponse<MyReviewDto> getMyReviewsPaged(Long memberId, int page, int size, String type) {
+        int offset = page * size;
+        List<MyReviewDto> content = reviewMapper.findMyReviewsByMemberIdPaged(memberId, size, offset, type);
+        int total = reviewMapper.countMyReviewsByMemberIdAndType(memberId, type);
+        return new PagedResponse<>(content, total, size);
     }
 
-//    public List<Review> getReviewsByPlaceId(Long placeId) {
-//        return reviewMapper.findByPlaceIdWithPlaceName(placeId);
-//    }
-    public List<Review> getReviewsByPlaceId(Long placeId, String sort) {
-    	if ("likes".equalsIgnoreCase(sort)) {
-            return reviewMapper.findPlaceReviewsOrderByLikesDesc(placeId);
-        }
-        // 기본은 최신순
-        return reviewMapper.findPlaceReviewsOrderByLatest(placeId);
-    }
+    public PagedReviewResponse getReviewsByPlaceId(Long placeId, String sort, int page, int size) {
+        int offset = page * size;
+        List<Review> reviews = reviewMapper.findPlaceReviewsPaged(placeId, sort, size, offset);
+        int total = reviewMapper.countReviewsByPlaceId(placeId);
+        int totalPages = (int) Math.ceil((double) total / size);
 
-    public List<ReviewOnePlanDto> getReviewsByPlanId(Long planId) {
-        return reviewMapper.findByPlanId(planId);
+        return new PagedReviewResponse(reviews, total, totalPages);
     }
-
+    
+    public PagedReviewPlanResponse<ReviewPlanDto> getReviewsByPlanIdPaged(Long planId, int page, int size) {
+        int offset = page * size;
+        List<ReviewPlanDto> content = reviewMapper.findByPlanIdPaged(planId, size, offset);
+        int totalElements = reviewMapper.countReviewsByPlanId(planId);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        Double avgRating = reviewMapper.avgRatingByPlanId(planId);
+        return new PagedReviewPlanResponse(content, totalElements, totalPages, avgRating);
+    }
 
     public List<Review> getAllPlanReviews() {
         return reviewMapper.findAllPlanReviews();
     }
-//    public List<ReviewPlanDto> getLatestPlanReviews() {
-//        return reviewMapper.findAllPlanReviewsOrdered();
-//    }
-    public List<ReviewPlanDto> getPlanReviewsOrdered(String sort) {
+
+    public PagedReviewPlanResponse getPlanReviewsPaged(String sort, int page, int size) {
+        int offset = page * size;
+        List<ReviewPlanDto> reviews;
+        int total;
+
         switch (sort) {
             case "high":
-                return reviewMapper.findAllPlanReviewsOrderByRatingDesc();
+                reviews = reviewMapper.findPlanReviewsByRatingDesc(size, offset);
+                total = reviewMapper.countPlanReviews();
+                break;
             case "low":
-                return reviewMapper.findAllPlanReviewsOrderByRatingAsc();
+                reviews = reviewMapper.findPlanReviewsByRatingAsc(size, offset);
+                total = reviewMapper.countPlanReviews();
+                break;
             case "recommended":
-                return reviewMapper.findAllPlanReviewsOrderByLikesDesc();
+                reviews = reviewMapper.findPlanReviewsByLikesDesc(size, offset);
+                total = reviewMapper.countPlanReviews();
+                break;
             default:
-                return reviewMapper.findAllPlanReviewsOrderByCreatedAtDesc();
+                reviews = reviewMapper.findPlanReviewsByCreatedAtDesc(size, offset);
+                total = reviewMapper.countPlanReviews();
+                break;
         }
+
+        int totalPages = (int) Math.ceil((double) total / size);
+        return new PagedReviewPlanResponse(reviews, total, totalPages, 0.0);
     }
     
-    public List<ReviewPlanDto> getRecommendedPlanReviews() {
-        return reviewMapper.findAllPlanReviewsOrderByLikesDesc();
+    public PagedReviewPlanResponse<ReviewPlanDto> getRecommendedPlanReviewsPaged(int page, int size) {
+        int offset = page * size;
+        List<ReviewPlanDto> content = reviewMapper.findPlanReviewsByLikesDesc(size, offset);
+        int totalElements = reviewMapper.countAllPlanReviews();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return new PagedReviewPlanResponse<>(content, totalElements, totalPages, 0.0);
     }
-    public List<ReviewPlaceDto> getRecommendedPlaceReviews() {
-        return reviewMapper.findAllPlaceReviewsOrderByLikesDesc();
+
+    public PagedReviewPlaceResponse getRecommendedPlaceReviewsPaged(int page, int size) {
+        int offset = page * size;
+        List<ReviewPlaceDto> content = reviewMapper.findPlaceReviewsByLikesDesc(size, offset);
+        int totalElements = reviewMapper.countAllPlaceReviews();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return new PagedReviewPlaceResponse(content, totalElements, totalPages);
     }
+
+
 
     //리뷰수정
     @Transactional

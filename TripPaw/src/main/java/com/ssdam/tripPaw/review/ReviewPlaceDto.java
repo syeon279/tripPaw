@@ -14,4 +14,5 @@ public class ReviewPlaceDto {
     private String imageUrls;
     private int likeCount;
     private String createdAt;
+    private Long memberId;
 }

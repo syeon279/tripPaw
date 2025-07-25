@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import com.ssdam.tripPaw.domain.NftMetadata;
 
-@CrossOrigin(origins = "http://localhost:3000") // 👈 이 줄 추가
+
 @RestController
 @RequestMapping("/admin/metadata")
 @RequiredArgsConstructor

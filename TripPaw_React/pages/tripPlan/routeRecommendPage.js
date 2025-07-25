@@ -90,7 +90,7 @@ const RouteRecommendPage = () => {
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/check', {
+                const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
                 if (response.status === 200) {
@@ -228,7 +228,7 @@ const RouteRecommendPage = () => {
                 mapImage,
                 memberId: effectiveMemberId,
             };
-            await axios.post('http://localhost:8080/memberTripPlan/recommend/save', tripData);
+            await axios.post('/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
             setShowModal(false);
             await router.push('/mypage/trips');
@@ -254,7 +254,7 @@ const RouteRecommendPage = () => {
             routeData,
         };
         try {
-            const res = await axios.post('http://localhost:8080/tripPlan/edit', travelData);
+            const res = await axios.post('/tripPlan/edit', travelData);
             const tripId = res.data?.tripId;
             if (tripId) {
                 router.push({

@@ -18,7 +18,7 @@ import com.ssdam.tripPaw.dto.PlaceSearchDto;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+
 @Controller
 @RequiredArgsConstructor
 public class PlaceController {

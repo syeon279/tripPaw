@@ -68,7 +68,7 @@ const Home = () => {
             setHasSearched(true);
             setSectionIndex(2);
 
-            if (places.length < 5 && tripPlans.length < 5) {
+            if (places.length < 10 && tripPlans.length < 10) {
                 setHasMore(false);
             }
 
@@ -88,7 +88,7 @@ const Home = () => {
             const isBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 100;
             if (isBottom && !isLoading) {
                 console.log('📦 스크롤 맨 아래 도달!');
-                setOffset((prev) => prev + 5);
+                setOffset((prev) => prev + 10);
             }
         };
 

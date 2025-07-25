@@ -123,11 +123,11 @@ const Button = styled.button`
 
 const colors = ['#2196F3', '#32c787', '#00BCD4', '#ff5652', '#ffc107', '#ff85af', '#FF9800', '#39bbb0'];
 const getAvatarColor = (sender) => {
-    let hash = 0;
-    for (let i = 0; i < sender.length; i++) {
-        hash = 31 * hash + sender.charCodeAt(i);
-    }
-    return colors[Math.abs(hash % colors.length)];
+  let hash = 0;
+  for (let i = 0; i < sender.length; i++) {
+    hash = 31 * hash + sender.charCodeAt(i);
+  }
+  return colors[Math.abs(hash % colors.length)];
 };
 
 function ChatRoom() {
@@ -142,51 +142,51 @@ function ChatRoom() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 위한 state
   const [selectedReservId, setSelectedReservId] = useState(null);
   const [selectedMemberIds, setSelectedMemberIds] = useState([]);
-  
+
   const stompClientRef = useRef(null);
   const messageAreaRef = useRef(null);
 
   useEffect(() => {
     if (!roomId) return;
-    
+
     // [수정된 부분] 사용자께서 제공해주신 로그인 확인 로직으로 교체합니다.
     const checkLoginStatus = async () => {
-        try {
-            const response = await axios.get('http://localhost:8080/api/auth/check', {
-                withCredentials: true,
-            });
-            
-            if (response.status === 200) {
-                setIsLoggedIn(true);
-                // 백엔드에서 받은 username으로 상태 업데이트
-                setUsername(response.data.username);
-                return true; // 성공 시 true 반환
-            }
-        } catch (error) {
-            console.error("로그인 상태 확인 실패:", error);
-            alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-            router.push('/member/login');
-            return false; // 실패 시 false 반환
+      try {
+        const response = await axios.get('/api/auth/check', {
+          withCredentials: true,
+        });
+
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+          // 백엔드에서 받은 username으로 상태 업데이트
+          setUsername(response.data.username);
+          return true; // 성공 시 true 반환
         }
+      } catch (error) {
+        console.error("로그인 상태 확인 실패:", error);
+        alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+        router.push('/member/login');
+        return false; // 실패 시 false 반환
+      }
     };
-    
+
     const fetchRoomInfo = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/chat/room/${roomId}`);
-            setRoomTitle(response.data.title);
-        } catch (error) {
-            console.error("채팅방 정보 로딩 실패:", error);
-            alert("채팅방 정보를 불러올 수 없습니다. 채팅 목록으로 이동합니다.");
-            router.push('/chat/chatRooms');
-        }
+      try {
+        const response = await axios.get(`/chat/room/${roomId}`);
+        setRoomTitle(response.data.title);
+      } catch (error) {
+        console.error("채팅방 정보 로딩 실패:", error);
+        alert("채팅방 정보를 불러올 수 없습니다. 채팅 목록으로 이동합니다.");
+        router.push('/chat/chatRooms');
+      }
     };
 
     const fetchInitialData = async () => {
-        const isLoggedIn = await checkLoginStatus();
-        // 로그인이 성공했을 경우에만 채팅방 정보를 가져옵니다.
-        if (isLoggedIn) {
-            fetchRoomInfo();
-        }
+      const isLoggedIn = await checkLoginStatus();
+      // 로그인이 성공했을 경우에만 채팅방 정보를 가져옵니다.
+      if (isLoggedIn) {
+        fetchRoomInfo();
+      }
     };
 
     fetchInitialData();
@@ -204,7 +204,7 @@ function ChatRoom() {
     if (!username || !roomTitle || stompClientRef.current?.connected) return;
 
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS('/ws'),
       onConnect: () => {
         client.subscribe(`/topic/chat/${roomId}`, (payload) => {
           const message = JSON.parse(payload.body);
@@ -216,8 +216,8 @@ function ChatRoom() {
         });
       },
       onStompError: (frame) => {
-          console.error('Broker reported error: ' + frame.headers['message']);
-          console.error('Additional details: ' + frame.body);
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
       },
     });
 
@@ -232,7 +232,7 @@ function ChatRoom() {
       messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
     }
   }, [messages]);
-  
+
   const handleSendMessage = (event) => {
     event.preventDefault();
     const messageContent = newMessage.trim();
@@ -252,11 +252,11 @@ function ChatRoom() {
 
   const handleExitChat = () => {
     if (stompClientRef.current?.connected) {
-        stompClientRef.current.publish({
-            destination: `/app/chat/${roomId}/addUser`,
-            body: JSON.stringify({ sender: username, type: 'LEAVE', roomId }),
-        });
-        stompClientRef.current.deactivate();
+      stompClientRef.current.publish({
+        destination: `/app/chat/${roomId}/addUser`,
+        body: JSON.stringify({ sender: username, type: 'LEAVE', roomId }),
+      });
+      stompClientRef.current.deactivate();
     }
     router.push('/chat/chatRooms');
   };
@@ -277,13 +277,13 @@ function ChatRoom() {
     <PageContainer>
       <ChatContainer>
         <ChatHeader>
-            <h2>{roomTitle}</h2>
-            <MenuIcon onClick={toggleMenu}>≡</MenuIcon>
+          <h2>{roomTitle}</h2>
+          <MenuIcon onClick={toggleMenu}>≡</MenuIcon>
         </ChatHeader>
         <MessageArea ref={messageAreaRef}>
           {messages.map((msg, index) => (
-            <MessageItem 
-              key={index} 
+            <MessageItem
+              key={index}
               className={msg.type !== 'CHAT' ? 'event-message' : (msg.sender === username ? 'my-message' : '')}
             >
               {msg.type === 'CHAT' ? (

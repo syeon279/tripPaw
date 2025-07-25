@@ -8,7 +8,7 @@ export async function getServerSideProps(context) {
   const { memberTripPlanId } = context.query;
 
   try {
-    const res = await axios.get(`http://localhost:8080/reserv/membertripplan/${memberTripPlanId}`);
+    const res = await axios.get(`/reserv/membertripplan/${memberTripPlanId}`);
     const reservList = res.data;
 
     return { props: { reservList } };
@@ -42,28 +42,28 @@ export default function SuccessBatchPage({ reservList }) {
         ))}
       </div>
 
-      <div style={{display:'flex', justifyContent:'space-between', padding: '2.4em 0.8em'}}>
-        <div style={{display:'table', width:'52%'}}>
-          <p style={{display:'table-cell', verticalAlign:'middle', textAlign:'left', fontWeight:'bold'}}>트립포우의 체크리스트 기능을 이용해서 여행을 체계적으로 준비해보세요!</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2.4em 0.8em' }}>
+        <div style={{ display: 'table', width: '52%' }}>
+          <p style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'left', fontWeight: 'bold' }}>트립포우의 체크리스트 기능을 이용해서 여행을 체계적으로 준비해보세요!</p>
         </div>
         <div>
-          <button style={{border:'none', fontWeight:'bold', padding:'1em', borderRadius:'5px'}}
+          <button style={{ border: 'none', fontWeight: 'bold', padding: '1em', borderRadius: '5px' }}
             onClick={() => setModalOpen(true)}>여행 준비하기</button>
         </div>
-          <CheckRoutineModal
-            open={modalOpen}
-            onClose={() => setModalOpen(false)}
-            memberTripPlanId={memberTripPlanId}
-            memberId={memberId}
-          />
-        </div>
+        <CheckRoutineModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          memberTripPlanId={memberTripPlanId}
+          memberId={memberId}
+        />
+      </div>
 
       <div style={{ marginTop: 40, display: 'flex', justifyContent: 'space-between', gap: 20 }}>
-        <div style={{flexGrow:1, border:'1px solid #000', padding:'1em',  borderRadius:'5px'}}>
-          <Link href="/" style={{ color:'#000', fontWeight:'bold', fontSize:'16px'}}>메인으로</Link>
+        <div style={{ flexGrow: 1, border: '1px solid #000', padding: '1em', borderRadius: '5px' }}>
+          <Link href="/" style={{ color: '#000', fontWeight: 'bold', fontSize: '16px' }}>메인으로</Link>
         </div>
-        <div style={{flexGrow:1, border:'1px solid #000', padding:'1em', backgroundColor:'#000', borderRadius:'5px'}}>
-          <Link href="/mypage/reserv/reservlist" style={{ color:'#fff', fontWeight:'bold', fontSize:'16px'}}>예약 내역</Link>
+        <div style={{ flexGrow: 1, border: '1px solid #000', padding: '1em', backgroundColor: '#000', borderRadius: '5px' }}>
+          <Link href="/mypage/reserv/reservlist" style={{ color: '#fff', fontWeight: 'bold', fontSize: '16px' }}>예약 내역</Link>
         </div>
       </div>
 

@@ -28,10 +28,6 @@ import com.ssdam.tripPaw.payapi.IamportPayService;
 import com.ssdam.tripPaw.reserv.ReservService;
 import com.ssdam.tripPaw.reserv.ReservState;
 
-@CrossOrigin(
-		  origins = "http://localhost:3000",
-		  allowCredentials = "true"
-		)
 @RestController
 @RequestMapping("/pay")
 public class PayController {

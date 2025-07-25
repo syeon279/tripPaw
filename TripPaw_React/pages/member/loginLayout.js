@@ -230,7 +230,7 @@ function LoginPage({ children }) {
   const handleSubmit = async (event) => {
     event.preventDefault(); // 폼 기본 제출 동작 방지
     console.log('Login attempt with:', { username, password });
-    const loginSubmit = await axios.post(`http://localhost:8080/api/auth/login`, {
+    const loginSubmit = await axios.post(`/api/auth/login`, {
       username: username,
       password: password
     }, {

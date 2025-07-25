@@ -28,7 +28,7 @@ import com.ssdam.tripPaw.member.util.JwtProvider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+
 @Controller
 @Slf4j
 @RequiredArgsConstructor

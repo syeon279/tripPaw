@@ -13,10 +13,6 @@ import com.ssdam.tripPaw.domain.Category;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(
-	    origins = "http://localhost:3000",
-	    allowCredentials = "true" 
-	)
 @RestController
 @RequiredArgsConstructor
 public class CategroryController {

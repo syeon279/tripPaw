@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, Button, Row, Col, Popconfirm, message } from 'antd';
 import axios from 'axios';
 
-const IMAGE_BASE_URL = 'http://localhost:8080/upload/badge/';
+const IMAGE_BASE_URL = '/upload/badge/';
 
 const BadgeList = ({ badges, onEdit, onDeleteSuccess }) => {
   const handleDelete = async (id) => {

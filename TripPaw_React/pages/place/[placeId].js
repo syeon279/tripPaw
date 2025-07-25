@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import PetAssistant from '../../components/pet/petassistant';
 import styled from 'styled-components';
 import AppLayout from '@/components/AppLayout';
-import { Tabs, Rate, Avatar, Button, Spin } from 'antd';
+import { Tabs, Rate, Avatar, Button, Spin, Pagination } from 'antd';
 import {
   SunOutlined,
   // CloudOutlined,
@@ -150,6 +150,22 @@ const TabsSection = styled.div`
   border:'2px solid red';
 `;
 
+const ReviewScrollWrapper = styled.div`
+  max-height: calc(100vh - 350px);
+  overflow-y: auto;
+  padding-right: 8px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+  }
+  scrollbar-width: thin;
+  padding-bottom: 100px;
+`;
+
 const PlaceReservCreatePage = () => {
   const router = useRouter();
   const [place, setPlace] = useState(null);
@@ -174,6 +190,11 @@ const PlaceReservCreatePage = () => {
   // 상태 변수
   const [pendingAction, setPendingAction] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [pageSize] = useState(10);
+
 
   ////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
@@ -198,8 +219,8 @@ const PlaceReservCreatePage = () => {
 
       try {
         const [placeRes, disabledDatesRes] = await Promise.all([
-          axios.get(`http://localhost:8080/place/${id}`),
-          axios.get(`http://localhost:8080/reserv/disabled-dates?placeId=${id}`),
+          axios.get(`/place/${id}`),
+          axios.get(`/reserv/disabled-dates?placeId=${id}`),
         ]);
 
         setPlace(placeRes.data);
@@ -247,7 +268,7 @@ const PlaceReservCreatePage = () => {
   useEffect(() => {
     const fetchUserAndPlaceMeta = async () => {
       try {
-        const authRes = await axios.get('http://localhost:8080/api/auth/check', {
+        const authRes = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
         const userId = authRes.data.id;
@@ -255,10 +276,10 @@ const PlaceReservCreatePage = () => {
         setIsLoggedIn(true);
 
         const [canWriteRes, favoriteRes] = await Promise.all([
-          axios.get(`http://localhost:8080/review/reserv/check`, {
+          axios.get(`/review/reserv/check`, {
             params: { memberId: userId, placeId },
           }),
-          axios.get(`http://localhost:8080/favorite/check`, {
+          axios.get(`/favorite/check`, {
             params: {
               memberId: userId,
               targetId: placeId,
@@ -304,9 +325,9 @@ const PlaceReservCreatePage = () => {
       };
 
       if (newFavorite) {
-        await axios.post(`http://localhost:8080/favorite/add`, payload);
+        await axios.post(`/favorite/add`, payload);
       } else {
-        await axios.delete(`http://localhost:8080/favorite/delete`, { data: payload });
+        await axios.delete(`/favorite/delete`, { data: payload });
       }
 
       // 서버 재확인 생략 가능 (성공 응답만 받으면 됨)
@@ -346,7 +367,7 @@ const PlaceReservCreatePage = () => {
     };
 
     try {
-      const res = await axios.post('http://localhost:8080/reserv', payload);
+      const res = await axios.post('/reserv', payload);
       alert('예약 성공! 🎉');
       router.push({
         pathname: '/pay/pay',
@@ -381,18 +402,23 @@ const PlaceReservCreatePage = () => {
     executeReservation(memberId); // ✅ 인자 전달
   };
 
+useEffect(() => {
+  console.log('avgRating:', avgRating);         // 실제 렌더되는 값
+  console.log('백엔드에서 받은 reviews:', reviews);
+  
+}, [avgRating, reviews]);
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const authRes = await axios.get('http://localhost:8080/api/auth/check', {
+        const authRes = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
         const userId = authRes.data.id;
         setMemberId(userId);             // ✅ 이걸 먼저 설정하고
         setIsLoggedIn(true);
 
-        const reservRes = await axios.get(`http://localhost:8080/review/reserv/check`, {
+        const reservRes = await axios.get(`/review/reserv/check`, {
           params: { memberId: userId, placeId },
         });
         setCanWriteReview(reservRes.data === true);
@@ -430,31 +456,34 @@ const PlaceReservCreatePage = () => {
 
 
   // 리뷰
-  const fetchReviews = async (placeId, memberId, sort = 'latest') => {
+  const fetchReviews = async (placeId, memberId, sort = 'latest', page = 0) => {
     if (!placeId) return;
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8080/review/place/${placeId}`, {
-        params: { sort },
+      const res = await axios.get(`/review/place/${placeId}`, {
+        params: {
+          sort,
+          page,
+          size: pageSize,
+        },
       });
-      const reviews = res.data;
-      setReviews(reviews);
 
-      if (reviews.length > 0) {
-        const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-        setAvgRating(Number(avg.toFixed(1)));
-        setReviewCount(reviews.length);
-      }
+      const { content, totalElements, totalPages, avgRating } = res.data;
+
+      setReviews(content);
+      setTotalElements(totalElements);
+      setAvgRating(avgRating);
+      setReviewCount(totalElements); // 전체 리뷰 수로 수정
 
       const newLikeStates = {};
-      for (let review of reviews) {
+      for (let review of content) {
         const likePromise = memberId
-          ? axios.get(`http://localhost:8080/review/${review.id}/like/marked`, {
-            params: { memberId },
-          })
+          ? axios.get(`/review/${review.id}/like/marked`, {
+              params: { memberId },
+            })
           : Promise.resolve({ data: false });
 
-        const countPromise = axios.get(`http://localhost:8080/review/${review.id}/like/count`);
+        const countPromise = axios.get(`/review/${review.id}/like/count`);
 
         const [likedRes, countRes] = await Promise.all([likePromise, countPromise]);
 
@@ -470,11 +499,12 @@ const PlaceReservCreatePage = () => {
     }
     setLoading(false);
   };
+
   useEffect(() => {
     if (placeId) {
-      fetchReviews(placeId, memberId || null); // 로그인 안 해도 null로 호출
+      fetchReviews(placeId, memberId || null, sortKey, currentPage);
     }
-  }, [placeId, memberId]);
+  }, [placeId, memberId, sortKey, currentPage]);
 
 
   /////////////////////////////////////////////////////
@@ -487,7 +517,7 @@ const PlaceReservCreatePage = () => {
 
     try {
       const liked = likeStates[reviewId]?.liked;
-      const url = `http://localhost:8080/review/${reviewId}/like`;
+      const url = `/review/${reviewId}/like`;
 
       if (liked) {
         await axios.delete(url, {
@@ -524,7 +554,7 @@ const PlaceReservCreatePage = () => {
     setShowLoginModal(false);
 
     try {
-      const res = await axios.get('http://localhost:8080/api/auth/check', {
+      const res = await axios.get('/api/auth/check', {
         withCredentials: true,
       });
 
@@ -629,7 +659,6 @@ const PlaceReservCreatePage = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '80%' }}>
                       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, justifyContent: 'space-between', marginRight: '10px' }}>
                         <div style={{ border: 'none' }}>
-                          <Rate value={avgRating} disabled />
                           <span style={{ marginLeft: 8 }}>{avgRating}</span>
                           <span style={{ marginLeft: 12, color: '#888' }}>리뷰 {reviewCount}개</span>
                         </div>
@@ -640,66 +669,36 @@ const PlaceReservCreatePage = () => {
                             type="text"
                             onClick={() => {
                               setSortKey('latest');
-                              fetchReviews(placeId, memberId, 'latest');
+                              setCurrentPage(0);
                             }}
-                            //style={{ border: 'none' }}
                             style={{
                               borderBottom: sortKey === 'latest' ? '2px solid black' : 'none'
                             }}
                           >
                             최신순으로
                           </Button>
+
                           <Button
                             type="text"
                             onClick={() => {
                               setSortKey('likes');
-                              fetchReviews(placeId, memberId, 'likes');
+                              setCurrentPage(0);
                             }}
-                            //style={{ border: 'none' }}
-                            style={{ borderBottom: sortKey === 'likes' ? '2px solid black' : 'none' }}
+                            style={{
+                              borderBottom: sortKey === 'likes' ? '2px solid black' : 'none'
+                            }}
                           >
                             추천순으로
                           </Button>
                         </div>
                         <div style={{ border: 'none' }}>
-                          {isLoggedIn && canWriteReview && (
-                            <Button
-                              //type="primary"
-                              onClick={async () => {
-                                try {
-                                  const res = await axios.get('http://localhost:8080/review/reserv/place', {
-                                    params: { memberId, placeId },
-                                  });
-
-                                  const reservId = res.data;
-
-                                  router.push({
-                                    pathname: '/review/write',
-                                    query: {
-                                      targetId: reservId,               // 예약 ID
-                                      reservId,
-                                      reviewTypeId: 2,       // 장소 리뷰
-                                      placeName: place.name,
-                                      placeImage: place.imageUrl,
-                                    },
-                                  });
-                                } catch (err) {
-                                  console.error('예약 ID 가져오기 실패:', err);
-                                  message.error('예약 정보를 찾을 수 없습니다.');
-                                }
-                              }}
-                              style={{ marginBottom: 0, backgroundColor: 'black', color: 'white' }}
-                            >
-                              리뷰 작성하기
-                            </Button>
-                          )}
                         </div>
                       </div>
                     </div>
                     {loading ? (
                       <Spin tip="리뷰 불러오는 중..." />
                     ) : (
-                      <ScrollContainer>
+                      <ReviewScrollWrapper>
                         {reviews.map(r => (
                           <div key={r.id} style={{ marginBottom: 24, borderBottom: '1px solid #eee', paddingBottom: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -729,7 +728,7 @@ const PlaceReservCreatePage = () => {
                                 {r.reviewImages.map((img) => (
                                   <img
                                     key={img.id}
-                                    src={`http://localhost:8080/upload/reviews/${img.imageUrl}`}
+                                    src={`/upload/reviews/${img.imageUrl}`}
                                     alt={img.originalFileName}
                                     style={{
                                       width: 120,
@@ -756,7 +755,16 @@ const PlaceReservCreatePage = () => {
                             </Button>
                           </div>
                         ))}
-                      </ScrollContainer>
+                        <Pagination
+                          current={currentPage + 1}
+                          pageSize={10}
+                          total={totalElements} // <= 이 값이 0이면 페이지 버튼 안 나옴
+                          onChange={(page) => setCurrentPage(page - 1)}
+                          style={{ textAlign: 'center', marginTop: 24 }}
+                          showLessItems
+                          showSizeChanger={false}
+                        />
+                      </ReviewScrollWrapper>
                     )}
                   </TabPane>
                 </Tabs>

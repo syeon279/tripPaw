@@ -40,7 +40,7 @@ const DutchPayJoinPage = () => {
 
   // 로그인 유저 정보 가져오기
   useEffect(() => {
-    axios.get('http://localhost:8080/api/auth/check', { withCredentials: true })
+    axios.get('/api/auth/check', { withCredentials: true })
       .then(res => setMember(res.data))
       .catch(() => alert('로그인이 필요합니다.'));
   }, []);
@@ -48,14 +48,14 @@ const DutchPayJoinPage = () => {
   // 예약 정보 불러오기
   useEffect(() => {
     if (!reservId) return;
-    axios.get(`http://localhost:8080/reserv/${reservId}`)
+    axios.get(`/reserv/${reservId}`)
       .then(res => setReserv(res.data));
   }, [reservId]);
 
   // 참가자 목록 불러오기
   useEffect(() => {
     if (!reservId) return;
-    axios.get(`http://localhost:8080/pay/share/dutch/participants/${reservId}`)
+    axios.get(`/pay/share/dutch/participants/${reservId}`)
       .then(res => {
         // 응답 데이터가 배열인지 확인하고, 아니면 빈 배열로 초기화
         const data = Array.isArray(res.data.participants) ? res.data.participants : [];
@@ -73,23 +73,23 @@ const DutchPayJoinPage = () => {
   const handleJoin = () => {
     const token = localStorage.getItem('accessToken'); // ✅ JWT 꺼내기
 
-    axios.post(`http://localhost:8080/pay/share/dutch/join/${reservId}`, null, {
+    axios.post(`/pay/share/dutch/join/${reservId}`, null, {
       withCredentials: true,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}` // 또는 쿠키 등에서 읽은 토큰
       }
     })
-    .then(() => {
-      setSuccess(true);
-      setParticipants(prev => [...prev, member]); // 참가자 목록에 추가
-    })
-    .catch(err => {
-      if (err.response?.status === 409) {
-        setAlreadyJoined(true);
-      } else {
-        alert('참가 실패: ' + err.response?.data?.message);
-      }
-    });
+      .then(() => {
+        setSuccess(true);
+        setParticipants(prev => [...prev, member]); // 참가자 목록에 추가
+      })
+      .catch(err => {
+        if (err.response?.status === 409) {
+          setAlreadyJoined(true);
+        } else {
+          alert('참가 실패: ' + err.response?.data?.message);
+        }
+      });
   };
 
   return (

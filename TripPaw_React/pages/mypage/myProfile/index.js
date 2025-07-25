@@ -50,7 +50,7 @@ const Profile = () => {
       if (!memberId) return;
 
       try {
-        const response = await axios.get('http://localhost:8080/api/member/total-points', {
+        const response = await axios.get('/api/member/total-points', {
           params: { memberId },
           withCredentials: true,
         });
@@ -67,7 +67,7 @@ const Profile = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/auth/check', {
+        const response = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
 
@@ -226,7 +226,7 @@ const Profile = () => {
     }
     setIsDisabled(false);
 
-    const response = await axios.post(`http://localhost:8080/api/sms/send/${phoneNum}`, {}, {
+    const response = await axios.post(`/api/sms/send/${phoneNum}`, {}, {
       withCredentials: true,
     });
     // const response = await axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
@@ -322,11 +322,11 @@ const Profile = () => {
     console.log("memberId==", memberId)
     if (memberId) {
       const profileImageResponse = async () => {
-        const response = await axios.get(`http://localhost:8080/api/auth/getProfileImage?id=${memberId}`
+        const response = await axios.get(`/api/auth/getProfileImage?id=${memberId}`
           , { withCredentials: true })
         const imgname = response.data.src;
         console.log("profileImage=", response.data.src);
-        setProfileImageFile(`http://localhost:8080/upload/memberImg/${imgname}`);
+        setProfileImageFile(`/upload/memberImg/${imgname}`);
         profileImageResponse();
       }
     }
@@ -426,7 +426,7 @@ const Profile = () => {
     formData.append("provider", "nomal");
     console.log(`imageFormData111=`, formData);
 
-    const response = await axios.post('http://localhost:8080/api/auth/update',
+    const response = await axios.post('/api/auth/update',
       formData
       , {
         headers: {

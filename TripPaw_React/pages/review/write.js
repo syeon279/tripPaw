@@ -30,7 +30,7 @@ const ReviewForm = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/auth/check', {
+        const response = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
         setMemberId(response.data.id);
@@ -68,7 +68,7 @@ const ReviewForm = () => {
 
     const type = reviewTypeId === 1 ? 'PLAN' : 'PLACE';
 
-    axios.get('http://localhost:8080/review/weather', {
+    axios.get('/review/weather', {
       params: { type, targetId },
     })
       .then((res) => setWeather(res.data))
@@ -87,7 +87,7 @@ const ReviewForm = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8080/review/generate", { keywords });
+      const res = await axios.post("/review/generate", { keywords });
       setContent(res.data.content);
       message.success("AI 리뷰가 생성되었습니다.");
     } catch (err) {
@@ -98,7 +98,7 @@ const ReviewForm = () => {
 
   useEffect(() => {
     if (reviewTypeId === 1 && targetId) {
-      axios.get(`http://localhost:8080/tripPlan/${targetId}`)
+      axios.get(`/tripPlan/${targetId}`)
         .then((res) => {
           setDays(res.data.days);  // days 값 가져오기
         })
@@ -134,7 +134,7 @@ const ReviewForm = () => {
     });
 
     try {
-      await axios.post('http://localhost:8080/review/write', formData, {
+      await axios.post('/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
@@ -183,7 +183,7 @@ const ReviewForm = () => {
     });
 
     try {
-      await axios.post('http://localhost:8080/review/write', formData, {
+      await axios.post('/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
@@ -209,7 +209,7 @@ const ReviewForm = () => {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {reviewTypeId === 2 && placeImage && (
             <img
-              src={placeImage.startsWith("http") ? placeImage : `http://localhost:8080${placeImage}`}
+              src={placeImage.startsWith("http") ? placeImage : placeImage}
               alt="장소 이미지"
               style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, marginRight: 12 }}
             />
