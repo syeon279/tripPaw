@@ -6,7 +6,6 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import ChatMenu from '../../../components/chat/ChatMenu';
 
-// --- 스타일 컴포넌트 (이전과 동일) ---
 const PageContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -149,7 +148,6 @@ function ChatRoom() {
   useEffect(() => {
     if (!roomId) return;
 
-    // [수정된 부분] 사용자께서 제공해주신 로그인 확인 로직으로 교체합니다.
     const checkLoginStatus = async () => {
       try {
         const response = await axios.get('/api/auth/check', {
@@ -158,7 +156,6 @@ function ChatRoom() {
 
         if (response.status === 200) {
           setIsLoggedIn(true);
-          // 백엔드에서 받은 username으로 상태 업데이트
           setUsername(response.data.username);
           return true; // 성공 시 true 반환
         }
@@ -183,7 +180,6 @@ function ChatRoom() {
 
     const fetchInitialData = async () => {
       const isLoggedIn = await checkLoginStatus();
-      // 로그인이 성공했을 경우에만 채팅방 정보를 가져옵니다.
       if (isLoggedIn) {
         fetchRoomInfo();
       }
@@ -198,8 +194,6 @@ function ChatRoom() {
     };
   }, [roomId, router]);
 
-  // ... (나머지 코드는 이전과 동일) ...
-  // 사용자 이름과 방 제목이 설정되면 웹소켓 연결
   useEffect(() => {
     if (!username || !roomTitle || stompClientRef.current?.connected) return;
 
