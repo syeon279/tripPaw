@@ -12,8 +12,6 @@ public class MyReviewDto {
     private String createdAt;
     private String reviewType; // PLAN or PLACE
     private String tripTitle;
-//    private Date tripStartDate;
-//    private Date tripEndDate;
     private String imageUrl;
     private int imageCount;
     private String weatherCondition;
