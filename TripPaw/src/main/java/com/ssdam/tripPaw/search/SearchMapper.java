@@ -11,13 +11,12 @@ import com.ssdam.tripPaw.domain.TripPlan;
 @Mapper
 public interface SearchMapper {
 
-    // ✅ 1단계: 장소 ID 조회 (LIMIT + OFFSET)
+    //장소 ID 조회 (LIMIT + OFFSET)
     List<Long> findPlaceIdsByKeyword(Map<String, Object> paramMap);
 
-    // ✅ 2단계: ID 기반 장소 정보 조회
+    //ID 기반 장소 정보 조회
     List<Place> findPlacesByIds(List<Long> ids);
 
-    // ✅ 여행도 2단계로 분리
     List<Long> findTripPlanIdsByKeyword(Map<String, Object> paramMap);
 
     List<TripPlan> findTripPlansByIds(List<Long> ids);
