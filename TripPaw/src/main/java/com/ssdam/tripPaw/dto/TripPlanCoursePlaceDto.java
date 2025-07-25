@@ -31,6 +31,7 @@ public class TripPlanCoursePlaceDto {
     private int day;
 
     public Reserv toReserv(Member member, Place place, ReservMapper reservMapper, TripPlanMapper tripPlanMapper) {
+        
         // memberTripPlanId를 통해 실제 MemberTripPlan을 조회
         MemberTripPlan memberTripPlan = reservMapper.findMemberTripPlanById(this.memberTripPlanId);
         TripPlan tripPlan = tripPlanMapper.findById(this.originTripPlanId);
