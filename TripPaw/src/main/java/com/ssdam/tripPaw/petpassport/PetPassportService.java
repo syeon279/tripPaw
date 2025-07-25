@@ -15,9 +15,9 @@ import lombok.RequiredArgsConstructor;
 @Service @RequiredArgsConstructor
 public class PetPassportService  {
 	
-	private final PetPassportMapper petPassportMapper;
+    private final PetPassportMapper petPassportMapper;
 
-	//여권생성
+    //여권생성
     public void createPassport(PetPassport passport) {
     	String passNum;
         do {
