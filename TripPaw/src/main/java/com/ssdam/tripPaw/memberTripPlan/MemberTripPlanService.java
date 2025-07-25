@@ -47,88 +47,89 @@ public class MemberTripPlanService {
 	
 	@Value("${upload.directory:C:/upload/tripThumbnails/}")
 	private String uploadDir;
-
+	
 	//경로 삭제하기
-    public void deleteMemberTripPlan(Long id) {
-        int result = memberTripPlanMapper.delete(id);
-        if (result == 0) {
-            throw new IllegalArgumentException("삭제할 여행이 존재하지 않습니다. ID: " + id);
-        }
-    }
+	public void deleteMemberTripPlan(Long id) {
+		int result = memberTripPlanMapper.delete(id);
+		if (result == 0) {
+		    throw new IllegalArgumentException("삭제할 여행이 존재하지 않습니다. ID: " + id);
+		}
+	}
 	
 	// 다른 유저의 TripPlan을 memberTripPlan으로 저장
-    public void saveMemberTripPlan(MemberTripPlanSaveRequest request) {
-        // 1. 기존 저장 여부 확인
-        boolean alreadyExists = memberTripPlanMapper.existsByMemberIdAndTripPlanId(
-            request.getMemberId(), request.getTripPlanId()
-        );
-        if (alreadyExists) {
-            throw new IllegalStateException("이미 저장한 여행입니다.");
-        }
-
-        // 2. 예약 날짜 겹침 확인
-        if (isOverlappingWithReservedDates(
-                request.getTripPlanId(),
-                LocalDate.parse(request.getStartDate()),
-                LocalDate.parse(request.getEndDate()))
-        ) {
-            throw new IllegalStateException("해당 여행은 일부 날짜가 예약되어 저장할 수 없습니다.");
-        }
-
-        // 3. 저장 로직
-        Member member = new Member();
-        member.setId(request.getMemberId());
-
-        TripPlan tripPlan = new TripPlan();
-        tripPlan.setId(request.getTripPlanId());
-
-        MemberTripPlan entity = MemberTripPlan.builder()
-            .member(member)
-            .tripPlan(tripPlan)
-            .startDate(LocalDate.parse(request.getStartDate()))
-            .endDate(LocalDate.parse(request.getEndDate()))
-            .countPeople(request.getCountPeople())
-            .countPet(request.getCountPet())
-            .titleOverride(request.getTitleOverride())
-            .createdAt(LocalDateTime.now())
-            .build();
-
-        memberTripPlanMapper.insertMemberTripPlan(entity);
-    }
-
-    private boolean isOverlappingWithReservedDates(Long tripPlanId, LocalDate newStart, LocalDate newEnd) {
-    	List<Map<String, Object>> reservedRanges = reservMapper.findReservedRangesByTripPlanId(tripPlanId);
-
-    	for (Map<String, Object> range : reservedRanges) {
-    	    java.sql.Date sqlStart = (java.sql.Date) range.get("start_date");
-    	    java.sql.Date sqlEnd = (java.sql.Date) range.get("end_date");
-
-    	    LocalDate start = sqlStart.toLocalDate();
-    	    LocalDate end = sqlEnd.toLocalDate();
-
-    	    if (!(newEnd.isBefore(start) || newStart.isAfter(end))) {
-    	        return true;
-    	    }
-    	}
-
-        return false;
-    }
-
-
+	public void saveMemberTripPlan(MemberTripPlanSaveRequest request) {
+		// 1. 기존 저장 여부 확인
+		boolean alreadyExists = memberTripPlanMapper.existsByMemberIdAndTripPlanId(
+		    request.getMemberId(), request.getTripPlanId()
+		);
+		if (alreadyExists) {
+		    throw new IllegalStateException("이미 저장한 여행입니다.");
+		}
+	
+		// 2. 예약 날짜 겹침 확인
+		if (isOverlappingWithReservedDates(
+			request.getTripPlanId(),
+			LocalDate.parse(request.getStartDate()),
+			LocalDate.parse(request.getEndDate()))
+		) {
+		    throw new IllegalStateException("해당 여행은 일부 날짜가 예약되어 저장할 수 없습니다.");
+		}
+	
+		// 3. 저장 로직
+		Member member = new Member();
+		member.setId(request.getMemberId());
+		
+		TripPlan tripPlan = new TripPlan();
+		tripPlan.setId(request.getTripPlanId());
+		
+		MemberTripPlan entity = MemberTripPlan.builder()
+		    .member(member)
+		    .tripPlan(tripPlan)
+		    .startDate(LocalDate.parse(request.getStartDate()))
+		    .endDate(LocalDate.parse(request.getEndDate()))
+		    .countPeople(request.getCountPeople())
+		    .countPet(request.getCountPet())
+		    .titleOverride(request.getTitleOverride())
+		    .createdAt(LocalDateTime.now())
+		    .build();
+		
+		memberTripPlanMapper.insertMemberTripPlan(entity);
+		
+	}
+	
+	private boolean isOverlappingWithReservedDates(Long tripPlanId, LocalDate newStart, LocalDate newEnd) {
+		List<Map<String, Object>> reservedRanges = reservMapper.findReservedRangesByTripPlanId(tripPlanId);
+		
+		for (Map<String, Object> range : reservedRanges) {
+		    java.sql.Date sqlStart = (java.sql.Date) range.get("start_date");
+		    java.sql.Date sqlEnd = (java.sql.Date) range.get("end_date");
+		
+		    LocalDate start = sqlStart.toLocalDate();
+		    LocalDate end = sqlEnd.toLocalDate();
+		
+		    if (!(newEnd.isBefore(start) || newStart.isAfter(end))) {
+			return true;
+		    }
+		}
+	
+		return false;
+	}
+	
+	
 	// 특정 유저의 내 여행(TripPlan) 목록 조회
 	@Transactional(readOnly = true)
 	public List<MyTripsDto> getMyTripsByMember(Long memberId) {
 		List<MemberTripPlan> myTrips = memberTripPlanMapper.findByMemberId(memberId);
 		List<MyTripsDto> result = new ArrayList<>();
-
+	
 		for (MemberTripPlan mtp : myTrips) {
 			if (mtp == null || mtp.getTripPlan() == null)
 				continue;
-
+	
 			TripPlan tripPlan = mtp.getTripPlan();
-
+	
 			List<TripPlanCourse> tripPlanCourses = tripPlan.getTripPlanCourses();
-
+	
 			// 대표 이미지 설정
 			String imageUrl = null;
 			/*
@@ -136,7 +137,7 @@ public class MemberTripPlanService {
 			 * firstCourse = tripPlanCourses.get(0); Place place = firstCourse.getPlace();
 			 * if (place != null) { imageUrl = place.getImageUrl(); } }
 			 */
-
+	
 			MyTripsDto dto = new MyTripsDto();
 			dto.setMyTripId(mtp.getId());
 			dto.setMemberId(memberId);
@@ -149,10 +150,10 @@ public class MemberTripPlanService {
 			dto.setCreatedAt(tripPlan.getCreatedAt());
 			dto.setImageUrl(imageUrl);
 			dto.setTripPlanCourses(tripPlanCourses != null ? tripPlanCourses : new ArrayList<>());
-
+	
 			result.add(dto);
 		}
-
+	
 		return result;
 	}
 	
@@ -169,12 +170,12 @@ public class MemberTripPlanService {
 			member.setId(request.getMemberId());
 			tripPlan.setMember(member);
 			tripPlanMapper.insertTripPlan(tripPlan);
-
+	
 			for (TripSaveRequest.RouteDay routeDay : request.getRouteData()) {
 				Route route = new Route();
 				route.setName(request.getTitle() + "_" + routeDay.getDay() + "일차");
 				tripPlanMapper.insertRoute(route);
-
+	
 				AtomicInteger sequence = new AtomicInteger(1);
 				for (TripSaveRequest.PlaceDto placeDto : routeDay.getPlaces()) {
 					Place place = new Place();
@@ -185,13 +186,13 @@ public class MemberTripPlanService {
 					routePlace.setSequence(sequence.getAndIncrement());
 					tripPlanMapper.insertRoutePlace(routePlace);
 				}
-
+	
 				TripPlanCourse course = new TripPlanCourse();
 				course.setTripPlan(tripPlan);
 				course.setRoute(route);
 				tripPlanMapper.insertTripPlanCourse(course);
 			}
-
+	
 			MemberTripPlan memberTripPlan = new MemberTripPlan();
 			memberTripPlan.setMember(member);
 			memberTripPlan.setTripPlan(tripPlan);
@@ -204,7 +205,7 @@ public class MemberTripPlanService {
 			memberTripPlan.setCountPet(request.getCountPet());
 			memberTripPlan.setImageUrl(imagePath);
 			memberTripPlanMapper.insert(memberTripPlan);
-
+	
 		} catch (Exception e) {
 			throw new RuntimeException("여행 저장 실패", e);
 		}
