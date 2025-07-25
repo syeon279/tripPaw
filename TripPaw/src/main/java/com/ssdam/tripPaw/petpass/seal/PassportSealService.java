@@ -12,21 +12,21 @@ import lombok.RequiredArgsConstructor;
 public class PassportSealService {
 	
 	private final PassportSealMapper passportSealMapper;
-
-    public void addPassportSeal(PassportSeal passportSeal) {
-        passportSealMapper.insert(passportSeal);
-    }
-
-    public PassportSeal getPassportSeal(Long id) {
-        return passportSealMapper.findById(id);
-    }
-
-    public List<PassportSeal> getPassportSealsByPassportId(Long passportId) {
-        return passportSealMapper.findByPassportId(passportId);
-    }
-
-    public void deletePassportSeal(Long id) {
-        passportSealMapper.delete(id);
-    }
+	
+	public void addPassportSeal(PassportSeal passportSeal) {
+		passportSealMapper.insert(passportSeal);
+	}
+	
+	public PassportSeal getPassportSeal(Long id) {
+		return passportSealMapper.findById(id);
+	}
+	
+	public List<PassportSeal> getPassportSealsByPassportId(Long passportId) {
+		return passportSealMapper.findByPassportId(passportId);
+	}
+	
+	public void deletePassportSeal(Long id) {
+		passportSealMapper.delete(id);
+	}
 
 }
