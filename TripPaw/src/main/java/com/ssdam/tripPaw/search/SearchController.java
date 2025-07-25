@@ -25,7 +25,6 @@ public class SearchController {
     	    @RequestParam(defaultValue = "0") int offset, //offset 추가
     	    @RequestParam(defaultValue = "0") int tripPlanOffset
     	) {
-    	//System.out.println("...............[controller] : keyword=" + keyword + ", region=" + region + ", offset=" + offset + ", tripPlanOffset=" + tripPlanOffset);
         return searchService.search(keyword, region, offset, tripPlanOffset); 
     	}
 }
