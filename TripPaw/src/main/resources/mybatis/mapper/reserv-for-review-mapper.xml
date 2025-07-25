@@ -225,10 +225,4 @@
 		AND mtp.member_id = #{memberId}
 	</select>
 
-
-
-
-
-	<!-- <select id="countByMemberAndPlace" resultType="int"> SELECT COUNT(*) 
-		FROM reserv WHERE member_id = #{memberId} AND place_id = #{placeId} </select> -->
 </mapper>
