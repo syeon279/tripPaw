@@ -30,7 +30,4 @@ public class ChatRoomMemberService {
 		return chatRoomMemberMapper.updateChatRoomMember(chatRoomMember);
 	}
 	
-//	public ChatRoomMember findChatRoomMemberByMemberIdAndChatRoomId(ChatRoomMember chatRoomMember) {
-//		return chatRoomMemberMapper.findStatusByMemberIdAndChatRoomId(chatRoomMember);
-//	}
 }
