@@ -44,19 +44,19 @@ public class MemberTripPlanController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTripPlan(@PathVariable Long id) {
     	memberTripPlanService.deleteMemberTripPlan(id);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build(); 
     }
     
     
     // 여행 경로 추천 받기 -> 저장하기
     @PostMapping("/recommend/save")
     public ResponseEntity<String> saveTrip(@RequestBody TripSaveRequest request) {
-    	System.out.println("🔵 요청 도착: " + request.getTitle());
+    	System.out.println("요청 도착: " + request.getTitle());
         try {
         	memberTripPlanService.saveMemberTrip(request);
-            return ResponseEntity.ok("✅ 여행 저장 완료!");
+            return ResponseEntity.ok("여행 저장 완료!");
         } catch (Exception e) {
-            String msg = "❌ 여행 저장 실패: " + e.getMessage();
+            String msg = "여행 저장 실패: " + e.getMessage();
             System.err.println(msg);
             return ResponseEntity.internalServerError().body(msg);
         }
@@ -67,10 +67,10 @@ public class MemberTripPlanController {
     public ResponseEntity<String> saveMemberTripPlan(@RequestBody MemberTripPlanSaveRequest request) {
         try {
             memberTripPlanService.saveMemberTripPlan(request);
-            return ResponseEntity.ok("✅ 내 여행으로 저장 완료");
+            return ResponseEntity.ok(" 내 여행으로 저장 완료");
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("❌ 저장 실패: " + e.getMessage());
+            return ResponseEntity.status(500).body(" 저장 실패: " + e.getMessage());
         }
     }
     
@@ -102,7 +102,7 @@ public class MemberTripPlanController {
 
         List<RouteDayDto> routeData = new ArrayList<>();
 
-        // ✅ TripPlanCourse 하나 = 하루
+        //TripPlanCourse 하나 = 하루
         List<TripPlanCourse> courses = plan.getTripPlan().getTripPlanCourses();
         for (int i = 0; i < courses.size(); i++) {
             TripPlanCourse course = courses.get(i);
@@ -130,7 +130,7 @@ public class MemberTripPlanController {
         return ResponseEntity.ok(dto);
     }
     
-    // 특정 유저의 내 여행  목록 (/memberTripPlan/{id}/mytrips)
+    // 특정 유저의 내 여행  목록
     @GetMapping("/{id}/mytrips")
     public ResponseEntity<List<MyTripsDto>> getMyTrips(@PathVariable Long id) {
     	List<MyTripsDto> dtos = memberTripPlanService.getMyTripsByMember(id);
