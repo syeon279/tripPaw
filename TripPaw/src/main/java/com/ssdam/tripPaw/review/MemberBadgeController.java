@@ -21,13 +21,14 @@ public class MemberBadgeController {
 	private final BadgeMapper badgeMapper;
 	
 	@GetMapping
-    public List<Badge> getAllBadges() {
-        return badgeMapper.findAll();
-    }
+	public List<Badge> getAllBadges() {
+		return badgeMapper.findAll();
+	}
 	
 	@GetMapping("/{memberId}")
-    public ResponseEntity<List<Badge>> getMemberBadges(@PathVariable Long memberId) {
-        List<Badge> badges = reviewService.getBadgesByMemberId(memberId);
-        return ResponseEntity.ok(badges);
-    }
+	public ResponseEntity<List<Badge>> getMemberBadges(@PathVariable Long memberId) {
+		List<Badge> badges = reviewService.getBadgesByMemberId(memberId);
+		return ResponseEntity.ok(badges);
+	}
+	
 }
