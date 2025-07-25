@@ -45,21 +45,17 @@ public class ChatRoomController {
 	    public ResponseEntity<?> roomEnter(@PathVariable Long id, Model model) {
 	        log.info("채팅방 입장 요청. Room ID: {}", id);
 
-	        // roomId로 채팅방 정보를 찾습니다.
 	        ChatRoom room = chatRoomService.findRoomById(id);
 	        System.out.println("room입장:"+(room==null));
-	        // 만약 존재하지 않는 방이라면, 목록 페이지로 돌려보냅니다.
+
 	        if (room==null) {
-//	            log.warn("존재하지 않는 채팅방입니다. Room ID: {}", id);
-//	            return "redirect:/chat/rooms";
 	        	return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "존재하지 않는 채팅방입니다."));
 	        }
 
-	        // JSP에 방 정보를 전달합니다.
+	        // JSP에 방 정보를 전달
 	        model.addAttribute("room", room);
 	        
-	        // 사용자가 닉네임을 입력하고 채팅을 시작할 페이지를 반환합니다.
 	        //return "room"; // /WEB-INF/views/room.jsp
 	        return ResponseEntity.ok(room);
 	    }
@@ -68,17 +64,17 @@ public class ChatRoomController {
 	@GetMapping("/rooms")
 	public ResponseEntity<?> room(Model model, HttpServletRequest request,@CookieValue(value = "jwt", required = false) String token){
 		if (token == null || jwtProvider.isExpired(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             					.body(Map.of("error", "로그인이 필요합니다."));
 			
-        }
-		//model.addAttribute("rooms",chatRoomService.chatRoomList());
+        	}
+		
 		 List<ChatRoom> roomList = chatRoomService.chatRoomList();
-		model.addAttribute("ChatRoomForm",new ChatRoomForm());
-		//Map<String, String> token = (Map<String, String>) model.getAttribute("token");
-	    System.out.println("roomsToken=" + token);
-		//return "room-list";
-	    return ResponseEntity.ok(roomList);
+		 model.addAttribute("ChatRoomForm",new ChatRoomForm());
+		
+	   	 System.out.println("roomsToken=" + token);
+		
+	    	return ResponseEntity.ok(roomList);
 	}
 	
 	@PostMapping("/rooms")
@@ -86,7 +82,8 @@ public class ChatRoomController {
 		  if (token == null || jwtProvider.isExpired(token)) {
 	            // 토큰이 없거나 만료되었으면 401 Unauthorized 응답
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-	        }
+	          }
+		
 		String username = jwtProvider.getUsername(token);
 		Member member = memberService.findByUsername(username);
 		
@@ -99,7 +96,7 @@ public class ChatRoomController {
 		System.out.println("createRoom="+createRoom.getId());
 		
 		chatRoomMemberService.insertChatRoomMember(member,chatRoom,ChatRole.ADMIN,ChatRoomMemberStatus.ACTIVE);
-		//return "redirect:/chat/rooms";
+
 		return ResponseEntity.ok().body(Map.of(
 	            "message", "chatRoom생성 성공"
 	        ));
