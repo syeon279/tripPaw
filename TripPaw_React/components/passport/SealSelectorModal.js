@@ -7,7 +7,6 @@ const SealSelectorModal = ({ passportId, review, tripPlanId, onClose, onSaved })
   const [selectedSealId, setSelectedSealId] = useState(null);
 
   useEffect(() => {
-    console.log('TripPlanId...:', tripPlanId, 'passportId...:', passportId);
     if (tripPlanId && passportId) {
       axios.get(`/api/seals/tripplan/trip/${tripPlanId}/passport/${passportId}`)
         .then((res) => setSeals(res.data))
