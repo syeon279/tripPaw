@@ -32,7 +32,7 @@ public class PlaceController {
 	public String showTripRecommendationPage(Model model) {
 		List<Category> categories = categoryService.findAll();
 		model.addAttribute("categories", categories);
-	return "trip/recommend"; // 예: templates/trip/recommend.html 또는 .jsp
+	return "trip/recommend";
 	}
 	
 	//해당 장소 상세 페이지
