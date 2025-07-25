@@ -54,7 +54,6 @@ const Profile = () => {
           params: { memberId },
           withCredentials: true,
         });
-        //console.log("총 포인트 조회 결과:", response.data.totalPoints);
         setTotalPoints(response.data.totalPoints);
       } catch (error) {
         console.error("포인트 조회 실패:", error);
@@ -71,15 +70,8 @@ const Profile = () => {
           withCredentials: true,
         });
 
-        // if(response.data.auth !== ''){
-        //   alert('일반회원만 수정해주세요!');
-        //   router.push('/mypage')
-        //   return;
-        // }
         if (response.status === 200) {
           setIsLoggedIn(true);
-          //console.log('id=', response.data.id);
-
           setMemberId(response.data.id)
           setNickname(response.data.nickname);
           setUseremail(response.data.useremail);
@@ -100,7 +92,6 @@ const Profile = () => {
     };
     checkLoginStatus();
   }, [])
-  //const [password, setChangePassword] = userInput(''); 
   const onChangeNickname = useCallback((e) => {
     setNickname(e.target.value)
   }, [])
@@ -111,34 +102,23 @@ const Profile = () => {
     setUsername(e.target.value);
 
   }, [])
+  
   const [phoneNumRegError, setPhoneNumRegError] = useState(false);
   const [phoneNumLenError, setPhoneNumLenError] = useState(false);
   const onChangePhoneNum = useCallback((e) => {
     setPhoneNumRegError(false);
     setPhoneNumLenError(false);
-    console.log(e.target.value);
-    //숫자만 받기
     setChangePhoneNum(e.target.value);
   }, []);
 
-
-  // const [nickname, setChangeNickname] = useState('');
-  // const onChangeNickname = useCallback((e) => {
-  //   setChangeNickname(e.target.value);
-
-  // },[])
-  const [password, setChangePassword] = useState('');   // userInput  줄이기
+  const [password, setChangePassword] = useState('');   
   const [passwordError, setPasswordError] = useState(false);
-  //const [passwordRegError, setPasswordRegError] = useState(false);
   const onChangePassword = useCallback((e) => {
     const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
     const pass = e.target.value;
-    console.log('changePassword', e.target.value);
-    // if(!passRegex.test(password)){
-    //   setChangePassword(true);
-    // }
     setChangePassword(e.target.value);
   }, [password]);
+  
   const [passwordRe, setChangePasswordRe] = useState('');
   const [passwordReError, setPasswordReError] = useState(false);
   const onChangePasswordRe = useCallback((e) => {
@@ -146,12 +126,6 @@ const Profile = () => {
     setChangePasswordRe(e.target.value);
   }, []);
 
-  // const [check, setCheck] = useState('');
-  // const [checkError, setCheckError] = useState(false);
-  // const onChangeCheck = useCallback((e) => {   //console.log(e.target.checked);
-  //   setCheck(e.target.checked);     // true
-  //   setCheckError(false);
-  // } , []);
   function sleep(sec) {
     return new Promise(resolve => setTimeout(resolve, sec * 1000));
   }
@@ -162,36 +136,11 @@ const Profile = () => {
   const [errTimeout, setErrTimeout] = useState(false);
   const [authenticationNum, setAuthenticationNum] = useState();
   const [isDisabled, setIsDisabled] = useState(true);
-  //const [isStopTimer, setIsStopTimer] = useState(false);
   const isStopTimer = useRef(false);
   const [isdupTimer, setIsdupTimer] = useState(false);
   const [btnDisabled, setBtnDisabled] = useState(false);
   const imageInput = useRef();
   let stopTimer = false;
-  // const timer = async () => {
-  //   let initMinute = 1;
-  //   let seconds = 10;
-  //   for(let minute = initMinute-1; minute >= 0; minute--){
-  //       for(seconds; seconds >= 0; seconds--){
-  //         if(isStopTimer.current) return;
-  //         await sleep(1);
-  //         setMinute(minute)
-  //         setSeconds((String(seconds).length<2 ? '0'+seconds:seconds))
-  //         setTimerFlag(true);
-  //         //console.log('time=',minute+':'+(String(seconds).length<2 ? '0'+seconds:seconds));
-  //       }
-  //       seconds = 59;
-  //       if(minute == 0){
-  //         setErrTimeout(true);
-  //         setIsdupTimer(false);
-  //         //setIsStopTimer(false);
-  //         isStopTimer.current = false;
-  //         setIsDisabled(true);
-  //         setBtnDisabled()
-  //         console.log('에러');
-  //       }
-  //     }
-  //   };
   const timerInterval = useRef(null);  // 새 ref 추가
 
   const timer = () => {
@@ -218,9 +167,9 @@ const Profile = () => {
       totalSeconds--;
     }, 1000);
   };
+  
   const btnSendAuthenticationNumber = useCallback(async () => {
     if (phoneNum === null || String(phoneNum).length != 11) {
-      console.log('오류');
       alert('휴대폰번호를 확인해주세요');
       return;
     }
@@ -229,35 +178,21 @@ const Profile = () => {
     const response = await axios.post(`/api/sms/send/${phoneNum}`, {}, {
       withCredentials: true,
     });
-    // const response = await axios.post(`http://localhost:3065/user/sms/${phoneNum}`,{},{
-    //   withCredentials: true,
-    // });
 
-    //const {num} = response.data;
-    console.log('response=', response.data.code);
     setAuthenticationNum(response.data.code);
-    //setStopTimer(prev => !prev);
     if (isdupTimer) { return; }
-    //setStopTimer(true); 
     setIsdupTimer(true);
     timer();
-
-    //setTime(setTimeout( ),10000);
   }, [phoneNum, minute, seconds, authenticationNum])
 
   const [authenNum, setChangeAuthenNum] = useState('');
   const [authenNumError, setAuthenNumError] = useState(false);
   const onChangeAuthenNum = useCallback((e) => {
-    console.log('인증번호=', authenticationNum);
-    console.log('authenNum=', authenNum);
-
     setChangeAuthenNum(e.target.value);
   }, [authenNum]);
 
   const [errAuthenNum, setErrAuthenNum] = useState(false);
   const btnAuthenticationChk = useCallback(() => {
-    console.log('클릭인증번호', typeof authenticationNum);
-    console.log('클릭', typeof Number(authenNum));
     setErrTimeout(false);
     //인증번호가 같지 않으면
     if (Number(authenticationNum) !== Number(authenNum)) {
@@ -268,7 +203,6 @@ const Profile = () => {
       setIsDisabled(true);
       setErrTimeout(false);
       setErrAuthenNum(false);
-      //setIsStopTimer(true);
       isStopTimer.current = true;
       clearInterval(timerInterval.current);
     }
@@ -317,9 +251,8 @@ const Profile = () => {
     return router.back();
   }
   const [imgFile, setImgFile] = useState("");
-  const [profileImageFile, setProfileImageFile] = useState(null); // ✅ 전송용 파일 객체를 저장할 state 추가
+  const [profileImageFile, setProfileImageFile] = useState(null); //전송용 파일 객체를 저장할 state 추가
   useEffect(() => {
-    console.log("memberId==", memberId)
     if (memberId) {
       const profileImageResponse = async () => {
         const response = await axios.get(`/api/auth/getProfileImage?id=${memberId}`
@@ -331,22 +264,12 @@ const Profile = () => {
       }
     }
   }, [memberId])
-  useEffect(() => {
-    // 이 console.log는 state가 성공적으로 변경된 후에만 호출됩니다.
-    console.log('✅ useEffect에서 확인한 profileImageFile:', profileImageFile);
-
-    // 만약 파일 객체가 있다면, 파일 이름도 출력해볼 수 있습니다.
-    if (profileImageFile) {
-      console.log('✅ 파일 이름:', profileImageFile.name);
-    }
-  }, [profileImageFile]); // <-- 의존성 배열에 감시할 state를 넣어줍니다.
+  
   const [uploadFile, setUploadFile] = useState(null);
-  //////이미지 미리보기
+  
+  //////
   const saveImgFile = useCallback((e) => {
-    console.log('.........saveImage', e.target.files[0]);
-    console.log('.........saveImage', imageInput.current.files[0]);
     const file = e.target.files[0];
-    console.log("file=", file)
     setUploadFile(file);
 
     const reader = new FileReader();
@@ -357,42 +280,28 @@ const Profile = () => {
   }, [imgFile]);
 
   const onChangeImage = useCallback((e) => {
-    console.log('이미지변경');
-    console.log(`.....`, e.target.files);
     const imageFormData = new FormData();
 
     [].forEach.call(e.target.files, (f) => {
       console.log('filetext=', f)
       return imageFormData.append('profileImage', f);
     });
-    console.log(`imageFormData111=`, imageFormData);
-    //   Array.from(e.target.files).forEach((f) => {
-    //     console.log('array');
-    //     console.log(f);
-    //     imageFormData.append('image', f);
-    // });
-  }, []);
   const onClickImageUpload = useCallback(() => {
     imageInput.current?.click();
   }, [imageInput.current]);
   const onSubmitForm = useCallback(async (e) => {
-    //e.preventDefault();
     setPhoneNumLenError(false);
     setPhoneNumRegError(false);
     setPasswordError(false);
     setPasswordReError(false);
     const passRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
-    //const pass = e.target.value;
     const invalidRegex = /[0-9]+/g;
     const invalidStrRegex = /[^0-9]+/g;
-    console.log('password', password);
-    console.log('passwordRe', passwordRe);
     if (!(phoneNum.length >= 0 && phoneNum.length <= 11)) {
       setPhoneNumLenError(true);
       return;
     }
 
-    ///const cleanNumber = number.replace(invalidRegex,'');
     //일단 전화번호를 11자리 받으면 검사하기
     if (invalidStrRegex.test(phoneNum)) {
       setPhoneNumRegError(true);
@@ -403,19 +312,13 @@ const Profile = () => {
       return;
     }
     if (password !== passwordRe) { return setPasswordReError(true); }
-    console.log('zonecode=', zonecode);
 
-    // console.log('이미지변경');
-    // console.log(`.....`,e.target.files);
     const formData = new FormData();
     alert('profileImageFile=', profileImageFile.name);
     if (profileImageFile) {
       formData.append('profileImage', uploadFile);
     }
-    //   [].forEach.call(e.target.files, (f)=>{
-    //     console.log('filetext=',f)
-    //      return imageFormData.append('profileImage',f);
-    //  });
+
     formData.append("username", username);
     formData.append("useremail", useremail);
     formData.append("nickname", nickname);
@@ -439,11 +342,6 @@ const Profile = () => {
 
     router.push('/');
 
-    // return dispatch({
-    //   type: SIGN_UP_REQUEST, 
-    //   data:{ username, phoneNum, email, password, nickname  }
-    // }); 
-    // 5. dispatch ###
   }, [username, phoneNum, useremail, password, passwordRe, nickname, profileImageFile, zonecode, roadAddress, namujiAddress]);
   return (
     <MypageLayout >
@@ -455,13 +353,7 @@ const Profile = () => {
           </Head>
           <div style={{ width: '100%', maxWidth: "70%", margin: '0 auto' }}>
             <Form layout='vertical' style={{ width: '100%', padding: '20px', boxSizing: 'border-box', }} onFinish={onSubmitForm}  >
-
-              {/* <Form  layout='vertical'  style={{ margin:'2%' }}  > */}
-              {/* <Form.Item>
-            <label htmlFor='email'></label>
-            <UnderlineInput placeholder='이메일' id='email'
-                value={useremail} onChange={onChangeEmail}    name='email' required />
-          </Form.Item> */}
+  
               <Form.Item>
                 <label htmlFor='username'></label>
                 <UnderlineInput placeholder='이름' id='username'
@@ -484,16 +376,6 @@ const Profile = () => {
                   value={passwordRe} onChange={onChangePasswordRe} name='passwordRe' required />
                 {passwordReError && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
               </Form.Item>
-              {/* <Form.Item>
-            <div style={{display:'flex'}}>
-                <label htmlFor='phone'></label>
-                <UnderlineInput placeholder='휴대폰' id='phone'
-                    value={phoneNum} onChange={onChangePhoneNum}    name='phone' required />
-                <Button onClick={btnSendAuthenticationNumber}>인증번호 전송</Button>
-              </div>
-                {phoneNumRegError   && <ErrorMessage>휴대전화번호: 휴대전화번호가 정확한지 확인해 주세요.</ErrorMessage>}
-                {phoneNumLenError   && <ErrorMessage>휴대전화번호: 11자리까지 입력가능합니다.</ErrorMessage>}
-          </Form.Item> */}
 
               <Form.Item>
                 <div style={{ display: 'flex' }}>
@@ -503,6 +385,7 @@ const Profile = () => {
                   <Button onClick={handleClick}>우편번호 찾기</Button>
                 </div>
               </Form.Item>
+                      
               <Form.Item>
                 <div style={{ display: 'flex' }}>
                   <label htmlFor='phone'></label>
@@ -510,6 +393,7 @@ const Profile = () => {
                     value={roadAddress} onChange={onChangeRoadAddress} name='roadAddress' readOnly />
                 </div>
               </Form.Item>
+                      
               <Form.Item>
                 <div style={{ display: 'flex' }}>
                   <label htmlFor='phone'></label>
@@ -517,6 +401,7 @@ const Profile = () => {
                     value={namujiAddress} onChange={onChangeNamujiAddress} name='namujiAddress' />
                 </div>
               </Form.Item>
+
               {/* 총 포인트 추가 */}
               <Form.Item>
                 <Card style={{ width: '100%', marginBottom: 20 }}>
@@ -528,10 +413,10 @@ const Profile = () => {
                   )}
                 </Card>
               </Form.Item>
+                  
               <Form.Item>
                 <div style={{ display: 'flex' }}>
                   <label htmlFor='phone'></label>
-
                   <Avatar
                     size={{
                       xs: 24,
@@ -544,20 +429,6 @@ const Profile = () => {
                     src={profileImageFile}
                     icon={<AntDesignOutlined />}
                   />
-
-                  {/* <Avatar
-                      size={{
-                        xs: 24,
-                        sm: 32,
-                        md: 40,
-                        lg: 64,
-                        xl: 80,
-                        xxl: 100,
-                      }}
-                      src={(profileImageFile) && profileImageFile !== 'null' && profileImageFile !== 'undefined' ? `http://localhost:8080/upload/memberImg/${profileImageFile}` : null}
-                      icon={<AntDesignOutlined />}
-                    />
-               */}
                   <input
                     type="file"
                     name="profileImage"
@@ -571,29 +442,9 @@ const Profile = () => {
                     }}
                   />
                   <Button onClick={onClickImageUpload}>프로필편집</Button>
-                  {/* <Card
-              style={{
-                width: 450,
-                marginTop: 16,
-              }}
-              actions={[
-              ]}
-            >
-                <Card.Meta
-                  // avatar={<Avatar  src="https://joeschmoe.io/api/v1/random" />}
-                  avatar={<Avatar />}
-                  // avatar={<Avatar src={imgFile ? `http://localhost:3065/userImages/${filename}` : "/images/user.png"} />}
-                  //avatar={<Avatar  icon={<UserOutlined />} />}
-                  title={<div style={{ fontSize: '15px', color: 'black' }}>{nickname}</div>}
-                  description=""
-                  style={{
-                    marginBottom: 16,
-                  }}
-                />
-                <UnderlineInput name='nickname' value={nickname} onChange={onChangeNickname} placeholder="기존 닉네임 노출(해당 칸에 입력하여 변경)" />
-              </Card> */}
                 </div>
               </Form.Item>
+                    
               <Form.Item>
                 <Space style={{ width: '100%' }}>
                   <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
@@ -607,15 +458,7 @@ const Profile = () => {
                   </Button>
                 </Space>
               </Form.Item>
-              <Form.Item>
-                <div style={{ display: 'flex' }}>
-                  {/* <DaumPostcode
-               className="postmodal"
-                autoClose
-                onComplete={complete} /> */}
-                </div>
-
-              </Form.Item>
+                  
             </Form >
           </div >
         </div >
