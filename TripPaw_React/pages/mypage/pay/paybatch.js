@@ -120,14 +120,11 @@ function PayBatchPage() {
 
   useEffect(() => {
     if (!memberTripPlanId) return;
-
     axios.post(`/pay/batch/${memberTripPlanId}`, null, {
       withCredentials: true,
     }).then(res => {
       setTotalAmount(res.data.totalAmount);
-      console.log('res.data.totalAmount ', res.data.totalAmount);
       setPayList(res.data.payList);
-      console.log('res.data.payList : ', res.data.payList);
     }).catch(() => {
       alert('일괄 결제 정보 불러오기 실패');
     });
