@@ -103,9 +103,6 @@ const TripPlanDetail = () => {
                 setOriginMemberId(data.originalMemberId);
                 setMemberTripPlanId(id);
                 setOriginTripPlanId(data.originalTripPlanId);
-                //console.log('data:', res.data);
-                //setPlanData(res.data);
-                //console.log('setPlanData', planData);
             } catch (err) {
                 console.error("여행 경로 불러오기 실패", err);
             }
@@ -120,11 +117,8 @@ const TripPlanDetail = () => {
                     withCredentials: true,
                 });
 
-                console.log('user : ', response.data);
-
                 if (response.status === 200) {
                     setIsLoggedIn(true);
-                    // 백엔드에서 받은 username으로 상태 업데이트
                     setUserId(response.data.id);
                     return true; // 성공 시 true 반환
                 }
@@ -136,7 +130,7 @@ const TripPlanDetail = () => {
             }
         };
 
-        // ✅ 함수 호출
+        //함수 호출
         fetchTripDetail();
         checkLoginStatus();
 
@@ -211,12 +205,9 @@ const TripPlanDetail = () => {
         }
     };
 
-    //이대로 예약하기 : 추가
-
     return (
         <MypageLayout>
             <AppLayout>
-                {/* <div style={layoutStyle.header} /> */}
                 <div style={layoutStyle.contentWrapper}>
                     <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#653131' }}
                     >{title || '여행 상세 보기'}</h1>
