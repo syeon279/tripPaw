@@ -18,7 +18,7 @@ const Overlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.6); // ✅ 흐림 정도 조절
+  background-color: rgba(255, 255, 255, 0.6);
   z-index: 998; // Wrapper보다 낮아야 함
 `;
 
@@ -33,7 +33,7 @@ const PetAssistantWrapper = styled.div`
   align-items: center;
   animation: ${({ animate }) =>
     animate ? css`${fadeInUp} 0.6s ease forwards` : 'none'};
-  gap: 12px;  // 너무 벌어지면 중앙 안 맞아보일 수 있어서 살짝 줄임
+  gap: 12px;
   backgroundColor: rgba(250, 250, 250, 0.63);
 `;
 
@@ -43,9 +43,9 @@ const SpeechBubble = styled.div`
   padding: 14px 20px;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6);
   font-size: 1.1rem;
-  max-width: 400px;     // ✅ 최대 너비 설정
-  min-width: 200px;     // ✅ 최소 너비 설정 (필수)
-  width: fit-content;   // ✅ 내용에 따라 자동 너비
+  max-width: 400px;     
+  min-width: 200px;     
+  width: fit-content;   
   line-height: 1.5;
   position: relative;
   color: #ddd;
@@ -53,7 +53,7 @@ const SpeechBubble = styled.div`
   font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   user-select: none;
   letter-spacing: 0.02em;
-  text-align: center;   // ✅ 가운데 정렬
+  text-align: center;   
 
   &::after {
     content: '';
