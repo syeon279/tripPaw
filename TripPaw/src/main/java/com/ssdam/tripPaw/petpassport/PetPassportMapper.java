@@ -9,7 +9,7 @@ import com.ssdam.tripPaw.domain.PetPassport;
 
 @Mapper
 public interface PetPassportMapper {
-	// 1. 여권 생성
+    // 1. 여권 생성
     void insertPetPassport(PetPassport passport);
     
     // 여권 ID로 단건 조회
