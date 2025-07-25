@@ -10,10 +10,8 @@ export async function getServerSideProps(context) {
   try {
     const res = await axios.get(`/reserv/membertripplan/${memberTripPlanId}`);
     const reservList = res.data;
-
     return { props: { reservList } };
   } catch (error) {
-    console.error(error);
     return { props: { reservList: [] } };
   }
 }
