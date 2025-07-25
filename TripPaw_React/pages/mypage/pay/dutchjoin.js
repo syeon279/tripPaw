@@ -52,7 +52,7 @@ const DutchPayJoinPage = () => {
 
   // 참여 버튼 클릭 시 → 참가자로 등록 요청
   const handleJoin = () => {
-    const token = localStorage.getItem('accessToken'); // ✅ JWT 꺼내기
+    const token = localStorage.getItem('accessToken'); //JWT 꺼내기
 
     axios.post(`/payshare/dutch/join/${reservId}`, null, {
       withCredentials: true,
