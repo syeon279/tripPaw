@@ -71,7 +71,6 @@ const TripPlanToMyTrip = ({
             <div style={{
                 backgroundColor: 'white',
                 padding: '24px',
-                //borderRadius: '12px',
                 width: '450px',
             }} onClick={(e) => e.stopPropagation()}>
                 <div style={{ textAlign: 'center' }}>
@@ -89,7 +88,6 @@ const TripPlanToMyTrip = ({
                             padding: '8px',
                             marginBottom: '16px',
                             border: 'none',
-                            //borderRadius: '6px',
                         }}
                     />
                 </div>
