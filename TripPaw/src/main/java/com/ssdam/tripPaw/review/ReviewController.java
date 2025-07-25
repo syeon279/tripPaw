@@ -36,13 +36,13 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewController {
-	private final ReviewService reviewService;
-	private final FileUploadService fileUploadService;
-	private final ReviewImageMapper reviewImageMapper;
-	private final ReservMapper reservMapper;
-	private final ReservForReviewMapper reservForReviewMapper;
+    private final ReviewService reviewService;
+    private final FileUploadService fileUploadService;
+    private final ReviewImageMapper reviewImageMapper;
+    private final ReservMapper reservMapper;
+    private final ReservForReviewMapper reservForReviewMapper;
 	
-	/* 경로(tripPlan)에 포함된 예약(장소) 목록 조회 GET /review/trip/3/places?memberId=1 */
+    /* 경로(tripPlan)에 포함된 예약(장소) 목록 조회 GET /review/trip/3/places?memberId=1 */
     @GetMapping("/trip/{tripPlanId}/places")
     public ResponseEntity<List<Reserv>> getReservsByTripPlan(@PathVariable Long tripPlanId,
                                                               @RequestParam Long memberId) {
