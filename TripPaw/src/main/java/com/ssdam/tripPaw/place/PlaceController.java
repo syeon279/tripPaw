@@ -26,20 +26,19 @@ public class PlaceController {
 	private final PlaceCategoryService placeCategoryService;
 	private final CategoryService categoryService;
 	private final PlaceService placeService;
-
-	// 여행 추천 페이지 렌더링
+	
+	// 여행 추천 페이지
 	@GetMapping("/trip")
 	public String showTripRecommendationPage(Model model) {
-		// 예: 카테고리 추천 정보 등을 model에 담을 수 있음
 		List<Category> categories = categoryService.findAll();
 		model.addAttribute("categories", categories);
-		return "trip/recommend"; // 예: templates/trip/recommend.html 또는 .jsp
+	return "trip/recommend"; // 예: templates/trip/recommend.html 또는 .jsp
 	}
 	
 	//해당 장소 상세 페이지
-    @GetMapping("/place/{id}")
-    public ResponseEntity<PlaceSearchDto> getPlaceDetail(@PathVariable Long id) {
-        PlaceSearchDto dto = placeService.getPlaceDetail(id);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping("/place/{id}")
+	public ResponseEntity<PlaceSearchDto> getPlaceDetail(@PathVariable Long id) {
+		PlaceSearchDto dto = placeService.getPlaceDetail(id);
+	return ResponseEntity.ok(dto);
+	}
 }
