@@ -51,8 +51,6 @@ const Sidebar = () => {
 
         if (response.status === 200) {
           const data = response.data;
-          console.log('auth:', data.auth); // 확인용
-
           setUser({
             nickname: data.nickname,
             username: data.username,
@@ -98,7 +96,6 @@ const Sidebar = () => {
         dispatch({ type: USER_PASSWORD_CHANGE_FAILURE }) //초기화
         return;
       }
-
       dispatch({
         type: USER_PASSWORD_CHANGE_REQUEST,
         data: changePass,
