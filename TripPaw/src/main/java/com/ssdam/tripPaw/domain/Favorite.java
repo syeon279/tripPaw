@@ -28,5 +28,5 @@ public class Favorite {
     private Long targetId;
 
     @Column(name = "target_type")
-    private String targetType; // TRIPPLAN, PLACE 등
+    private String targetType;
 }
