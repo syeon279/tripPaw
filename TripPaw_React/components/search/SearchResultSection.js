@@ -30,8 +30,6 @@ const SearchResultSection = ({
     const scrollIntervalRef = useRef(null);
     const isLoading = !results;
 
-    //console.log('🔥 결과 데이터:', results);
-
     useEffect(() => {
         if (!keyword.trim()) {
             setFilteredResults(results);
@@ -141,8 +139,7 @@ const SearchResultSection = ({
         const handleScroll = () => {
             const scrollAtRight = el.scrollLeft + el.clientWidth >= el.scrollWidth - 100;
             if (scrollAtRight && !isLoading) {
-                console.log('📦 장소 스크롤 끝! → 데이터 더 불러오기');
-                setOffset(prev => prev + 5);
+                setOffset(prev => prev + 10);
             }
         };
 
@@ -157,8 +154,7 @@ const SearchResultSection = ({
         const handleScroll = () => {
             const scrollAtRight = el.scrollLeft + el.clientWidth >= el.scrollWidth - 100;
             if (scrollAtRight && !isLoading) {
-                console.log('📦 여행 스크롤 끝! → tripPlanOffset 증가');
-                setTripPlanOffset(prev => prev + 5);
+                setTripPlanOffset(prev => prev + 10);
             }
         };
 
