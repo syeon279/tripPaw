@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ReviewOnePlanDto {
-	private Long id;
+	private Long reviewId;
     private String content;
     private int rating;
     private String weatherCondition;

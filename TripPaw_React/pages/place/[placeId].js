@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import PetAssistant from '../../components/pet/petassistant';
 import styled from 'styled-components';
 import AppLayout from '@/components/AppLayout';
-import { Tabs, Rate, Avatar, Button, Spin } from 'antd';
+import { Tabs, Rate, Avatar, Button, Spin, Pagination } from 'antd';
 import {
   SunOutlined,
   // CloudOutlined,
@@ -150,6 +150,22 @@ const TabsSection = styled.div`
   border:'2px solid red';
 `;
 
+const ReviewScrollWrapper = styled.div`
+  max-height: calc(100vh - 350px);
+  overflow-y: auto;
+  padding-right: 8px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+  }
+  scrollbar-width: thin;
+  padding-bottom: 100px;
+`;
+
 const PlaceReservCreatePage = () => {
   const router = useRouter();
   const [place, setPlace] = useState(null);
@@ -174,6 +190,11 @@ const PlaceReservCreatePage = () => {
   // 상태 변수
   const [pendingAction, setPendingAction] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [pageSize] = useState(10);
+
 
   ////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
@@ -381,6 +402,11 @@ const PlaceReservCreatePage = () => {
     executeReservation(memberId); // ✅ 인자 전달
   };
 
+useEffect(() => {
+  console.log('avgRating:', avgRating);         // 실제 렌더되는 값
+  console.log('백엔드에서 받은 reviews:', reviews);
+  
+}, [avgRating, reviews]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -430,28 +456,31 @@ const PlaceReservCreatePage = () => {
 
 
   // 리뷰
-  const fetchReviews = async (placeId, memberId, sort = 'latest') => {
+  const fetchReviews = async (placeId, memberId, sort = 'latest', page = 0) => {
     if (!placeId) return;
     setLoading(true);
     try {
       const res = await axios.get(`/review/place/${placeId}`, {
-        params: { sort },
+        params: {
+          sort,
+          page,
+          size: pageSize,
+        },
       });
-      const reviews = res.data;
-      setReviews(reviews);
 
-      if (reviews.length > 0) {
-        const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-        setAvgRating(Number(avg.toFixed(1)));
-        setReviewCount(reviews.length);
-      }
+      const { content, totalElements, totalPages, avgRating } = res.data;
+
+      setReviews(content);
+      setTotalElements(totalElements);
+      setAvgRating(avgRating);
+      setReviewCount(totalElements); // 전체 리뷰 수로 수정
 
       const newLikeStates = {};
-      for (let review of reviews) {
+      for (let review of content) {
         const likePromise = memberId
           ? axios.get(`/review/${review.id}/like/marked`, {
-            params: { memberId },
-          })
+              params: { memberId },
+            })
           : Promise.resolve({ data: false });
 
         const countPromise = axios.get(`/review/${review.id}/like/count`);
@@ -470,11 +499,12 @@ const PlaceReservCreatePage = () => {
     }
     setLoading(false);
   };
+
   useEffect(() => {
     if (placeId) {
-      fetchReviews(placeId, memberId || null); // 로그인 안 해도 null로 호출
+      fetchReviews(placeId, memberId || null, sortKey, currentPage);
     }
-  }, [placeId, memberId]);
+  }, [placeId, memberId, sortKey, currentPage]);
 
 
   /////////////////////////////////////////////////////
@@ -629,7 +659,6 @@ const PlaceReservCreatePage = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '80%' }}>
                       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, justifyContent: 'space-between', marginRight: '10px' }}>
                         <div style={{ border: 'none' }}>
-                          <Rate value={avgRating} disabled />
                           <span style={{ marginLeft: 8 }}>{avgRating}</span>
                           <span style={{ marginLeft: 12, color: '#888' }}>리뷰 {reviewCount}개</span>
                         </div>
@@ -640,66 +669,36 @@ const PlaceReservCreatePage = () => {
                             type="text"
                             onClick={() => {
                               setSortKey('latest');
-                              fetchReviews(placeId, memberId, 'latest');
+                              setCurrentPage(0);
                             }}
-                            //style={{ border: 'none' }}
                             style={{
                               borderBottom: sortKey === 'latest' ? '2px solid black' : 'none'
                             }}
                           >
                             최신순으로
                           </Button>
+
                           <Button
                             type="text"
                             onClick={() => {
                               setSortKey('likes');
-                              fetchReviews(placeId, memberId, 'likes');
+                              setCurrentPage(0);
                             }}
-                            //style={{ border: 'none' }}
-                            style={{ borderBottom: sortKey === 'likes' ? '2px solid black' : 'none' }}
+                            style={{
+                              borderBottom: sortKey === 'likes' ? '2px solid black' : 'none'
+                            }}
                           >
                             추천순으로
                           </Button>
                         </div>
                         <div style={{ border: 'none' }}>
-                          {isLoggedIn && canWriteReview && (
-                            <Button
-                              //type="primary"
-                              onClick={async () => {
-                                try {
-                                  const res = await axios.get('/review/reserv/place', {
-                                    params: { memberId, placeId },
-                                  });
-
-                                  const reservId = res.data;
-
-                                  router.push({
-                                    pathname: '/review/write',
-                                    query: {
-                                      targetId: reservId,               // 예약 ID
-                                      reservId,
-                                      reviewTypeId: 2,       // 장소 리뷰
-                                      placeName: place.name,
-                                      placeImage: place.imageUrl,
-                                    },
-                                  });
-                                } catch (err) {
-                                  console.error('예약 ID 가져오기 실패:', err);
-                                  message.error('예약 정보를 찾을 수 없습니다.');
-                                }
-                              }}
-                              style={{ marginBottom: 0, backgroundColor: 'black', color: 'white' }}
-                            >
-                              리뷰 작성하기
-                            </Button>
-                          )}
                         </div>
                       </div>
                     </div>
                     {loading ? (
                       <Spin tip="리뷰 불러오는 중..." />
                     ) : (
-                      <ScrollContainer>
+                      <ReviewScrollWrapper>
                         {reviews.map(r => (
                           <div key={r.id} style={{ marginBottom: 24, borderBottom: '1px solid #eee', paddingBottom: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -756,7 +755,16 @@ const PlaceReservCreatePage = () => {
                             </Button>
                           </div>
                         ))}
-                      </ScrollContainer>
+                        <Pagination
+                          current={currentPage + 1}
+                          pageSize={10}
+                          total={totalElements} // <= 이 값이 0이면 페이지 버튼 안 나옴
+                          onChange={(page) => setCurrentPage(page - 1)}
+                          style={{ textAlign: 'center', marginTop: 24 }}
+                          showLessItems
+                          showSizeChanger={false}
+                        />
+                      </ReviewScrollWrapper>
                     )}
                   </TabPane>
                 </Tabs>
