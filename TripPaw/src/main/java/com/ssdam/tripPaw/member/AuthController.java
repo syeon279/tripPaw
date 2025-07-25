@@ -76,7 +76,6 @@ public class AuthController {
         		"nickname", member.getNickname(),
         		"role",authorities,
         		 "id", member.getId() )); 
-        //return "redirect:/chat/rooms";
     }
     
     @PostMapping("/join")
