@@ -81,30 +81,31 @@ public class PlaceApiService {
 
 	public void fetchAndSavePetFriendlyPlaces() throws InterruptedException {
 		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
-//		int[] areaCodes = {1, 2, 3, 4, 5, 6, 7, 8, 31, 32, 33, 34, 35, 36, 37, 38, 39};
+
 		/*
 		 
-		 | 지역 코드 | 지역명     |
-| ----- | ------- |
-| 1     | 서울특별시   |
-| 2     | 인천광역시   |
-| 3     | 대전광역시   |
-| 4     | 대구광역시   |
-| 5     | 광주광역시   |
-| 6     | 부산광역시   |
-| 7     | 울산광역시   |
-| 8     | 세종특별자치시 |
-| 31    | 경기도     |
-| 32    | 강원특별자치도 |
-| 33    | 충청북도    |
-| 34    | 충청남도    |
-| 35    | 경상북도    |
-| 36    | 경상남도    |
-| 37    | 전라북도    |
-| 38    | 전라남도    |
-| 39    | 제주특별자치도 |
+		 	| 지역 코드 | 지역명     |
+			| ----- | ------- |
+			| 1     | 서울특별시   |
+			| 2     | 인천광역시   |
+			| 3     | 대전광역시   |
+			| 4     | 대구광역시   |
+			| 5     | 광주광역시   |
+			| 6     | 부산광역시   |
+			| 7     | 울산광역시   |
+			| 8     | 세종특별자치시 |
+			| 31    | 경기도     |
+			| 32    | 강원특별자치도 |
+			| 33    | 충청북도    |
+			| 34    | 충청남도    |
+			| 35    | 경상북도    |
+			| 36    | 경상남도    |
+			| 37    | 전라북도    |
+			| 38    | 전라남도    |
+			| 39    | 제주특별자치도 |
 
 		 */
+		
 		String[] contentTypeIds = {"12", "14", "15", "25", "28", "32", "38", "39"};
 
 		ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -160,7 +161,6 @@ public class PlaceApiService {
 			}
 		}
 
-		// ✅ executor는 for문 바깥에서 shutdown/await 해야 함
 		executor.shutdown();
 		executor.awaitTermination(30, TimeUnit.MINUTES);
 	}
@@ -226,12 +226,7 @@ public class PlaceApiService {
 
 				if (!detailItems.isEmpty()) {
 					JSONObject detail = detailItems.getJSONObject(0);
-					
-					// overview
-					System.out.println("📍 detail: " + detail.toString());
-					System.out.println("📍 overview 존재 여부: " + detail.has("overview"));
-					
-					// contentTypeId에 따라 필드명을 다르게 적용
+	
 			        switch (contentTypeId) {
 				        case "12": // 관광지
 			            case "14": // 문화시설
@@ -319,7 +314,7 @@ public class PlaceApiService {
 			            	restDays = detail.optString("restdatefood", restDays);
 			            	parking = detail.optString("parkingfood", parking);
 			            	break;
-		            	//////
+		            	    //////
 			            default:
 			                openHours = detail.optString("usetime", openHours);
 			                restDays = detail.optString("restdate", restDays);
