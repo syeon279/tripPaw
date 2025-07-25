@@ -52,7 +52,6 @@ const ReviewTripPlanDetail = () => {
           withCredentials: true,
         });
         const loginMemberId = authRes.data.id;
-        console.log('✅ 로그인한 사용자 ID:', loginMemberId); 
         setIsLoggedIn(true);
         setMemberId(loginMemberId);
 
@@ -77,7 +76,6 @@ const ReviewTripPlanDetail = () => {
         });
 
         const fetchedReviews = res.data.content || [];
-        console.log('📄 리뷰 리스트:', fetchedReviews);
         setReviews(fetchedReviews);
         setTotalElements(res.data.totalElements);
         setAverageRating(res.data.avgRating);
@@ -85,7 +83,6 @@ const ReviewTripPlanDetail = () => {
         const hasWritten = fetchedReviews.some((r) => r.memberId === memberId);
         setCanWriteReview(!hasWritten);
       } catch (err) {
-        console.error('리뷰 로딩 실패:', err);
       } finally {
         setLoading(false);
       }
@@ -114,7 +111,6 @@ const ReviewTripPlanDetail = () => {
               count: countRes.data,
             };
           } catch (err) {
-            console.error(`좋아요 상태 실패: reviewId=${review.reviewId}`, err);
           }
         })
       );
@@ -152,7 +148,6 @@ const ReviewTripPlanDetail = () => {
         }));
       }
     } catch (err) {
-      console.error('좋아요 토글 실패:', err);
     }
   };
 
