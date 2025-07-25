@@ -14,12 +14,6 @@ const SealAdminPage = () => {
   };
 
   useEffect(() => { loadSeals(); }, []);
-  useEffect(() => {
-    console.log('[Seals]', seals);
-    seals.forEach(seal => {
-      console.log(`[이미지 src] [${seal.imageUrl}]`);
-    });
-  }, [seals]);
 
   const handleEdit = (seal) => {
     setSelectedSeal(seal);
