@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 @Service @RequiredArgsConstructor
 public class SealService {
 	
-	private final SealMapper sealMapper;
-	private final FileUploadService fileUploadService;
+    private final SealMapper sealMapper;
+    private final FileUploadService fileUploadService;
 
     // 전체 도장 조회
     public List<Seal> getAllSeals() { return sealMapper.findAll(); }
@@ -55,10 +55,5 @@ public class SealService {
         return sealMapper.findUnacquiredSealsByTripPlanId(tripPlanId, passportId);
     }
 
-    
-    //등록도장제외
-//    public List<Seal> getUnacquiredSeals(Long memberTripPlanId, Long passportId) {
-//        return sealMapper.findUnacquiredSealsByTripPlan(memberTripPlanId, passportId);
-//    }
 	
 }
