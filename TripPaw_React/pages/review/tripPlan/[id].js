@@ -59,7 +59,6 @@ const ReviewTripPlanDetail = () => {
         setRouteData(planRes.data.routeData || []);
         setPlanTitle(planRes.data.title || '');
       } catch (err) {
-        console.error('플랜 정보 및 로그인 로딩 실패:', err);
       }
     };
 
