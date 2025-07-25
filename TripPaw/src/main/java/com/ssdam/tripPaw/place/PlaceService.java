@@ -44,19 +44,6 @@ public class PlaceService {
         dto.setPlaceImages(place.getPlaceImages());
         dto.setReviews(place.getReviews());
 
-        // 리뷰 통계
-//        if (place.getReviews() != null && !place.getReviews().isEmpty()) {
-//            double avg = place.getReviews().stream()
-//                    .mapToInt(Review::getRating)
-//                    .average()
-//                    .orElse(0.0);
-//            dto.setAvgRating(avg);
-//            dto.setReviewCount((long) place.getReviews().size());
-//        } else {
-//            dto.setAvgRating(0.0);
-//            dto.setReviewCount(0L);
-//        }
-
         return dto;
     }
 }
