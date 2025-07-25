@@ -2,10 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Router from 'next/router';
 import styled from 'styled-components';
-// react-icons 라이브러리에서 아이콘을 가져옵니다.
-//import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-// 이미지 경로 (public 폴더에 이미지를 위치시키거나 import하여 사용)
 const logoPath = '/images/logo/TripPaw-logo.png';
 const backgroundImagePath = '/images/background-image.jpg';
 const googleIconPath = '/image/member/google.png';
@@ -160,9 +157,7 @@ const onClickOauth2 = async (e) => {
   const response = await axios.get('/oauth2/authorization/kakao');
 }
 
-// onToggleForm 함수를 props로 받습니다.
 function LoginForm({ onToggleForm }) {
-  // 폼 입력 값을 관리하기 위한 state
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -174,14 +169,12 @@ function LoginForm({ onToggleForm }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // 폼 기본 제출 동작 방지
-    console.log('Login attempt with:', { username, password });
     const loginSubmit = await axios.post(`/api/auth/login`, {
       username: username,
       password: password
     }, {
       withCredentials: true,
     }).then(function (response) {
-      console.log('상태확인=', response.status);
 
       Router.replace('/')
     }).catch(function (error) {
@@ -190,11 +183,10 @@ function LoginForm({ onToggleForm }) {
         alert(errorMessage);
         return;
       }
-
-      console.log('탈퇴에러', error.response.data.message);
     })
-    // 실제 로그인 로직을 여기에 구현합니다. (API 호출 등)
   };
+
+  /////////////////////////////////////////////////////////
   return (
     <div>
       {/* <h2>로그인</h2> */}
@@ -229,7 +221,6 @@ function LoginForm({ onToggleForm }) {
             />
             <PasswordToggle onClick={() => setShowPassword(!showPassword)}>
               {showPassword}
-              {/* ? <FaEyeSlash /> : <FaEye />} */}
             </PasswordToggle>
           </InputGroup>
 
@@ -248,7 +239,6 @@ function LoginForm({ onToggleForm }) {
           <p>소셜 아이디로 로그인하기</p>
           <SocialIcons>
             <SocialIcon href={`/oauth2/authorization/google`}><img src={googleIconPath} alt="구글" /></SocialIcon>
-            {/* <SocialIcon href={`https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon> */}
             <SocialIcon href={`/oauth2/authorization/kakao`}><img src={kakaoIconPath} alt="카카오" /></SocialIcon>
             <SocialIcon href={`/oauth2/authorization/naver`}><img src={naverIconPath} alt="네이버" /></SocialIcon>
           </SocialIcons>
