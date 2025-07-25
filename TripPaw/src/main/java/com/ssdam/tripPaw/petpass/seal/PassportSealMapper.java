@@ -9,10 +9,10 @@ import com.ssdam.tripPaw.domain.PassportSeal;
 @Mapper
 public interface PassportSealMapper {
 	void insert(PassportSeal passportSeal);
-
-    PassportSeal findById(Long id);
-
-    List<PassportSeal> findByPassportId(Long passportId);
-
-    void delete(Long id);
+	
+	PassportSeal findById(Long id);
+	
+	List<PassportSeal> findByPassportId(Long passportId);
+	
+	void delete(Long id);
 }
