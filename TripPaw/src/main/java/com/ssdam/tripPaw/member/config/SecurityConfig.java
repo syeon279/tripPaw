@@ -22,8 +22,8 @@ import com.ssdam.tripPaw.member.util.JwtFilter;
 import com.ssdam.tripPaw.member.util.JwtProvider;
 import com.ssdam.tripPaw.member.util.JwtUtil;
 
-@Configuration // 스프링부트 설정파일
-@EnableWebSecurity //url 스프링시큐리티 제어 - SecurityFilterChain
+@Configuration 
+@EnableWebSecurity 
 public class SecurityConfig {
 	
 	@Autowired
@@ -41,39 +41,11 @@ public class SecurityConfig {
 	@Autowired
 	OAuth2LoginFailureHandler auth2LoginFailureHandler;
 	
-//	 @Bean
-//	    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//	        http
-//	            .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (WebSocket과 함께 사용할 때 필요할 수 있음)
-//	            .authorizeHttpRequests(authz -> {
-//					try {
-//						authz
-//						    //.antMatchers("/**").permitAll() // "/**"는 모든 경로를 의미합니다.
-//						    //.antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
-//						    .antMatchers("/**").permitAll() // "/**"는 모든 경로를 의미합니다.
-//						    .antMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근 가능 <= 이거 추가
-//						    .anyRequest().authenticated().and()
-//						    .oauth2Login()  // oauth2 - kakao, naver, google
-//							//.loginPage("/member/login")
-//							//.loginPage("/login/oauth2/code/kakao")
-////	    			.defaultSuccessUrl("/member/login")
-//							.userInfoEndpoint()
-//							.userService(principalOauth2UserService);
-//					} catch (Exception e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//	            );
-//
-//	        return http.build();
-//	    }
 
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, MemberService memberService) throws Exception {
-		JwtFilter jwtTokenFilter = new JwtFilter(memberService, jwtProvider,memberUserDetailService); //##2
+		JwtFilter jwtTokenFilter = new JwtFilter(memberService, jwtProvider,memberUserDetailService); 
 		
-		// springsecurity 5와6 버전 혼용가능
 		http
 		.cors().configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();
@@ -92,25 +64,13 @@ public class SecurityConfig {
 			.antMatchers("/login/oauth2/code/**").permitAll()
 			.antMatchers("/api/auth/**","/api/sms/**").permitAll() // 누구나 접근가능 // mobile전용 jwt
 			.antMatchers("/member/login","/member/join","/resources/**").permitAll() // 누구나 접근가능 // pc전용 jwt security
-			.antMatchers("/board/insert","/board/update/**", "/board/delete/**","/user/user").authenticated() // authenticated 로그인된 사용자만 접근가능
 		.anyRequest().permitAll()
 		.and()
-//			.formLogin()
-//				.loginPage("/member/login") // 커스텀로그인 폼
-//				.loginProcessingUrl("/member/login") //사용자가 입력한 값 처리 url
-//				.defaultSuccessUrl("/member/user", true) //로그인 성공 시 redirect true : 사용자가 로그인전 요청이 있더라도 무시하고 이 url로 이동
-//				.failureUrl("/member/login?error=true")
-//			.and()
-			.logout()
-				.logoutRequestMatcher(new AntPathRequestMatcher("/member/logout"))
-				.logoutSuccessUrl("/member/login") //로그아웃 성공경로
-				.invalidateHttpSession(true) //로그아웃시 세션무효
+		.logout()
+			.logoutRequestMatcher(new AntPathRequestMatcher("/member/logout"))
+			.logoutSuccessUrl("/member/login") //로그아웃 성공경로
+			.invalidateHttpSession(true) //로그아웃시 세션무효
 			.and()
-		//.oauth2Login()  // oauth2 - kakao, naver, google
-//		.loginPage("/member/login")
-		//.defaultSuccessUrl("/member/login")
-		//.userInfoEndpoint()
-		//.userService(principalOauth2UserService)
 		.oauth2Login(oauth2 -> oauth2
 		            .successHandler(auth2LoginSuccessHandler) // 성공 핸들러 등록
 		            .failureHandler(auth2LoginFailureHandler) // 실패 핸들러 등록
@@ -119,10 +79,6 @@ public class SecurityConfig {
 		            		.userService(principalOauth2UserService)
 		            )
 		            )
-		//.loginPage("/api/auth/login/oauth2/code/kakao")
-		//.failureUrl("/member/login?error=true")
-			//.and()
-			//.and()
 		.exceptionHandling()//에러제어
 			.authenticationEntryPoint( (request, response, authException) -> {
 				if(!request.getRequestURI().startsWith("/api/")) { // /api/로 시작하지 않으면 pc버전
@@ -142,23 +98,12 @@ public class SecurityConfig {
 					response.getWriter().write("{\"error\":\"Unauthorized\"}"); // {"error":"Unauthorized"}
 				}
 			});
-//			.and()
-//			.csrf(
-//					csrf->csrf.ignoringRequestMatchers( //csrf 검사 생략
-//								new AntPathRequestMatcher("/member/join","POST"),
-//								new AntPathRequestMatcher("/board/insert","POST"),
-//								new AntPathRequestMatcher("/board/update/**","POST"),
-//								new AntPathRequestMatcher("/board/delete/**","POST"),
-//								new AntPathRequestMatcher("/api/auth/logout","POST")
-//							)
-//			); //지정하지 않은 다른 모든요청 허용
 		http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
-		//##
 		
 		return http.build();
 	}
+	
 	//2.AuthenticationMagager(관리자)
-	//사용자 인증시 Service와 PasswordEncoder를 사용
 	@Bean
 	AuthenticationManager authenticationManager(AuthenticationConfiguration auth) throws Exception{
 		return auth.getAuthenticationManager();
