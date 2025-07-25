@@ -29,20 +29,18 @@ public class ChatRoomMember {
     @Column(name = "chatroom_member_id")
     private Long id;
 
-    // 'Member'와의 다대일(N:1) 관계
-    // FetchType.LAZY는 성능 최적화를 위해 필수로 사용합니다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id") // DB에 생성될 외래키 컬럼명
     private Member member;
 
-    // 'ChatRoom'과의 다대일(N:1) 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chatroom_id") // DB에 생성될 외래키 컬럼명
     private ChatRoom chatRoom;
 
-    // 추가 컬럼 1: 역할
+    
     @Enumerated(EnumType.STRING) // Enum 타입을 DB에 저장할 때 문자열로 저장
     private ChatRole role;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChatRoomMemberStatus status; // 상태 컬럼 추가
@@ -59,4 +57,5 @@ public class ChatRoomMember {
         chatRoomMember.setJoinedAt(LocalDateTime.now());
         return chatRoomMember;
     }
+    
 }
