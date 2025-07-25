@@ -61,7 +61,7 @@ const layoutStyle = {
     },
 };
 
-// 💡 페이드인 애니메이션을 위한 CSS
+//페이드인 애니메이션을 위한 CSS
 const fadeStyle = `
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -101,7 +101,6 @@ const RouteRecommendPage = () => {
                 if (error.response?.status === 401) {
                     setIsLoggedIn(false);
                 } else {
-                    console.log("⚠️ 로그인 상태 확인 중 에러:", error);
                 }
             }
         };
@@ -149,7 +148,6 @@ const RouteRecommendPage = () => {
                 const parsed = JSON.parse(decodeURIComponent(router.query.data));
                 setRouteData(parsed);
             } catch (e) {
-                console.error('데이터 파싱 오류', e);
             }
         }
     }, [router.query]);
@@ -176,15 +174,7 @@ const RouteRecommendPage = () => {
         return (
             <>
                 <style>{fadeStyle}</style>
-                <div
-                // style={{
-                //     position: 'fixed',
-                //     bottom: '25%',      // 원하는 여백
-                //     left: '40%',
-                //     transform: 'translateX(-50%)',
-                //     zIndex: 9999
-                // }}
-                >
+                <div>
                     <PetAssistantLoading reservState={!routeData ? 'FETCHING_DATA' : 'MAP_LOADING'} />
                 </div>
             </>
@@ -206,7 +196,6 @@ const RouteRecommendPage = () => {
         try {
             return await mapRef.current?.captureMap();
         } catch (err) {
-            console.warn('지도 캡처 오류:', err);
             return null;
         }
     };
