@@ -13,11 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileUploadService {
 
-    private final String uploadDir = "C:/upload/reviews"; // ✅ 고정 경로
+    private final String uploadDir = "C:/upload/reviews"; //고정 경로
 
     public FileUploadService() {
         try {
-            Files.createDirectories(Paths.get(uploadDir)); // ✅ 디렉토리 자동 생성
+            Files.createDirectories(Paths.get(uploadDir)); //디렉토리 자동 생성
         } catch (Exception e) {
             throw new RuntimeException("업로드 폴더 생성 실패", e);
         }
