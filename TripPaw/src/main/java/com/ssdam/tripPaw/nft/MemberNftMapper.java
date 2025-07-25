@@ -39,13 +39,7 @@ public interface MemberNftMapper {
     int countUnusedByMetadataId(Long nftMetadataId);
 
     // 추가된 재사용 관련 메서드
-    /**
-     * soft delete 된 NFT 중 재사용 가능한 첫 번째 항목 조회
-     */
     MemberNft findFirstSoftDeleted();
 
-    /**
-     * soft delete 된 NFT 재사용(복구)
-     */
     void reuseSoftDeletedNft(MemberNft memberNft);
 }
