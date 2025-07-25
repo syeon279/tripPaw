@@ -99,8 +99,6 @@ const tripPlanMain = () => {
     // 지난 날짜 막기
     const today = new Date().toISOString().split("T")[0]; // 'YYYY-MM-DD' 형식
 
-
-
     // 폼 데이터 보내기
     const [region, setRegion] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -113,10 +111,9 @@ const tripPlanMain = () => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    // 🎲 굴러가는 중인지
+    //굴러가는 중인지
     const [isRolling, setIsRolling] = useState(false);
     const [showDice, setShowDice] = useState(false);
-
 
     // 카테고리 꺼내오기
     useEffect(() => {
@@ -128,7 +125,6 @@ const tripPlanMain = () => {
                 console.error('카테고리 불러오기 실패:', error);
             }
         };
-
         fetchCategories();
     }, []);
 
@@ -158,7 +154,7 @@ const tripPlanMain = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // ✅ 유효성 검사: 지역 선택 확인
+        //유효성 검사
         if (!region) {
             alert('여행 지역을 선택해주세요.');
             return;
@@ -199,8 +195,6 @@ const tripPlanMain = () => {
                 },
             });
 
-            console.log('😁 여행 일정 : ', requestData);
-
         } catch (error) {
             console.error('추천 실패:', error);
         }
@@ -222,7 +216,7 @@ const tripPlanMain = () => {
     ];
 
 
-    // 💡 랜덤 값 생성을 위한 함수
+    //랜덤 값 생성을 위한 함수
     const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
     const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -255,8 +249,6 @@ const tripPlanMain = () => {
         <>
             <form onSubmit={handleSubmit} style={{ flex: 1 }}>
                 <div style={containerStyle}>
-                    {/* <img src="/image/background/main.png" alt="background" style={backgroundStyle} /> */}
-
                     <div style={contentStyle}>
                         <div style={{ width: '90%', margin: '0 auto' }}>
                             <Image src="/image/logo/TripPaw-logo-white.png" alt="logo" width={480}
@@ -365,7 +357,7 @@ const tripPlanMain = () => {
                                                 width: '300px',
                                                 maxWidth: '300px',
                                                 overflowY: 'auto',
-                                                /* 👇 스크롤 숨기기 */
+                                                /* 스크롤 숨기기 */
                                                 scrollbarWidth: 'none',       // Firefox
                                                 msOverflowStyle: 'none',      // IE, Edge
                                             }}
@@ -440,7 +432,7 @@ const tripPlanMain = () => {
                                                     zIndex: 1000,
                                                     overflowY: 'auto',
                                                     boxShadow: '0 4px 16px rgba(0, 0, 0, 0.38)',
-                                                    /* 👇 스크롤 숨기기 */
+                                                    /* 스크롤 숨기기 */
                                                     scrollbarWidth: 'none',       // Firefox
                                                     msOverflowStyle: 'none',      // IE, Edge
                                                     overscrollBehavior: 'contain', // 스크롤 바운스 방지
@@ -510,12 +502,12 @@ const tripPlanMain = () => {
                                                     if (categories.length === 0 || isRolling) return;
 
                                                     setIsRolling(true);
-                                                    setShowDice(true); // 👈 주사위 표시
+                                                    setShowDice(true);
 
                                                     setTimeout(() => {
                                                         handleRandomDice(); // 랜덤 값 설정
                                                         setIsRolling(false);
-                                                        setShowDice(false); // 👈 주사위 숨기기
+                                                        setShowDice(false); 
                                                     }, 1000);
                                                 }}
                                                 style={{
