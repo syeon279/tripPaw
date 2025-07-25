@@ -23,11 +23,11 @@ import lombok.ToString;
 @Data
 public class MemberNft {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    // 양방향 연관관계의 무한루프 방지
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	// 양방향 연관관계의 무한루프 방지
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "nft_metadata_id", nullable = false)
 	@ToString.Exclude
@@ -40,38 +40,38 @@ public class MemberNft {
 	@ToString.Exclude
 	@JsonIgnore
 	private Member member;
-    
-    @Column(name = "token_id", nullable = false, unique = true)
-    private Long  tokenId;
-
-    @Column(name = "issued_at")
-    private LocalDateTime issuedAt;
-
-    @Column(name = "used_at")
-    private LocalDateTime usedAt;
-
-    @Column(name = "wallet_address")
-    private String walletAddress;
-
-    @Column(name = "barcode")
-    private String barcode;
-
-    @Column(name = "due_at")
-    private LocalDateTime dueAt;
-
-    @Column(name = "issued_reason")
-    private String issuedReason;
-
-    @Column(name = "tx_hash")
-    private String txHash;
-
-    @Column(name = "deleted_at")  // soft delete 컬럼
-    private LocalDateTime deletedAt;
-    
-    @PrePersist
-    public void onCreate() {
-        this.issuedAt = LocalDateTime.now();
-    }
+	
+	@Column(name = "token_id", nullable = false, unique = true)
+	private Long  tokenId;
+	
+	@Column(name = "issued_at")
+	private LocalDateTime issuedAt;
+	
+	@Column(name = "used_at")
+	private LocalDateTime usedAt;
+	
+	@Column(name = "wallet_address")
+	private String walletAddress;
+	
+	@Column(name = "barcode")
+	private String barcode;
+	
+	@Column(name = "due_at")
+	private LocalDateTime dueAt;
+	
+	@Column(name = "issued_reason")
+	private String issuedReason;
+	
+	@Column(name = "tx_hash")
+	private String txHash;
+	
+	@Column(name = "deleted_at")  // soft delete 컬럼
+	private LocalDateTime deletedAt;
+	
+	@PrePersist
+	public void onCreate() {
+	this.issuedAt = LocalDateTime.now();
+	}
     
     
 }
