@@ -35,9 +35,6 @@ const PassportCardList = ({ memberId }) => {
 
   return (
     <div style={{ padding: '10px' }}>
-      {/* 
-<button style={{  }}  >  </button> */}
-
       <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #653131', paddingBottom: '12px', marginBottom: '24px' }}>
         <h3 style={{ marginBottom: 16, fontSize: '24px', fontWeight: 'bold', color: '#653131' }}>반려동물 여권</h3>
         <button
@@ -45,7 +42,6 @@ const PassportCardList = ({ memberId }) => {
           onClick={() => { setSelectedPassport(null); setShowEditorModal(true); }}
         >여권 생성</button>
       </div>
-
 
       {/* 여권이 없을 때 안내 메시지 */}
       {passports.length === 0 && (
@@ -69,7 +65,6 @@ const PassportCardList = ({ memberId }) => {
                 <p style={{ color: '#fff' }}>{passport.species} · {passport.petAge}살 · {passport.petGender}</p>
                 <p style={{ color: '#fff', fontWeight: 'bold' }}>{passport.petName}</p>
               </div>
-              {/* <p>여권번호: {passport.passNum}</p> */}
 
             </div>
 
