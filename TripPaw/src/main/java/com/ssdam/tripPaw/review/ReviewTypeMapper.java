@@ -13,8 +13,8 @@ public interface ReviewTypeMapper {
 	
 	//더미데이터 삽입용 코드. 
 	@Insert("INSERT INTO review_type (target_type) VALUES (#{targetType})")
-    @Options(useGeneratedKeys = true, keyProperty = "id")
-    void insertReviewType(ReviewType reviewType);
+	@Options(useGeneratedKeys = true, keyProperty = "id")
+	void insertReviewType(ReviewType reviewType);
 	
 	void insertReviewTypes();
 }
