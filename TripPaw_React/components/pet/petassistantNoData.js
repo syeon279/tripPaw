@@ -23,7 +23,7 @@ const PetAssistantWrapper = styled.div`
   align-items: center;
   animation: ${({ animate }) =>
     animate ? css`${fadeInUp} 0.6s ease forwards` : 'none'};
-  gap: 12px;  // 너무 벌어지면 중앙 안 맞아보일 수 있어서 살짝 줄임
+  gap: 12px;  
 `;
 
 const SpeechBubble = styled.div`
