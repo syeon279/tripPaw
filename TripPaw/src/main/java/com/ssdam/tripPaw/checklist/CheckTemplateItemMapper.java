@@ -10,7 +10,7 @@ import com.ssdam.tripPaw.domain.CheckTemplateItem;
 @Mapper
 public interface CheckTemplateItemMapper {
 	
-	//단일항목생성
+    //단일항목생성
     void insertTemplateItem(CheckTemplateItem item);
     
     //여러항목조회
