@@ -5,11 +5,11 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
-import PetAssistant from '../../components/pet/petassistant';
+import PetAssistant from '../../components/pet/Petassistant';
 import styled from 'styled-components';
 import AppLayout from '@/components/AppLayout';
 import { Tabs, Rate, Avatar, Button, Spin, Pagination } from 'antd';
-import {SunOutlined, QuestionOutlined} from '@ant-design/icons';
+import { SunOutlined, QuestionOutlined } from '@ant-design/icons';
 import LoginFormModal from '@/components/member/LoginFormModal';
 import PetassistantLoading from '@/components/pet/PetassistantLoading';
 
@@ -181,7 +181,7 @@ const PlaceReservCreatePage = () => {
   // 상태 변수
   const [pendingAction, setPendingAction] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  
+
   const [currentPage, setCurrentPage] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [pageSize] = useState(10);
@@ -261,7 +261,7 @@ const PlaceReservCreatePage = () => {
         const userId = authRes.data.id;
         setMemberId(userId);
         setIsLoggedIn(true);
-        
+
         const [canWriteRes, favoriteRes] = await Promise.all([
           axios.get(`/review/reserv/check`, {
             params: { memberId: userId, placeId },
@@ -379,9 +379,9 @@ const PlaceReservCreatePage = () => {
       setShowLoginModal(true);
       return;
     }
-    executeReservation(memberId); 
+    executeReservation(memberId);
   };
-  
+
   useEffect(() => {
     const fetchAllData = async () => {
       try {
@@ -389,7 +389,7 @@ const PlaceReservCreatePage = () => {
           withCredentials: true,
         });
         const userId = authRes.data.id;
-        setMemberId(userId);             
+        setMemberId(userId);
         setIsLoggedIn(true);
 
         const reservRes = await axios.get(`/review/reserv/check`, {
@@ -450,8 +450,8 @@ const PlaceReservCreatePage = () => {
       for (let review of content) {
         const likePromise = memberId
           ? axios.get(`/review/${review.id}/like/marked`, {
-              params: { memberId },
-            })
+            params: { memberId },
+          })
           : Promise.resolve({ data: false });
 
         const countPromise = axios.get(`/review/${review.id}/like/count`);
@@ -534,7 +534,7 @@ const PlaceReservCreatePage = () => {
         const action = pendingAction;
         setPendingAction(null);
 
-        action(id); 
+        action(id);
       }
     } catch (err) {
     }

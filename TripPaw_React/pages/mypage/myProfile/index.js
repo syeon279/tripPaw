@@ -102,7 +102,7 @@ const Profile = () => {
     setUsername(e.target.value);
 
   }, [])
-  
+
   const [phoneNumRegError, setPhoneNumRegError] = useState(false);
   const [phoneNumLenError, setPhoneNumLenError] = useState(false);
   const onChangePhoneNum = useCallback((e) => {
@@ -111,14 +111,14 @@ const Profile = () => {
     setChangePhoneNum(e.target.value);
   }, []);
 
-  const [password, setChangePassword] = useState('');   
+  const [password, setChangePassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
   const onChangePassword = useCallback((e) => {
     const passRegex = /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
     const pass = e.target.value;
     setChangePassword(e.target.value);
   }, [password]);
-  
+
   const [passwordRe, setChangePasswordRe] = useState('');
   const [passwordReError, setPasswordReError] = useState(false);
   const onChangePasswordRe = useCallback((e) => {
@@ -167,7 +167,7 @@ const Profile = () => {
       totalSeconds--;
     }, 1000);
   };
-  
+
   const btnSendAuthenticationNumber = useCallback(async () => {
     if (phoneNum === null || String(phoneNum).length != 11) {
       alert('휴대폰번호를 확인해주세요');
@@ -264,9 +264,9 @@ const Profile = () => {
       }
     }
   }, [memberId])
-  
+
   const [uploadFile, setUploadFile] = useState(null);
-  
+
   //////
   const saveImgFile = useCallback((e) => {
     const file = e.target.files[0];
@@ -286,6 +286,9 @@ const Profile = () => {
       console.log('filetext=', f)
       return imageFormData.append('profileImage', f);
     });
+
+  }, []);
+
   const onClickImageUpload = useCallback(() => {
     imageInput.current?.click();
   }, [imageInput.current]);
@@ -353,7 +356,7 @@ const Profile = () => {
           </Head>
           <div style={{ width: '100%', maxWidth: "70%", margin: '0 auto' }}>
             <Form layout='vertical' style={{ width: '100%', padding: '20px', boxSizing: 'border-box', }} onFinish={onSubmitForm}  >
-  
+
               <Form.Item>
                 <label htmlFor='username'></label>
                 <UnderlineInput placeholder='이름' id='username'
@@ -385,7 +388,7 @@ const Profile = () => {
                   <Button onClick={handleClick}>우편번호 찾기</Button>
                 </div>
               </Form.Item>
-                      
+
               <Form.Item>
                 <div style={{ display: 'flex' }}>
                   <label htmlFor='phone'></label>
@@ -393,7 +396,7 @@ const Profile = () => {
                     value={roadAddress} onChange={onChangeRoadAddress} name='roadAddress' readOnly />
                 </div>
               </Form.Item>
-                      
+
               <Form.Item>
                 <div style={{ display: 'flex' }}>
                   <label htmlFor='phone'></label>
@@ -413,7 +416,7 @@ const Profile = () => {
                   )}
                 </Card>
               </Form.Item>
-                  
+
               <Form.Item>
                 <div style={{ display: 'flex' }}>
                   <label htmlFor='phone'></label>
@@ -444,7 +447,7 @@ const Profile = () => {
                   <Button onClick={onClickImageUpload}>프로필편집</Button>
                 </div>
               </Form.Item>
-                    
+
               <Form.Item>
                 <Space style={{ width: '100%' }}>
                   <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
@@ -458,7 +461,7 @@ const Profile = () => {
                   </Button>
                 </Space>
               </Form.Item>
-                  
+
             </Form >
           </div >
         </div >

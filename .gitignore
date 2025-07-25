@@ -16,3 +16,5 @@ TripPaw/src/main/resources/application-coolsms.properties
 
 sh.exe.stackdump
 *.properties
+TripPaw_React/out/
+TripPaw_React/.env.production

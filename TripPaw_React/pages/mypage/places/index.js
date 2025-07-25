@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import MypageLayout from "@/components/layout/MyPageLayout";
-import PetAssistantNoData from "@/components/pet/petassistantNoData";
+import PetAssistantNoData from "@/components/pet/PetAssistantNoData";
 
 const layoutStyle = {
     header: { width: '100%', height: '80px' },
@@ -40,7 +40,7 @@ const MyPlaces = () => {
             } catch (error) {
                 alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
                 router.push('/member/login');
-                return false; 
+                return false;
             }
         };
         checkLoginStatus();

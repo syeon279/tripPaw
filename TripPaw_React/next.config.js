@@ -3,12 +3,15 @@ const withTM = require('next-transpile-modules')([
   'rc-util',
   'rc-picker',
   'rc-table',
-  'rc-tree', 
+  'rc-tree',
 ]);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  //export 설정 추가
+  output: 'export',
 
   webpack: (config) => {
     config.resolve.alias = {
@@ -21,7 +24,7 @@ const nextConfig = {
     return config;
   },
 
-   // 여기에 프록시 rewrites 추가
+  // 여기에 프록시 rewrites 추가
   async rewrites() {
     return [
       {

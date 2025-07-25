@@ -2,7 +2,6 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Router from 'next/router';
 import styled from 'styled-components';
-import AuthContainer from '@/components/member/AuthContainer';
 
 const logoPath = '/image/logo/TripPaw-logo-white.png';
 const backgroundImagePath = '/image/logo/main.png';

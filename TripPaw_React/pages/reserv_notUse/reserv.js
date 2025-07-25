@@ -6,7 +6,7 @@ import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
 import ContentHeader from '../../components/ContentHeader';
-import PetAssistant from '../../components/pet/petassistant';
+import PetAssistant from '../../components/pet/Petassistant';
 import styled from 'styled-components';
 
 const Container = styled.div`
