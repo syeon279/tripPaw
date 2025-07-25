@@ -37,9 +37,6 @@ export default class MyDocument extends Document {
           <meta charSet="utf-8" />
           <meta name="theme-color" content="#ffffff" />
           <link rel="icon" href="/favicon.ico" />
-          {/* 원하는 웹폰트 등 추가 가능 */}
-          {/* <link rel="preconnect" href="https://fonts.googleapis.com" /> */}
-          {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" /> */}
         </Head>
         <body>
           <Main />
