@@ -39,14 +39,3 @@ public class UserInfoGoogle implements UserInfoOauth2{
 	}
 	
 }
-/*<google>
- * {
-   sub=103058387739722400130, 
-   name=안효정, 
-   given_name=효정, 
-   family_name=안, 
-   picture=https://lh3.googleusercontent.com/a/AEdFTp5SiCyTaOLog9sDPN6QhWwsUj7xPbfj4HQF0fdC=s96-c, email=chb20050@gmail.com, 
-   email_verified=true, 
-   locale=ko
-}
- * */
