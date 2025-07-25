@@ -37,10 +37,6 @@ public interface ReviewMapper {
 	
 	List<Review> findByTarget(@Param("targetId") Long targetId, @Param("reviewTypeId") Long reviewTypeId);
 	
-//	List<Review> findAll();	//리뷰 전체 조회
-	
-//	Member findMemberById(Long memberId);
-	
 	ReviewType findReviewTypeById(@Param("id") Long id);
 	
 	List<Review> findByPlaceIdWithPlaceName(Long placeId);
@@ -100,14 +96,13 @@ public interface ReviewMapper {
 	List<Review> findTop5ByLikes();
 
 
-	List<Reserv> findWithPlaceByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId,
-            										@Param("memberId") Long memberId);
+	List<Reserv> findWithPlaceByTripPlanIdAndMember(@Param("tripPlanId") Long tripPlanId, @Param("memberId") Long memberId);
 	
 	//여권 도장용 추가코드
-    // 작성한 리뷰 조회
-    List<MemberTripPlanReviewDto> getMyTripReviews(@Param("memberId") Long memberId);
-    
-    // 리뷰 작성하지 않은 여행 목록 조회
-    List<MemberTripPlan> getUnwrittenTripPlans(@Param("memberId") Long memberId);
+	// 작성한 리뷰 조회
+	List<MemberTripPlanReviewDto> getMyTripReviews(@Param("memberId") Long memberId);
+	    
+	// 리뷰 작성하지 않은 여행 목록 조회
+	List<MemberTripPlan> getUnwrittenTripPlans(@Param("memberId") Long memberId);
     
 }
