@@ -34,11 +34,6 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
     const [userName, setUserName] = useState('');
     const [hasWrittenReview, setHasWrittenReview] = useState(false);
 
-    // const [memberTripPlanId, setMemberTripPlanId] = useState(null);
-
-    console.log('ActionButtons memberTripPlanId:', memberTripPlanId);
-    console.log('ActionButtons originTripPlanId:', originTripPlanId);
-
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
@@ -81,12 +76,6 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
         }
     }, [userId, originTripPlanId]);
 
-    // useEffect(() => {
-    // if (router.query.memberTripPlanId) {
-    //     setMemberTripPlanId(router.query.memberTripPlanId);
-    // }
-    // }, [router.query.memberTripPlanId]);
-
     const handleReservation = async () => {
         try {
             const response = await axios.post('/reserv/auto/plan', {
@@ -97,15 +86,11 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
             });
 
             const reservations = response.data;
-
-            console.log("reservations:", reservations);
-            console.log("firstMemberTripPlanId:", reservations[0]?.memberTripPlan?.id);
-
+            
             if (!reservations || reservations.length === 0) {
                 alert('예약이 생성되지 않았습니다.');
                 return;
             }
-
 
             const firstMemberTripPlanId = reservations[0]?.memberTripPlan?.id;
             const allSame = reservations.every(r => r.memberTripPlan?.id === firstMemberTripPlanId);
