@@ -36,11 +36,7 @@ public class SmsCertificationUtil {
 		message.setFrom(fromNumber);
 		message.setTo(to);
 		message.setText("본인확인 인증번호는 " + random + "입니다.");
-		
-		try {
-		}  catch (Exception exception) {
-			  System.out.println(exception.getMessage());
-		}
+
 		return random;
 	}
 	
