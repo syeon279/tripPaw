@@ -158,7 +158,6 @@ function ReservCreatePage() {
         setDisabledDates(allDisabled);
       })
       .catch(err => {
-        console.error('예약 불가 날짜 불러오기 실패', err);
       });
   }, [placeId]);
 
