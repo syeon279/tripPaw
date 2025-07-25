@@ -10,7 +10,7 @@ import com.ssdam.tripPaw.domain.MemberCheck;
 @Mapper
 public interface MemberCheckMapper {
 
-	// MemberCheck 단일 삽입
+    // MemberCheck 단일 삽입
     void insertMemberCheck(MemberCheck memberCheck);
 
     // 루틴 ID 기준 MemberCheck 리스트 조회
