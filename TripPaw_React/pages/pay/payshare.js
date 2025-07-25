@@ -123,7 +123,6 @@ const DutchPayPaymentPage = () => {
         }
       });
     } catch (err) {
-      console.error(err);
       setErrorMsg('결제 모듈을 불러오는 데 실패했습니다.');
     }
   };
