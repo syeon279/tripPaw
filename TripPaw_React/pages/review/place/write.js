@@ -179,7 +179,7 @@ const PlaceReviewWrite = () => {
       <h2 style={{ marginBottom: 50 }}>장소 리뷰</h2>
 
       {reservs.length === 0 || allSubmitted ? (
-        // ✅ 리뷰가 없거나 전부 작성된 경우 동일 UI 출력
+        //리뷰가 없거나 전부 작성된 경우 동일 UI 출력
         <div style={{ textAlign: 'center', marginTop: 40 }}>
           <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: 32 }} />
           <h3>모든 리뷰를 작성했습니다!</h3>
