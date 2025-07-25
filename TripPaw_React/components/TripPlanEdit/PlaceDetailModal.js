@@ -26,7 +26,7 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
         return `/image/other/randomImage/${randomNum}.jpg`;
     }, []);
 
-    // 👉 place 데이터가 부족한 경우 보완 요청
+    //데이터가 부족한 경우 보완 요청
     useEffect(() => {
         if (!place) return;
 
@@ -35,14 +35,13 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
                 // 데이터 보완이 필요할 경우
                 if (!place.region || !place.imageUrl || !place.parking) {
                     if (!place.placeId) {
-                        console.warn('🚫 유효하지 않은 placeId:', place);
+                        console.warn('유효하지 않은 placeId:', place);
                         setPlaceDetail(place);
                         return;
                     }
 
                     const { data } = await axios.get(`/place/${place.placeId}`);
                     setPlaceDetail({ ...place, ...data });
-                    console.log('📦 place 보완 완료:', data);
                 } else {
                     setPlaceDetail(place);
                 }
@@ -55,7 +54,7 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
         fetchDetail();
     }, [place]);
 
-    // 👉 위치 계산 및 모달 띄우기
+    //위치 계산 및 모달 띄우기
     useEffect(() => {
         if (anchorRef?.current && modalRef.current) {
             const anchorRect = anchorRef.current.getBoundingClientRect();
@@ -85,7 +84,7 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
         }
     }, [anchorRef, place]);
 
-    // 👉 외부 클릭 시 닫기
+    //외부 클릭 시 닫기
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (
@@ -104,7 +103,7 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
 
     if (!placeDetail) return null;
 
-    // 👉 모달 내용
+    //모달 내용
     const modalContent = (
         <div
             style={{
