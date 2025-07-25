@@ -11,7 +11,7 @@ const itemWrapper = {
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     userSelect: 'none',
     WebkitUserSelect: 'none',
-    touchAction: 'none', // ✅ 드래그 안정화
+    touchAction: 'none', 
     cursor: 'pointer',
 };
 
@@ -54,9 +54,9 @@ const DayScheduleItem = ({
             <div style={placeInfo}>
                 <div>{place.name}</div>
                 <DeleteOutlined
-                    onPointerDown={(e) => e.stopPropagation()} // ✅ 드래그 방해 방지
+                    onPointerDown={(e) => e.stopPropagation()} //드래그 방해 방지
                     onClick={(e) => {
-                        e.stopPropagation(); // ✅ 드래그 외에도 이벤트 전파 차단
+                        e.stopPropagation();
                         onDeletePlace(day.day, place.placeId);
                     }}
                 />
