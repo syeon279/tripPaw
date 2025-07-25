@@ -11,8 +11,8 @@ import com.ssdam.tripPaw.domain.CheckTemplateItem;
 @Mapper
 public interface CheckTemplateMapper {
 	
-	//템플릿 생성
-	void insertTemplate(CheckTemplate template);
+    //템플릿 생성
+    void insertTemplate(CheckTemplate template);
     int countTemplates();  // 데이터 중복 방지용
     
     //템플릿 목록조회
