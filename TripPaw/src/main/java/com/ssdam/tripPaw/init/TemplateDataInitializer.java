@@ -23,29 +23,30 @@ public class TemplateDataInitializer implements CommandLineRunner {
 	
 	@Override
     public void run(String... args) throws Exception {
-		// 1. 리뷰타입 삽입
-	    reviewTypeMapper.insertReviewTypes();
-
-	    // 2. 체크템플릿은 중복 방지 후 삽입
-	    if (checkTemplateMapper.countTemplates() > 0) return;
 	    
-        // 이미 존재하는지 확인
-        if (checkTemplateMapper.countTemplates() > 0) return;
-
-        // 1. 템플릿 등록
-        List<CheckTemplate> templates = List.of(
-            new CheckTemplate("기본 준비물",		 0, 1L, "250627"),
-            new CheckTemplate("건강, 위생",		 0, 1L, "250502"),
-            new CheckTemplate("숙소 및 장소 정보",	 0, 1L, "250403"),
-            new CheckTemplate("교통 수단 확인",		 0, 1L, "250404"),
-            new CheckTemplate("기타 유의사항",		 0, 1L, "250405"),
-            new CheckTemplate("공통 준비",			 1, 1L, "250406"),
-            new CheckTemplate("추움, 쌀쌀함",		 2, 1L, "250407"),
-            new CheckTemplate("쾌적한 날씨",		 3, 1L, "250408"),
-            new CheckTemplate("눈",			 	 4, 1L, "250409"),
-            new CheckTemplate("비",			 	 5, 1L, "250410")
-        );
-        templates.forEach(checkTemplateMapper::insertTemplate);
+	// 1. 리뷰타입 삽입
+	reviewTypeMapper.insertReviewTypes();
+	
+	// 2. 체크템플릿은 중복 방지 후 삽입
+	if (checkTemplateMapper.countTemplates() > 0) return;
+	    
+	// 이미 존재하는지 확인
+	if (checkTemplateMapper.countTemplates() > 0) return;
+	
+	// 1. 템플릿 등록
+	List<CheckTemplate> templates = List.of(
+	    new CheckTemplate("기본 준비물",		 0, 1L, "250627"),
+	    new CheckTemplate("건강, 위생",		 0, 1L, "250502"),
+	    new CheckTemplate("숙소 및 장소 정보",	 0, 1L, "250403"),
+	    new CheckTemplate("교통 수단 확인",		 0, 1L, "250404"),
+	    new CheckTemplate("기타 유의사항",		 0, 1L, "250405"),
+	    new CheckTemplate("공통 준비",			 1, 1L, "250406"),
+	    new CheckTemplate("추움, 쌀쌀함",		 2, 1L, "250407"),
+	    new CheckTemplate("쾌적한 날씨",		 3, 1L, "250408"),
+	    new CheckTemplate("눈",			 	 4, 1L, "250409"),
+	    new CheckTemplate("비",			 	 5, 1L, "250410")
+	);
+	templates.forEach(checkTemplateMapper::insertTemplate);
 
         // 2. 항목 등록
         List<CheckTemplateItem> items = List.of(
