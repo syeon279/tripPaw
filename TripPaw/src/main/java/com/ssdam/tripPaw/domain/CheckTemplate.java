@@ -33,7 +33,7 @@ public class CheckTemplate {
 	private Member member;
 	
 	@OneToMany(mappedBy = "checkTemplate", cascade = CascadeType.ALL)
-    private List<CheckTemplateItem> items = new ArrayList<>();
+   	 private List<CheckTemplateItem> items = new ArrayList<>();
 	
 	//더미데이터용
 	public CheckTemplate(String title, int type, Long memberId, String code) {
