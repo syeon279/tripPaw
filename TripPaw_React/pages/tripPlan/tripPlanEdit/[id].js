@@ -205,11 +205,9 @@ const tripEdit = () => {
                 alert('여행 일정에 최소 1개 이상의 장소가 필요합니다.');
                 return;
             }
-
             await axios.post('/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
         } catch (error) {
-            console.error('저장 실패:', error);
             alert('저장 중 오류 발생');
         }
     };
@@ -262,6 +260,7 @@ const tripEdit = () => {
         return <div>지도를 불러오는 중입니다...</div>;
     }
 
+    /////////////////////
     return (
         <AppLayout>
             <div style={layoutStyle.header} />
