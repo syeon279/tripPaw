@@ -15,9 +15,9 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/place-types")
 public class PlaceTypeController {
 	private final PlaceTypeService placeTypeService;
-
-    @GetMapping
-    public List<PlaceType> getAllPlaceTypes() {
-        return placeTypeService.getAllPlaceTypes();
-    }
+	
+	@GetMapping
+	public List<PlaceType> getAllPlaceTypes() {
+		return placeTypeService.getAllPlaceTypes();
+	}
 }

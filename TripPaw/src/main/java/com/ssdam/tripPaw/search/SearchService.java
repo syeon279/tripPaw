@@ -34,12 +34,12 @@ public class SearchService {
         paramMap.put("offset", offset); // 장소용
         paramMap.put("tripPlanOffset", tripPlanOffset); // 🆕 여행용
 
-        // ✅ 장소 검색
+        //장소 검색
         List<Long> placeIds = searchMapper.findPlaceIdsByKeyword(paramMap);
         System.out.println(">>> Step 1 - placeIds: " + placeIds);
         List<Place> places = placeIds.isEmpty() ? List.of() : searchMapper.findPlacesByIds(placeIds);
 
-        // ✅ 여행 검색 (이제 tripPlanOffset 사용)
+        //여행 검색 (이제 tripPlanOffset 사용)
         //List<TripPlan> tripPlans = searchMapper.searchTripPlansByKeyword(paramMap);
         List<Long> tripPlanIds = searchMapper.findTripPlanIdsByKeyword(paramMap);
         List<TripPlan> tripPlans = tripPlanIds.isEmpty()
@@ -55,7 +55,7 @@ public class SearchService {
         return new SearchResultDto(placeDtos, tripPlanDtos);
     }
 
-    // 🔁 그대로 유지
+    //그대로 유지
     private List<PlaceSearchDto> mapPlaceList(List<Place> places) {
         return places.stream().map(p -> {
             PlaceSearchDto dto = new PlaceSearchDto();

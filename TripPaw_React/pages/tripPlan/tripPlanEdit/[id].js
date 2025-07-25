@@ -84,16 +84,12 @@ const tripEdit = () => {
                     withCredentials: true,
                 });
 
-                //console.log('user : ', response.data);
-
                 if (response.status === 200) {
                     setIsLoggedIn(true);
-                    // 백엔드에서 받은 username으로 상태 업데이트
                     setMemberId(response.data.id);
                     return true; // 성공 시 true 반환
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
                 return false; // 실패 시 false 반환
             }
         };
@@ -137,7 +133,6 @@ const tripEdit = () => {
                 setCountPeople(trip.countPeople || router.query.countPeople);
                 setCountPet(trip.countPet || router.query.countPet);
             } catch (err) {
-                console.error('🚨 여행 경로 불러오기 실패:', err);
             }
         };
 
@@ -159,7 +154,6 @@ const tripEdit = () => {
                 setCountPeople(router.query.countPeople);
                 setCountPet(router.query.countPet);
             } catch (e) {
-                console.error('데이터 파싱 오류', e);
             }
         }
     }, [TripPlanId]);
@@ -189,7 +183,6 @@ const tripEdit = () => {
         try {
             return await mapRef.current?.captureMap();
         } catch (err) {
-            console.warn('지도 캡처 오류:', err);
             return null;
         }
     };
@@ -212,11 +205,9 @@ const tripEdit = () => {
                 alert('여행 일정에 최소 1개 이상의 장소가 필요합니다.');
                 return;
             }
-
             await axios.post('/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
         } catch (error) {
-            console.error('저장 실패:', error);
             alert('저장 중 오류 발생');
         }
     };
@@ -269,6 +260,7 @@ const tripEdit = () => {
         return <div>지도를 불러오는 중입니다...</div>;
     }
 
+    /////////////////////
     return (
         <AppLayout>
             <div style={layoutStyle.header} />

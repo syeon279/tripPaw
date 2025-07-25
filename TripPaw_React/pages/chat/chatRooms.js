@@ -3,7 +3,6 @@ import axios from 'axios';
 import styled from 'styled-components'; // 1. styled-components 
 import Link from 'next/link';
 
-// --- 2. 스타일 컴포넌트 정의 ---
 const RoomListContainer = styled.div`
   max-width: 600px;
   margin: 40px auto;
@@ -60,8 +59,6 @@ const RoomUl = styled.ul`
   }
 `;
 
-
-// --- 3. React 컴포넌트 로직 ---
 function ChatRoomList() {
   const [rooms, setRooms] = useState([]);
   const [newRoomTitle, setNewRoomTitle] = useState('');
@@ -69,7 +66,6 @@ function ChatRoomList() {
   const fetchRooms = async () => {
     try {
       const response = await axios.get('/chat/rooms');
-      console.log("response.data=", response.data);
       setRooms(response.data);
     } catch (error) {
       console.error('채팅방 목록을 불러오는 데 실패했습니다:', error);
@@ -97,7 +93,6 @@ function ChatRoomList() {
     }
   };
 
-  // --- 4. JSX 렌더링 (스타일 컴포넌트 사용) ---
   return (
     <RoomListContainer>
       <Title>채팅방 목록</Title>
@@ -126,9 +121,6 @@ function ChatRoomList() {
         {rooms.length > 0 ? (
           rooms.map((room) => (
             <li key={room.id}>
-              {/* <a href={`http://localhost:8080/chat/room?id=${room.id}`} target="_blank" rel="noopener noreferrer">
-                {room.title}
-              </a> */}
               <Link href={`/chat/chatRoom/${room.id}`} passHref>
                 {room.title}
               </Link>

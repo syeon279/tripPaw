@@ -10,15 +10,13 @@ const configureStore = () => {
   const sagaMiddleware = createSagaMiddleware();
   const middlewares = [sagaMiddleware];
 
-  // 프로덕션 환경에서는 redux-devtools-extension 없이 compose 사용
   const enhancer =
     process.env.NODE_ENV === 'production'
-      ? compose(applyMiddleware(...middlewares)) // applyMiddleware로만 미들웨어 설정
-      : composeWithDevTools(applyMiddleware(...middlewares)); // 개발 환경에서만 Redux DevTools 활성화
+      ? compose(applyMiddleware(...middlewares)) 
+      : composeWithDevTools(applyMiddleware(...middlewares)); 
 
   const store = createStore(reducers, enhancer);
 
-  // saga 실행
   store.sagaTask = sagaMiddleware.run(rootSaga);
 
   return store;

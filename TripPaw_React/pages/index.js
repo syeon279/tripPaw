@@ -36,7 +36,7 @@ const Home = () => {
     const [offset, setOffset] = useState(0);
     const [tripPlanOffset, setTripPlanOffset] = useState(0);
 
-    // 🔍 검색 요청
+    //검색 요청
     const handleSearch = async () => {
         if (!keyword.trim()) return;
         try {
@@ -49,9 +49,6 @@ const Home = () => {
                     tripPlanOffset
                 }
             });
-            //console.log('[검색 요청]', { keyword, offset });
-            //console.log('[검색 데이터]]', response);
-
             const { places = [], tripPlans = [] } = response.data || {};
             const newResult = { places, tripPlans };
 
@@ -73,7 +70,6 @@ const Home = () => {
             }
 
         } catch (err) {
-            console.log('❌ 검색 실패:', err);
         } finally {
             setIsLoading(false);
         }
@@ -87,7 +83,6 @@ const Home = () => {
         const handleScroll = () => {
             const isBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 100;
             if (isBottom && !isLoading) {
-                console.log('📦 스크롤 맨 아래 도달!');
                 setOffset((prev) => prev + 10);
             }
         };
@@ -171,7 +166,7 @@ const Home = () => {
                     scrollBehavior: 'smooth',
                 }}
             >
-                {/* ✅ 공통 배경: 1~3 세션 */}
+                {/* 공통 배경: 1~3 세션 */}
                 <div
                     style={{
                         height: '300vh',
@@ -182,7 +177,7 @@ const Home = () => {
                         backgroundPosition: 'top center',
                     }}
                 >
-                    {/* ✅ 전체 오버레이 */}
+                    {/* 전체 오버레이 */}
                     <div
                         style={{
                             position: 'absolute',
@@ -195,12 +190,12 @@ const Home = () => {
                         }}
                     />
 
-                    {/* ✅ 섹션 1 */}
+                    {/* 섹션 1 */}
                     <section style={sectionStyle(sectionIndex === 0)}>
                         <TripPlanMain />
                     </section>
 
-                    {/* ✅ 섹션 2 - 검색 */}
+                    {/* 섹션 2 - 검색 */}
                     <section style={sectionStyle(sectionIndex === 1)}>
                         <TripPlanSearch
                             keyword={keyword}
@@ -210,7 +205,7 @@ const Home = () => {
                         />
                     </section>
 
-                    {/* ✅ 섹션 3 - 결과 */}
+                    {/* 섹션 3 - 결과 */}
                     {hasSearched && searchResult && (
                         <section style={sectionStyle(sectionIndex === 2)}>
                             <SearchResultSection
@@ -220,10 +215,10 @@ const Home = () => {
                                 handleKeyPress={handleKeyPress}
                                 handleSearch={handleSearch}
                                 setSectionIndex={setSectionIndex}
-                                setOffset={setOffset} // ✅ 추가
-                                isLoading={isLoading} // ✅ 추가
-                                tripPlanOffset={tripPlanOffset}           // ✅ 추가
-                                setTripPlanOffset={setTripPlanOffset}     // ✅ 추가
+                                setOffset={setOffset} 
+                                isLoading={isLoading}
+                                tripPlanOffset={tripPlanOffset}
+                                setTripPlanOffset={setTripPlanOffset} 
                             />
                         </section>
                     )}

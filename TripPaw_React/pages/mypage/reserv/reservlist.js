@@ -357,7 +357,6 @@ const ReservList = () => {
   };
 
   const cancelSingleReserv = async (reservId) => {
-    console.log("넘어온 예약 ID:", reservId);
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
@@ -375,8 +374,6 @@ const ReservList = () => {
     if (!window.confirm('일괄 예약 전체를 취소하시겠습니까?')) return;
 
     const memberTripPlanId = memberTripPlan?.id ?? memberTripPlan;
-    console.log("memberTripPlanId:", memberTripPlanId);
-    console.log("전체 reservations:", reservations);
 
     // 조건: memberTripPlanId가 number로 존재한다고 가정
     const selected = reservations.filter(r => {
@@ -384,8 +381,6 @@ const ReservList = () => {
         r.memberTripPlan?.id === memberTripPlanId || r.memberTripPlanId === memberTripPlanId
       );
     });
-
-    console.log("선택된 예약:", selected);
 
     const requestBody = selected.map(r => ({
       reservId: r.id,
@@ -396,8 +391,6 @@ const ReservList = () => {
       startDate: r.startDate,
       endDate: r.endDate
     }));
-
-    console.log("보내는 requestBody:", requestBody);
 
     if (requestBody.length === 0) {
       alert('보낼 예약 데이터가 없습니다.');
@@ -419,7 +412,6 @@ const ReservList = () => {
       );
     } catch (err) {
       alert('일괄 예약 취소에 실패했습니다.');
-      console.error(err);
     }
   };
 

@@ -24,16 +24,16 @@ public class PayShare {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-    private int amount;
-    private Boolean hasPaid;
-    private LocalDateTime paidAt;
-    private LocalDateTime createdAt = LocalDateTime.now();
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pay_id", nullable = false)
-    private Pay pay;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+	private int amount;
+	private Boolean hasPaid;
+	private LocalDateTime paidAt;
+	private LocalDateTime createdAt = LocalDateTime.now();
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "pay_id", nullable = false)
+	private Pay pay;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 }

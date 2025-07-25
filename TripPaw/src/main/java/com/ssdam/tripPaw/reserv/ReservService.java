@@ -110,12 +110,6 @@ public class ReservService {
             Place place = placeMapper.findById(dto.getPlaceId());
             MemberTripPlan memberTripPlan = reservMapper.findMemberTripPlanById(dto.getMemberTripPlanId());
             
-//            if (memberTripPlan == null) {
-//                System.out.println("No MemberTripPlan found for ID: " + dto.getMemberTripPlanId());
-//            } else {
-//                System.out.println("MemberTripPlan found: " + memberTripPlan);
-//            }
-            
             // 장소나 여행 계획이 없으면 건너뜀
             if (place == null || memberTripPlan == null) continue;
 
@@ -134,13 +128,6 @@ public class ReservService {
             Reserv reserv = dto.toReserv(member, place, reservMapper, tripPlanMapper);
             System.out.println("Reserv에 세팅된 TripPlan ID: " + 
             	    (reserv.getTripPlan() != null ? reserv.getTripPlan().getId() : "null"));
-
-//            if (reserv != null) {
-//                System.out.println("Created Reserv: " + reserv);
-//                System.out.println("MemberTripPlan ID: " + reserv.getMemberTripPlan().getId());
-//            } else {
-//                System.out.println("Failed to create Reserv object.");
-//            }
             
             // 예약이 겹치는지 확인
             if (!reservMapper.existsOverlappingReservation(

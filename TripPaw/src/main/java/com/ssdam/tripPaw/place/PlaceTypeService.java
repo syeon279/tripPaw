@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 @Service @RequiredArgsConstructor
 public class PlaceTypeService {
 	private final PlaceTypeMapper placeTypeMapper;
-
-    public List<PlaceType> getAllPlaceTypes() {
-        return placeTypeMapper.findAll();
-    }
+	
+	public List<PlaceType> getAllPlaceTypes() {
+		return placeTypeMapper.findAll();
+	}
 }

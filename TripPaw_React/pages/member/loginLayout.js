@@ -3,18 +3,12 @@ import React, { useEffect, useState } from 'react';
 import Router from 'next/router';
 import styled from 'styled-components';
 import AuthContainer from '@/components/member/AuthContainer';
-// react-icons 라이브러리에서 아이콘을 가져옵니다.
-//import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-// 이미지 경로 (public 폴더에 이미지를 위치시키거나 import하여 사용)
 const logoPath = '/image/logo/TripPaw-logo-white.png';
 const backgroundImagePath = '/image/logo/main.png';
 const googleIconPath = '/image/member/google.png';
 const kakaoIconPath = '/image/member/kakao.png';
 const naverIconPath = '/image/member/naver.png';
-
-
-// --- 스타일 정의 (styled-components) --- //
 
 const PageWrapper = styled.div`
   margin: 0;
@@ -229,15 +223,12 @@ function LoginPage({ children }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // 폼 기본 제출 동작 방지
-    console.log('Login attempt with:', { username, password });
     const loginSubmit = await axios.post(`/api/auth/login`, {
       username: username,
       password: password
     }, {
       withCredentials: true,
     })
-
-    // 실제 로그인 로직을 여기에 구현합니다. (API 호출 등)
     Router.replace('/')
   };
 

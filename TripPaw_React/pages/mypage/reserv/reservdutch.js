@@ -138,32 +138,16 @@ function reservdutch() {
     const stompClient = new Client({
       webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
       reconnectDelay: 5000,
-      onConnect: () => {
-        console.log('🟢 WebSocket 연결됨');
-      },
-      onStompError: (frame) => {
-        console.error('🔴 STOMP 오류 발생:', frame);
-      }
     });
-
     stompClient.activate();
     setClient(stompClient);
     const response = axios.get('/api/auth/check', { withCredentials: true })
       .then(response => {
         const username = response.data.username;
-        console.log('username:', username);
-
         setUsername(username);
       })
       .catch(error => {
-        console.error('Error fetching username:', error);
       });
-
-    // 로그인한 유저 이름 세팅
-    // const storedUsername = localStorage.getItem('username');
-    // if (storedUsername) {
-    //   setUsername(storedUsername);
-    // }
 
     return () => {
       stompClient.deactivate();
@@ -185,11 +169,9 @@ function reservdutch() {
             allDisabled.push(...range);
           }
         });
-
         setDisabledDates(allDisabled);
       })
       .catch(err => {
-        console.error('예약 불가 날짜 불러오기 실패', err);
       });
   }, []);
 
@@ -217,7 +199,6 @@ function reservdutch() {
     try {
       // 예약 생성
       const res = await axios.post('/reserv', payload);
-
       alert('예약 성공! 🎉');
 
       const reservId = res.data.id;
@@ -242,8 +223,6 @@ function reservdutch() {
           destination: `/app/chat/${roomId}/sendMessage`,
           body: JSON.stringify(message),
         });
-
-        console.log("📤 메시지 전송 완료");
       }
       // 채팅방으로 돌아가기
       router.push(`/chat/chatRoom/${roomId}`);

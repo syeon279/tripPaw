@@ -36,9 +36,9 @@ public class Reserv {
 	
 	@Enumerated(EnumType.STRING)
 	private ReservState state = ReservState.WAITING;
-    
+	
 	private LocalDateTime createdAt = LocalDateTime.now();
-    
+	
 	private int originalPrice = 0;
 	private int finalPrice = 0;
 	private int countPeople;
@@ -48,23 +48,23 @@ public class Reserv {
 	@JoinColumn(name = "pay_id") // 외래키 이름 (nullable 허용 가능)
 	private Pay pay;
 	
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id", nullable = false)
-    private Place place;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "memberTripPlan_id", nullable = true)
-    private MemberTripPlan memberTripPlan;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tripPlan_id", nullable = true)
-    private TripPlan tripPlan;
-    
-    public Long getTripPlanId() {
-        return tripPlan != null ? tripPlan.getId() : null;
-    }
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "place_id", nullable = false)
+	private Place place;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "memberTripPlan_id", nullable = true)
+	private MemberTripPlan memberTripPlan;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "tripPlan_id", nullable = true)
+	private TripPlan tripPlan;
+	
+	public Long getTripPlanId() {
+	return tripPlan != null ? tripPlan.getId() : null;
+	}
 }

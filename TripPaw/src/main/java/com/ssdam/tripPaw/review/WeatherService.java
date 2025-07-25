@@ -26,12 +26,12 @@ public class WeatherService {
 
     public String getWeather(LocalDate date, double lat, double lon) {
         try {
-        	// ✅ 1. 파라미터 확인
+        	//1. 파라미터 확인
         	System.out.println("[DEBUG] 날씨 호출 - date: " + date + ", lat: " + lat + ", lon: " + lon);
 
             int stationId = getNearestStation(lat, lon);
             
-         // ✅ 2. 지점코드 확인
+         //2. 지점코드 확인
             System.out.println("[DEBUG] stationId: " + stationId);
             
             if (stationId == -1) {
@@ -52,13 +52,13 @@ public class WeatherService {
                     + "&stnIds=" + stationId
                     + "&numOfRows=1&pageNo=1";
 
-            // ✅ 3. 실제 호출 URL 확인
+            //3. 실제 호출 URL 확인
             System.out.println("[DEBUG] 호출 URL: " + url);
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(new URI(url), String.class);
 
-            // ✅ 4. API 응답 원문 확인
+            //4. API 응답 원문 확인
             System.out.println("[DEBUG] XML 응답: " + response.getBody());
 
             try (StringReader reader = new StringReader(response.getBody())) {

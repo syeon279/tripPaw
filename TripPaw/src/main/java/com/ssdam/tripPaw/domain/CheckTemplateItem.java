@@ -17,6 +17,7 @@ import lombok.Setter;
 @Entity @Getter @Setter
 @NoArgsConstructor
 public class CheckTemplateItem {
+	
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String content;

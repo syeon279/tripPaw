@@ -51,8 +51,6 @@ const Sidebar = () => {
 
         if (response.status === 200) {
           const data = response.data;
-          console.log('auth:', data.auth); // 확인용
-
           setUser({
             nickname: data.nickname,
             username: data.username,
@@ -69,17 +67,16 @@ const Sidebar = () => {
 
     checkUser();
   }, []);
+  
   const onChangePass = useCallback((e) => {
-    // if(!changePass){
-    //   setPasswordError(false);
-    // }
     const newPass = e.target.value;
     setChangePass(e.target.value);
   }, [])
+  
   const showModal = (menu) => {
-    console.log('클릭=', menu);
     menu === 'passChangeConfirm' ? setIsChangePassModalOpen(true) : setIsUserDeleteModalOpen(true);
   };
+  
   //탈퇴
   const [userDeleteConfirm, setUserDeleteConfirm] = useState(false);
   const onUserDeleteConfirm = () => {
@@ -87,21 +84,18 @@ const Sidebar = () => {
     setUserDeleteConfirm(prev => !prev);
     showModal('userDeleteConfirm');
   }
+  
   const handleOk = useCallback(async (str) => {
     const passRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
     const formData = new FormData();
     setPasswordError(false);
     if (str === 'changePass') {
-      console.log('changePass=', changePass);
       formData.append('changePass', changePass);
-      console.log('changePass 실행',);
       if (!passRegex.test(changePass)) {
-        console.log('비밀번호 에러');
         setPasswordError(true);
         dispatch({ type: USER_PASSWORD_CHANGE_FAILURE }) //초기화
         return;
       }
-
       dispatch({
         type: USER_PASSWORD_CHANGE_REQUEST,
         data: changePass,
@@ -109,30 +103,16 @@ const Sidebar = () => {
 
       setChangePass('');
       setPasswordError(false);
-      // if(!samePass){
-      //   setIsChangePassModalOpen(false);
-      //   //setSamePass(true);
-      // }
-      // else{
-      //   setIsChangePassModalOpen(true);
-      //   return;
-      // }
-      //alert('비밀번호 변경이 완료되었습니다.');
       return;
     }
+    
     if (str === 'deleteUser') {
-      console.log('deleteUser입장');
-      console.log('deleteUser', changePass);
-      //formData.append('deleteUser',changePass);
       await axios.post('/api/auth/memberDelete'
         , {
           password: changePass
         }
         , { withCredentials: true })
         .then(function (response) {
-          console.log('탈퇴확인', response.data.message)
-          //setDeleteMessage(response.data.message)
-          //alert(response.data.message);
           if (response.status == 400) {
             alert(response.data.error);
             return;
@@ -146,17 +126,14 @@ const Sidebar = () => {
         })
         .catch(function (error) {
           setDeleteModal(true);
-          setDeleteMessage(error.response.data.message)
-          console.log('탈퇴에러', error.response.data.message);
+          setDeleteMessage(error.response.data.message);
         })
-
       return;
     }
-    //setIsUserDeleteModalOpen(false);
     setChangePass('');
     setSamePass(false);
-    //setUserDeleteConfirm(prev => !prev)
   }, [changePass]);
+  
   const [isChangePassModalOpen, setIsChangePassModalOpen] = useState(false);
   const onPassChangeConfirm = useCallback(() => {
     setIsChangePassModalOpen(prev => !prev);
@@ -165,11 +142,12 @@ const Sidebar = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [samePass, setSamePass] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState('');
+  
   useEffect(() => {
     setDeleteMessage(str => str);
   }, [deleteMessage])
+  
   const handleCancel = useCallback(() => {
-    console.log('캔슬');
     setIsChangePassModalOpen(false);
     setIsUserDeleteModalOpen(false);
     setPasswordError(false);
@@ -177,11 +155,10 @@ const Sidebar = () => {
     setSamePass(false);
     setDeleteMessage('');
     setDeleteModal(false);
-    // dispatch({ type: USER_PASSWORD_CHANGE_FAILURE })
     setUserDeleteConfirm(prev => !prev)
   }, []);
 
-  if (isLoading) return null; // ✅ 로딩 중이면 아무 것도 렌더링하지 않음
+  if (isLoading) return null; 
 
   return (
     <Wrapper>
@@ -199,7 +176,7 @@ const Sidebar = () => {
           <SidebarItem text="내 여행" href="/mypage/trips" />
 
           <SidebarItem text="내 리뷰 관리" href={`/mypage/reviews/${user?.memberId}`} />
-          {/* ✅ memberId 없으면 렌더링 안 하도록 */}
+          {/* memberId 없으면 렌더링 안 하도록 */}
           {user.memberId && (
             <SidebarItem
               text="내 체크리스트"

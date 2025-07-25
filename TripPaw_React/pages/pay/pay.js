@@ -235,7 +235,6 @@ function PaymentPage() {
       );
     } catch (error) {
       alert('결제 스크립트 로드에 실패했습니다.');
-      console.error(error);
     }
   };
 

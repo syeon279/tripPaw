@@ -15,6 +15,7 @@ import lombok.Setter;
 
 @Entity @Getter @Setter
 public class MemberCheck {
+	
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
@@ -26,12 +27,12 @@ public class MemberCheck {
 	
 	//CheckRoutine
 	@ManyToOne
-    @JoinColumn(name = "checkroutine_id")
+	@JoinColumn(name = "checkroutine_id")
 	private CheckRoutine checkRoutine;
-
+	
 	//CheckTemplateItem
 	@ManyToOne
-    @JoinColumn(name = "checktemplateitem_id")
+	@JoinColumn(name = "checktemplateitem_id")
 	private CheckTemplateItem checkTemplateItem;
 	
 	@Override
@@ -40,4 +41,5 @@ public class MemberCheck {
 	}
 	
 	public void setIsChecked(boolean isChecked) {this.isChecked = isChecked;}
+	
 }

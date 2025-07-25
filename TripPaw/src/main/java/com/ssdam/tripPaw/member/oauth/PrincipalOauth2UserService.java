@@ -51,13 +51,10 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService{
 						   .provider(provider)
 						   .email(email)
 						   .nickname(nickname)
-						   //.image(image)
-						   //.role(MemberRole.MEMBER)
 						   .build();
 			member.getRole().add(MemberRole.MEMBER);
 			memberMapper.insert(member);
 		}else {
-			//member.setImage(image);
 			memberMapper.update(member);
 		}
 		

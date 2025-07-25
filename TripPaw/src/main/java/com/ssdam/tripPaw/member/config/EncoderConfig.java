@@ -7,11 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class EncoderConfig {
-	@Bean // @Bean 스프링이 관리하는 객체 
+	@Bean 
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
-		//return new Argon2PasswordEncoder(); 
 	}
 } 
 
-//순환참조 예제

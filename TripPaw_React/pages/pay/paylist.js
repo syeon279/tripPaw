@@ -130,7 +130,6 @@ const PayList = () => {
       );
     } catch (error) {
       alert('환불 처리에 실패했습니다.');
-      console.error(error);
     }
   };
 

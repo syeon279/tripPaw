@@ -26,6 +26,38 @@ const getValidImageUrl = (url) => {
   return url;
 };
 
+const renderPagination = (currentPage, totalPages, onPageChange) => {
+  const pageNumbers = [];
+  const pageGroupSize = 5; // 5개씩 그룹
+
+  const start = Math.floor(currentPage / pageGroupSize) * pageGroupSize;
+  const end = Math.min(start + pageGroupSize, totalPages);
+
+  for (let i = start; i < end; i++) {
+    pageNumbers.push(
+      <Button
+        key={i}
+        type={i === currentPage ? 'primary' : 'default'}
+        onClick={() => onPageChange(i)}
+        style={{ margin: '0 4px' }}
+      >
+        {i + 1}
+      </Button>
+    );
+  }
+  return (
+    <div style={{ textAlign: 'center', margin: '16px 0' }}>
+      <Button disabled={currentPage === 0} onClick={() => onPageChange(currentPage - 1)}>
+        이전
+      </Button>
+      {pageNumbers}
+      <Button disabled={currentPage + 1 >= totalPages} onClick={() => onPageChange(currentPage + 1)}>
+        다음
+      </Button>
+    </div>
+  );
+};
+
 const ReviewCard = ({ review, onDelete, onOpenIssueModal }) => {
   const handleDelete = async () => {
     try {
@@ -65,7 +97,7 @@ const ReviewCard = ({ review, onDelete, onOpenIssueModal }) => {
       <p><strong>별점:</strong> <Rate disabled value={review.rating} /></p>
       <p><strong>날씨:</strong> {review.weatherCondition}</p>
       <p><strong>내용:</strong> {review.content}</p>
-      
+
       {review.imageUrls &&
         review.imageUrls.split(',').map((url, idx) => (
           <Image
@@ -81,37 +113,49 @@ const ReviewCard = ({ review, onDelete, onOpenIssueModal }) => {
 };
 
 const ReviewAdminPage = () => {
-  const [planReviews, setPlanReviews] = useState([]);
+  const [planReviews, setPlanReviews] = useState({ content: [], totalElements: 0, totalPages: 0 });
+  const [planPage, setPlanPage] = useState(0);
+  const [planTotalPages, setPlanTotalPages] = useState(0);
   const [placeReviews, setPlaceReviews] = useState([]);
+  const [placePage, setPlacePage] = useState(0);
+  const [placeTotalPages, setPlaceTotalPages] = useState(0);
   const [nfts, setNfts] = useState([]);
   const [issueModalVisible, setIssueModalVisible] = useState(false);
   const [selectedNickname, setSelectedNickname] = useState(null);
   const [selectedNftId, setSelectedNftId] = useState(null);
   const [issueForm] = Form.useForm();
 
+  const pageSize = 10;
+
   useEffect(() => {
-    fetchPlanReviews();
-    fetchPlaceReviews();
+    fetchPlanReviews(0);
+    fetchPlaceReviews(0);
     fetchNfts();
   }, []);
 
-  const fetchPlanReviews = async () => {
+  const fetchPlanReviews = async (page = 0) => {
     try {
-      const res = await axios.get('/review/admin/plan');
+      const res = await axios.get('/review/admin/plan', {
+        params: { page, size: pageSize },
+      });
       setPlanReviews(res.data);
+      setPlanPage(page); // 현재 페이지도 같이 저장
+      setPlanTotalPages(res.data.totalPages); // 페이지 총 개수도 반영
     } catch (err) {
       console.error('경로 리뷰 불러오기 실패', err);
     }
   };
 
-  const fetchPlaceReviews = async () => {
-    try {
-      const res = await axios.get('/review/admin/place');
-      setPlaceReviews(res.data);
-    } catch (err) {
-      console.error('장소 리뷰 불러오기 실패', err);
-    }
+
+  const fetchPlaceReviews = async (page = 0) => {
+    const res = await axios.get(`/review/admin/place`, {
+      params: { page, size: pageSize },
+    });
+    setPlaceReviews(res.data.reviews);
+    setPlaceTotalPages(res.data.totalPages);
+    setPlacePage(page);
   };
+
 
   const fetchNfts = async () => {
     try {
@@ -146,11 +190,11 @@ const ReviewAdminPage = () => {
         },
       });
 
-    setNfts((prevNfts) =>
-      prevNfts.map((nft) =>
-        nft.id === selectedNftId ? { ...nft, issued: true } : nft
-      )
-    );
+      setNfts((prevNfts) =>
+        prevNfts.map((nft) =>
+          nft.id === selectedNftId ? { ...nft, issued: true } : nft
+        )
+      );
 
       message.success("NFT 발급 성공");
       setIssueModalVisible(false);
@@ -167,7 +211,7 @@ const ReviewAdminPage = () => {
         </h1>
         <Tabs defaultActiveKey="plan">
           <TabPane tab="경로 리뷰" key="plan">
-            {planReviews.map((review) => (
+            {planReviews.content.map((review) => (
               <ReviewCard
                 key={review.reviewId}
                 review={review}
@@ -175,7 +219,9 @@ const ReviewAdminPage = () => {
                 onOpenIssueModal={onOpenIssueModal}
               />
             ))}
+            {renderPagination(planPage, planTotalPages, fetchPlanReviews)}
           </TabPane>
+
           <TabPane tab="장소 리뷰" key="place">
             {placeReviews.map((review) => (
               <ReviewCard
@@ -185,6 +231,7 @@ const ReviewAdminPage = () => {
                 onOpenIssueModal={onOpenIssueModal}
               />
             ))}
+            {renderPagination(placePage, placeTotalPages, fetchPlaceReviews)}
           </TabPane>
         </Tabs>
 

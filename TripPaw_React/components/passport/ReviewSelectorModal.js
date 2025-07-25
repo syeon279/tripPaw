@@ -19,8 +19,6 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
 
 
 const handleReviewSelect = (item) => {
-  console.log('선택한 리뷰 아이템:', item);
-
   // tripPlanId는 리뷰의 대상 여행 식별자
   const tripPlanId = item?.targetId;
   const reviewId = item?.reviewId || item?.id;
@@ -30,18 +28,7 @@ const handleReviewSelect = (item) => {
     id: reviewId,
     tripPlanId,
   });
-
-  console.log('reserv:', item.reserv);
-  console.log('memberTripPlan:', item.reserv?.memberTripPlan);
-  console.log('titleOverride:', item.reserv?.memberTripPlan?.titleOverride);
-  console.log('추출된 tripPlanId:', tripPlanId);
 };
-
-
-useEffect(() => {
-  console.log('선택된 리뷰:', selectedReview);
-  console.log('추출된 memberTripPlanId:', selectedReview?.memberTripPlanId);
-}, [selectedReview]);
 
   return (
     <>

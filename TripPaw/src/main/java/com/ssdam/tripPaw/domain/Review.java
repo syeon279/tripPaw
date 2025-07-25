@@ -35,27 +35,27 @@ public class Review {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 	
 	@NotBlank
 	@Size(max = 1000)
-    @Column(length = 1000)
-    private String content;
+	@Column(length = 1000)
+	private String content;
 	private int rating;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_type_id", nullable = false)
-    private ReviewType reviewType;
+	@JoinColumn(name = "review_type_id", nullable = false)
+	private ReviewType reviewType;
 	
 	@Column(name = "target_id")
 	private Long targetId;
 	private String weatherCondition;	//맑음, 비 등
 	
 	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewImage> reviewImages;
+	private List<ReviewImage> reviewImages;
 	
 	@ManyToMany(mappedBy = "likedReviews")
 	private Set<Member> likedByMembers = new HashSet<>();

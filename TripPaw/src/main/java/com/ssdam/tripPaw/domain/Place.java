@@ -32,7 +32,7 @@ import lombok.Data;
 @Data
 public class Place {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
 	@Lob
@@ -60,25 +60,25 @@ public class Place {
 	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PlaceImage> placeImages = new ArrayList<>();
 	
-    @ManyToMany
-    @JoinTable(
-        name = "place_category",
-        joinColumns = @JoinColumn(name = "place_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private List<Category> categories = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoutePlace> routePlaces;
-    
-    /// 테이블 영향x
-    @Transient
-    private Double avgRating;
-
-    @Transient
-    private Long reviewCount;
-    
-    @Transient
-    private List<Review> reviews;
+	@ManyToMany
+	@JoinTable(
+	name = "place_category",
+	joinColumns = @JoinColumn(name = "place_id"),
+	inverseJoinColumns = @JoinColumn(name = "category_id")
+	)
+	private List<Category> categories = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<RoutePlace> routePlaces;
+	
+	/// 테이블 영향 없음
+	@Transient
+	private Double avgRating;
+	
+	@Transient
+	private Long reviewCount;
+	
+	@Transient
+	private List<Review> reviews;
 }
 

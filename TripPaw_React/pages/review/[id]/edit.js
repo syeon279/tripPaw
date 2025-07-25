@@ -28,7 +28,6 @@ const ReviewEditPage = () => {
     const id = router.query.id;
 
     if (typeof id !== "string" && typeof id !== "number") {
-      console.warn("id가 유효하지 않음:", id);
       return;
     }
 
@@ -38,7 +37,6 @@ const ReviewEditPage = () => {
         setRating(res.data.rating);
         setContent(res.data.content);
       } catch (err) {
-        console.error("리뷰 로드 실패", err);
       }
     };
 
@@ -73,7 +71,6 @@ const ReviewEditPage = () => {
       message.success("리뷰가 수정되었습니다.");
       router.push("/mypage"); // 이동 경로 필요시 변경
     } catch (err) {
-      console.error("수정 실패", err);
       message.error("리뷰 수정에 실패했습니다.");
     }
   };
@@ -97,8 +94,8 @@ const ReviewEditPage = () => {
           listType="picture-card"
           fileList={fileList}
           onChange={({ fileList }) => setFileList(fileList)}
-          beforeUpload={() => false} // 직접 업로드 안 함
-          multiple // 여러 파일 선택 허용
+          beforeUpload={() => false}
+          multiple
         >
           {fileList.length < 8 && (
             <div>

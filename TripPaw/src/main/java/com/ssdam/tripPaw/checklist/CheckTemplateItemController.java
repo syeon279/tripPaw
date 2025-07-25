@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class CheckTemplateItemController {
 	private final CheckTemplateItemService service;
 	
-	// 멤버 아이디로 조회 - 관리자용
-	@GetMapping("/member/{memberId}")
+    // 멤버 아이디로 조회 - 관리자용
+    @GetMapping("/member/{memberId}")
     public List<CheckTemplateItem> getItemsByMemberId(@PathVariable Long memberId) {
         return service.findItemsByMemberIds(List.of(memberId));
     }

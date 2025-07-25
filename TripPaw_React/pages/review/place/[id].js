@@ -57,7 +57,6 @@ const PlaceReviewPage = () => {
       }
       setLikeStates(newLikeStates);
     } catch (err) {
-      console.error('장소 리뷰 불러오기 실패', err);
     }
     setLoading(false);
   };
@@ -90,7 +89,6 @@ const PlaceReviewPage = () => {
         },
       });
     } catch (err) {
-      console.error("좋아요 토글 실패", err);
     }
   };
 
@@ -104,8 +102,6 @@ const PlaceReviewPage = () => {
         return 'snow.png';
       case '구름많음':
         return 'mostly-cloudy.png';
-      // default:
-      //   return 'unknown.png'; // fallback (optional)
     }
   };
 

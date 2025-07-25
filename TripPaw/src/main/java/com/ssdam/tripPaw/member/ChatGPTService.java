@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatGPTService {
 
 	private final RestTemplate restTemplate;
-	//@Value("${openai.api.key}")
+	@Value("${openai.api.key}")
 	private String apiKey;
 	
 	public ResponseEntity<String> chat(String message){

@@ -45,6 +45,14 @@
 		</association>
 	</resultMap>
 
+	<!-- 평균별점 -->
+	<select id="avgRatingByPlanId" resultType="double">
+	  SELECT IFNULL(AVG(rating), 0)
+	  FROM review
+	  WHERE review_type_id = 1
+	    AND target_id = #{planId}
+	</select>
+	
 	<insert id="insertReview" useGeneratedKeys="true"
 		keyProperty="id">
 		INSERT INTO review (member_id, content, rating,
@@ -85,21 +93,12 @@
 		#{id}
 	</select>
 
-	<!-- <select id="findByMemberId" resultMap="reviewResultMap"> SELECT * FROM 
-		review WHERE member_id = #{memberId} </select> -->
-
-	<!-- 전체 리뷰 목록 <select id="findAll" resultMap="reviewResultMap"> SELECT * 
-		FROM review ORDER BY created_at DESC </select> -->
-
-	<!-- <select id="findMemberById" parameterType="long" resultType="com.ssdam.tripPaw.domain.Member"> 
-		SELECT * FROM member WHERE id = #{memberId} </select> -->
-
 	<select id="findByMemberId" parameterType="long"
 		resultType="com.ssdam.tripPaw.domain.Review">
 		SELECT * FROM review WHERE member_id = #{memberId}
 	</select>
 
-	<select id="findMyReviewsByMemberId" parameterType="long"
+	<select id="findMyReviewsByMemberIdPaged" parameterType="map"
 		resultType="com.ssdam.tripPaw.review.MyReviewDto">
 		SELECT
 		r.id AS reviewId,
@@ -108,57 +107,53 @@
 		r.rating,
 		r.weather_condition AS weatherCondition,
 		DATE_FORMAT(r.created_at, '%Y.%m.%d') AS createdAt,
-		rt.target_type AS
-		reviewType,
+		rt.target_type AS reviewType,
 
-		/* 제목 */
 		CASE
 		WHEN rt.target_type = 'PLAN' THEN tp.title
-		WHEN
-		rt.target_type = 'PLACE' THEN p.name
+		WHEN rt.target_type = 'PLACE' THEN p.name
 		ELSE NULL
 		END AS tripTitle,
 
-		/* 대표
-		이미지 1장 */
-		(SELECT ri.image_url
-		FROM review_image ri WHERE ri.review_id =
-		r.id LIMIT 1)
+		(SELECT ri.image_url FROM review_image ri WHERE ri.review_id = r.id LIMIT 1)
 		AS imageUrl,
-		(SELECT COUNT(*) FROM review_image ri WHERE
-		ri.review_id = r.id) AS
+		(SELECT COUNT(*) FROM review_image ri WHERE ri.review_id = r.id) AS
 		imageCount,
 
-		/* 장소 정보 (PLACE일 경우만 유효)*/
-		p.name AS
-		placeName,
-		p.image_url
-		AS
-		placeImageUrl
+		p.name AS placeName,
+		p.image_url AS placeImageUrl
 
 		FROM review r
-		JOIN review_type rt
-		ON r.review_type_id =
-		rt.id
-		LEFT JOIN trip_plan tp ON (rt.target_type =
-		'PLAN' AND
-		r.target_id =
+		JOIN review_type rt ON r.review_type_id = rt.id
+		LEFT JOIN trip_plan tp ON (rt.target_type = 'PLAN' AND r.target_id =
 		tp.id)
-		LEFT JOIN place p ON (rt.target_type =
-		'PLACE' AND
-		r.target_id = p.id)
+		LEFT JOIN place p ON (rt.target_type = 'PLACE' AND r.target_id = p.id)
 		WHERE r.member_id = #{memberId}
+		AND rt.target_type = #{type}
+		ORDER BY r.created_at DESC
+		LIMIT #{size} OFFSET #{offset}
 	</select>
+
+	<select id="countMyReviewsByMemberIdAndType" resultType="int">
+		SELECT COUNT(*)
+		FROM review r
+		JOIN review_type rt ON r.review_type_id = rt.id
+		WHERE r.member_id = #{memberId}
+		AND rt.target_type = #{type}
+	</select>
+
 
 
 	<select id="findByPlaceIdWithPlaceName"
 		resultMap="reviewWithPlaceMap" parameterType="long">
 		SELECT r.*,
-		p.name AS place_name,
+		p.name AS
+		place_name,
 		p.image_url AS place_image_url
 		FROM review r
 		JOIN place p
-		ON r.target_id = p.id
+		ON
+		r.target_id = p.id
 		WHERE
 		r.review_type_id = 2 AND r.target_id =
 		#{placeId}
@@ -166,15 +161,14 @@
 		DESC
 	</select>
 
-	<!-- 장소 리뷰 목록 <select id="findByPlaceId" resultMap="reviewResultMap" parameterType="long"> 
-		SELECT r.*, m.nickname, ri.id AS image_id, ri.image_url, ri.original_file_name, 
-		ri.uploaded_at FROM review r JOIN member m ON r.member_id = m.id LEFT JOIN 
-		review_image ri ON ri.review_id = r.id WHERE r.review_type_id = 2 AND r.target_id 
-		= #{placeId} ORDER BY r.created_at DESC </select> -->
+	<select id="countReviewsByPlaceId" resultType="int">
+		SELECT COUNT(DISTINCT r.id)
+		FROM review r
+		WHERE r.review_type_id = 2 AND r.target_id = #{placeId}
+	</select>
 
-	<!-- 최신순 -->
-	<select id="findPlaceReviewsOrderByLatest"
-		resultMap="reviewResultMap" parameterType="long">
+
+	<select id="findPlaceReviewsPaged" resultMap="reviewResultMap">
 		SELECT
 		r.id,
 		r.content,
@@ -189,206 +183,166 @@
 		ri.id AS image_id,
 		ri.image_url,
 		ri.original_file_name,
-		ri.uploaded_at
+		ri.uploaded_at,
+		IFNULL(like_count_table.like_count, 0) AS like_count
 		FROM review r
 		JOIN member m ON r.member_id = m.id
 		LEFT JOIN review_image ri ON ri.review_id = r.id
+		LEFT JOIN (
+		SELECT review_id, COUNT(*) AS like_count
+		FROM member_likes_review
+		GROUP BY review_id
+		) AS like_count_table ON r.id = like_count_table.review_id
 		WHERE r.review_type_id = 2 AND r.target_id = #{placeId}
-		ORDER BY r.created_at DESC, ri.id
+		ORDER BY
+		<choose>
+			<when test='sort == "likes"'>like_count DESC</when>
+			<otherwise>r.created_at DESC</otherwise>
+		</choose>
+		,
+		ri.id
+		LIMIT #{size} OFFSET #{offset}
 	</select>
 
-	<!-- 추천순 -->
-	<select id="findPlaceReviewsOrderByLikesDesc"
-		resultMap="reviewResultMap" parameterType="long">
-		SELECT
-		r.id,
-		r.content,
-		r.rating,
-		r.weather_condition,
-		r.target_id,
-		r.created_at,
-		r.updated_at,
-		r.member_id,
-		r.review_type_id,
-		m.nickname AS nickname,
-		ri.id AS image_id,
-		ri.image_url,
-		ri.original_file_name,
-		ri.uploaded_at
-		FROM review r
-		JOIN member m ON r.member_id = m.id
-		LEFT JOIN review_image ri ON ri.review_id = r.id
-		LEFT JOIN member_likes_review mlr ON mlr.review_id = r.id
-		WHERE r.review_type_id = 2 AND r.target_id = #{placeId}
-		GROUP BY r.id, ri.id
-		ORDER BY COUNT(mlr.member_id) DESC, r.created_at DESC
-	</select>
+
+
 
 	<!-- 여행플랜 리뷰 목록 -->
-	<select id="findByPlanId"
-		resultType="com.ssdam.tripPaw.review.ReviewOnePlanDto">
-		SELECT
-		r.id,
-		r.content,
-		r.rating,
-		r.weather_condition AS
-		weatherCondition,
-		r.member_id,
-		DATE_FORMAT(r.created_at, '%Y-%m-%d') AS
-		createdAt,
-		m.nickname AS memberNickname,
-		/* 콤마로 이어진 이미지 리스트 */
-		(SELECT
-		GROUP_CONCAT(image_url) FROM review_image ri WHERE ri.review_id =
-		r.id) AS imageUrls
-		FROM review r
-		JOIN member m ON r.member_id = m.id
-		WHERE r.review_type_id = 1
-		AND r.target_id = #{planId}
-		ORDER BY
-		r.created_at DESC
+	<select id="findByPlanIdPaged" resultType="com.ssdam.tripPaw.review.ReviewPlanDto">
+	  SELECT
+	    r.id As reviewId,
+	    r.content,
+	    r.rating,
+	    r.weather_condition AS weatherCondition,
+	    r.member_id AS memberId,
+	    DATE_FORMAT(r.created_at, '%Y-%m-%d') AS createdAt,
+	    m.nickname AS memberNickname,
+	    (SELECT GROUP_CONCAT(image_url) FROM review_image ri WHERE ri.review_id = r.id) AS imageUrls
+	  FROM review r
+	  JOIN member m ON r.member_id = m.id
+	  WHERE r.review_type_id = 1
+	    AND r.target_id = #{planId}
+	  ORDER BY r.created_at DESC
+	  LIMIT #{size} OFFSET #{offset}
+	</select>
+	
+	<select id="countReviewsByPlanId" resultType="int">
+	  SELECT COUNT(*)
+	  FROM review
+	  WHERE review_type_id = 1 AND target_id = #{planId}
 	</select>
 
-	<!-- 모든 여행플랜 리뷰 목록 -->
-	<!-- <select id="findAllPlanReviews" resultMap="reviewResultMap"> SELECT 
-		* FROM review WHERE review_type_id = 1 ORDER BY created_at DESC </select> -->
 	<!-- 최신순 -->
-	<select id="findAllPlanReviewsOrderByCreatedAtDesc"
+	<select id="findPlanReviewsByCreatedAtDesc"
 		resultType="com.ssdam.tripPaw.review.ReviewPlanDto">
 		SELECT
 		r.id AS reviewId,
 		r.content,
 		r.rating,
-		r.created_at AS
-		createdAt,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
 		m.nickname AS memberNickname,
-		tp.title AS
-		planTitle,
+		tp.title AS planTitle,
 		r.target_id AS tripPlanId,
 		(
-		SELECT
-		ROUND(AVG(r2.rating), 1)
+		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
 		WHERE r2.target_id = r.target_id
-		AND r2.review_type_id =
-		r.review_type_id
+		AND r2.review_type_id = r.review_type_id
 		) AS avgRating,
 		GROUP_CONCAT(ri.image_url) AS imageUrls
 		FROM review r
-		JOIN member m ON
-		r.member_id = m.id
-		JOIN trip_plan tp ON
-		r.target_id = tp.id
-		LEFT JOIN
-		review_image ri ON ri.review_id = r.id
+		JOIN member m ON r.member_id = m.id
+		JOIN trip_plan tp ON r.target_id = tp.id
+		LEFT JOIN review_image ri ON ri.review_id = r.id
 		WHERE r.review_type_id = 1
-		GROUP
-		BY r.id
+		GROUP BY r.id
 		ORDER BY r.created_at DESC
+		LIMIT #{size} OFFSET #{offset}
 	</select>
 
 	<!-- 평점 높은순 -->
-	<select id="findAllPlanReviewsOrderByRatingDesc"
+	<select id="findPlanReviewsByRatingDesc"
 		resultType="com.ssdam.tripPaw.review.ReviewPlanDto">
 		SELECT
 		r.id AS reviewId,
 		r.content,
 		r.rating,
-		r.created_at AS
-		createdAt,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
-		m.nickname AS
-		memberNickname,
+		m.nickname AS memberNickname,
 		tp.title AS planTitle,
 		r.target_id AS tripPlanId,
 		(
-		SELECT
-		ROUND(AVG(r2.rating), 1)
+		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
-		WHERE r2.target_id =
-		r.target_id
+		WHERE r2.target_id = r.target_id
 		AND r2.review_type_id = r.review_type_id
 		) AS avgRating,
 		GROUP_CONCAT(ri.image_url) AS imageUrls
 		FROM review r
-		JOIN member m ON
-		r.member_id = m.id
+		JOIN member m ON r.member_id = m.id
 		JOIN trip_plan tp ON r.target_id = tp.id
-		LEFT JOIN
-		review_image ri ON ri.review_id = r.id
+		LEFT JOIN review_image ri ON ri.review_id = r.id
 		WHERE r.review_type_id = 1
-		GROUP
-		BY r.id
+		GROUP BY r.id
 		ORDER BY r.rating DESC
+		LIMIT #{size} OFFSET #{offset}
 	</select>
 
 	<!-- 평점 낮은순 -->
-	<select id="findAllPlanReviewsOrderByRatingAsc"
+	<select id="findPlanReviewsByRatingAsc"
 		resultType="com.ssdam.tripPaw.review.ReviewPlanDto">
 		SELECT
 		r.id AS reviewId,
 		r.content,
 		r.rating,
-		r.created_at AS
-		createdAt,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
-		m.nickname AS
-		memberNickname,
+		m.nickname AS memberNickname,
 		tp.title AS planTitle,
 		r.target_id AS tripPlanId,
 		(
-		SELECT
-		ROUND(AVG(r2.rating), 1)
+		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
-		WHERE r2.target_id =
-		r.target_id
+		WHERE r2.target_id = r.target_id
 		AND r2.review_type_id = r.review_type_id
 		) AS avgRating,
 		GROUP_CONCAT(ri.image_url) AS imageUrls
 		FROM review r
-		JOIN member m ON
-		r.member_id = m.id
+		JOIN member m ON r.member_id = m.id
 		JOIN trip_plan tp ON r.target_id = tp.id
-		LEFT JOIN
-		review_image ri ON ri.review_id = r.id
+		LEFT JOIN review_image ri ON ri.review_id = r.id
 		WHERE r.review_type_id = 1
-		GROUP
-		BY r.id
+		GROUP BY r.id
 		ORDER BY r.rating ASC
+		LIMIT #{size} OFFSET #{offset}
 	</select>
 
-	<!-- 추천순: 좋아요 많은 순 -->
-	<select id="findAllPlanReviewsOrderByLikesDesc"
+	<!-- 좋아요 순 -->
+	<select id="findPlanReviewsByLikesDesc"
 		resultType="com.ssdam.tripPaw.review.ReviewPlanDto">
 		SELECT
 		r.id AS reviewId,
 		r.content,
 		r.rating,
-		r.created_at AS
-		createdAt,
+		r.created_at AS createdAt,
 		r.weather_condition AS weatherCondition,
-		m.nickname AS
-		memberNickname,
+		m.nickname AS memberNickname,
 		tp.title AS planTitle,
 		r.target_id AS tripPlanId,
 		(
-		SELECT
-		ROUND(AVG(r2.rating), 1)
+		SELECT ROUND(AVG(r2.rating), 1)
 		FROM review r2
-		WHERE r2.target_id =
-		r.target_id
+		WHERE r2.target_id = r.target_id
 		AND r2.review_type_id = r.review_type_id
 		) AS avgRating,
 		GROUP_CONCAT(ri.image_url) AS imageUrls,
-		COALESCE(ml.like_count, 0) AS
-		likeCount
+		COALESCE(ml.like_count, 0) AS likeCount
 		FROM review r
 		JOIN member m ON r.member_id = m.id
-		JOIN
-		trip_plan tp ON r.target_id = tp.id
-		LEFT JOIN review_image ri ON
-		ri.review_id = r.id
+		JOIN trip_plan tp ON r.target_id = tp.id
+		LEFT JOIN review_image ri ON ri.review_id = r.id
 		LEFT JOIN (
 		SELECT review_id, COUNT(*) AS like_count
 		FROM member_likes_review
@@ -397,42 +351,47 @@
 		WHERE r.review_type_id = 1
 		GROUP BY r.id
 		ORDER BY likeCount DESC
+		LIMIT #{size} OFFSET #{offset}
 	</select>
 
-	<select id="findAllPlaceReviewsOrderByLikesDesc"
-		resultType="com.ssdam.tripPaw.review.ReviewPlaceDto">
-		SELECT
-		r.id AS reviewId,
-		r.content,
-		r.rating,
-		r.created_at AS
-		createdAt,
-		r.weather_condition AS weatherCondition,
-		m.nickname AS
-		memberNickname,
-		p.name AS placeName,
-		p.id AS placeId,
-		(
-		SELECT COUNT(*)
-		FROM
-		member_likes_review ml WHERE ml.review_id = r.id
-		) AS likeCount,
-		(
-		SELECT GROUP_CONCAT(ri.image_url) FROM review_image ri WHERE
-		ri.review_id =
-		r.id
-		) AS imageUrls
-		FROM review r
-		JOIN member m ON
-		r.member_id = m.id
-		LEFT JOIN reserv rs ON rs.id = r.reserv_id
-		LEFT JOIN
-		place p ON
-		(rs.place_id = p.id OR r.target_id = p.id)
-		WHERE
-		r.review_type_id = 2
-		ORDER BY likeCount DESC, r.created_at DESC
+	<!-- 전체 개수 카운트 -->
+	<select id="countPlanReviews" resultType="int">
+		SELECT COUNT(*) FROM review WHERE review_type_id = 1
 	</select>
+	<select id="countAllPlanReviews" resultType="int">
+	  SELECT COUNT(*) FROM review WHERE review_type_id = 1
+	</select>
+	
+
+	<select id="findPlaceReviewsByLikesDesc" resultType="com.ssdam.tripPaw.review.ReviewPlaceDto">
+  SELECT
+    r.id AS reviewId,
+    r.content,
+    r.rating,
+    r.created_at AS createdAt,
+    r.weather_condition AS weatherCondition,
+    m.nickname AS memberNickname,
+    p.name AS placeName,
+    p.id AS placeId,
+    (
+      SELECT COUNT(*) FROM member_likes_review ml WHERE ml.review_id = r.id
+    ) AS likeCount,
+    (
+      SELECT GROUP_CONCAT(ri.image_url) FROM review_image ri WHERE ri.review_id = r.id
+    ) AS imageUrls
+  FROM review r
+  JOIN member m ON r.member_id = m.id
+  LEFT JOIN reserv rs ON rs.id = r.reserv_id
+  LEFT JOIN place p ON (rs.place_id = p.id OR r.target_id = p.id)
+  WHERE r.review_type_id = 2
+  ORDER BY likeCount DESC, r.created_at DESC
+  LIMIT #{size} OFFSET #{offset}
+</select>
+
+<select id="countAllPlaceReviews" resultType="int">
+  SELECT COUNT(*) FROM review WHERE review_type_id = 2
+</select>
+
 
 	<select id="countByMemberIdAndReservId" resultType="int">
 		SELECT
@@ -441,15 +400,17 @@
 		AND reserv_id =
 		#{reservId}
 	</select>
-	
+
 	<select id="countByMemberIdAndTripPlanId" resultType="int">
-		SELECT COUNT(*) 
+		SELECT
+		COUNT(*)
 		FROM review
 		WHERE member_id = #{memberId}
 		AND target_id = #{planId}
-		AND review_type_id = 1
+		AND
+		review_type_id = 1
 	</select>
-	
+
 
 	<insert id="likeReview" parameterType="map">
 		INSERT IGNORE INTO
@@ -535,7 +496,8 @@
 		r.weather_condition,
 		r.created_at,
 
-		mtp.id AS member_trip_plan_id,
+		mtp.id AS
+		member_trip_plan_id,
 		mtp.title_override,
 		mtp.start_date,
 		mtp.end_date,
@@ -543,12 +505,15 @@
 		mtp.status,
 		mtp.count_people,
 		mtp.count_pet,
-		mtp.is_public AS public_visible
+		mtp.is_public
+		AS public_visible
 
 		FROM review r
 		LEFT JOIN member_trip_plan mtp
-		ON mtp.trip_plan_id = r.target_id AND mtp.member_id = r.member_id
-		WHERE r.member_id = #{memberId}
+		ON
+		mtp.trip_plan_id = r.target_id AND mtp.member_id = r.member_id
+		WHERE
+		r.member_id = #{memberId}
 		AND r.review_type_id = 1
 	</select>
 
@@ -560,16 +525,20 @@
 	<!-- 작성하지 않은 리뷰 조회 -->
 	<select id="getUnwrittenTripPlans"
 		resultMap="unwrittenTripPlanMap">
-		SELECT mtp.id AS mtp_id, mtp.title_override, mtp.start_date, mtp.end_date,
+		SELECT mtp.id AS mtp_id, mtp.title_override, mtp.start_date,
+		mtp.end_date,
 		mtp.trip_plan_id
 		FROM member_trip_plan mtp
-		WHERE mtp.member_id = #{memberId}
+		WHERE
+		mtp.member_id = #{memberId}
 		AND NOT EXISTS (
 		SELECT 1
 		FROM review r
-		WHERE r.member_id = #{memberId}
+		WHERE
+		r.member_id = #{memberId}
 		AND r.review_type_id = 1
-		AND r.target_id = mtp.trip_plan_id
+		AND r.target_id =
+		mtp.trip_plan_id
 		)
 	</select>
 

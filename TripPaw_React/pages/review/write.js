@@ -35,8 +35,6 @@ const ReviewForm = () => {
         });
         setMemberId(response.data.id);
       } catch (err) {
-        console.error('로그인 정보 확인 실패:', err);
-        message.error('로그인이 필요합니다.');
         router.push('/member/login');
       }
     };
@@ -56,7 +54,6 @@ const ReviewForm = () => {
       setReviewTypeId(2);
       setTargetId(Number(reservId));
     } else if (reviewTypeId && targetId) {
-      // fallback: targetId 직접 넘긴 경우
       setReviewTypeId(Number(reviewTypeId));
       setTargetId(Number(targetId));
     }
@@ -65,7 +62,6 @@ const ReviewForm = () => {
 
   useEffect(() => {
     if (!isReady || !reviewTypeId || !targetId) return;
-
     const type = reviewTypeId === 1 ? 'PLAN' : 'PLACE';
 
     axios.get('/review/weather', {
@@ -73,7 +69,6 @@ const ReviewForm = () => {
     })
       .then((res) => setWeather(res.data))
       .catch((err) => {
-        console.error('날씨 정보 불러오기 실패:', err);
         setWeather('알 수 없음');
       });
   }, [isReady, reviewTypeId, targetId]);
@@ -103,7 +98,6 @@ const ReviewForm = () => {
           setDays(res.data.days);  // days 값 가져오기
         })
         .catch((err) => {
-          console.error('트립플랜 정보 조회 실패:', err);
         });
     }
   }, [reviewTypeId, targetId]);
@@ -141,8 +135,6 @@ const ReviewForm = () => {
       message.success('리뷰가 저장되었습니다!');
       router.push('/mypage');
     } catch (err) {
-      console.error('리뷰 저장 실패', err);
-      message.error('리뷰 저장 실패');
     }
   };
 
@@ -175,7 +167,7 @@ const ReviewForm = () => {
       content,
     };
 
-    // ✅ formData 정의 추가
+    //formData 정의 추가
     const formData = new FormData();
     formData.append('review', JSON.stringify(reviewDto));
     fileList.forEach((file) => {
@@ -194,15 +186,12 @@ const ReviewForm = () => {
         query: { tripPlanId: targetId, memberId },
       });
     } catch (err) {
-      console.error('경로 리뷰 저장 실패:', err);
-      message.error('경로 리뷰 저장에 실패했습니다.');
     }
   };
 
-
-
   if (!isReady) return <div>로딩 중...</div>;
 
+  ////
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>

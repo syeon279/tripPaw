@@ -23,6 +23,6 @@ public class Route {
 	
 	private String name;
 	
-    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoutePlace> routePlaces;
+	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<RoutePlace> routePlaces;
 }

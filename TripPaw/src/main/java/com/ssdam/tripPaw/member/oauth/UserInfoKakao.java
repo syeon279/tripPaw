@@ -53,22 +53,3 @@ public class UserInfoKakao implements UserInfoOauth2{
 	}
 	
 }
-
-
-/*
- * <kakao>
-{
-    id=2632890179, 
-    connected_at=2023-01-22T08:17:54Z, 
-    properties = {nickname=효정}, 
-    kakao_account = {
-        profile_nickname_needs_agreement=false, 
-        profile={nickname=효정}, 
-        has_email=true, 
-        email_needs_agreement=false, 
-        is_email_valid=true, 
-        is_email_verified=true, 
-        email=sally03915@naver.com
-    }
-}
- * */

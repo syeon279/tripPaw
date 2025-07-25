@@ -181,8 +181,7 @@
 		count_pet,
 		title_override,
 		is_public,
-		created_at  <!-- 
-			✅ created_at 추가 -->
+		created_at  
 		)
 		VALUES (
 		#{tripPlan.id},
@@ -193,7 +192,7 @@
 		#{countPet},
 		#{titleOverride},
 		false,
-		#{createdAt}  <!-- ✅ createdAt 값 전달 -->
+		#{createdAt}  
 		)
 	</insert>
 

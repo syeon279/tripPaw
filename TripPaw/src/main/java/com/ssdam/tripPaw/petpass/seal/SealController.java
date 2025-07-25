@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController @RequiredArgsConstructor @RequestMapping("/api/seals")
 public class SealController {
 	
-	private final SealService sealService;
+    private final SealService sealService;
 
     // 전체 도장 조회
     @GetMapping
@@ -75,13 +75,6 @@ public class SealController {
         return ResponseEntity.ok(seals);
     }
 
-    
-    //등록도장제외
-//    @GetMapping("/tripplan/{memberTripPlanId}/passport/{passportId}")
-//    public ResponseEntity<List<Seal>> getUnacquiredSeals(@PathVariable Long memberTripPlanId,
-//                                                          @PathVariable Long passportId) {
-//        List<Seal> seals = sealService.getUnacquiredSeals(memberTripPlanId, passportId);
-//        return ResponseEntity.ok(seals);
-//    }
+
 
 }

@@ -1,29 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Tabs, Rate, Button, Image, Modal, message } from 'antd';
+import { Tabs, Rate, Button, Image, Modal, message, Pagination } from 'antd';
 import { CloseOutlined, QuestionOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 
 const { TabPane } = Tabs;
+const PAGE_SIZE = 5;
 
 const MyReviewList = ({ memberId }) => {
   const [reviews, setReviews] = useState([]);
+  const [totalElements, setTotalElements] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based
+  const [activeTab, setActiveTab] = useState('PLAN');
   const router = useRouter();
 
   useEffect(() => {
     if (memberId) {
-      fetchReviews();
+      fetchReviews(currentPage, activeTab);
     }
-  }, [memberId]);
+  }, [memberId, currentPage, activeTab]);
 
-  const fetchReviews = async () => {
+  const fetchReviews = async (page, type) => {
     try {
-      const res = await axios.get(`/review/member/${memberId}`);
-      setReviews(res.data);
+      const res = await axios.get(`/review/member/${memberId}`, {
+        params: { page, size: PAGE_SIZE, type },
+      });
+      setReviews(res.data.content);
+      setTotalElements(res.data.totalElements);
     } catch (err) {
       console.error('리뷰 불러오기 실패', err);
     }
+  };
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    setCurrentPage(0);
   };
 
   const handleEdit = (reviewId) => {
@@ -40,7 +51,7 @@ const MyReviewList = ({ memberId }) => {
         try {
           await axios.delete(`/review/${reviewId}`);
           message.success('리뷰가 삭제되었습니다.');
-          fetchReviews();
+          fetchReviews(currentPage, activeTab);
         } catch (err) {
           console.error('삭제 실패', err);
           message.error('리뷰 삭제에 실패했습니다.');
@@ -66,51 +77,14 @@ const MyReviewList = ({ memberId }) => {
     }
   };
 
-  const groupedReviews = {
-    PLACE: reviews.filter((r) => r.reviewType?.toUpperCase() === 'PLACE'),
-    PLAN: reviews.filter((r) => r.reviewType?.toUpperCase() === 'PLAN'),
-  };
-
   const renderReviewCard = (review) => {
     const isPlace = review.reviewType === 'PLACE';
-    console.log('review:', review);
     return (
-
-      <div key={review.reviewId} style={{
-        background: '#fff',
-        padding: 16,
-        marginBottom: 32,
-        borderRadius: 8,
-        boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-        position: 'relative'
-      }}>
-
-        {/* 상단 정보 */}
+      <div key={review.reviewId} style={{ padding: 16, background: '#fff', borderRadius: 8, marginBottom: 32, position: 'relative' }}>
         <div style={{ marginBottom: 12, borderBottom: '1px solid #ddd', paddingBottom: 8 }}>
-          {/* PLAN 리뷰: 여행 경로 제목 + 날짜 */}
-          {!isPlace && (
-            <>
-              <div style={{
-                fontWeight: 'bold', fontSize: 16, cursor: 'pointer'
-              }}
-                onClick={() => router.push(`/review/tripPlan/${review.targetId}`)}
-              >
-                {review.tripTitle || '제목 없음'}
-              </div>
-              <div style={{ color: '#888', fontSize: 14 }}>
-              </div>
-            </>
-          )}
-
-          {/* PLACE 리뷰: 장소 이미지 + 이름 가로정렬 */}
-          {isPlace && (
+          {isPlace ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Image
-                src={review.placeImageUrl}
-                width={60}
-                height={60}
-                style={{ objectFit: 'cover', borderRadius: 8 }}
-              />
+              <Image src={review.placeImageUrl} width={60} height={60} style={{ borderRadius: 8 }} />
               <div>
                 <div
                   style={{ fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
@@ -121,24 +95,25 @@ const MyReviewList = ({ memberId }) => {
                 <div style={{ color: '#999', fontSize: 13 }}>장소 리뷰</div>
               </div>
             </div>
+          ) : (
+            <div
+              style={{ fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}
+              onClick={() => router.push(`/review/tripPlan/${review.targetId}`)}
+            >
+              {review.tripTitle || '제목 없음'}
+            </div>
           )}
         </div>
 
-        {/* 리뷰 본문 */}
         <div style={{ marginTop: 8 }}>
           <Rate disabled value={review.rating} style={{ fontSize: 16 }} />
           <span style={{ marginLeft: 12, color: '#aaa', fontSize: 13 }}>{review.createdAt}</span>
-          <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>{review.content}</div>
+          <div style={{ marginTop: 8 }}>{review.content}</div>
 
-          {/* 리뷰 이미지 */}
           {review.imageUrl && (
             <div style={{ marginTop: 12, position: 'relative' }}>
               <Image
-                src={
-                  review.imageUrl.startsWith('http')
-                    ? review.imageUrl
-                    : `/upload/reviews/${review.imageUrl}`
-                }
+                src={`/upload/reviews/${review.imageUrl}`}
                 width={100}
                 height={100}
                 style={{ objectFit: 'cover', borderRadius: 6 }}
@@ -161,7 +136,6 @@ const MyReviewList = ({ memberId }) => {
           )}
         </div>
 
-        {/* 날씨 아이콘 */}
         <div style={{ position: 'absolute', top: 16, right: 16 }}>
           {getWeatherImageFileName(review.weatherCondition) ? (
             <img
@@ -174,12 +148,11 @@ const MyReviewList = ({ memberId }) => {
           )}
         </div>
 
-        {/* 수정/삭제 */}
-        <div style={{ position: 'absolute', right: 16, bottom: 16, display: 'flex', gap: 12 }}>
+        <div style={{ marginTop: 16 }}>
           <Button size="small" onClick={() => handleEdit(review.reviewId)}>수정하기</Button>
           <CloseOutlined
             onClick={() => handleDelete(review.reviewId)}
-            style={{ cursor: 'pointer', fontSize: 16, color: '#888' }}
+            style={{ marginLeft: 12, cursor: 'pointer', fontSize: 16, color: '#888' }}
           />
         </div>
       </div>
@@ -187,14 +160,24 @@ const MyReviewList = ({ memberId }) => {
   };
 
   return (
-    <Tabs defaultActiveKey="PLAN">
-      <TabPane tab="장소리뷰" key="PLACE">
-        {groupedReviews.PLACE.map(renderReviewCard)}
-      </TabPane>
-      <TabPane tab="경로리뷰" key="PLAN">
-        {groupedReviews.PLAN.map(renderReviewCard)}
-      </TabPane>
-    </Tabs>
+    <>
+      <Tabs activeKey={activeTab} onChange={handleTabChange}>
+        <TabPane tab="장소리뷰" key="PLACE">
+          {reviews.map(renderReviewCard)}
+        </TabPane>
+        <TabPane tab="경로리뷰" key="PLAN">
+          {reviews.map(renderReviewCard)}
+        </TabPane>
+      </Tabs>
+      <Pagination
+        current={currentPage + 1}
+        pageSize={PAGE_SIZE}
+        total={totalElements}
+        onChange={(page) => setCurrentPage(page - 1)}
+        style={{ textAlign: 'center', marginTop: 24 }}
+        showSizeChanger={false}
+      />
+    </>
   );
 };
 

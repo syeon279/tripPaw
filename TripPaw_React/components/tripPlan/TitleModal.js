@@ -42,7 +42,7 @@ const TitleModal = ({
         let mapImageBase64 = null;
 
         try {
-            // 📸 지도 캡처 시도
+            //지도 캡처 시도
             mapImageBase64 = await onCaptureMap?.();
         } catch (err) {
             console.warn('지도 캡처 실패:', err);
@@ -54,7 +54,7 @@ const TitleModal = ({
             endDate: defaultEndDate,
             countPeople: defaultCountPeople,
             countPet: defaultCountPet,
-            mapImage: mapImageBase64, // ⬅️ Base64 이미지 포함
+            mapImage: mapImageBase64, //Base64 이미지 포함
         };
 
         // 저장 콜백 실행

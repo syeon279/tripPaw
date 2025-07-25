@@ -11,11 +11,11 @@ import lombok.RequiredArgsConstructor;
 @Service @RequiredArgsConstructor
 public class CheckTemplateItemService {
 	
-	private final CheckTemplateItemMapper mapper;
+    private final CheckTemplateItemMapper mapper;
 	
-	// 0. 멤버 아이디로 조회 - 관리자용
-	public List<CheckTemplateItem> findItemsByMemberIds(List<Long> memberIds) {
-	    return mapper.selectItemsByMemberIds(memberIds);	}
+    // 0. 멤버 아이디로 조회 - 관리자용
+    public List<CheckTemplateItem> findItemsByMemberIds(List<Long> memberIds) {
+	return mapper.selectItemsByMemberIds(memberIds);	}
 
     // 1. 전체 조회
     public List<CheckTemplateItem> findAllItems() {

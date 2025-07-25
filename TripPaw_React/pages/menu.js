@@ -41,7 +41,6 @@ const Menu = () => {
                     setIsLoggedIn(true);
                 }
             } catch (error) {
-                console.log("로그인 상태 확인 실패:", error);
             }
         };
         checkLoginStatus();

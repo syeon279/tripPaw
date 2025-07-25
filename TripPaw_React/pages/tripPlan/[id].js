@@ -91,9 +91,7 @@ const TripPlanDetail = () => {
                 setAvgRating(data.avgRating || 0);
                 setRating(data.avgRating || 0);
                 setReviewCount(data.reviewCount || 0);
-                //console.log('data:', data);
             } catch (err) {
-                console.error("여행 경로 불러오기 실패", err);
             }
         };
 
@@ -110,7 +108,6 @@ const TripPlanDetail = () => {
                     setUserId(response.data.id);
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
                 alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
                 router.push('/member/login');
             }
@@ -154,7 +151,6 @@ const TripPlanDetail = () => {
         try {
             return await mapRef.current?.captureMap();
         } catch (err) {
-            console.warn('지도 캡처 오류:', err);
             return null;
         }
     };
@@ -165,7 +161,6 @@ const TripPlanDetail = () => {
         try {
             mapImageBase64 = await handleCaptureMap();
         } catch (err) {
-            console.warn('지도 캡처 실패:', err);
         }
 
         const travelData = {
@@ -194,14 +189,12 @@ const TripPlanDetail = () => {
                 alert('여행 저장 후 이동 실패');
             }
         } catch (err) {
-            console.error('수정용 저장 실패:', err);
             alert('저장 실패');
         }
     };
-
-
     const myTrip = Number(authorId) === Number(userId);
-
+    
+    //////
     return (
         <AppLayout>
             <div style={layoutStyle.header} />

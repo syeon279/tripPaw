@@ -15,8 +15,6 @@ const HeaderWrapper = styled.div`
   z-index: 1000;                
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0);  
-  //backdrop-filter: blur(8px);           
-  //border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -46,26 +44,24 @@ const ContentHeader = ({ theme }) => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        // 1. 서버에 인증 상태 확인 API 요청
+        //서버에 인증 상태 확인 API 요청
         const response = await axios.get('/api/auth/check', {
           withCredentials: true,
         });
-        // 2. API 호출 성공 시, 로그인 상태를 true로 변경
+        //API 호출 성공 시, 로그인 상태를 true로 변경
         if (response.status === 200) {
           setIsLoggedIn(true);
         }
-        //console.log("response=",response.data);
-        // 4. 서버로부터 받은 사용자 정보로 로그인 상태 업데이트
+        //서버로부터 받은 사용자 정보로 로그인 상태 업데이트
         //login(response.data); 
       } catch (error) {
-        // 5. 에러 발생 시(주로 401), 로그아웃 상태로 처리
-        // logout();
+        //에러 발생 시(주로 401), 로그아웃 상태로 처리
         console.log("로그인 상태가 아닙니다.");
       }
     };
 
     checkLoginStatus();
-  }, []); // []를 사용하여 앱 시작 시 한 번만 실행
+  }, []);
   const onLogout = async () => {
     await axios.post('/api/auth/logout', {
       withCredentials: true,
@@ -85,14 +81,6 @@ const ContentHeader = ({ theme }) => {
       </LogoWrapper>
 
       <IconMenu isWhite={isWhite} >
-        {/* <NotificationOutlined
-          onClick={() => router.push('/notice')}
-          style={{ color: isWhite ? 'white' : 'black' }}
-        />
-        <SearchOutlined
-          onClick={() => router.push('/search')}
-          style={{ color: isWhite ? 'white' : 'black' }}
-        /> */}
         {isLoggedIn ? <div style={{ display: "flex" }}>
           <UserOutlined
             onClick={() => router.push('/mypage/trips')}

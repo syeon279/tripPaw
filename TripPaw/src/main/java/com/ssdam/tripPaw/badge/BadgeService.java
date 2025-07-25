@@ -19,7 +19,7 @@ public class BadgeService {
 
     private final BadgeMapper badgeMapper;
 
-    // 절대 경로 직접 설정 (properties 안 건드림)
+    // 절대 경로 직접 설정
     private final String uploadDir = "C:/upload/badge";
 
     public void createBadge(Badge badge, MultipartFile image) {

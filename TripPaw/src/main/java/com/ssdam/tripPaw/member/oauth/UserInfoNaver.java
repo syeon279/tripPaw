@@ -10,9 +10,6 @@ public class UserInfoNaver implements UserInfoOauth2{
 	private final Map<String, Object> attributes;
 	private Map<String, Object> getResponse(){
 		Object response = attributes.get("reponse");
-//		if(response instanceof Map) {
-			
-		//}
 		return response instanceof Map ? (Map<String, Object>) response : null; 
 	}
 	@Override
@@ -47,15 +44,4 @@ public class UserInfoNaver implements UserInfoOauth2{
 	}
 	
 }
-/*
- * <naver>
-{
-    resultcode=00, 
-    message=success, 
-    response = {
-        id=pvdq1FSG3VZlD7Cp3JuWfAFi-3xir6A-WPlP5f8kXIo,
-		email=sally03915@naver.com, 
-        name=안효정
-    }
-}
- * */
+

@@ -23,17 +23,18 @@ public class Chat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-//	@Column(nullable = false, length = 255)
-//	private String sender;
+	
 	@Column(nullable = false, length = 255)
 	private String content;
+	
 	@Column(nullable = false, length = 255)
 	private String contentType;
+	
 	private LocalDateTime sentAt = LocalDateTime.now();
 	
 	@ManyToOne(fetch = FetchType.LAZY) 
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Member sender;
+    	@JoinColumn(name = "sender_id", nullable = false)
+    	private Member sender;
 	 
 	@ManyToOne
 	@JoinColumn(name = "chatRoom_id")

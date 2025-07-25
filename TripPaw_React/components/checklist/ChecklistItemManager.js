@@ -10,7 +10,6 @@ const ChecklistItemManager = () => {
 
   const fetchItems = async () => {
     const data = await getAllItems();
-    console.log('전체 항목:', data);
     setItems(Array.isArray(data) ? data : []);
   };
 

@@ -30,10 +30,8 @@ public class ChatService {
 						.content(chatMessage.getContent())
 						.contentType("chat")
 						.chatRoom(findChatRoom)
-//						.sender(chatMessage.getSender())
 						.sender(findMember)
 						.sentAt(LocalDateTime.now())
-						//.member(findMember)
 						.build();
 		return chatMapper.chatSave(chat);
 	}

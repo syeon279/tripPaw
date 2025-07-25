@@ -32,20 +32,15 @@ const MyPlaces = () => {
                 const response = await axios.get('/api/auth/check', {
                     withCredentials: true,
                 });
-
-                //console.log('member : ', response.data);
-
                 if (response.status === 200) {
                     setIsLoggedIn(true);
-                    // 백엔드에서 받은 username으로 상태 업데이트
                     setMemberId(response.data.id);
                     return true; // 성공 시 true 반환
                 }
             } catch (error) {
-                console.log("로그인 상태 확인 실패:", error);
                 alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
                 router.push('/member/login');
-                return false; // 실패 시 false 반환
+                return false; 
             }
         };
         checkLoginStatus();
@@ -56,8 +51,6 @@ const MyPlaces = () => {
             .then(res => {
                 const favoritePlaces = Object.values(res.data); // 객체를 배열로 변환
                 setPlaces(favoritePlaces);
-                //console.log('넘어온 favoritePlace : ', favoritePlaces);
-
                 const fallbackMap = {};
                 favoritePlaces.forEach(place => {
                     const randomNum = Math.floor(Math.random() * 10) + 1;
@@ -68,7 +61,6 @@ const MyPlaces = () => {
                 setFallbackImages(fallbackMap);
             })
             .catch(err => {
-                console.log('즐겨찾기 장소 목록 불러오기 실패', err);
                 setPlaces([]);
             });
     }, [memberId]);
@@ -85,9 +77,9 @@ const MyPlaces = () => {
                     {places.length === 0 ? (
                         <div style={{
                             //border: '3px solid black',
-                            //position: 'relative', // ✅ 자식 absolute 기준이 되도록
+                            //position: 'relative',
                             //width: '100%',
-                            //height: '300px' // ✅ 강아지 위치 확보용 높이
+                            //height: '300px' 
                         }}>
                             <PetAssistantNoData />
                         </div>

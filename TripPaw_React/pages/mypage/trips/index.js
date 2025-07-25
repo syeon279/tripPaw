@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import MypageLayout from "@/components/layout/MyPageLayout";
 import { EllipsisOutlined } from "@ant-design/icons";
 import PublicConfirmModal from "@/components/tripPlan/PublicConfirmModal";
-import dayjs from "dayjs"; // ✅ 추가됨
+import dayjs from "dayjs"; 
 
 const layoutStyle = {
     header: { width: '100%', height: '80px' },
@@ -27,7 +27,7 @@ const Trips = () => {
     const [tab, setTab] = useState("mytrips");
     const [trips, setTrips] = useState([]);
     const [fallbackImages, setFallbackImages] = useState({});
-    const [selectedMonth, setSelectedMonth] = useState(""); // ✅ 선택된 월
+    const [selectedMonth, setSelectedMonth] = useState(""); 
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -124,7 +124,6 @@ const Trips = () => {
                     setMenuOpen(false);
                     setTrips(prev => prev.filter(t => (t.id || t.myTripId) !== (trip.id || trip.myTripId)));
                 } catch (error) {
-                    console.log("삭제 실패:", error);
                     alert("삭제에 실패했습니다.");
                 }
             }
@@ -137,7 +136,6 @@ const Trips = () => {
                 setMenuOpen(false);
                 setShowModal(false);
             } catch (error) {
-                console.log("공개 처리 실패:", error);
                 alert(error.response?.data || "공개 처리 중 오류가 발생했습니다.");
             }
         };

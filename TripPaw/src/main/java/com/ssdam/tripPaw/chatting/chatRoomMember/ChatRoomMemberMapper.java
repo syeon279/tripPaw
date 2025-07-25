@@ -6,7 +6,6 @@ import com.ssdam.tripPaw.domain.ChatRoomMember;
 
 @Mapper
 public interface ChatRoomMemberMapper {
-	//public ChatRoomMember findStatusByMemberIdAndChatRoomId(ChatRoomMember chatRoomMember);
 	public int insertChatRoomMember(ChatRoomMember chatRoomMember);
 	public int updateChatRoomMember(ChatRoomMember chatRoomMember);
 }

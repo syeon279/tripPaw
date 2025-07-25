@@ -52,21 +52,16 @@ public class AuthController {
     	Member member = memberService.findByUsername(request.getUsername());
         String token = authService.login(request).get("accessToken");
         System.out.println("isStatus="+member.isStatus());
+        
         if(!member.isStatus()) {
         	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         						//.body(Map.of("message","아이디와 비밀번호를 확인해주세요!"));
         }
-        //String tokenInfo = jwtProvider.getAuthentication(token).toString();
         
-//        Collection<? extends GrantedAuthority> authorities  = jwtProvider.getAuthentication(token).getAuthorities();
-//        boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().equals("ADMIN"));
         String authorities = (String)jwtProvider.getAuthoritie(token);
         System.out.println("authorities권한="+(String)authorities);
         
-        //System.out.println("tokenInfo="+tokenInfo);
-        //return ResponseEntity.ok(tokens);
         model.addAttribute("ChatRoomForm",new ChatRoomForm());
-        //rttr.addFlashAttribute("token", token);
         
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
@@ -81,7 +76,6 @@ public class AuthController {
         		"nickname", member.getNickname(),
         		"role",authorities,
         		 "id", member.getId() )); 
-        //return "redirect:/chat/rooms";
     }
     
     @PostMapping("/join")
@@ -92,25 +86,7 @@ public class AuthController {
         memberImageService.insertMemberImage(member);
         return ResponseEntity.ok("가입이 완료되었습니다.");
     }
-    
-//    @PostMapping("/logout")
-//    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
-//        String token = authHeader.replace("Bearer ", "");
-//        String username = jwtProvider.getUsername(token);
-//
-//        redisUtil.deleteRefreshToken(username);
-//        return ResponseEntity.ok("로그아웃 되었습니다.");
-//    }
-//    @PostMapping("/logout") 
-//    public ResponseEntity<?> logout(HttpServletRequest request) {
-//        String token = request.getHeader("Authorization");
-//        if (token != null && jwtProvider.validateToken(token)) {
-//            String username = jwtProvider.getUsername(token);
-//            redisUtil.deleteRefreshToken(username); // Redis에서 해당 유저의 refresh token 삭제
-//            return ResponseEntity.ok("로그아웃 되었습니다.");
-//        }
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다.");
-//    }
+
     
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -141,7 +117,6 @@ public class AuthController {
         String authorities = (String)jwtProvider.getAuthoritie(token);
         
         System.out.println("checkusername="+username);
-        // 비밀번호 등 민감 정보는 제외하고 DTO로 만들어 반환하는 것이 좋음
         Map<String, Object> userInfo = Map.of(
         	"id", member.getId(),
             "username", member.getUsername(),
@@ -151,11 +126,11 @@ public class AuthController {
             "roadAddress",member.getRoadAddress() != null ? member.getRoadAddress() : "",
             "namujiAddress",member.getNamujiAddress() != null ? member.getNamujiAddress() : "",
             "auth", authorities
-            // 필요한 다른 정보 추가
         );
 
         return ResponseEntity.ok(userInfo);
     }
+    
     @PostMapping("/update")
     public ResponseEntity<?> uploadFile(@RequestPart(value="profileImage", required = false) MultipartFile file,
     		@RequestPart("username") String username,
@@ -200,9 +175,6 @@ public class AuthController {
             // 이미지가 있는 경우, src에 이미지 경로를 담아 응답
             responseMap.put("src", memberImage.getSrc());
         }
-        
-    	
-    	//Map<String, String> mapMemberImage = Map.of("src",memberImage.getSrc() != null ? memberImage.getSrc():"");
     	
     	return ResponseEntity.ok(responseMap);
     }
@@ -230,12 +202,3 @@ public class AuthController {
     	
     	
     }
-//    @GetMapping("/kakao")
-//    public ResponseEntity<?> kakaoLogin(HttpServletRequest request){
-//    	
-//    	System.out.println("카카오테스트");
-//    	//String code = request.getParameter("code");
-//    	//String kakaoAccessToken = authService.getKakaoAccessToken(code);
-//    	return ResponseEntity.ok("");//authService.kakaoLogin(kakaoAccessToken);
-//    }
-}

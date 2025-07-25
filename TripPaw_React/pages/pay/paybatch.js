@@ -148,7 +148,6 @@ function PayBatchPage() {
           setUserName(response.data.username);
         }
       } catch (error) {
-        console.error("로그인 상태 확인 실패:", error);
         alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
         router.push('/member/login');
       }
@@ -159,30 +158,21 @@ function PayBatchPage() {
 
   useEffect(() => {
     if (!memberTripPlanId || !userId) return;
-
-    console.log('📦 API 요청 준비:', memberTripPlanId, userId);
-
     axios.get(`/pay/batch/${memberTripPlanId}?userId=${userId}`, {
       withCredentials: true,
     })
       .then(res => {
-        console.log('✅ API 응답 성공:', res.data);
-
         setTotalAmount(res.data.totalAmount);
 
         if (res.data.payList) {
-          console.log('payList 있음:', res.data.payList);
           setPayList(res.data.payList);
           setPlaceSummaryList(createPlaceSummary(res.data.payList));
           setReservList([]);
         } else if (res.data.reservList) {
-          console.log('reservList 있음:', res.data.reservList);
-          console.log('reservList 길이:', res.data.reservList.length);
           setPayList([]);
           setReservList(res.data.reservList);
           setPlaceSummaryList(createPlaceSummaryFromReserv(res.data.reservList));
         } else {
-          console.log('payList, reservList 모두 없음');
           setPayList([]);
           setReservList([]);
           setPlaceSummaryList([]);

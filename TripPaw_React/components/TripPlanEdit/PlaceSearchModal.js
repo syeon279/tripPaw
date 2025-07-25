@@ -52,8 +52,6 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
         setHasMore(true);
         setResultIds(new Set()); // 초기화
         try {
-            //const query = `/search?keyword=${encodeURIComponent(keyword)}${region ? `&region=${encodeURIComponent(region)}` : ''} & offset=0`;
-            //const response = await axios.get(query);
             const response = await axios.get('/search', {
                 params: {
                     keyword,
@@ -61,7 +59,6 @@ const PlaceSearchModal = ({ onClose, onSelectPlace }) => {
                     offset,
                 }
             });
-            console.log("params", keyword, offset);
             const places = Array.isArray(response.data.places) ? response.data.places : [];
             const ids = new Set(places.map(p => p.id));
             setResults(places);
