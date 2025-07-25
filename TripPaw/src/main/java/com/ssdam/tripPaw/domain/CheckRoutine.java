@@ -20,11 +20,15 @@ import lombok.Setter;
 
 @Entity @Getter @Setter
 public class CheckRoutine {
+	
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
 	private String title;
+	
 	@Column(name = "is_saved")
 	private Boolean isSaved;
+	
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
 	//유저아이디 연결
@@ -33,8 +37,8 @@ public class CheckRoutine {
 	
 	//memberTripPlan 아이디 연결
 	@ManyToOne
-    @JoinColumn(name = "member_trip_plan_id") 
-    private MemberTripPlan memberTripPlan;
+    	@JoinColumn(name = "member_trip_plan_id") 
+    	private MemberTripPlan memberTripPlan;
 	
 	//membercheck
 	@OneToMany(mappedBy = "checkRoutine", cascade = CascadeType.ALL)
@@ -47,7 +51,7 @@ public class CheckRoutine {
         this.member.setId(memberId);
     }
 
-    // memberTripPlan
+    	// memberTripPlan
 	public void setMemberTripPlanId(Long memberTripPlanId) {
         if (this.memberTripPlan == null) {
             this.memberTripPlan = new MemberTripPlan();
