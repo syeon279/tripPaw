@@ -65,7 +65,6 @@ const ReviewList = () => {
         setMemberId(res.data.memberId);
         setIsAdmin(res.data.auth === "ADMIN");
       } catch (err) {
-        console.error("사용자 인증 정보 불러오기 실패", err);
       }
     };
     fetchAuth();
@@ -103,7 +102,6 @@ const ReviewList = () => {
       }
       setLikeStates(newStates);
     } catch (err) {
-      console.error("리뷰 또는 좋아요 상태 불러오기 실패", err);
     }
     setLoading(false);
   };
@@ -143,7 +141,6 @@ const ReviewList = () => {
         }
       });
     } catch (err) {
-      console.error("좋아요 처리 실패", err);
     }
   };
 
@@ -173,11 +170,8 @@ const ReviewList = () => {
       });
       message.success("NFT 발급 성공");
       setIssueModalVisible(false);
-
       fetchNfts();
-
     } catch (err) {
-      message.error("발급 실패: " + err.message);
     }
   };
 
@@ -188,6 +182,7 @@ const ReviewList = () => {
     return item.content.slice(0, MAX_CONTENT_LENGTH) + "...";
   };
 
+  //////
   return (
     <AppLayout>
       <div style={{ maxWidth: 900, margin: "auto", padding: 24 }}>
