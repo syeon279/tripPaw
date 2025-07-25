@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PublicConfirmModal from './PublicConfirmModal';
-import TripPlanToMyTrip from './TripPlanToMyTrip'; // ⭐ 추가
+import TripPlanToMyTrip from './TripPlanToMyTrip';
 
 const bottonWrapperStyle = {
     width: '100%',
@@ -37,7 +37,7 @@ const SearchTripPlanActionButton = ({
     myId
 }) => {
     const [showModal, setShowModal] = useState(false);
-    const [showMyTripModal, setShowMyTripModal] = useState(false); // ⭐ 추가
+    const [showMyTripModal, setShowMyTripModal] = useState(false);
     const [disabledDates, setDisabledDates] = useState([]);
 
     const handleOpenModal = () => {
