@@ -10,11 +10,11 @@ import com.ssdam.tripPaw.domain.Category;
 @Service
 public class CategoryService {
 	
-	@Autowired CategoryMapper categoryMapper;
+    @Autowired CategoryMapper categoryMapper;
 	
-	// insert
+    // insert
     public int insert(Category category) {
-		return categoryMapper.insert(category);
+	return categoryMapper.insert(category);
     };
     
     // select
