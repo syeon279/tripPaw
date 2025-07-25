@@ -38,10 +38,6 @@ public class SmsCertificationUtil {
 		message.setText("본인확인 인증번호는 " + random + "입니다.");
 		
 		try {
-			//this.messageService.send(message);
-//		} catch (NurigoMessageNotReceivedException exception) {
-//			 System.out.println(exception.getFailedMessageList());
-//			  System.out.println(exception.getMessage());
 		}  catch (Exception exception) {
 			  System.out.println(exception.getMessage());
 		}
