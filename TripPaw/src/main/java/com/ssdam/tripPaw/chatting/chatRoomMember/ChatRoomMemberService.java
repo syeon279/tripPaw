@@ -17,7 +17,6 @@ public class ChatRoomMemberService {
 	public int insertChatRoomMember(Member member, ChatRoom chatRoom, ChatRole role, ChatRoomMemberStatus status) {
 		ChatRoomMember chatRoomMember;
 		if(role.name().equals("JOIN")) {
-			//chatRoomMemberMapper.findStatusByMemberIdAndChatRoomId(chatRoomMember);
 			chatRoomMember = ChatRoomMember.create(member, chatRoom, role, status);
 		}else {
 			chatRoomMember = ChatRoomMember.create(member, chatRoom, role, status);
