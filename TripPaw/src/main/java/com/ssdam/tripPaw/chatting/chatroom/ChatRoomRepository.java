@@ -23,10 +23,6 @@ public class ChatRoomRepository {
 	        Collections.reverse(chatRooms);
 	        return chatRooms;
 	    }
-//	    public ChatRoom createChatRoom(String name) {
-//	        ChatRoom chatRoom = ChatRoom.create(name);
-//	        chatRoomMap.put(chatRoom.getRoomId(), chatRoom);
-//	        return chatRoom;
-//	    }
+
 }
 
