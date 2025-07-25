@@ -35,34 +35,20 @@ public class WebSocketHandler extends TextWebSocketHandler{
 						e.printStackTrace();
 					}
 				}
-//		WebSocketSession receiver = sessions.get(message.getReceiver());
-//		if(receiver != null && receiver.isOpen()) {
-//			receiver.sendMessage(new TextMessage(Utils.getString(message)));
-//		}
-		
-//		String receiverId = message.getReceiver();
-//
-//	    // receiverId가 null이 아닌지 먼저 확인
-//	    if (receiverId != null) {
-//	        WebSocketSession receiver = sessions.get(receiverId);
-//	        if (receiver != null && receiver.isOpen()) {
-//	            receiver.sendMessage(new TextMessage(Utils.getString(message)));
-//	        }
-//	    } else {
-//	        // receiver가 지정되지 않은 메시지에 대한 처리 (예: 로그 남기기)
-//	        log.warn("수신자가 지정되지 않은 메시지입니다: {}", textMessage.getPayload());
-//	    }
 	}
+	
 	//소켓 연결 종료
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		sessions.remove(session.getId());
 		super.afterConnectionClosed(session, status);
 	}
+	
 	//에러발생
 	@Override
 	public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
 		// TODO Auto-generated method stub
 		super.handleTransportError(session, exception);
 	}
+	
 }
