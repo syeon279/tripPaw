@@ -16,17 +16,16 @@ import lombok.RequiredArgsConstructor;
 public class SearchController {
      
     private final SearchService searchService;
-    
-    // 🔍 검색하기
+
     @GetMapping("/search")
     @ResponseBody
     public SearchResultDto search(
     	    @RequestParam String keyword,
     	    @RequestParam(required = false) String region,
-    	    @RequestParam(defaultValue = "0") int offset, // ⭐ offset 추가
+    	    @RequestParam(defaultValue = "0") int offset, //offset 추가
     	    @RequestParam(defaultValue = "0") int tripPlanOffset
     	) {
     	//System.out.println("...............[controller] : keyword=" + keyword + ", region=" + region + ", offset=" + offset + ", tripPlanOffset=" + tripPlanOffset);
-        return searchService.search(keyword, region, offset, tripPlanOffset); // ✅ 수정
+        return searchService.search(keyword, region, offset, tripPlanOffset); 
     	}
 }
