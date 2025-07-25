@@ -202,7 +202,6 @@ const LoginFormModal = ({ onToggleForm, onLoginSuccess }) => {
 
       if (loginSubmit.status === 200) {
         if (onLoginSuccess) {
-          console.log('로그인 응답 결과:', loginSubmit.data);
           onLoginSuccess(loginSubmit.data);
         }
       }
