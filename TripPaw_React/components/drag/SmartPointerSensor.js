@@ -15,7 +15,7 @@ export class SmartPointerSensor extends PointerSensor {
 
                     timeoutId = setTimeout(() => {
                         activated = true;
-                        onActivation(event); // ⏱ 드래그 시작
+                        onActivation(event); //드래그 시작
                     }, 200);
 
                     const cancel = (e) => {
