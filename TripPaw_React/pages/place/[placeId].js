@@ -9,12 +9,7 @@ import PetAssistant from '../../components/pet/petassistant';
 import styled from 'styled-components';
 import AppLayout from '@/components/AppLayout';
 import { Tabs, Rate, Avatar, Button, Spin, Pagination } from 'antd';
-import {
-  SunOutlined,
-  // CloudOutlined,
-  // ThunderboltOutlined,
-  QuestionOutlined
-} from '@ant-design/icons';
+import {SunOutlined, QuestionOutlined} from '@ant-design/icons';
 import LoginFormModal from '@/components/member/LoginFormModal';
 import PetassistantLoading from '@/components/pet/PetassistantLoading';
 
@@ -40,10 +35,7 @@ const Container = styled.div`
   margin: auto;
   padding: 30px;
   font-family: 'Segoe UI', sans-serif;
-  //background: #fdfdfd;
   border-radius: 16px;
-  //box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  //border: 2px solid red;
 `;
 
 const Title = styled.h1`
@@ -51,7 +43,6 @@ const Title = styled.h1`
   font-size: 2.2rem;
   margin-bottom: 40px;
   color: #222;
-  //border: 2px solid red;
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 `;
 
@@ -238,7 +229,6 @@ const PlaceReservCreatePage = () => {
         });
         setDisabledDates(allDisabled);
       } catch (err) {
-        console.error('장소 또는 예약 불가 날짜 불러오기 실패:', err);
         setMessage('장소 정보를 불러오지 못했습니다.');
       }
     };
@@ -261,9 +251,6 @@ const PlaceReservCreatePage = () => {
   }, [place]);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // ✅ 즐겨찾기 체크는 placeId, memberId 설정 완료 후 별도로 실행
-
   // 로그인 + 즐겨찾기 + 리뷰 작성 여부
   useEffect(() => {
     const fetchUserAndPlaceMeta = async () => {
@@ -274,7 +261,7 @@ const PlaceReservCreatePage = () => {
         const userId = authRes.data.id;
         setMemberId(userId);
         setIsLoggedIn(true);
-
+        
         const [canWriteRes, favoriteRes] = await Promise.all([
           axios.get(`/review/reserv/check`, {
             params: { memberId: userId, placeId },
@@ -287,7 +274,6 @@ const PlaceReservCreatePage = () => {
             },
           }),
         ]);
-
         setCanWriteReview(canWriteRes.data === true);
 
         // 즐겨찾기 여부 설정
@@ -302,7 +288,6 @@ const PlaceReservCreatePage = () => {
         setIsLoggedIn(false);
         setCanWriteReview(false);
         setIsFavorite(false);
-        console.log('유저 정보 또는 즐겨찾기/리뷰 요청 실패:', err);
       }
     };
 
@@ -329,14 +314,11 @@ const PlaceReservCreatePage = () => {
       } else {
         await axios.delete(`/favorite/delete`, { data: payload });
       }
-
       // 서버 재확인 생략 가능 (성공 응답만 받으면 됨)
     } catch (err) {
-      console.error('즐겨찾기 토글 실패:', err);
       setIsFavorite(!newFavorite); // 실패 시 원상복구
     }
   };
-
   ////////////////////////////////////////////////////////////////////////////////////
 
   // 예약하기
@@ -393,21 +375,13 @@ const PlaceReservCreatePage = () => {
     e.preventDefault();
 
     if (!isLoggedIn || !memberId) {
-      // ✅ memberId 인자를 받아 실행하는 함수로 설정
       setPendingAction(() => (idFromLogin) => executeReservation(idFromLogin));
       setShowLoginModal(true);
       return;
     }
-
-    executeReservation(memberId); // ✅ 인자 전달
+    executeReservation(memberId); 
   };
-
-useEffect(() => {
-  console.log('avgRating:', avgRating);         // 실제 렌더되는 값
-  console.log('백엔드에서 받은 reviews:', reviews);
   
-}, [avgRating, reviews]);
-
   useEffect(() => {
     const fetchAllData = async () => {
       try {
@@ -415,7 +389,7 @@ useEffect(() => {
           withCredentials: true,
         });
         const userId = authRes.data.id;
-        setMemberId(userId);             // ✅ 이걸 먼저 설정하고
+        setMemberId(userId);             
         setIsLoggedIn(true);
 
         const reservRes = await axios.get(`/review/reserv/check`, {
@@ -425,13 +399,11 @@ useEffect(() => {
 
         await fetchReviews(placeId, userId);
       } catch (err) {
-        console.error('로그인 또는 예약 확인 실패:', err);
         setIsLoggedIn(false);
         setCanWriteReview(false);
       }
     };
 
-    // ✅ 조건 추가
     if (placeId && isLoggedIn && memberId) {
       fetchAllData();
     }
@@ -467,7 +439,6 @@ useEffect(() => {
           size: pageSize,
         },
       });
-
       const { content, totalElements, totalPages, avgRating } = res.data;
 
       setReviews(content);
@@ -492,7 +463,6 @@ useEffect(() => {
           count: countRes.data,
         };
       }
-
       setLikeStates(newLikeStates);
     } catch (err) {
       console.error('리뷰 불러오기 실패:', err);
@@ -505,7 +475,6 @@ useEffect(() => {
       fetchReviews(placeId, memberId || null, sortKey, currentPage);
     }
   }, [placeId, memberId, sortKey, currentPage]);
-
 
   /////////////////////////////////////////////////////
   // 좋아요 
@@ -543,7 +512,6 @@ useEffect(() => {
         },
       }));
     } catch (err) {
-      console.error('좋아요 처리 실패:', err);
       message.error('좋아요 처리에 실패했습니다.');
     }
   };
@@ -559,7 +527,6 @@ useEffect(() => {
       });
 
       const id = res.data.id;
-      console.log('[DEBUG] 로그인 후 받은 memberId:', id);
       setMemberId(id);
       setIsLoggedIn(true);
 
@@ -567,11 +534,9 @@ useEffect(() => {
         const action = pendingAction;
         setPendingAction(null);
 
-        // 이 시점 memberId 바로 쓰도록 인라인 인자로 넘김
-        action(id); // ✅ id 직접 넘김
+        action(id); 
       }
     } catch (err) {
-      console.error('로그인 후 memberId 확인 실패:', err);
     }
   };
 
