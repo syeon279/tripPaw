@@ -9,7 +9,7 @@ import com.ssdam.tripPaw.domain.Seal;
 
 @Mapper
 public interface SealMapper {
-	// 전체 도장 목록
+    // 전체 도장 목록
     List<Seal> findAll();
 
     // 장소 타입 ID로 도장 필터링
@@ -29,9 +29,6 @@ public interface SealMapper {
     
     //placeType로 도장 조회
     List<Seal> findSealsByTripPlanId(@Param("memberTripPlanId") Long memberTripPlanId);
-    
-    //등록한 도장 제외
-//    List<Seal> findUnacquiredSealsByTripPlan(@Param("memberTripPlanId") Long memberTripPlanId,  @Param("passportId") Long passportId);
     
     int countSealsByName(String name);
     
