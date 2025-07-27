@@ -184,7 +184,7 @@ Notion, GitHub, KakaoTalk
         <td align="center">
           <div>
             <img width="150" src="https://github.com/user-attachments/assets/62d9a879-0324-41e4-9438-000be664a714" alt="이재명" /><br/>
-            <a href="https://github.com/Lee-jaemyeong" target="_blank">이재명 | 팀원</a>
+            <a href="https://github.com/Lee-jaemyeong/Portfolio" target="_blank">이재명 | 팀원</a>
           </div>
         </td>
         <td>
