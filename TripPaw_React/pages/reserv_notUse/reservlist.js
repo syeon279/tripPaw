@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { useRouter } from 'next/router';
 import ContentHeader from '../../components/ContentHeader';
 import { RightOutlined } from '@ant-design/icons';
-import PetAssistant from '../../components/pet/Petassistant';
+import PetAssistant from '../../components/pet/PetAssistant';
 import { Select } from 'antd';
 
 const Wrapper = styled.div`

@@ -9,7 +9,6 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import MypageLayout from '@/components/layout/MyPageLayout';
 import { Divider } from 'antd';
-import UserChecklistRoutineList from '@/components/checkUser/UserChecklistRoutineList';
 import TripChecklistRoutineList from '@/components/checkUser/TripChecklistRoutineList';
 
 const RouteMapNoSSR = dynamic(() => import('../../components/tripPlan/RouteMap'), {

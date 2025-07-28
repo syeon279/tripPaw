@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import DayScheduleList from '../../../components/tripPlanEdit/DayScheduleList';
+import DayScheduleList from '../../../components/TripPlanEdit/DayScheduleList';
 import AppLayout from '../../../components/AppLayout';
-import EditActionButtons from '../../../components/tripPlanEdit/EditActionButtons';
-import TitleModal from '@/components/tripPlan/TitleModal';
+import EditActionButtons from '../../../components/TripPlanEdit/EditActionButtons';
 import TripPlanToMyTrip from '@/components/tripPlan/TripPlanToMyTrip';
-import PlaceSearchModal from '@/components/tripPlanEdit/PlaceSearchModal';
+import PlaceSearchModal from '@/components/TripPlanEdit/PlaceSearchModal';
 import axios from 'axios';
 import { format } from 'date-fns';
 

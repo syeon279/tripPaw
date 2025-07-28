@@ -5,13 +5,13 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
-import PetAssistant from '../../components/pet/Petassistant';
+import PetAssistant from '../../components/pet/PetAssistant';
 import styled from 'styled-components';
 import AppLayout from '@/components/AppLayout';
 import { Tabs, Rate, Avatar, Button, Spin, Pagination } from 'antd';
 import { SunOutlined, QuestionOutlined } from '@ant-design/icons';
 import LoginFormModal from '@/components/member/LoginFormModal';
-import PetassistantLoading from '@/components/pet/PetassistantLoading';
+import PetAssistantLoading from '@/components/pet/PetAssistantLoading';
 
 
 const { TabPane } = Tabs;
@@ -543,7 +543,7 @@ const PlaceReservCreatePage = () => {
 
   return (
     <AppLayout>
-      {(loading || !place) && <PetassistantLoading reservState="DEFAULT" />}
+      {(loading || !place) && <PetAssistantLoading reservState="DEFAULT" />}
       <div style={{ width: '100%', height: '50px' }} />
       {!place ? (
         <Container>

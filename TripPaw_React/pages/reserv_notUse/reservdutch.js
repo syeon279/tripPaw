@@ -6,7 +6,7 @@ import 'react-date-range/dist/theme/default.css';
 import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
 import ContentHeader from '../../components/ContentHeader';
-import PetAssistant from '../../components/pet/Petassistant';
+import PetAssistant from '../../components/pet/PetAssistant';
 import styled from 'styled-components';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';

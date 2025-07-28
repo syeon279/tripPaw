@@ -10,28 +10,13 @@ const withTM = require('next-transpile-modules')([
 const nextConfig = {
   reactStrictMode: true,
 
-  //export 설정 추가
-  output: 'export',
-
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       'rc-util/es/hooks/useState': require.resolve('rc-util/es/hooks/useState'),
     };
-
     config.resolve.extensions.push('.js');
-
     return config;
-  },
-
-  // 여기에 프록시 rewrites 추가
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*', // ex) /api/nft/tokens
-        destination: 'http://localhost:8080/api/:path*', // Spring Boot 백엔드 주소
-      },
-    ];
   },
 };
 

@@ -14,6 +14,7 @@ public class InitAllRunner implements ApplicationRunner {
     private final PlaceInitializer placeInitializer;
     private final BadgeInitializer badgeInitializer;
     private final SealInitializer sealInitializer;
+    private final MemberDataInitializer memberDataInitializer;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -24,6 +25,8 @@ public class InitAllRunner implements ApplicationRunner {
 
         System.out.println("[INIT] === 초기화 순차 실행 시작 ===");
 
+        memberDataInitializer.run(args.getSourceArgs());
+        
         badgeInitializer.run(args.getSourceArgs());
         
         templateDataInitializer.run(args.getSourceArgs());

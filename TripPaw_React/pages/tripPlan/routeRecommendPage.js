@@ -6,7 +6,7 @@ import AppLayout from '../../components/AppLayout';
 import ActionButtons from '../../components/tripPlan/ActionButtons';
 import TitleModal from '../../components/tripPlan/TitleModal';
 import LoginFormModal from '../../components/member/LoginFormModal';
-import PetAssistantLoading from '../../components/pet/PetassistantLoading';
+import PetAssistantLoading from '../../components/pet/PetAssistantLoading';
 import axios from 'axios';
 import { format } from 'date-fns';
 

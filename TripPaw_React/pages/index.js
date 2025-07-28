@@ -4,7 +4,7 @@ import TripPlanMain from '../components/tripPlan/TripPlanMain';
 import TripPlanSearch from '../components/search/TripPlanSearch';
 import SearchResultSection from '../components/search/SearchResultSection';
 import axios from 'axios';
-import PetassistantLoading from '@/components/pet/PetassistantLoading';
+import PetAssistantLoading from '@/components/pet/PetAssistantLoading';
 
 const sectionStyle = (isActive) => ({
     height: '100vh',
@@ -156,7 +156,7 @@ const Home = () => {
 
     return (
         <AppLayout headerTheme="white">
-            {isLoading && <PetassistantLoading reservState="DEFAULT" />}
+            {isLoading && <PetAssistantLoading reservState="DEFAULT" />}
             <div
                 ref={containerRef}
                 style={{
@@ -215,10 +215,10 @@ const Home = () => {
                                 handleKeyPress={handleKeyPress}
                                 handleSearch={handleSearch}
                                 setSectionIndex={setSectionIndex}
-                                setOffset={setOffset} 
+                                setOffset={setOffset}
                                 isLoading={isLoading}
                                 tripPlanOffset={tripPlanOffset}
-                                setTripPlanOffset={setTripPlanOffset} 
+                                setTripPlanOffset={setTripPlanOffset}
                             />
                         </section>
                     )}

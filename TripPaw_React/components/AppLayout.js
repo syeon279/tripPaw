@@ -1,5 +1,4 @@
 import React from 'react';
-import { Menu, Row, Col } from 'antd';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ContentHeader from './ContentHeader';

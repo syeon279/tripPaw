@@ -1,7 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import MyPageLayout from '@/components/layout/MyPageLayout';
-import Sidebar from '@/components/mypage/Sidebar';
 import MyReviewList from '@/components/review/MyReviewList';
 
 const MyReviewPage = () => {

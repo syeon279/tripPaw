@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styled, { keyframes } from 'styled-components';
 import { useRouter } from 'next/router';
-import ContentHeader from '@/components/ContentHeader';
 import { RightOutlined } from '@ant-design/icons';
-import PetAssistant from '@/components/pet/Petassistant';
+import PetAssistant from '@/components/pet/PetAssistant';
 import { Select } from 'antd';
 import MypageLayout from '@/components/layout/MyPageLayout';
 

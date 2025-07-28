@@ -1,7 +1,5 @@
 import React, { useRef } from 'react';
 import DayScheduleItem from './DayScheduleItem';
-import ActionButtons from './ActionButtons';
-import format from 'date-fns/format';
 
 const DayScheduleList = ({ routeData, currentDay, onSelectDay, onPlaceClick, setFocusDay, startDate }) => {
     const dayRefs = useRef([]);

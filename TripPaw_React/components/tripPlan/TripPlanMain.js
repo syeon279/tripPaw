@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { format, addDays, eachDayOfInterval, parseISO } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import axios from 'axios';
 
 const tripPlanMain = () => {
@@ -507,7 +507,7 @@ const tripPlanMain = () => {
                                                     setTimeout(() => {
                                                         handleRandomDice(); // 랜덤 값 설정
                                                         setIsRolling(false);
-                                                        setShowDice(false); 
+                                                        setShowDice(false);
                                                     }, 1000);
                                                 }}
                                                 style={{

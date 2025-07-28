@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
-import { Dropdown, Menu, Button, message, Modal } from 'antd';
-import { UserOutlined, NotificationOutlined, SearchOutlined, MenuOutlined } from '@ant-design/icons';
+import { UserOutlined, MenuOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import axios from 'axios';
 
