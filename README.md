@@ -1,24 +1,7 @@
 
-##  <img width="100" height="100" alt="나" src="https://github.com/user-attachments/assets/9474b41b-911a-4479-bf74-c02d03c4598b" /> 실전형 풀스택 개발자 포트폴리오
-
->  완벽보다는 완성을 향해 **기획부터 배포까지, 사용자 흐름을 설계하고 문제를 끝까지 해결하는 개발자**
-
-<br />
-
-반려동물과 함께 여행을 떠나는 사용자들을 위한 경로 추천 플랫폼입니다. 공공 API를 활용한 장소 정보 수집부터, 사용자 입력 기반의 여행 경로 추천, 지도 기반 UI, 일정 저장 및 공유 기능까지 **풀스택 개발 역량과 실전 트러블슈팅 경험**을 바탕으로 설계하고 구현했습니다.
- <br/>
- 
 
 
-## 📬 Contact & Links
-
-- **이름**: 윤소현  
-- **연락처**: 010-4857-8428  
-- **이메일**: [syeonblue@gmail.com](mailto:syeonblue@gmail.com)  
-- **GitHub**: [github.com/syeon279](https://github.com/syeon279)  
-- **Notion 포트폴리오**: [ysh-blue.notion.site/ysh](https://ysh-blue.notion.site/ysh)
-
- 
+### 🛫 반려동물과 함께 여행을 떠나는 사용자들을 위한 경로 추천 플랫폼입니다. 공공 API를 활용한 장소 정보 수집부터, 사용자 입력 기반의 여행 경로 추천, 지도 기반 UI, 일정 저장 및 공유 기능까지 **풀스택 개발 역량과 실전 트러블슈팅 경험**을 바탕으로 설계하고 구현했습니다.
 
 <br/>
 <br/>
