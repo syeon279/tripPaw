@@ -40,14 +40,14 @@ const PlaceDetailModal = ({ place, onClose, anchorRef }) => {
                         return;
                     }
 
-                    const { data } = await axios.get(`/place/${place.placeId}`);
+                    const { data } = await axios.get(`/api/place/${place.placeId}`);
                     setPlaceDetail({ ...place, ...data });
                 } else {
                     setPlaceDetail(place);
                 }
             } catch (error) {
                 console.error('상세 장소 정보 요청 실패:', error);
-                setPlaceDetail(place); // 최소한 기존 데이터라도 보여주자
+                setPlaceDetail(place);
             }
         };
 

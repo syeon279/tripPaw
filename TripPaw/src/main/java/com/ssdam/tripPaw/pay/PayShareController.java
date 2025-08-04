@@ -20,7 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/pay/share")
+@RequestMapping("/api/pay/share")
 public class PayShareController {
 
     private final PayShareService payShareService;

@@ -33,7 +33,7 @@ const ReviewEditPage = () => {
 
     const fetchReview = async () => {
       try {
-        const res = await axios.get(`/review/${id}`);
+        const res = await axios.get(`/api/review/${id}`);
         setRating(res.data.rating);
         setContent(res.data.content);
       } catch (err) {
@@ -63,7 +63,7 @@ const ReviewEditPage = () => {
     });
 
     try {
-      await axios.put(`/review/${id}`, formData, {
+      await axios.put(`/api/review/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

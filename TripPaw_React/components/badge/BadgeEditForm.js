@@ -48,7 +48,7 @@ const BadgeEditForm = ({ badgeData, onCancel, onSuccess }) => {
     if (imageFile) formData.append('image', imageFile);
 
     try {
-      await axios.put(`/admin/badge/${badge.id}`, formData, {
+      await axios.put(`/api/admin/badge/${badge.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       message.success('뱃지 수정 완료');

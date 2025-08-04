@@ -27,7 +27,7 @@ const SealSelectorModal = ({ passportId, review, tripPlanId, onClose, onSaved })
       if (onSaved) onSaved();
 
       onClose();
-    } catch (error) { console.error('도장 등록 실패:', error); alert('도장 등록 중 오류가 발생했습니다.'); }
+    } catch (error) { alert('도장 등록 중 오류가 발생했습니다.'); }
   };
 
   return (
@@ -44,7 +44,6 @@ const SealSelectorModal = ({ passportId, review, tripPlanId, onClose, onSaved })
                 onClick={() => setSelectedSealId(seal.id)}
               >
                 <img src={seal.imageUrl} alt={seal.name} />
-                {/* <p>{seal.name}</p> */}
               </div>
             ))}
           </div>

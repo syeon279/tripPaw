@@ -8,27 +8,27 @@ const ReviewSelectorModal = ({ memberId, passportId, onClose, onSaved }) => {
   const [selectedReview, setSelectedReview] = useState(null);
 
   useEffect(() => {
-    axios.get(`/review/member/${memberId}/place-type`)
-      .then((res) => {console.log('작성된 리뷰 응답:', res.data); setReviews(res.data);})
+    axios.get(`/api/review/member/${memberId}/place-type`)
+      .then((res) => { setReviews(res.data); })
       .catch((err) => console.error('작성된 리뷰 조회 실패:', err));
 
-    axios.get(`/review/tripplans-no-review/${memberId}`)
-      .then((res) => {console.log('작성 안된 리뷰 응답:', res.data); setReservsNoReview(res.data);})
+    axios.get(`/api/review/tripplans-no-review/${memberId}`)
+      .then((res) => { setReservsNoReview(res.data); })
       .catch((err) => console.error('작성 안한 여행 조회 실패:', err));
   }, [memberId]);
 
 
-const handleReviewSelect = (item) => {
-  // tripPlanId는 리뷰의 대상 여행 식별자
-  const tripPlanId = item?.targetId;
-  const reviewId = item?.reviewId || item?.id;
+  const handleReviewSelect = (item) => {
+    // tripPlanId는 리뷰의 대상 여행 식별자
+    const tripPlanId = item?.targetId;
+    const reviewId = item?.reviewId || item?.id;
 
-  setSelectedReview({
-    ...item,
-    id: reviewId,
-    tripPlanId,
-  });
-};
+    setSelectedReview({
+      ...item,
+      id: reviewId,
+      tripPlanId,
+    });
+  };
 
   return (
     <>
@@ -65,61 +65,61 @@ const handleReviewSelect = (item) => {
         }
       `}</style>
 
-<div className="modal-overlay">
-  <div className="modal-content">
-    <h3 style={{ marginBottom: '16px' }}>도장 연결할 리뷰 선택</h3>
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <h3 style={{ marginBottom: '16px' }}>도장 연결할 리뷰 선택</h3>
 
-    {/* 작성된 리뷰 영역 */}
-    <section style={{ marginBottom: '32px' }}>
-      <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>선택 가능 항목</h4>
+          {/* 작성된 리뷰 영역 */}
+          <section style={{ marginBottom: '32px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>선택 가능 항목</h4>
 
-      {reviews.length === 0 && <p>작성된 리뷰가 없습니다.</p>}
+            {reviews.length === 0 && <p>작성된 리뷰가 없습니다.</p>}
 
-      {reviews.map((item, index) => (
-        <div key={`review-${index}`} className="review-card">
-          <p><strong>{item.titleOverride || '제목 없음'}</strong></p>
-          <p>{item.content}</p>
-          <small>날씨: {item.weatherCondition} / 평점: {item.rating}</small><br />
-          <small>작성일: {item.createdAt}</small><br />
-          <button onClick={() => handleReviewSelect(item)} style={{ marginTop: '8px' }}>도장 연결</button>
+            {reviews.map((item, index) => (
+              <div key={`review-${index}`} className="review-card">
+                <p><strong>{item.titleOverride || '제목 없음'}</strong></p>
+                <p>{item.content}</p>
+                <small>날씨: {item.weatherCondition} / 평점: {item.rating}</small><br />
+                <small>작성일: {item.createdAt}</small><br />
+                <button onClick={() => handleReviewSelect(item)} style={{ marginTop: '8px' }}>도장 연결</button>
+              </div>
+            ))}
+          </section>
+
+          {/* 작성되지 않은 리뷰 영역 */}
+          <section>
+            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>아직 리뷰를 작성하지 않았어요!</h4>
+
+            {reservsNoReview.length === 0 && <p>모든 여행에 리뷰가 작성되었습니다.</p>}
+
+            {reservsNoReview.map((item, index) => (
+              <div key={`unwritten-${index}`} className="review-card">
+                <p><strong>{item.titleOverride || '여행명 없음'}</strong> ({item.startDate} ~ {item.endDate})</p>
+                <small style={{ display: 'block', marginBottom: '8px' }}>리뷰가 아직 없습니다.</small>
+                <button onClick={() => window.location.href = `/tripPlan/${item.tripPlan.id}`}>리뷰 작성하러 가기</button>
+              </div>
+            ))}
+          </section>
+
+          {/* SealSelectorModal */}
+          {selectedReview && (
+            <SealSelectorModal
+              passportId={passportId}
+              review={selectedReview}
+              tripPlanId={selectedReview?.targetId}
+              onClose={() => setSelectedReview(null)}
+              onSaved={onSaved}
+            />
+          )}
+
+          <button onClick={onClose}
+            style={{ marginTop: '24px', display: 'block', border: '2px solid #000', fontWeight: 'bold', backgroundColor: '#fff', width: '100%', padding: '10px', borderRadius: '5px', fontSize: '16px', }}
+          > 닫기 </button>
         </div>
-      ))}
-    </section>
+      </div>
 
-    {/* 작성되지 않은 리뷰 영역 */}
-    <section>
-      <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px' }}>아직 리뷰를 작성하지 않았어요!</h4>
 
-      {reservsNoReview.length === 0 && <p>모든 여행에 리뷰가 작성되었습니다.</p>}
-
-      {reservsNoReview.map((item, index) => (
-        <div key={`unwritten-${index}`} className="review-card">
-          <p><strong>{item.titleOverride || '여행명 없음'}</strong> ({item.startDate} ~ {item.endDate})</p>
-          <small style={{ display: 'block', marginBottom: '8px' }}>리뷰가 아직 없습니다.</small>
-          <button onClick={() => window.location.href = `/tripPlan/${item.tripPlan.id}`}>리뷰 작성하러 가기</button>
-        </div>
-      ))}
-    </section>
-
-    {/* SealSelectorModal */}
-    {selectedReview && (
-      <SealSelectorModal
-        passportId={passportId}
-        review={selectedReview}
-        tripPlanId={selectedReview?.targetId} 
-        onClose={() => setSelectedReview(null)}
-        onSaved={onSaved}
-      />
-    )}
-
-    <button onClick={onClose}
-      style={{ marginTop: '24px', display: 'block', border: '2px solid #000', fontWeight: 'bold', backgroundColor: '#fff', width: '100%', padding: '10px', borderRadius: '5px', fontSize: '16px', }}
-    > 닫기 </button>
-  </div>
-</div>
-    
-    
-</>);
+    </>);
 };
 
 export default ReviewSelectorModal;

@@ -46,7 +46,7 @@ const DutchPayJoinPage = () => {
   // 예약 정보 불러오기
   useEffect(() => {
     if (!reservId) return;
-    axios.get(`/reserv/${reservId}`)
+    axios.get(`/api/reserv/${reservId}`)
       .then(res => setReserv(res.data));
   }, [reservId]);
 
@@ -54,7 +54,7 @@ const DutchPayJoinPage = () => {
   const handleJoin = () => {
     const token = localStorage.getItem('accessToken'); //JWT 꺼내기
 
-    axios.post(`/payshare/dutch/join/${reservId}`, null, {
+    axios.post(`/api/payshare/dutch/join/${reservId}`, null, {
       withCredentials: true,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}` // 또는 쿠키 등에서 읽은 토큰

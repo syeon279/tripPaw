@@ -154,7 +154,7 @@ const SignupLink = styled.div`
 `;
 
 const onClickOauth2 = async (e) => {
-  const response = await axios.get('/oauth2/authorization/kakao');
+  const response = await axios.get('/api/oauth2/authorization/kakao');
 }
 
 function LoginForm({ onToggleForm }) {

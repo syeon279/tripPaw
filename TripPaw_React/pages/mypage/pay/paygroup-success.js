@@ -6,7 +6,7 @@ export async function getServerSideProps(context) {
   const { tripPlanId } = context.query;
 
   try {
-    const res = await axios.get(`/reserv/tripplan/${tripPlanId}`);
+    const res = await axios.get(`/api/reserv/tripplan/${tripPlanId}`);
     const reservList = res.data;
 
     return { props: { reservList } };

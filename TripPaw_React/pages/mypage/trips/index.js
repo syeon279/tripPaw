@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import MypageLayout from "@/components/layout/MyPageLayout";
 import { EllipsisOutlined } from "@ant-design/icons";
 import PublicConfirmModal from "@/components/tripPlan/PublicConfirmModal";
-import dayjs from "dayjs"; 
+import dayjs from "dayjs";
 
 const layoutStyle = {
     header: { width: '100%', height: '80px' },
@@ -27,7 +27,7 @@ const Trips = () => {
     const [tab, setTab] = useState("mytrips");
     const [trips, setTrips] = useState([]);
     const [fallbackImages, setFallbackImages] = useState({});
-    const [selectedMonth, setSelectedMonth] = useState(""); 
+    const [selectedMonth, setSelectedMonth] = useState("");
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -53,8 +53,8 @@ const Trips = () => {
             try {
                 const url =
                     tab === "mytrips"
-                        ? `/memberTripPlan/${memberId}/mytrips`
-                        : `/tripPlan/${memberId}/trips`;
+                        ? `/api/memberTripPlan/${memberId}/mytrips`
+                        : `/api/tripPlan/${memberId}/trips`;
 
                 const response = await axios.get(url);
                 const data = response.data;
@@ -109,8 +109,8 @@ const Trips = () => {
             e.stopPropagation();
             const url =
                 tab === "mytrips"
-                    ? `/memberTripPlan/${trip.myTripId}`
-                    : `/tripPlan/${trip.id}`;
+                    ? `/api/memberTripPlan/${trip.myTripId}`
+                    : `/api/tripPlan/${trip.id}`;
 
             const confirmMessage =
                 tab === "mytrips"
@@ -131,7 +131,7 @@ const Trips = () => {
 
         const requestPublish = async () => {
             try {
-                await axios.put(`/tripPlan/${trip.id}/public`);
+                await axios.put(`/api/tripPlan/${trip.id}/public`);
                 alert("여행이 공개로 전환되었습니다.");
                 setMenuOpen(false);
                 setShowModal(false);

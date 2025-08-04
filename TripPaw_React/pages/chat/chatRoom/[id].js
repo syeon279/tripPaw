@@ -169,7 +169,7 @@ function ChatRoom() {
 
     const fetchRoomInfo = async () => {
       try {
-        const response = await axios.get(`/chat/room/${roomId}`);
+        const response = await axios.get(`/api/chat/room/${roomId}`);
         setRoomTitle(response.data.title);
       } catch (error) {
         console.error("채팅방 정보 로딩 실패:", error);

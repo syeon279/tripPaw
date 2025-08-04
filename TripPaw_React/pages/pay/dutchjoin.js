@@ -48,14 +48,14 @@ const DutchPayJoinPage = () => {
   // 예약 정보 불러오기
   useEffect(() => {
     if (!reservId) return;
-    axios.get(`/reserv/${reservId}`)
+    axios.get(`/api/reserv/${reservId}`)
       .then(res => setReserv(res.data));
   }, [reservId]);
 
   // 참가자 목록 불러오기
   useEffect(() => {
     if (!reservId) return;
-    axios.get(`/pay/share/dutch/participants/${reservId}`)
+    axios.get(`/api/pay/share/dutch/participants/${reservId}`)
       .then(res => {
         // 응답 데이터가 배열인지 확인하고, 아니면 빈 배열로 초기화
         const data = Array.isArray(res.data.participants) ? res.data.participants : [];
@@ -73,7 +73,7 @@ const DutchPayJoinPage = () => {
   const handleJoin = () => {
     const token = localStorage.getItem('accessToken'); // JWT 꺼내기
 
-    axios.post(`/pay/share/dutch/join/${reservId}`, null, {
+    axios.post(`/api/pay/share/dutch/join/${reservId}`, null, {
       withCredentials: true,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}` // 또는 쿠키 등에서 읽은 토큰

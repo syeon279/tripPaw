@@ -6,16 +6,16 @@ export async function getServerSideProps(context) {
   const { reservId } = context.query;
 
   try {
-    const res = await axios.get(`/reserv/${reservId}`);
+    const res = await axios.get(`/api/reserv/${reservId}`);
     const reserv = res.data;
     const place = reserv.place ?? null;
 
-    const resPay = await axios.get(`/pay/reserv/${reservId}`);
+    const resPay = await axios.get(`/api/pay/reserv/${reservId}`);
     const pay = resPay.data;
 
     return { props: { reserv, place, pay } };
   } catch (error) {
-    console.error(error);
+    //console.error(error);
     return { props: { reserv: null, place: null, pay: null } };
   }
 }

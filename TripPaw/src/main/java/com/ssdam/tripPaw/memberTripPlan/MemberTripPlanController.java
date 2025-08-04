@@ -31,7 +31,7 @@ import com.ssdam.tripPaw.tripPlan.TripPlanService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/memberTripPlan")
+@RequestMapping("/api/memberTripPlan")
 @RequiredArgsConstructor
 public class MemberTripPlanController {
 

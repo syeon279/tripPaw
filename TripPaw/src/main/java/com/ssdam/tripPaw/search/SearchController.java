@@ -17,7 +17,7 @@ public class SearchController {
      
     private final SearchService searchService;
 
-    @GetMapping("/search")
+    @GetMapping("/api/search")
     @ResponseBody
     public SearchResultDto search(
     	    @RequestParam String keyword,

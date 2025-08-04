@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/mypage/badges")
+@RequestMapping("/api/mypage/badges")
 public class MemberBadgeController {
 	private final ReviewService reviewService;
 	private final BadgeMapper badgeMapper;

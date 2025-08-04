@@ -100,7 +100,7 @@ const tripEdit = () => {
     useEffect(() => {
         const fetchTripById = async (TripPlanId) => {
             try {
-                const response = await axios.get(`/tripPlan/${TripPlanId}`);
+                const response = await axios.get(`/api/tripPlan/${TripPlanId}`);
                 const trip = response.data;
 
                 if (!trip.tripPlanCourses || !Array.isArray(trip.tripPlanCourses)) {
@@ -205,7 +205,7 @@ const tripEdit = () => {
                 alert('여행 일정에 최소 1개 이상의 장소가 필요합니다.');
                 return;
             }
-            await axios.post('/memberTripPlan/recommend/save', tripData);
+            await axios.post('/api/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
         } catch (error) {
             alert('저장 중 오류 발생');

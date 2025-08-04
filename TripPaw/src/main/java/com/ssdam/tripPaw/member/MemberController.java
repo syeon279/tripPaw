@@ -36,7 +36,7 @@ public class MemberController {
 		return "/";
 	}
 	
-	@GetMapping("/member/member") //사용자들의 권한
+	@GetMapping("/api/member/member") //사용자들의 권한
 	public String member( Authentication authentication, Model model) {
 		if(authentication == null) {
 			return "redirect:/member/login";
@@ -48,13 +48,13 @@ public class MemberController {
 	}
 	
 	///////////////////////////////////////////////////////////
-	@GetMapping("/member/login") /// 로그인폼
+	@GetMapping("/api/member/login") /// 로그인폼
 	public String login_get(MemberLoginForm memberLoginForm,Model model) {
 		model.addAttribute("MemberLoginForm", memberLoginForm);
 		return "member/login";
 	}
 	
-	@PostMapping("/member/login") //로그인유효성검사한 결과값 + 로그인기능
+	@PostMapping("/api/member/login") //로그인유효성검사한 결과값 + 로그인기능
 	public String login_post(@Valid MemberLoginForm memberLoginForm, BindingResult result) {
 		Member member = memberService.findByUsername(memberLoginForm.getUsername());
 		
@@ -66,12 +66,12 @@ public class MemberController {
 	}
 	
 	///////////////////////////////////////////////////////////
-	@GetMapping("/member/join") //회원가입폼
+	@GetMapping("/api/member/join") //회원가입폼
 	public String join_get(MemberJoinForm memberJoinForm) {
 		return "member/join";
 	}
 	
-	@PostMapping("/member/join") //회원가입 할 검사값 결과값 + 회원가입기능
+	@PostMapping("/api/member/join") //회원가입 할 검사값 결과값 + 회원가입기능
 	public String join_post(@Valid MemberJoinForm memberJoinForm, BindingResult result) {
 		if(result.hasErrors()) {
 			System.out.println("에러");

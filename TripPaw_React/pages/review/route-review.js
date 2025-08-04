@@ -79,7 +79,7 @@ const ReviewList = () => {
   const fetchReviews = async (sortKey = "latest", page = 0, size = 10) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/review/plan`, {
+      const response = await axios.get(`/api/review/plan`, {
         params: { sort: sortKey, page, size }
       });
 
@@ -92,8 +92,8 @@ const ReviewList = () => {
       const newStates = {};
       for (let review of content) {
         const [likedRes, countRes] = await Promise.all([
-          axios.get(`/review/${review.reviewId}/like/marked`, { params: { memberId } }),
-          axios.get(`/review/${review.reviewId}/like/count`)
+          axios.get(`/api/review/${review.reviewId}/like/marked`, { params: { memberId } }),
+          axios.get(`/api/review/${review.reviewId}/like/count`)
         ]);
         newStates[review.reviewId] = {
           liked: likedRes.data,
@@ -124,14 +124,14 @@ const ReviewList = () => {
     const current = likeStates[reviewId];
     try {
       if (current?.liked) {
-        await axios.delete(`/review/${reviewId}/like`, { params: { memberId } });
+        await axios.delete(`/api/review/${reviewId}/like`, { params: { memberId } });
       } else {
-        await axios.post(`/review/${reviewId}/like`, null, { params: { memberId } });
+        await axios.post(`/api/review/${reviewId}/like`, null, { params: { memberId } });
       }
 
       const [likedRes, countRes] = await Promise.all([
-        axios.get(`/review/${reviewId}/like/marked`, { params: { memberId } }),
-        axios.get(`/review/${reviewId}/like/count`)
+        axios.get(`/api/review/${reviewId}/like/marked`, { params: { memberId } }),
+        axios.get(`/api/review/${reviewId}/like/count`)
       ]);
       setLikeStates({
         ...likeStates,

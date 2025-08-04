@@ -90,7 +90,7 @@ const TripPlanDetail = () => {
             if (!router.isReady || !id) return;
 
             try {
-                const res = await axios.get(`/memberTripPlan/${id}`);
+                const res = await axios.get(`/api/memberTripPlan/${id}`);
                 const data = res.data;
                 setRouteData(data.routeData || []);
                 setCountPeople(data.countPeople);

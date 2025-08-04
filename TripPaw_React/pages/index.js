@@ -42,7 +42,7 @@ const Home = () => {
         try {
             setIsLoading(true);
 
-            const response = await axios.get('/search', {
+            const response = await axios.get('/api/search', {
                 params: {
                     keyword,
                     offset,

@@ -8,11 +8,10 @@ const IMAGE_BASE_URL = '/upload/badge/';
 const BadgeList = ({ badges, onEdit, onDeleteSuccess }) => {
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/admin/badge/${id}`);
+      await axios.delete(`/api/admin/badge/${id}`);
       message.success('삭제 완료');
       onDeleteSuccess();
     } catch (err) {
-      console.error(err);
       message.error('삭제 실패');
     }
   };

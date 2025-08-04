@@ -292,7 +292,7 @@ const ReservList = () => {
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        const response = await axios.get('/reserv', {
+        const response = await axios.get('/api/reserv', {
           withCredentials: true,
         });
         setReservations(response.data);
@@ -326,13 +326,13 @@ const ReservList = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get('/reserv', { withCredentials: true });
+      const res = await axios.get('/api/reserv', { withCredentials: true });
       const memberRes = await axios.get('/api/auth/check', { withCredentials: true });
       const memberId = memberRes.data.id;
 
       const enrichedReservs = await Promise.all(
         res.data.map(async (reserv) => {
-          const checkRes = await axios.get('/review/reserv/review-check', {
+          const checkRes = await axios.get('/api/review/reserv/review-check', {
             params: { memberId, reservId: reserv.id }
           });
           return {
@@ -359,7 +359,7 @@ const ReservList = () => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`/reserv/${reservId}/delete`, null, { withCredentials: true });
+      await axios.post(`/api/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
       setReservations(prev =>
         prev.map(r => (r.id === reservId ? { ...r, state: 'CANCELLED' } : r))
@@ -397,7 +397,7 @@ const ReservList = () => {
     }
 
     try {
-      await axios.post(`/reserv/batch/cancel`, requestBody, {
+      await axios.post(`/api/reserv/batch/cancel`, requestBody, {
         withCredentials: true
       });
 

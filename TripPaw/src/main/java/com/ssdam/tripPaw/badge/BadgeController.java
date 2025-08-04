@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/badge")
+@RequestMapping("/api/admin/badge")
 public class BadgeController {
 
     private final BadgeService badgeService;

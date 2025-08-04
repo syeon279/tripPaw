@@ -52,7 +52,7 @@ export default function CheckRoutineModal({ open, onClose, memberId, memberTripP
 
   useEffect(() => { //여행정보 가져오는용
     if (open && memberTripPlanId) {
-      fetch(`/memberTripPlan/${memberTripPlanId}`, {
+      fetch(`/api/memberTripPlan/${memberTripPlanId}`, {
         credentials: 'include',
       })
         .then((res) => res.json())

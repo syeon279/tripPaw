@@ -47,7 +47,7 @@ const MyPlaces = () => {
     }, [router.isReady, router.query]);
 
     useEffect(() => {
-        axios.get(`/favorite/member/place/${memberId}`)
+        axios.get(`/api/favorite/member/place/${memberId}`)
             .then(res => {
                 const favoritePlaces = Object.values(res.data); // 객체를 배열로 변환
                 setPlaces(favoritePlaces);

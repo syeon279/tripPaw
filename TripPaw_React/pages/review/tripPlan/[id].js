@@ -55,7 +55,7 @@ const ReviewTripPlanDetail = () => {
         setIsLoggedIn(true);
         setMemberId(loginMemberId);
 
-        const planRes = await axios.get(`/tripPlan/${planId}`);
+        const planRes = await axios.get(`/api/tripPlan/${planId}`);
         setRouteData(planRes.data.routeData || []);
         setPlanTitle(planRes.data.title || '');
       } catch (err) {
@@ -70,7 +70,7 @@ const ReviewTripPlanDetail = () => {
 
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`/review/plan/${planId}`, {
+        const res = await axios.get(`/api/review/plan/${planId}`, {
           params: { page, size },
         });
 
@@ -99,11 +99,11 @@ const ReviewTripPlanDetail = () => {
         reviews.map(async (review) => {
           try {
             const [markedRes, countRes] = await Promise.all([
-              axios.get(`/review/${review.reviewId}/like/marked`, {
+              axios.get(`/api/review/${review.reviewId}/like/marked`, {
                 params: { memberId },
                 withCredentials: true,
               }),
-              axios.get(`/review/${review.reviewId}/like/count`),
+              axios.get(`/api/review/${review.reviewId}/like/count`),
             ]);
             states[review.reviewId] = {
               liked: markedRes.data,
@@ -128,7 +128,7 @@ const ReviewTripPlanDetail = () => {
     const current = likeStates[reviewId];
     try {
       if (current?.liked) {
-        await axios.delete(`/review/${reviewId}/like`, {
+        await axios.delete(`/api/review/${reviewId}/like`, {
           params: { memberId },
           withCredentials: true,
         });
@@ -137,7 +137,7 @@ const ReviewTripPlanDetail = () => {
           [reviewId]: { liked: false, count: prev[reviewId].count - 1 },
         }));
       } else {
-        await axios.post(`/review/${reviewId}/like`, null, {
+        await axios.post(`/api/review/${reviewId}/like`, null, {
           params: { memberId },
           withCredentials: true,
         });
@@ -169,16 +169,16 @@ const ReviewTripPlanDetail = () => {
         </div>
 
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-          <div style={{  width: '50%', height: '100%' }}>
+          <div style={{ width: '50%', height: '100%' }}>
             <RouteMapNoSSR
               routeData={routeData}
               focusDay={null}
-              setFocusDay={() => {}}
-              setMapInstance={() => {}}
+              setFocusDay={() => { }}
+              setMapInstance={() => { }}
             />
           </div>
 
-          <div style={{ flex: 1, padding: 20, overflowY: 'auto', height: '100%',  width: '50%' }}>
+          <div style={{ flex: 1, padding: 20, overflowY: 'auto', height: '100%', width: '50%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <span style={{ color: '#f5222d', fontWeight: 600, fontSize: 16 }}>

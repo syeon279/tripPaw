@@ -69,7 +69,7 @@ const DutchPayPaymentPage = () => {
   useEffect(() => {
     if (!reservId) return;
 
-    axios.get(`/payshare/my-share/${reservId}`, { withCredentials: true })
+    axios.get(`/api/payshare/my-share/${reservId}`, { withCredentials: true })
       .then(res => {
         setPayShare(res.data);
         setLoading(false);

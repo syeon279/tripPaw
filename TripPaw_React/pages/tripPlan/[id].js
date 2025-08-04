@@ -81,7 +81,7 @@ const TripPlanDetail = () => {
             if (!router.isReady || !id) return;
 
             try {
-                const res = await axios.get(`/tripPlan/${id}`);
+                const res = await axios.get(`/api/tripPlan/${id}`);
                 const data = res.data;
 
                 setRouteData(data.routeData || []);
@@ -174,7 +174,7 @@ const TripPlanDetail = () => {
         };
 
         try {
-            const res = await axios.post('/tripPlan/edit', travelData);
+            const res = await axios.post('/api/tripPlan/edit', travelData);
             const tripId = res.data?.tripId;
             if (tripId) {
                 router.push({
@@ -193,7 +193,7 @@ const TripPlanDetail = () => {
         }
     };
     const myTrip = Number(authorId) === Number(userId);
-    
+
     //////
     return (
         <AppLayout>

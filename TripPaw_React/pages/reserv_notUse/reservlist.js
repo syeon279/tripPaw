@@ -292,7 +292,7 @@ const ReservList = () => {
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        const response = await axios.get('/reserv', {
+        const response = await axios.get('/api/reserv', {
           withCredentials: true,
         });
         setReservations(response.data);
@@ -342,7 +342,7 @@ const ReservList = () => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`/reserv/${reservId}/delete`, null, { withCredentials: true });
+      await axios.post(`/api/reserv/${reservId}/delete`, null, { withCredentials: true });
       alert('예약이 취소되었습니다.');
 
       setReservations(prevReservations =>
@@ -371,7 +371,7 @@ const ReservList = () => {
 
       // 서버로 배치 취소 요청
       await axios.post(
-        `/reserv/batch/cancel`,
+        `/api/reserv/batch/cancel`,
         { reservIds: reservIdsToCancel, memberTripPlanId },
         { withCredentials: true }
       );
@@ -426,7 +426,7 @@ const ReservList = () => {
     if (!window.confirm('정말 예약을 취소하시겠습니까?')) return;
 
     try {
-      await axios.post(`/reserv/${reservId}/delete`, null, {
+      await axios.post(`/api/reserv/${reservId}/delete`, null, {
         withCredentials: true,
       });
       alert('예약이 취소되었습니다.');

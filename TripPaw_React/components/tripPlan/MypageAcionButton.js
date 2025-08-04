@@ -47,7 +47,6 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
                     setUserName(response.data.username);
                 }
             } catch (error) {
-                console.error("로그인 상태 확인 실패:", error);
                 alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
                 router.push('/member/login');
             }
@@ -61,7 +60,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
             if (!userId || !originTripPlanId) return;
 
             try {
-                const res = await axios.get('/review/check', {
+                const res = await axios.get('/api/review/check', {
                     params: { memberId: userId, planId: originTripPlanId },
                     withCredentials: true,
                 });
@@ -78,7 +77,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
 
     const handleReservation = async () => {
         try {
-            const response = await axios.post('/reserv/auto/plan', {
+            const response = await axios.post('/api/reserv/auto/plan', {
                 userId: userId,
                 memberTripPlanId: memberTripPlanId,
                 originTripPlanId: originTripPlanId,
@@ -86,7 +85,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
             });
 
             const reservations = response.data;
-            
+
             if (!reservations || reservations.length === 0) {
                 alert('예약이 생성되지 않았습니다.');
                 return;
@@ -111,7 +110,7 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
 
     const handleWriteReview = async () => {
         try {
-            const res = await axios.get(`/review/member-trip-plan/${memberTripPlanId}`);
+            const res = await axios.get(`/api/review/member-trip-plan/${memberTripPlanId}`);
             const tripPlan = res.data?.tripPlan;
 
             if (!tripPlan?.id) {
@@ -128,7 +127,6 @@ const ActionButtons = ({ planData, onEdit, isNotMytrip, routeData, memberTripPla
                 },
             });
         } catch (err) {
-            console.error('리뷰 작성용 트립플랜 조회 실패:', err);
             alert('리뷰 작성 정보를 불러오는 데 실패했습니다.');
         }
     };

@@ -28,7 +28,7 @@ public class PlaceController {
 	private final PlaceService placeService;
 	
 	//해당 장소 상세 페이지
-	@GetMapping("/place/{id}")
+	@GetMapping("/api/place/{id}")
 	public ResponseEntity<PlaceSearchDto> getPlaceDetail(@PathVariable Long id) {
 		PlaceSearchDto dto = placeService.getPlaceDetail(id);
 	return ResponseEntity.ok(dto);

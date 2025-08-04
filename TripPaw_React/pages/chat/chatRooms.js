@@ -65,7 +65,7 @@ function ChatRoomList() {
 
   const fetchRooms = async () => {
     try {
-      const response = await axios.get('/chat/rooms');
+      const response = await axios.get('/api/chat/rooms');
       setRooms(response.data);
     } catch (error) {
       console.error('채팅방 목록을 불러오는 데 실패했습니다:', error);
@@ -84,7 +84,7 @@ function ChatRoomList() {
       return;
     }
     try {
-      await axios.post('/chat/rooms', { title: newRoomTitle });
+      await axios.post('/api/chat/rooms', { title: newRoomTitle });
       setNewRoomTitle('');
       fetchRooms();
     } catch (error) {

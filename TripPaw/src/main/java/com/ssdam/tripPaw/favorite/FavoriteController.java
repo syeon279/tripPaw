@@ -11,7 +11,7 @@ import com.ssdam.tripPaw.dto.FavoritePlaceDto;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/favorite")
+@RequestMapping("/api/favorite")
 @RequiredArgsConstructor
 public class FavoriteController {
 

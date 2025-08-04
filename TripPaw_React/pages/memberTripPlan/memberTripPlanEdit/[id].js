@@ -97,7 +97,7 @@ const memberTripPlanEdit = () => {
     useEffect(() => {
         const fetchTripById = async (TripPlanId) => {
             try {
-                const response = await axios.get(`/memberTripPlan/${TripPlanId}`);
+                const response = await axios.get(`/api/memberTripPlan/${TripPlanId}`);
                 const trip = response.data;
 
                 if (!trip.routeData || !Array.isArray(trip.routeData)) {
@@ -214,7 +214,7 @@ const memberTripPlanEdit = () => {
                 memberId,
             };
 
-            await axios.post('/memberTripPlan/recommend/save', tripData);
+            await axios.post('/api/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
             router.push('/mypage/trips');
             return true;

@@ -46,11 +46,10 @@ const SearchTripPlanActionButton = ({
 
     const handleConfirm = async () => {
         try {
-            await axios.put(`/tripPlan/${tripPlanId}/public`);
+            await axios.put(`/api/tripPlan/${tripPlanId}/public`);
             alert('공개로 전환되었습니다.');
             onSave?.();
         } catch (err) {
-            console.error('공개 전환 실패:', err);
             const message = err.response?.data || '서버 오류로 공개 전환에 실패했습니다.';
             alert(message);
         } finally {
@@ -75,7 +74,7 @@ const SearchTripPlanActionButton = ({
         const fetchDisabledDates = async () => {
             try {
                 const response = await axios.get(
-                    `/reserv/disabled-dates/tripPlan`,
+                    `/api/reserv/disabled-dates/tripPlan`,
                     {
                         params: { tripPlanId },
                     }
@@ -107,7 +106,7 @@ const SearchTripPlanActionButton = ({
     const handleConfirmSave = async (travelData) => {
         try {
             const response = await axios.post(
-                `/memberTripPlan/save`,
+                `/api/memberTripPlan/save`,
                 {
                     memberId: myId, // 로그인 유저의 ID
                     tripPlanId: tripPlanId,
@@ -121,7 +120,6 @@ const SearchTripPlanActionButton = ({
             alert('저장되었습니다.');
             return true;
         } catch (err) {
-            console.error('저장 실패:', err);
             const msg = err.response?.data || '서버 오류로 저장 실패';
             alert(msg);
         }

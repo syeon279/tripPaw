@@ -1,11 +1,20 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import BadgeList from '@/components/badge/BadgeList';
-import BadgeForm from '@/components/badge/BadgeForm';
-import BadgeEditForm from '@/components/badge/BadgeEditForm';
+// import BadgeList from '@/components/badge/BadgeList';
+// import BadgeForm from '@/components/badge/BadgeForm';
+// import BadgeEditForm from '@/components/badge/BadgeEditForm';
+import dynamic from 'next/dynamic';
 import { Button, Spin, message } from 'antd';
 import MypageLayout from '@/components/layout/MyPageLayout';
 import { useRouter } from 'next/router';
+
+
+const BadgeList = dynamic(() => import('@/components/badge/BadgeList'), { ssr: false });
+const BadgeForm = dynamic(() => import('@/components/badge/BadgeForm'), { ssr: false });
+const BadgeEditForm = dynamic(() => import('@/components/badge/BadgeEditForm'), { ssr: false });
+
+
 
 const AdminBadgePage = () => {
   const [badges, setBadges] = useState([]);
@@ -17,7 +26,7 @@ const AdminBadgePage = () => {
 
   const fetchBadges = async () => {
     try {
-      const res = await axios.get('/admin/badge');
+      const res = await axios.get('/api/admin/badge');
       setBadges(res.data);
     } catch (err) {
       console.error('뱃지 목록 조회 실패', err);

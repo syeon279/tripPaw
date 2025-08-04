@@ -79,7 +79,7 @@ function SignForm({ onToggleForm }) {
 
         }
       } catch (error) {
-        console.log();
+
       }
     }
     chetGPT();
@@ -96,7 +96,7 @@ function SignForm({ onToggleForm }) {
     nicknameIndex.current = (nicknameIndex.current + 1) % aiNicknames.length;
 
   }
- 
+
   const [nickname, setChangeNickname] = useState('');
   const onChangeNickname = useCallback((e) => {
     setChangeNickname(e.target.value)
@@ -126,7 +126,7 @@ function SignForm({ onToggleForm }) {
     const pass = e.target.value;
     setChangePassword(e.target.value);
   }, [password]);
-  
+
   const [passwordRe, setChangePasswordRe] = useState('');
   const [passwordReError, setPasswordReError] = useState(false);
   const onChangePasswordRe = useCallback((e) => {
@@ -136,7 +136,7 @@ function SignForm({ onToggleForm }) {
   function sleep(sec) {
     return new Promise(resolve => setTimeout(resolve, sec * 1000));
   }
-  
+
   const [time, setTime] = useState();
   const [minute, setMinute] = useState();
   const [seconds, setSeconds] = useState();
@@ -174,7 +174,7 @@ function SignForm({ onToggleForm }) {
       totalSeconds--;
     }, 1000);
   };
-  
+
   const btnSendAuthenticationNumber = useCallback(async () => {
     if (phoneNum === null || String(phoneNum).length != 11) {
       console.log('오류');
@@ -269,12 +269,12 @@ function SignForm({ onToggleForm }) {
     const passRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
     const invalidRegex = /[0-9]+/g;
     const invalidStrRegex = /[^0-9]+/g;
-    
+
     if (!(phoneNum.length >= 0 && phoneNum.length <= 11)) {
       setPhoneNumLenError(true);
       return;
     }
-    
+
     //일단 전화번호를 11자리 받으면 검사하기
     if (invalidStrRegex.test(phoneNum)) {
       setPhoneNumRegError(true);
@@ -284,7 +284,7 @@ function SignForm({ onToggleForm }) {
       setPasswordError(true);
       return;
     }
-    
+
     if (password !== passwordRe) { return setPasswordReError(true); }
     const response = await axios.post('/api/auth/join', {
       "username": username,
@@ -301,7 +301,7 @@ function SignForm({ onToggleForm }) {
 
     Router.push('/member/login');
   }, [username, phoneNum, email, password, passwordRe, nickname, zonecode, roadAddress, namujiAddress]);
-  
+
   const [nextNum, setNextNum] = useState(0);
   let index = 0;
 
@@ -320,21 +320,21 @@ function SignForm({ onToggleForm }) {
           >
             <img src={'/image/logo/TripPaw-logo.png'} alt="로고" width={'300px'} onClick={() => Router.push("/")} />
           </div>
-            
+
           <Form layout='vertical' style={{ padding: '10px', boxSizing: 'border-box', border: '0px solid black' }} onFinish={onSubmitForm}  >
-            
+
             <Form.Item>
               <label htmlFor='email'></label>
               <UnderlineInput placeholder='이메일' id='email'
                 value={email} onChange={onChangeEmail} name='email' required />
             </Form.Item>
-                  
+
             <Form.Item>
               <label htmlFor='username'></label>
               <UnderlineInput placeholder='이름' id='username'
                 value={username} onChange={onChangeUsername} name='username' required />
             </Form.Item>
-                  
+
             <Form.Item>
               <div style={{ display: 'flex' }}>
                 <label htmlFor='nickname'></label>
@@ -343,21 +343,21 @@ function SignForm({ onToggleForm }) {
                 <Button onClick={onRecommendNickname} style={{ backgroundColor: 'black', color: 'white' }}>닉네임추천</Button>
               </div>
             </Form.Item>
-                    
+
             <Form.Item>
               <label htmlFor='password'></label>
               <UnderlineInput type="password" placeholder='비밀번호입력(최소 8~12자리 특수문자포함하여 작성)' id='password'
                 value={password} onChange={onChangePassword} name='password' required />
               {passwordError && <ErrorMessage>비밀번호를 확인해주세요.(최소 8~12자리 특수문자포함) </ErrorMessage>}
             </Form.Item>
-                  
+
             <Form.Item>
               <label htmlFor='password-re'></label>
               <UnderlineInput type="password" placeholder='비밀번호입력 체크' id='password-re'
                 value={passwordRe} onChange={onChangePasswordRe} name='passwordRe' required />
               {passwordReError && <ErrorMessage>비밀번호를 확인해주세요. </ErrorMessage>}
             </Form.Item>
-                  
+
             <Form.Item>
               <div style={{ display: 'flex' }}>
                 <label htmlFor='phone'></label>
@@ -368,7 +368,7 @@ function SignForm({ onToggleForm }) {
               {phoneNumRegError && <ErrorMessage>휴대전화번호: 휴대전화번호가 정확한지 확인해 주세요.</ErrorMessage>}
               {phoneNumLenError && <ErrorMessage>휴대전화번호: 11자리까지 입력가능합니다.</ErrorMessage>}
             </Form.Item>
-                
+
             <Form.Item>
               <div style={{ position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -387,15 +387,15 @@ function SignForm({ onToggleForm }) {
                     {minute}:{seconds}
                   </span>)}
                 </div>
-                    
+
                 <div style={{ display: "block" }}>
                   {errTimeout && (<ErrorMessage style={{ marginTop: '4px' }}> 10초 안에 입력해주세요.</ErrorMessage>)}
                   {errAuthenNum && (<ErrorMessage style={{ marginTop: '4px' }}>인증번호를 다시 입력하세요!</ErrorMessage>)}
                 </div>
-                    
+
               </div>
             </Form.Item>
-                    
+
             <Form.Item>
               <div style={{ display: 'flex' }}>
                 <label htmlFor='phone'></label>
@@ -404,7 +404,7 @@ function SignForm({ onToggleForm }) {
                 <Button onClick={handleClick} style={{ backgroundColor: 'black', color: 'white' }}>우편번호 찾기</Button>
               </div>
             </Form.Item>
-                    
+
             <Form.Item>
               <div style={{ display: 'flex' }}>
                 <label htmlFor='phone'></label>
@@ -412,7 +412,7 @@ function SignForm({ onToggleForm }) {
                   value={roadAddress} onChange={onChangeRoadAddress} name='roadAddress' readOnly />
               </div>
             </Form.Item>
-                    
+
             <Form.Item>
               <div style={{ display: 'flex' }}>
                 <label htmlFor='phone'></label>

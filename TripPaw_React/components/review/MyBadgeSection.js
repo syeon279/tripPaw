@@ -14,8 +14,8 @@ const MyBadgeSection = ({ memberId }) => {
     const fetchBadges = async () => {
       try {
         const [allRes, ownedRes] = await Promise.all([
-          axios.get('/mypage/badges'),
-          axios.get(`/mypage/badges/${memberId}`),
+          axios.get('/api/mypage/badges'),
+          axios.get(`/api/mypage/badges/${memberId}`),
         ]);
 
         setAllBadges(allRes.data);

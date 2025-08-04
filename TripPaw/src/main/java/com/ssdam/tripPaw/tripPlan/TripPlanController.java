@@ -1,5 +1,8 @@
 package com.ssdam.tripPaw.tripPlan;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssdam.tripPaw.domain.Member;
 import com.ssdam.tripPaw.domain.MemberTripPlan;
 import com.ssdam.tripPaw.domain.Place;
@@ -15,27 +18,50 @@ import com.ssdam.tripPaw.dto.TripSaveRequest;
 import com.ssdam.tripPaw.memberTripPlan.MemberTripPlanMapper;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/tripPlan")
+@RequestMapping("/api/tripPlan")
 public class TripPlanController {
 
+	private final RedisTemplate<String, String> redisTemplate;
     private final TripPlanService tripPlanService;
     private final TripPlanMapper tripPlanMapper;
 
     //여행 경로 추천 받기
     @PostMapping("/recommend")
-    public ResponseEntity<List<TripRecommendResponse>> recommendTrip(@RequestBody TripRecommendRequest request) {
+    public ResponseEntity<Map<String, String>> recommendTrip(@RequestBody TripRecommendRequest request) throws JsonProcessingException {
+        // 1. 추천 경로 계산
         List<TripRecommendResponse> result = tripPlanService.recommend(request);
-        return ResponseEntity.ok(result);
+
+        // 2. Redis에 JSON으로 저장 (10분 TTL)
+        String key = UUID.randomUUID().toString();
+        String json = new ObjectMapper().writeValueAsString(result);
+        redisTemplate.opsForValue().set(key, json, 10, TimeUnit.MINUTES);
+
+        // 3. 프론트에는 key만 반환
+        return ResponseEntity.ok(Map.of("recommendId", key));
+    }
+
+    @GetMapping("/recommend/{id}")
+    public ResponseEntity<List<TripRecommendResponse>> getRecommend(@PathVariable String id) throws JsonProcessingException {
+        String json = redisTemplate.opsForValue().get(id);
+        if (json == null) return ResponseEntity.notFound().build();
+
+        List<TripRecommendResponse> routes =
+            new ObjectMapper().readValue(json, new TypeReference<List<TripRecommendResponse>>() {});
+        return ResponseEntity.ok(routes);
     }
 
     

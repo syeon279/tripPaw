@@ -45,7 +45,7 @@ const PlaceReviewWrite = () => {
 
     const fetchReservs = async () => {
       try {
-        const res = await axios.get('/review/place-reservations', {
+        const res = await axios.get('/api/review/place-reservations', {
           params: { tripPlanId, memberId },
         });
 
@@ -54,7 +54,7 @@ const PlaceReviewWrite = () => {
         // 각 예약에 대해 리뷰 여부 체크
         const filtered = await Promise.all(
           rawReservs.map(async (r) => {
-            const check = await axios.get('/review/reserv/review-check', {
+            const check = await axios.get('/api/review/reserv/review-check', {
               params: { memberId, reservId: r.id },
             });
             return check.data === true ? r : null;
@@ -76,7 +76,7 @@ const PlaceReviewWrite = () => {
           };
 
           // 날씨 정보 가져오기
-          axios.get('/review/weather', {
+          axios.get('/api/review/weather', {
             params: { type: 'PLACE', targetId: r.id },
           }).then(resp => {
             setReviews(prev => ({
@@ -131,7 +131,7 @@ const PlaceReviewWrite = () => {
 
     try {
       setLoading(true);
-      await axios.post('/review/write', formData, {
+      await axios.post('/api/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
@@ -155,7 +155,7 @@ const PlaceReviewWrite = () => {
     }
     try {
       setLoading(true);
-      const res = await axios.post("/review/generate", { keywords: selected });
+      const res = await axios.post("/api/review/generate", { keywords: selected });
       setReviews(prev => ({
         ...prev,
         [reservId]: { ...prev[reservId], content: res.data.content },

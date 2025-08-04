@@ -22,7 +22,7 @@ const MyReviewList = ({ memberId }) => {
 
   const fetchReviews = async (page, type) => {
     try {
-      const res = await axios.get(`/review/member/${memberId}`, {
+      const res = await axios.get(`/api/review/member/${memberId}`, {
         params: { page, size: PAGE_SIZE, type },
       });
       setReviews(res.data.content);
@@ -49,11 +49,10 @@ const MyReviewList = ({ memberId }) => {
       cancelText: '취소',
       onOk: async () => {
         try {
-          await axios.delete(`/review/${reviewId}`);
+          await axios.delete(`/api/review/${reviewId}`);
           message.success('리뷰가 삭제되었습니다.');
           fetchReviews(currentPage, activeTab);
         } catch (err) {
-          console.error('삭제 실패', err);
           message.error('리뷰 삭제에 실패했습니다.');
         }
       },

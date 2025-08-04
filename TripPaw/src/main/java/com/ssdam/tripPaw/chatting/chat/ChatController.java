@@ -29,12 +29,12 @@ public class ChatController {
 	private final MemberService memberService;
 	private final ChatRoomService chatRoomService;
 	
-	@GetMapping("/chat")
+	@GetMapping("/api/chat")
 	public String chat() {
 		return "chat";
 	}
 
-	@MessageMapping("/chat/{roomId}/sendMessage")
+	@MessageMapping("/api/chat/{roomId}/sendMessage")
     	public void sendMessage(@DestinationVariable Long roomId,@Payload ChatMessage chatMessage) {
 	    	System.out.println("chat="+chatMessage.getContent());
 	    	System.out.println("sender="+chatMessage.getSender());
@@ -43,7 +43,7 @@ public class ChatController {
 	    	messagingTemplate.convertAndSend("/topic/chat/" + roomId, chatMessage);
     	}
 
-	@MessageMapping("/chat/{roomId}/addUser")
+	@MessageMapping("/api/chat/{roomId}/addUser")
 	public void addUser(@DestinationVariable String roomId,@Payload ChatMessage chatMessage,
                                SimpMessageHeaderAccessor headerAccessor) {
         	// WebSocket 세션에 사용자 이름 저장 (나중에 사용자 연결 해제 시 유용)

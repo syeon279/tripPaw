@@ -33,7 +33,7 @@ import com.ssdam.tripPaw.reserv.ReservMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/review")
+@RequestMapping("/api/review")
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;

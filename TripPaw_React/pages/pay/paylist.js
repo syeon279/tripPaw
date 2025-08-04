@@ -70,7 +70,7 @@ const PayList = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const response = await axios.get('/pay', {
+        const response = await axios.get('/api/pay', {
           withCredentials: true,
         });
         setPayments(response.data);
@@ -102,7 +102,7 @@ const PayList = () => {
   const cancelPayment = async (payId) => {
     if (!confirm('결제를 취소하시겠습니까?')) return;
     try {
-      await axios.post(`/pay/${payId}/cancel`, null, {
+      await axios.post(`/api/pay/${payId}/cancel`, null, {
         withCredentials: true,
       });
       alert('결제가 취소되었습니다.');
@@ -119,7 +119,7 @@ const PayList = () => {
   const refundPayment = async (pay) => {
     if (!window.confirm('정말 환불하시겠습니까?')) return;
     try {
-      await axios.post(`/pay/${pay.impUid}/refund`, null, {
+      await axios.post(`/api/pay/${pay.impUid}/refund`, null, {
         withCredentials: true,
       });
       alert('환불이 완료되었습니다.');

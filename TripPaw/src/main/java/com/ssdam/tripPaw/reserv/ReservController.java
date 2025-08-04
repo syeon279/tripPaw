@@ -37,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 
 
 @Controller
-@RequestMapping("/reserv")
+@RequestMapping("/api/reserv")
 @RequiredArgsConstructor
 public class ReservController {
     private final ReservService reservService;

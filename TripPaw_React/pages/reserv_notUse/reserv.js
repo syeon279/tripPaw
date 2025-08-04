@@ -140,7 +140,7 @@ function ReservCreatePage() {
   useEffect(() => {
     if (!placeId) return;
 
-    axios.get(`/reserv/disabled-dates?placeId=${placeId}`)
+    axios.get(`/api/reserv/disabled-dates?placeId=${placeId}`)
       .then(res => {
         const allDisabled = [];
         const today = new Date();
@@ -178,7 +178,7 @@ function ReservCreatePage() {
     };
 
     try {
-      const res = await axios.post('/reserv', payload);
+      const res = await axios.post('/api/reserv', payload);
       alert('예약 성공! 🎉');
 
       const reservId = res.data.id;
@@ -252,28 +252,6 @@ function ReservCreatePage() {
             <SubmitButton type="submit">📝 예약 생성하기</SubmitButton>
 
             {message && <ErrorMsg>{message}</ErrorMsg>}
-
-            {/* 더미 테스트
-        <DummyButton type="button" onClick={async () => {
-          try {
-            const res = await axios.post('http://localhost:8080/pay/dummy?memberId=1', null, {
-              withCredentials: true,
-            });
-            const tripPlanId = res.data.tripPlanId;
-            if (tripPlanId) {
-              router.push({
-              pathname: '/pay/paybatch',
-              query: { tripPlanId }
-            });
-            } else {
-              alert('트립플랜 ID를 받지 못했습니다.');
-            }
-          } catch (err) {
-            alert('더미 트립플랜 생성 실패: ' + (err.response?.data || err.message));
-          }
-        }}>
-          🚀 더미 트립플랜으로 결제 테스트하기
-        </DummyButton> */}
 
           </Form>
         </Layout>

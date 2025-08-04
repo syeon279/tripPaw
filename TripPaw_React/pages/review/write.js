@@ -64,7 +64,7 @@ const ReviewForm = () => {
     if (!isReady || !reviewTypeId || !targetId) return;
     const type = reviewTypeId === 1 ? 'PLAN' : 'PLACE';
 
-    axios.get('/review/weather', {
+    axios.get('/api/review/weather', {
       params: { type, targetId },
     })
       .then((res) => setWeather(res.data))
@@ -82,7 +82,7 @@ const ReviewForm = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.post("/review/generate", { keywords });
+      const res = await axios.post("/api/review/generate", { keywords });
       setContent(res.data.content);
       message.success("AI 리뷰가 생성되었습니다.");
     } catch (err) {
@@ -93,7 +93,7 @@ const ReviewForm = () => {
 
   useEffect(() => {
     if (reviewTypeId === 1 && targetId) {
-      axios.get(`/tripPlan/${targetId}`)
+      axios.get(`/api/tripPlan/${targetId}`)
         .then((res) => {
           setDays(res.data.days);  // days 값 가져오기
         })
@@ -104,9 +104,7 @@ const ReviewForm = () => {
 
 
   const handleSubmit = async () => {
-    console.log('memberId:', memberId);
-    console.log('reviewTypeId:', reviewTypeId);
-    console.log('targetId:', targetId);
+
     if (!targetId || !reviewTypeId || !memberId) {
       message.error('리뷰 작성에 필요한 정보가 부족합니다.');
       return;
@@ -128,7 +126,7 @@ const ReviewForm = () => {
     });
 
     try {
-      await axios.post('/review/write', formData, {
+      await axios.post('/api/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
@@ -175,7 +173,7 @@ const ReviewForm = () => {
     });
 
     try {
-      await axios.post('/review/write', formData, {
+      await axios.post('/api/review/write', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });

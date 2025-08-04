@@ -61,7 +61,7 @@ const renderPagination = (currentPage, totalPages, onPageChange) => {
 const ReviewCard = ({ review, onDelete, onOpenIssueModal }) => {
   const handleDelete = async () => {
     try {
-      await axios.delete(`/review/${review.reviewId}`);
+      await axios.delete(`/api/review/${review.reviewId}`);
       message.success('리뷰가 삭제되었습니다.');
       onDelete();
     } catch (err) {
@@ -135,7 +135,7 @@ const ReviewAdminPage = () => {
 
   const fetchPlanReviews = async (page = 0) => {
     try {
-      const res = await axios.get('/review/admin/plan', {
+      const res = await axios.get('/api/review/admin/plan', {
         params: { page, size: pageSize },
       });
       setPlanReviews(res.data);
@@ -148,7 +148,7 @@ const ReviewAdminPage = () => {
 
 
   const fetchPlaceReviews = async (page = 0) => {
-    const res = await axios.get(`/review/admin/place`, {
+    const res = await axios.get(`/api/review/admin/place`, {
       params: { page, size: pageSize },
     });
     setPlaceReviews(res.data.reviews);

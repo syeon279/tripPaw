@@ -158,7 +158,7 @@ function reservdutch() {
   useEffect(() => {
     if (!placeId) return;
 
-    axios.get(`/reserv/disabled-dates?placeId=${placeId}`)
+    axios.get(`/api/reserv/disabled-dates?placeId=${placeId}`)
       .then(res => {
         const allDisabled = [];
         const today = new Date();
@@ -202,7 +202,7 @@ function reservdutch() {
 
     try {
       // 예약 생성
-      const res = await axios.post('/reserv', payload);
+      const res = await axios.post('/api/reserv', payload);
 
       alert('예약 성공! 🎉');
 

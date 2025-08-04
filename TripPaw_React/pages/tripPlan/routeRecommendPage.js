@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import DayScheduleList from '../../components/tripPlan/DayScheduleList';
@@ -61,7 +61,7 @@ const layoutStyle = {
     },
 };
 
-//페이드인 애니메이션을 위한 CSS
+// 페이드인 애니메이션
 const fadeStyle = `
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -87,6 +87,7 @@ const RouteRecommendPage = () => {
     const [pendingAction, setPendingAction] = useState(null);
     const [isPageReady, setIsPageReady] = useState(false);
 
+    // 로그인 상태 확인
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
@@ -100,7 +101,6 @@ const RouteRecommendPage = () => {
             } catch (error) {
                 if (error.response?.status === 401) {
                     setIsLoggedIn(false);
-                } else {
                 }
             }
         };
@@ -108,50 +108,31 @@ const RouteRecommendPage = () => {
         checkLoginStatus();
     }, [router.isReady, router.query]);
 
-    const requestData = useMemo(() => {
-        if (!router.query.req) return null;
-        try {
-            return JSON.parse(decodeURIComponent(router.query.req));
-        } catch (e) {
-            return null;
-        }
-    }, [router.query.req]);
-
+    // 🔹 Redis에서 추천 경로 조회
     useEffect(() => {
-        if (!router.query.data) {
-            alert("추천된 경로가 없습니다. 다시 시도해주세요.");
-            router.replace('/');
-            return;
-        }
-        try {
-            const parsed = JSON.parse(decodeURIComponent(router.query.data));
-            if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
-                alert("추천된 경로가 없습니다. 다른 조건으로 시도해주세요.");
+        const { id } = router.query;
+        if (!id) return;
+
+        axios.get(`/api/tripPlan/recommend/${id}`, { withCredentials: true })
+            .then(res => {
+                if (!res.data || res.data.length === 0) {
+                    alert("추천된 경로가 없습니다. 다른 조건으로 시도해주세요.");
+                    router.replace('/');
+                } else {
+                    setRouteData(res.data);
+
+                    // 서버 응답에 인원 정보가 포함돼 있다면 여기서 세팅
+                    setCountPeople(res.data[0]?.countPeople || 0);
+                    setCountPet(res.data[0]?.countPet || 0);
+                }
+            })
+            .catch(() => {
+                alert("추천된 경로를 불러오지 못했습니다. 다시 시도해주세요.");
                 router.replace('/');
-            }
-        } catch (e) {
-            alert("경로 데이터 파싱 실패. 다시 시도해주세요.");
-            router.replace('/');
-        }
-    }, [router.query.data]);
+            });
+    }, [router.query.id]);
 
-    useEffect(() => {
-        if (requestData) {
-            setCountPeople(requestData.countPeople || 0);
-            setCountPet(requestData.countPet || 0);
-        }
-    }, [requestData]);
-
-    useEffect(() => {
-        if (router.query.data) {
-            try {
-                const parsed = JSON.parse(decodeURIComponent(router.query.data));
-                setRouteData(parsed);
-            } catch (e) {
-            }
-        }
-    }, [router.query]);
-
+    // 카카오맵 준비
     useEffect(() => {
         const interval = setInterval(() => {
             if (window.kakao && window.kakao.maps) {
@@ -217,7 +198,7 @@ const RouteRecommendPage = () => {
                 mapImage,
                 memberId: effectiveMemberId,
             };
-            await axios.post('/memberTripPlan/recommend/save', tripData);
+            await axios.post('/api/memberTripPlan/recommend/save', tripData);
             alert('여행 저장 완료!');
             setShowModal(false);
             await router.push('/mypage/trips');
@@ -235,27 +216,18 @@ const RouteRecommendPage = () => {
         }
         const travelData = {
             title: 'TripPlanForEdit',
-            startDate: requestData?.startDate,
-            endDate: requestData?.endDate,
-            countPeople: requestData?.countPeople,
-            countPet: requestData?.countPet,
+            startDate: routeData?.[0]?.startDate,
+            endDate: routeData?.[0]?.endDate,
+            countPeople,
+            countPet,
             mapImage: mapImageBase64,
             routeData,
         };
         try {
-            const res = await axios.post('/tripPlan/edit', travelData);
+            const res = await axios.post('/api/tripPlan/edit', travelData);
             const tripId = res.data?.tripId;
             if (tripId) {
-                router.push({
-                    pathname: `/tripPlan/tripPlanEdit/${tripId}`,
-                    query: {
-                        id: tripId,
-                        startDate: requestData?.startDate,
-                        endDate: requestData?.endDate,
-                        countPeople: requestData?.countPeople,
-                        countPet: requestData?.countPet,
-                    },
-                });
+                router.push(`/tripPlan/tripPlanEdit/${tripId}`);
             } else {
                 alert('여행 저장 후 이동 실패');
             }
@@ -293,10 +265,10 @@ const RouteRecommendPage = () => {
                         <h1>TripPaw가 추천하는 맞춤 여행</h1>
                     </div>
                     <div style={{ marginBottom: '3px' }}>
-                        {requestData?.startDate && requestData?.endDate && (
+                        {routeData?.[0]?.startDate && routeData?.[0]?.endDate && (
                             <p style={{ fontSize: '16px', color: '#555', marginTop: '4px' }}>
-                                {format(new Date(requestData.startDate), 'yyyy.MM.dd')} ~{' '}
-                                {format(new Date(requestData.endDate), 'yyyy.MM.dd')}
+                                {format(new Date(routeData[0].startDate), 'yyyy.MM.dd')} ~{' '}
+                                {format(new Date(routeData[0].endDate), 'yyyy.MM.dd')}
                             </p>
                         )}
                     </div>
@@ -329,7 +301,7 @@ const RouteRecommendPage = () => {
                             />
                         )}
                         <ActionButtons
-                            onSave={() => checkLoginAndProceed((id) => setShowModal(true))}
+                            onSave={() => checkLoginAndProceed(() => setShowModal(true))}
                             onEditforSave={() => checkLoginAndProceed(() => handleEditforSave())}
                         />
                     </div>
@@ -338,10 +310,10 @@ const RouteRecommendPage = () => {
                         <TitleModal
                             onClose={() => setShowModal(false)}
                             onSave={(params) => handleTripSave(params, memberId)}
-                            defaultStartDate={requestData?.startDate}
-                            defaultEndDate={requestData?.endDate}
-                            defaultCountPeople={requestData?.countPeople}
-                            defaultCountPet={requestData?.countPet}
+                            defaultStartDate={routeData?.[0]?.startDate}
+                            defaultEndDate={routeData?.[0]?.endDate}
+                            defaultCountPeople={countPeople}
+                            defaultCountPet={countPet}
                             onCaptureMap={handleCaptureMap}
                             memberId={memberId}
                         />

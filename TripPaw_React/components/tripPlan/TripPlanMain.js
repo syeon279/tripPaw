@@ -119,7 +119,7 @@ const tripPlanMain = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('/category', { withCredentials: true, });
+                const response = await axios.get('/api/category', { withCredentials: true, });
                 setCategories(response.data);
             } catch (error) {
                 console.error('카테고리 불러오기 실패:', error);
@@ -182,21 +182,14 @@ const tripPlanMain = () => {
         };
 
         try {
-            const response = await axios.post('/tripPlan/recommend', requestData, {
-                withCredentials: true,
-            });
+            //recommendId만 받음
+            const response = await axios.post('/api/tripPlan/recommend', requestData, { withCredentials: true });
+            const { recommendId } = response.data;
 
-            // 데이터 보내기
-            router.push({
-                pathname: '/tripPlan/routeRecommendPage',
-                query: {
-                    data: encodeURIComponent(JSON.stringify(response.data)), // 추천 경로
-                    req: encodeURIComponent(JSON.stringify(requestData)),    // 여행 기본정보
-                },
-            });
-
+            //URL에는 ID만 담아서 이동 → URL 짧아짐!
+            router.push(`/tripPlan/routeRecommendPage?id=${recommendId}`);
         } catch (error) {
-            console.error('추천 실패:', error);
+            alert(`추천에 실패했습니다.\n사유: ${error.message}`);
         }
     };
 

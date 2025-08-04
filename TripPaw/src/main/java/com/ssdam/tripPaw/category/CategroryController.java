@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class CategroryController {
 	private final CategoryService categoryService;
 	
-	@GetMapping("/category")
+	@GetMapping("/api/category")
 	public ResponseEntity<List<Category>> getAllCategory() {
 		List<Category> categories = categoryService.findAll();
 		if(categories == null) {

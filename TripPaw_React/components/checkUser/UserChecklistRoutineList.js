@@ -11,14 +11,15 @@ const UserChecklistRoutineList = ({ memberId }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const shouldHideCheckbox = router.pathname.includes('/mypage/checklist/mychecklist');
+  const shouldHideCheckbox = router.pathname.includes('/api/mypage/checklist/mychecklist');
 
   const fetchRoutines = async () => {
     setLoading(true);
     try {
       const data = await getRoutinesByMemberId(memberId);
       setRoutines(data);
-    } catch (err) { message.error('루틴 목록 불러오기 실패');
+    } catch (err) {
+      message.error('루틴 목록 불러오기 실패');
     } finally { setLoading(false); }
   };
 
@@ -27,8 +28,8 @@ const UserChecklistRoutineList = ({ memberId }) => {
   }, [memberId]);
 
   return (
-    <div style={{padding:'10px'}}>
-      <h3 style={{ marginBottom: 16, fontSize:'24px', fontWeight:'bold', color:'#653131', borderBottom:'2px solid #653131', paddingBottom:'12px', marginBottom:'36px' }}>내 체크리스트</h3>
+    <div style={{ padding: '10px' }}>
+      <h3 style={{ marginBottom: 16, fontSize: '24px', fontWeight: 'bold', color: '#653131', borderBottom: '2px solid #653131', paddingBottom: '12px', marginBottom: '36px' }}>내 체크리스트</h3>
 
       {/* 루틴 없을 때 메시지 추가 */}
       {routines.length === 0 && !loading && (
@@ -38,17 +39,17 @@ const UserChecklistRoutineList = ({ memberId }) => {
       )}
 
       {/* 루틴 목록 */}
-      <Collapse accordion style={{ background: 'transparent', border: 'none', padding:'0 16px' }}>
+      <Collapse accordion style={{ background: 'transparent', border: 'none', padding: '0 16px' }}>
         {routines.map((routine) => (
-          <Collapse.Panel style={{border:'none'}} key={routine.id}
+          <Collapse.Panel style={{ border: 'none' }} key={routine.id}
             header={
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight:'bold', fontSize:'16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold', fontSize: '16px' }}>
                 <span>{routine.title}</span>
                 <RoutineActionButtons routine={routine} onRefresh={fetchRoutines} />
               </div>
             }
           >
-            <UserChecklistItemList routineId={routine.id} hideCheckbox={shouldHideCheckbox}/>
+            <UserChecklistItemList routineId={routine.id} hideCheckbox={shouldHideCheckbox} />
           </Collapse.Panel>
         ))}
       </Collapse>

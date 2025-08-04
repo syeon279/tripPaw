@@ -6,7 +6,7 @@ import com.ssdam.tripPaw.domain.NftGiftLog;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/nft/gifts")
+@RequestMapping("/api/nft/gifts")
 @RequiredArgsConstructor
 public class NftGiftLogController {
 

@@ -210,8 +210,8 @@ const PlaceReservCreatePage = () => {
 
       try {
         const [placeRes, disabledDatesRes] = await Promise.all([
-          axios.get(`/place/${id}`),
-          axios.get(`/reserv/disabled-dates?placeId=${id}`),
+          axios.get(`/api/place/${id}`),
+          axios.get(`/api/reserv/disabled-dates?placeId=${id}`),
         ]);
 
         setPlace(placeRes.data);
@@ -263,10 +263,10 @@ const PlaceReservCreatePage = () => {
         setIsLoggedIn(true);
 
         const [canWriteRes, favoriteRes] = await Promise.all([
-          axios.get(`/review/reserv/check`, {
+          axios.get(`/api/review/reserv/check`, {
             params: { memberId: userId, placeId },
           }),
-          axios.get(`/favorite/check`, {
+          axios.get(`/api/favorite/check`, {
             params: {
               memberId: userId,
               targetId: placeId,
@@ -310,9 +310,9 @@ const PlaceReservCreatePage = () => {
       };
 
       if (newFavorite) {
-        await axios.post(`/favorite/add`, payload);
+        await axios.post(`/api/favorite/add`, payload);
       } else {
-        await axios.delete(`/favorite/delete`, { data: payload });
+        await axios.delete(`/api/favorite/delete`, { data: payload });
       }
       // 서버 재확인 생략 가능 (성공 응답만 받으면 됨)
     } catch (err) {
@@ -349,7 +349,7 @@ const PlaceReservCreatePage = () => {
     };
 
     try {
-      const res = await axios.post('/reserv', payload);
+      const res = await axios.post('/api/reserv', payload);
       alert('예약 성공! 🎉');
       router.push({
         pathname: '/pay/pay',
@@ -392,7 +392,7 @@ const PlaceReservCreatePage = () => {
         setMemberId(userId);
         setIsLoggedIn(true);
 
-        const reservRes = await axios.get(`/review/reserv/check`, {
+        const reservRes = await axios.get(`/api/review/reserv/check`, {
           params: { memberId: userId, placeId },
         });
         setCanWriteReview(reservRes.data === true);
@@ -432,7 +432,7 @@ const PlaceReservCreatePage = () => {
     if (!placeId) return;
     setLoading(true);
     try {
-      const res = await axios.get(`/review/place/${placeId}`, {
+      const res = await axios.get(`/api/review/place/${placeId}`, {
         params: {
           sort,
           page,
@@ -449,12 +449,12 @@ const PlaceReservCreatePage = () => {
       const newLikeStates = {};
       for (let review of content) {
         const likePromise = memberId
-          ? axios.get(`/review/${review.id}/like/marked`, {
+          ? axios.get(`/api/review/${review.id}/like/marked`, {
             params: { memberId },
           })
           : Promise.resolve({ data: false });
 
-        const countPromise = axios.get(`/review/${review.id}/like/count`);
+        const countPromise = axios.get(`/api/review/${review.id}/like/count`);
 
         const [likedRes, countRes] = await Promise.all([likePromise, countPromise]);
 
@@ -486,7 +486,7 @@ const PlaceReservCreatePage = () => {
 
     try {
       const liked = likeStates[reviewId]?.liked;
-      const url = `/review/${reviewId}/like`;
+      const url = `/api/review/${reviewId}/like`;
 
       if (liked) {
         await axios.delete(url, {
@@ -500,8 +500,8 @@ const PlaceReservCreatePage = () => {
 
       // 좋아요 상태 다시 가져오기
       const [likedRes, countRes] = await Promise.all([
-        axios.get(`${url}/marked`, { params: { memberId } }),
-        axios.get(`${url}/count`),
+        axios.get(`/api/${url}/marked`, { params: { memberId } }),
+        axios.get(`/api/${url}/count`),
       ]);
 
       setLikeStates((prev) => ({

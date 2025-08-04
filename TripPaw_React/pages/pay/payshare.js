@@ -69,7 +69,7 @@ const DutchPayPaymentPage = () => {
   useEffect(() => {
     if (!reservId) return;
 
-    axios.get(`/payshare/my-share/${reservId}`, { withCredentials: true })
+    axios.get(`/api/payshare/my-share/${reservId}`, { withCredentials: true })
       .then(res => {
         setPayShare(res.data);
         setLoading(false);
@@ -109,7 +109,7 @@ const DutchPayPaymentPage = () => {
       }, async (rsp) => {
         if (rsp.success) {
           try {
-            await axios.post('/pay/share/complete', {
+            await axios.post('/api/pay/share/complete', {
               impUid: rsp.imp_uid,
               payShareId: payShare.id
             }, { withCredentials: true });

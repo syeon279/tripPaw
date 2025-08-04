@@ -29,7 +29,7 @@ import com.ssdam.tripPaw.reserv.ReservService;
 import com.ssdam.tripPaw.reserv.ReservState;
 
 @RestController
-@RequestMapping("/pay")
+@RequestMapping("/api/pay")
 public class PayController {
     @Autowired private IamportPayService iamportPayService;
     @Autowired private PayService payService;
